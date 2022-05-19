@@ -1,0 +1,9 @@
+[package]
+name = 'cc'
+version = '0.1.0'
+description = 'cc'
+repository = 'repo'
+files = ['test.mo']
+
+[deps]
+bb = "0.1.0"

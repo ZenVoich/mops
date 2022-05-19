@@ -1,0 +1,6 @@
+[package]
+name = 'ggg'
+version = '0.1.0'
+description = 'ggg'
+repository = 'repo'
+files = ['test.mo']

@@ -1,0 +1,24 @@
+{
+	"name": "ic-mops",
+	"type": "module",
+	"bin": {
+		"mops": "cli.js"
+	},
+	"dependencies": {
+		"@dfinity/agent": "^0.11.0",
+		"@dfinity/candid": "^0.11.0",
+		"@dfinity/identity": "^0.11.0",
+		"@dfinity/principal": "^0.11.1",
+		"@iarna/toml": "^2.2.5",
+		"chalk": "^4.1.2",
+		"commander": "^9.2.0",
+		"del": "^6.0.0",
+		"eslint": "^8.15.0",
+		"globby": "^13.1.1",
+		"log-update": "^5.0.1",
+		"minimatch": "^5.0.1",
+		"node-fetch": "^2.6.7",
+		"pem-file": "^1.0.1",
+		"prompts": "^2.4.2"
+	}
+}

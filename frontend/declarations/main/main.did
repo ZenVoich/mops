@@ -1,0 +1,85 @@
+type Version = text;
+type Time = int;
+type Text = text;
+type Result_1 = 
+ variant {
+   err: PublishingErr;
+   ok: PublishingId;
+ };
+type Result = 
+ variant {
+   err: Err;
+   ok;
+ };
+type PublishingId = text;
+type PublishingErr = text;
+type Permission = 
+ record {
+   access: Access;
+   user: principal;
+ };
+type PackageSummary = 
+ record {
+   description: text;
+   downloadsInLast30Days: nat;
+   downloadsTotal: nat;
+   keywords: vec text;
+   name: PackageName;
+   updatedAt: Time;
+   version: text;
+ };
+type PackageName__1 = text;
+type PackageName = text;
+type PackageConfig = 
+ record {
+   author: principal;
+   dependencies: vec Dependency;
+   description: text;
+   dfx: text;
+   documentation: text;
+   donation: text;
+   files: vec text;
+   homepage: text;
+   isPrivate: bool;
+   keywords: vec text;
+   license: text;
+   moc: text;
+   name: PackageName;
+   permissions: vec Permission;
+   readme: text;
+   repository: text;
+   version: text;
+ };
+type FileId = text;
+type File = 
+ record {
+   content: blob;
+   id: FileId;
+   path: Text;
+ };
+type Err = text;
+type Dependency = 
+ record {
+   name: PackageName;
+   version: text;
+ };
+type Access = 
+ variant {
+   readOnly;
+   readWrite;
+ };
+service : {
+  finishPublish: (PublishingId) -> (Result);
+  getConfig: (PackageName__1, Version) -> (PackageConfig) query;
+  getFile: (FileId) -> (File) query;
+  getFileIds: (PackageName__1, Version) -> (vec FileId) query;
+  getLastConfig: (PackageName__1) -> (PackageConfig) query;
+  getLastVersion: (PackageName__1) -> (Version) query;
+  getReadmeFile: (PackageName__1, Version) -> (File) query;
+  notifyInstall: (PackageName__1, Version) -> () oneway;
+  search: (Text) -> (vec PackageSummary) query;
+  startPublish: (PackageConfig) -> (Result_1);
+  test: () -> (text) query;
+  uploadFile: (PublishingId, Text, blob) -> (Result);
+  whoami: () -> (Text) query;
+}

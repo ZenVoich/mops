@@ -1,0 +1,20 @@
+<title>canonical</title>
+
+<!-- Material Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+
+<link rel="stylesheet" href="./node_modules/svelte-material-ui/bare.css" />
+
+<script type="module">
+	/**
+	 * @dfinity/agent requires this. Can be removed once it's fixed
+	 */
+	import {Buffer} from "buffer"
+
+	window.global = window
+	window.Buffer = Buffer
+</script>
+
+<div id="root"></div>
+
+<script src="./index.ts" type="module"></script>

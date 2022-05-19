@@ -1,0 +1,6 @@
+[package]
+name = 'ddd'
+version = '0.1.0'
+description = 'ddd'
+repository = 'repo'
+files = ['test.mo']

@@ -1,0 +1,6 @@
+[package]
+name = 'aaa'
+version = '0.1.0'
+description = 'aaa'
+repository = 'repo'
+files = ['test.mo']

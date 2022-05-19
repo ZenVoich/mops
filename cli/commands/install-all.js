@@ -1,0 +1,19 @@
+import chalk from 'chalk';
+import logUpdate from 'log-update';
+import {checkConfigFile, readConfig} from '../mops.js';
+import {install} from './install.js';
+
+export async function installAll(verbose = false) {
+	if (!checkConfigFile()) {
+		return;
+	}
+
+	let config = readConfig();
+
+	for (let [pkg, ver] of Object.entries(config.deps || {})) {
+		await install(pkg, ver, verbose);
+	}
+
+	logUpdate.clear();
+	console.log(chalk.green('All packages installed'));
+}

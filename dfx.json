@@ -1,0 +1,42 @@
+{
+	"version": 1,
+	"dfx": "0.10.0",
+	"canisters": {
+		"main": {
+			"type": "motoko",
+			"main": "backend/main/main-canister.mo"
+		},
+		"assets": {
+			"type": "assets",
+			"frontend": {
+				"entrypoint": "frontend/dist/index.html"
+			},
+			"source": [
+				"frontend/dist/"
+			]
+		}
+	},
+	"defaults": {
+		"build": {
+			"packtool": "mops packtool"
+		}
+	},
+	"networks": {
+		"local": {
+			"type": "ephemeral",
+			"bind": "127.0.0.1:8000"
+		},
+		"dev": {
+			"type": "persistent",
+			"providers": [
+				"https://mainnet.dfinity.network"
+			]
+		},
+		"ic": {
+			"type": "persistent",
+			"providers": [
+				"https://mainnet.dfinity.network"
+			]
+		}
+	}
+}

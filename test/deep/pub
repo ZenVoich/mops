@@ -1,0 +1,7 @@
+cd aa && mops publish && cd ..
+cd bb && mops publish && cd ..
+cd cc && mops publish && cd ..
+cd dd && mops publish && cd ..
+cd ee && mops publish && cd ..
+cd ff && mops publish && cd ..
+cd gg && mops publish && cd ..

@@ -1,0 +1,9 @@
+[package]
+name = 'dd'
+version = '0.1.0'
+description = 'dd'
+repository = 'repo'
+files = ['test.mo']
+
+[deps]
+cc = "0.1.0"
