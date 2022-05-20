@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Main from './Main.svelte';
+	import Home from './Home.svelte';
 	import Router from 'svelte-spa-router';
 	import SearchResults from './SearchResults.svelte';
+	import Package from './Package.svelte';
 
 	let routes = {
-		// Exact path
-		'/': Main,
+		'/': Home,
 		'/search/:search': SearchResults,
-		// '/package/:package': Package,
+		'/package/:package': Package,
 	};
 </script>
 

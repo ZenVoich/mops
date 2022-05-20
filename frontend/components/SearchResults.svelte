@@ -45,7 +45,7 @@
 				<div class="description">{pkg.description}</div>
 			</div>
 			<div class="right">
-				<div>Updated: {formatDate(Number(pkg.updatedAt / 1000n))}</div>
+				<div>Updated: {formatDate(Number(pkg.updatedAt / 1000000n))}</div>
 				<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
 			</div>
 		</div>
@@ -90,7 +90,7 @@
 
 	.header {
 		display: flex;
-		align-items: center;
+		align-items: flex-end;
 		gap: 10px;
 	}
 
@@ -102,6 +102,7 @@
 
 	.version {
 		font-size: 12px;
+		display: none;
 	}
 
 	.description {
