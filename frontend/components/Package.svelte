@@ -82,10 +82,10 @@
 					<a class="value" href="{config.documentation}" target="_blank">{config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
 				</div>
 			{/if}
-			{#if config.author}
+			{#if config.owner}
 				<div class="detail">
 					<div class="label">Owner</div>
-					<a class="value">{config.author}</a>
+					<a class="value">{config.owner}</a>
 				</div>
 			{/if}
 		</div>

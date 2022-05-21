@@ -17,7 +17,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : PackageName,
     'homepage' : IDL.Text,
     'description' : IDL.Text,
-    'author' : IDL.Principal,
+    'owner' : IDL.Principal,
     'version' : IDL.Text,
     'keywords' : IDL.Vec(IDL.Text),
     'donation' : IDL.Text,

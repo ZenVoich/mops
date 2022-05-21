@@ -31,7 +31,7 @@ module {
 		readme: Text; // max 100
 		license: Text; // max 30
 		isPrivate: Bool;
-		author: Principal;
+		owner: Principal;
 		donation: Text; // max 64
 		files: [Text]; // max 20 items, max 100 chars
 		dependencies: [Dependency]; // max 100 items

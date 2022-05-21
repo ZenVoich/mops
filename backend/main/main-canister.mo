@@ -62,8 +62,6 @@ actor {
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<File>>(Text.equal, Text.hash);
 
 
-	// TODO: check immutable fields
-	// TODO: check dependency versions exists
 	public shared ({caller}) func startPublish(config: PackageConfig): async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
 
@@ -75,24 +73,18 @@ actor {
 			};
 		};
 
-		var permissionCheck = switch (lastConfigs.get(config.name)) {
-			case (null) {
-				if (config.author != caller) {
-					#err("Author mismatch");
-				}
-				else #ok("");
-			};
-			case (?lastConfig) {
-				// todo: check permission field
-				if (lastConfig.author != caller) {
-					#err("You don't have no permissions to publish this package");
-				}
-				else #ok("");
-			};
+		if (config.owner != caller) {
+			return #err("Owner mismatch");
 		};
 
-		if (Result.isErr(permissionCheck)) {
-			return permissionCheck;
+		switch (lastConfigs.get(config.name)) {
+			case (null) {};
+			case (?lastConfig) {
+				// todo: check permission field
+				if (lastConfig.owner != caller) {
+					return #err("You don't have no permissions to publish this package");
+				};
+			};
 		};
 
 		// check version increment
@@ -111,6 +103,17 @@ actor {
 				if (order == #greater) {
 					return #err("Bigger version of package already published - " # maxVer # ". Please increment the package version");
 				};
+			};
+		};
+
+		// check dependencies
+		for (dep in config.dependencies.vals()) {
+			let packageId = dep.name # "@" # dep.version;
+			switch (packageConfigs.get(packageId)) {
+				case (null) {
+					return #err("Dependency " # packageId # " not found in registry");
+				};
+				case (_) {};
 			};
 		};
 
@@ -279,7 +282,7 @@ actor {
 				version = config.version;
 				description = config.description;
 				keywords = config.keywords;
-				author = config.author;
+				owner = config.owner;
 				updatedAt = updatedAt;
 				downloadsInLast30Days = 0;
 				downloadsTotal = 0;

@@ -139,7 +139,7 @@ export async function publish() {
 		readme: 'README.md',
 		license: config.package.license || '',
 		isPrivate: false,
-		author: getIdentity()?.getPrincipal() || Principal.anonymous(),
+		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),
 		files: config.package.files || [],
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',

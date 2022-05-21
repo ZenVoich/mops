@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "owner": "",
   "license": "ISC",
   "dependencies": {
     "@dfinity/agent": "^0.10.1",

@@ -20,7 +20,7 @@ export interface PackageConfig {
   'name' : PackageName,
   'homepage' : string,
   'description' : string,
-  'author' : Principal,
+  'owner' : Principal,
   'version' : string,
   'keywords' : Array<string>,
   'donation' : string,

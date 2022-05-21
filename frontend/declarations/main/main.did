@@ -1,24 +1,24 @@
 type Version = text;
 type Time = int;
 type Text = text;
-type Result_1 = 
+type Result_1 =
  variant {
    err: PublishingErr;
    ok: PublishingId;
  };
-type Result = 
+type Result =
  variant {
    err: Err;
    ok;
  };
 type PublishingId = text;
 type PublishingErr = text;
-type Permission = 
+type Permission =
  record {
    access: Access;
    user: principal;
  };
-type PackageSummary = 
+type PackageSummary =
  record {
    description: text;
    downloadsInLast30Days: nat;
@@ -30,9 +30,9 @@ type PackageSummary =
  };
 type PackageName__1 = text;
 type PackageName = text;
-type PackageConfig = 
+type PackageConfig =
  record {
-   author: principal;
+   owner: principal;
    dependencies: vec Dependency;
    description: text;
    dfx: text;
@@ -51,19 +51,19 @@ type PackageConfig =
    version: text;
  };
 type FileId = text;
-type File = 
+type File =
  record {
    content: blob;
    id: FileId;
    path: Text;
  };
 type Err = text;
-type Dependency = 
+type Dependency =
  record {
    name: PackageName;
    version: text;
  };
-type Access = 
+type Access =
  variant {
    readOnly;
    readWrite;
