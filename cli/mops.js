@@ -8,23 +8,29 @@ import fs from 'fs';
 import {idlFactory} from './declarations/main/main.did.js';
 import {decodeFile} from './pem.js';
 
-let network = 'local';
-let networks = {
-	local: {
-		host: 'http://127.0.0.1:8000',
-		// canisterId: "ai7t5-aibaq-aaaaa-aaaaa-c",
-		canisterId: 'hozae-racaq-aaaaa-aaaaa-c',
-	},
-	ic: {
-		host: 'https://mainnet.dfinity.network',
-		canisterId: '',
-	},
-};
 
 global.fetch = fetch;
 
+let network = 'local';
+
 export async function setNetwork(net) {
 	network = net;
+}
+
+function getNetwork() {
+	if (network === 'local') {
+		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
+		return {
+			host: 'http://127.0.0.1:8000',
+			canisterId: ids.main.local,
+		};
+	}
+	else if (network === 'ic') {
+		return {
+			host: 'https://mainnet.dfinity.network',
+			canisterId: '',
+		};
+	}
 }
 
 export let getIdentity = () => {
@@ -35,8 +41,8 @@ export let getIdentity = () => {
 };
 
 export let mainActor = async () => {
-	let host = networks[network].host;
-	let canisterId = networks[network].canisterId;
+	let host = getNetwork().host;
+	let canisterId = getNetwork().canisterId;
 
 	// if (network === 'local') {
 	// 	let ids = JSON.parse(fs.readFileSync('.dfx/local/canister_ids.json').toString());

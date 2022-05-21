@@ -3,7 +3,7 @@ import logUpdate from 'log-update';
 import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 
-export async function installAll(verbose = false) {
+export async function installAll({verbose} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}

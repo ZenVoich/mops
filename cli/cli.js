@@ -10,7 +10,7 @@ import {init} from './commands/init.js';
 import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-pem.js';
-import {packtool} from './commands/packtool.js';
+import {sources} from './commands/sources.js';
 import {getLastVersion, setNetwork} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
@@ -25,11 +25,10 @@ function wirteConfig(config) {
 
 // init
 program
-	.command('init')
+	.command('init [name]')
 	.description('Create mops.toml')
-	.option('-p, --package <name>', '')
-	.action(async (options) => {
-		await init(options);
+	.action(async (name) => {
+		await init(name);
 	});
 
 // install
@@ -37,7 +36,8 @@ program
 	.command('install [pkg]')
 	.alias('i')
 	.description('Install package and save it as a dependency in the mops.toml file')
-	.action(async (pkg) => {
+	.option('--verbose', '')
+	.action(async (pkg, options) => {
 		let config = {};
 		let exists = fs.existsSync(configFile);
 		if (exists) {
@@ -53,11 +53,11 @@ program
 		}
 
 		if (!pkg) {
-			installAll();
+			installAll(options);
 		}
 		else {
 			let version = await getLastVersion(pkg);
-			await install(pkg, version);
+			await install(pkg, version, options.verbose);
 
 			config.deps[pkg] = version;
 			wirteConfig(config);
@@ -90,14 +90,16 @@ program
 		await importPem(data);
 	});
 
-// packtool
+// sources
 program
-	.command('packtool')
+	.command('sources')
 	.description('for dfx packtool')
-	.action(async () => {
-		await packtool();
+	.option('--verbose', '')
+	.action(async (options) => {
+		await sources(options);
 	});
 
+// whoami
 program
 	.command('whoami')
 	.description('prints your principal')

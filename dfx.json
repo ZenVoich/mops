@@ -6,6 +6,10 @@
 			"type": "motoko",
 			"main": "backend/main/main-canister.mo"
 		},
+		"conflict": {
+			"type": "motoko",
+			"main": "test/conflict/src/main.mo"
+		},
 		"assets": {
 			"type": "assets",
 			"frontend": {
@@ -18,7 +22,7 @@
 	},
 	"defaults": {
 		"build": {
-			"packtool": "mops packtool"
+			"packtool": "mops sources"
 		}
 	},
 	"networks": {

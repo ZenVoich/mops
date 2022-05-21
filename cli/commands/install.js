@@ -1,11 +1,15 @@
 import path from 'path';
 import fs from 'fs';
 import logUpdate from 'log-update';
-import {checkConfigFile, mainActor, progressBar, readConfig} from '../mops.js';
+import {checkConfigFile, getLastVersion, mainActor, progressBar, readConfig} from '../mops.js';
 
-export async function install(pkg, version, verbose = false, dep = false) {
+export async function install(pkg, version = '', verbose = false, dep = false) {
 	if (!checkConfigFile()) {
 		return;
+	}
+
+	if (!version) {
+		version = await getLastVersion(pkg);
 	}
 
 	let dir = path.join(process.cwd(), '.mops', `${pkg}@${version}`);

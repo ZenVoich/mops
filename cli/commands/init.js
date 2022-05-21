@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 
-export async function init(options = {}) {
+export async function init(name = {}) {
 	let configFile = path.join(process.cwd(), 'mops.toml');
 	let exists = fs.existsSync(configFile);
 	if (exists) {
@@ -11,10 +11,10 @@ export async function init(options = {}) {
 		return;
 	}
 	let config = {};
-	if (options.package) {
+	if (name) {
 		config = {
 			package: {
-				name: options.package,
+				name: name,
 				version: '0.1.0',
 				description: '',
 				repository: '',
