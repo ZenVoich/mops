@@ -6,7 +6,7 @@ module {
 	public type Err = Text;
 
 	public type Dependency = {
-		name: PackageName; // max 80
+		name: PackageName; // max 50
 		version: Text; // max 20
 	};
 
@@ -21,7 +21,7 @@ module {
 	};
 
 	public type PackageConfig = {
-		name: PackageName; // max 80
+		name: PackageName; // max 50
 		version: Text; // max 20
 		description: Text; // max 200
 		repository: Text; // max 300

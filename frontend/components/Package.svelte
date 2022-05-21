@@ -165,6 +165,7 @@
 		font-size: 16px;
 		cursor: pointer;
 		color: #7a7a7a;
+		white-space: normal;
 	}
 
 	.install-command:hover {

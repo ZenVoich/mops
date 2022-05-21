@@ -13,7 +13,7 @@ module {
 	type Err = Types.Err;
 
 	let CONFIG_MAX_SIZES = {
-		name = 80;
+		name = 50;
 		version = 20;
 		keywords = (5, 20);
 		description = 200;

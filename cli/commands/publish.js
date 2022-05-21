@@ -73,7 +73,7 @@ export async function publish() {
 
 	// check lengths
 	let keysMax = {
-		name: 80,
+		name: 50,
 		version: 20,
 		keywords: 5,
 		description: 200,
