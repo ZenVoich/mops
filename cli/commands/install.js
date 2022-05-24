@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import logUpdate from 'log-update';
 import {checkConfigFile, getLastVersion, mainActor, progressBar, readConfig} from '../mops.js';
+import {parallel} from '../parallel.js';
 
 export async function install(pkg, version = '', verbose = false, dep = false) {
 	if (!checkConfigFile()) {
@@ -24,12 +25,9 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 		fs.mkdirSync(dir, {recursive: true});
 
 		let filesIds = await actor.getFileIds(pkg, version);
-		await new Promise((resolve) => {
-			setTimeout(resolve, 300);
-		});
 
 		// progress
-		let total = filesIds.length;
+		let total = filesIds.length + 1;
 		let step = 0;
 		let progress = () => {
 			step++;
@@ -37,15 +35,13 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 		};
 
 		// download files
-		for (let fileId of filesIds) {
-			progress();
+		progress();
+		await parallel(8, filesIds, async (fileId) => {
 			let file = await actor.getFile(fileId);
-			await new Promise((resolve) => {
-				setTimeout(resolve, 300);
-			});
 			fs.mkdirSync(path.join(dir, path.dirname(file.path)), {recursive: true});
 			fs.writeFileSync(path.join(dir, file.path), Buffer.from(file.content));
-		}
+			progress();
+		});
 
 		// TODO: slow (update call)
 		// if (!dep) {

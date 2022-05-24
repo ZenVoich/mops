@@ -6,6 +6,7 @@ import {globbySync} from 'globby';
 import minimatch from 'minimatch';
 import prompts from 'prompts';
 import {checkConfigFile, getIdentity, mainActor, progressBar, readConfig} from '../mops.js';
+import {parallel} from '../parallel.js';
 
 export async function publish() {
 	if (!checkConfigFile()) {
@@ -193,32 +194,6 @@ export async function publish() {
 	let puiblishingId = publishing.ok;
 
 	// upload files
-	let parallel = async (threads, items, fn) => {
-		return new Promise((resolve) => {
-			let busyThreads = 0;
-			items = items.slice();
-
-			let loop = () => {
-				if (!items.length) {
-					if (busyThreads === 0) {
-						resolve();
-					}
-					return;
-				}
-				if (busyThreads >= threads) {
-					return;
-				}
-				busyThreads++;
-				fn(items.shift()).then(() => {
-					busyThreads--;
-					loop();
-				});
-				loop();
-			};
-			loop();
-		});
-	};
-
 	await parallel(8, files, async (file) => {
 		progress();
 		let content = fs.readFileSync(file);

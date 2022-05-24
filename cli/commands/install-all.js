@@ -9,8 +9,9 @@ export async function installAll({verbose} = {}) {
 	}
 
 	let config = readConfig();
+	let deps = Object.entries(config.dependencies || {});
 
-	for (let [pkg, ver] of Object.entries(config.dependencies || {})) {
+	for (let [pkg, ver] of deps) {
 		await install(pkg, ver, verbose);
 	}
 
