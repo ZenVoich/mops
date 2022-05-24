@@ -1,4 +1,4 @@
-[deps]
+[dependencies]
 aaa = "0.1.0"
 bbb = "0.1.0"
 ccc = "0.1.0"

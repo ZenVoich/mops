@@ -43,7 +43,7 @@ export async function sources({verbose} = {}) {
 	};
 
 	let collectDeps = (config, isRoot = false) => {
-		for (let [dep, ver] of Object.entries(config.deps || {})) {
+		for (let [dep, ver] of Object.entries(config.dependencies || {})) {
 			// take root dep ver or bigger one
 			if (isRoot || !packages[dep] || compareVersions(packages[dep], ver) === -1) {
 				packages[dep] = ver;

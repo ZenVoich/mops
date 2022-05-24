@@ -5,6 +5,6 @@ description = 'gg'
 repository = 'repo'
 files = ['test.mo']
 
-[deps]
+[dependencies]
 dd = "0.1.0"
 ff = "0.1.0"

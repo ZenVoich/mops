@@ -16,7 +16,7 @@ export async function publish() {
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'deps', 'permissions'].includes(key)) {
+		if (!['package', 'dependencies', 'permissions', 'scripts'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			return;
 		}
@@ -95,7 +95,7 @@ export async function publish() {
 		}
 	}
 
-	if (config.package.deps && Object.keys(config.package.deps).length > 100) {
+	if (config.package.dependencies && Object.keys(config.package.dependencies).length > 100) {
 		console.log(chalk.red('Error: ') + 'max dependencies is 100');
 		return;
 	}
@@ -144,10 +144,11 @@ export async function publish() {
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
-		dependencies: (Object.entries(config.deps || {})).map(([name, version]) => {
+		dependencies: (Object.entries(config.dependencies || {})).map(([name, version]) => {
 			return {name, version};
 		}),
 		permissions: [],
+		scripts: [],
 	};
 
 	let defaultFiles = [

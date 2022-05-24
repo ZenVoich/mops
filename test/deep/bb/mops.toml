@@ -5,5 +5,5 @@ description = 'bb'
 repository = 'repo'
 files = ['test.mo']
 
-[deps]
+[dependencies]
 aa = "0.1.0"

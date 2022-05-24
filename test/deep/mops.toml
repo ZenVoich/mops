@@ -1,4 +1,4 @@
-[deps]
+[dependencies]
 gg = "0.1.0"
 bb = "0.1.0"
 aa = "0.1.0"

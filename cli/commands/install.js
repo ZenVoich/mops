@@ -58,7 +58,7 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 
 	// install dependencies
 	let config = readConfig(path.join(dir, 'mops.toml'));
-	for (let [name, version] of Object.entries(config.deps || {})) {
+	for (let [name, version] of Object.entries(config.dependencies || {})) {
 		await install(name, version, verbose, true);
 	}
 }

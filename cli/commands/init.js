@@ -21,8 +21,9 @@ export async function init(name = {}) {
 			}
 		};
 	}
+	// TODO: add last version of 'base' package?
 	// else {
-	// 	config.deps = {};
+	// 	config.dependencies = {};
 	// }
 
 	fs.writeFileSync(configFile, TOML.stringify(config).trim());

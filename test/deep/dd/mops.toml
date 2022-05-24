@@ -5,5 +5,5 @@ description = 'dd'
 repository = 'repo'
 files = ['test.mo']
 
-[deps]
+[dependencies]
 cc = "0.1.0"

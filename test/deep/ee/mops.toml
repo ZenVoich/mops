@@ -5,5 +5,5 @@ description = 'ee'
 repository = 'repo'
 files = ['test.mo']
 
-[deps]
+[dependencies]
 dd = "0.1.0"

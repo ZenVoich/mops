@@ -32,7 +32,7 @@ export async function uninstall(pkg, version) {
 	// let text = fs.readFileSync(path.join(pkgDir, 'mops.toml')).toString();
 	// let config = TOML.parse(text);
 
-	// for (let [name, version] of Object.entries(config.deps)) {
+	// for (let [name, version] of Object.entries(config.dependencies)) {
 	// 	remove(name, version);
 	// }
 }

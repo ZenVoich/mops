@@ -49,8 +49,8 @@ program
 			console.log(chalk.red('Error: ') + `mops.toml not found. Please run ${chalk.green('mops init')} first`);
 			return;
 		}
-		if (!config.deps) {
-			config.deps = {};
+		if (!config.dependencies) {
+			config.dependencies = {};
 		}
 
 		if (!pkg) {
@@ -60,7 +60,7 @@ program
 			let version = await getLastVersion(pkg);
 			await install(pkg, version, options.verbose);
 
-			config.deps[pkg] = version;
+			config.dependencies[pkg] = version;
 			wirteConfig(config);
 			logUpdate.clear();
 			console.log(chalk.green('Package installed ') + `${pkg} = '${version}'`);

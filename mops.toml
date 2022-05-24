@@ -4,6 +4,6 @@ version = "1.2.0"
 description = "Test lib"
 repository = ""
 
-[deps]
+[dependencies]
 hello = "2.0.0"
 pkg = "0.2.0"

@@ -10,7 +10,7 @@ export async function installAll({verbose} = {}) {
 
 	let config = readConfig();
 
-	for (let [pkg, ver] of Object.entries(config.deps || {})) {
+	for (let [pkg, ver] of Object.entries(config.dependencies || {})) {
 		await install(pkg, ver, verbose);
 	}
 
