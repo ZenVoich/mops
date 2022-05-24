@@ -14,7 +14,6 @@ export type FileId = string;
 export interface PackageConfig {
   'dfx' : string,
   'moc' : string,
-  'files' : Array<string>,
   'permissions' : Array<Permission>,
   'scripts' : Array<Script>,
   'owner' : Principal,
@@ -49,7 +48,7 @@ export type Result = { 'ok' : null } |
   { 'err' : Err };
 export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
-export interface Script { 'name' : string, 'command' : string }
+export interface Script { 'value' : string, 'name' : string }
 export type Text = string;
 export type Time = bigint;
 export type Version = string;

@@ -47,9 +47,10 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 			fs.writeFileSync(path.join(dir, file.path), Buffer.from(file.content));
 		}
 
-		if (!dep) {
-			actor.notifyInstall(pkg, version);
-		}
+		// TODO: slow (update call)
+		// if (!dep) {
+		// 	await actor.notifyInstall(pkg, version);
+		// }
 	}
 
 	if (verbose) {

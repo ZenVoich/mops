@@ -3,8 +3,8 @@ type Time = int;
 type Text = text;
 type Script = 
  record {
-   command: text;
    name: text;
+   value: text;
  };
 type Result_1 = 
  variant {
@@ -42,7 +42,6 @@ type PackageConfig =
    dfx: text;
    documentation: text;
    donation: text;
-   files: vec text;
    homepage: text;
    isPrivate: bool;
    keywords: vec text;

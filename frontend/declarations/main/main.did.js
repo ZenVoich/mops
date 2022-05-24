@@ -6,13 +6,12 @@ export const idlFactory = ({ IDL }) => {
   const Version = IDL.Text;
   const Access = IDL.Variant({ 'readOnly' : IDL.Null, 'readWrite' : IDL.Null });
   const Permission = IDL.Record({ 'access' : Access, 'user' : IDL.Principal });
-  const Script = IDL.Record({ 'name' : IDL.Text, 'command' : IDL.Text });
+  const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
   const PackageConfig = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
-    'files' : IDL.Vec(IDL.Text),
     'permissions' : IDL.Vec(Permission),
     'scripts' : IDL.Vec(Script),
     'owner' : IDL.Principal,

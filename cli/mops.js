@@ -35,7 +35,7 @@ export function getNetwork() {
 		return {
 			network,
 			host: 'https://mainnet.dfinity.network',
-			canisterId: '',
+			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
 		};
 	}
 }
