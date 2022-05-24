@@ -31,7 +31,6 @@ module {
 		permissions = 50;
 	};
 
-	// TODO: check name regex
 	public func validateConfig(config: PackageConfig): Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
@@ -66,11 +65,16 @@ module {
 			if (not isLowerCaseLetter(char) and not Char.isDigit(char) and char != '.' and char != '-' and char != '_') {
 				return err;
 			};
+			// deny -lib, .lib, _lib, li..b,
 			if ((prevChar == '.' or prevChar == '-' or prevChar == '_') and (char == '.' or char == '-' or char == '_')) {
 				return err;
 			};
 			prevChar := char;
 		};
+		if (prevChar == '.' or prevChar == '-' or prevChar == '_') {
+			return  #err("invalid config: name cannot end with '.', '-', '_' in name '" # config.name # "'");
+		};
+
 		if (config.version.size() > CONFIG_MAX_SIZES.version) {
 			return #err("invalid config: version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 		};
