@@ -35,6 +35,7 @@ program
 program
 	.command('install [pkg]')
 	.alias('i')
+	.alias('add')
 	.description('Install package and save it as a dependency in the mops.toml file')
 	.option('--verbose', '')
 	.action(async (pkg, options) => {

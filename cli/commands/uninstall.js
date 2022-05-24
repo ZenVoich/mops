@@ -4,7 +4,7 @@ import fs from 'fs';
 import del from 'del';
 import chalk from 'chalk';
 
-export async function remove(pkg, version) {
+export async function uninstall(pkg, version) {
 	if (!checkConfigFile()) {
 		return;
 	}
