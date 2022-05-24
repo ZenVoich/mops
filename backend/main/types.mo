@@ -38,7 +38,6 @@ module {
 		isPrivate: Bool;
 		owner: Principal;
 		donation: Text; // empty or 64 chars
-		files: [Text]; // max 20 items, max 100 chars
 		dependencies: [Dependency]; // max 100 items
 		permissions: [Permission]; // max 50 items
 		scripts: [Script]; // max 40 items

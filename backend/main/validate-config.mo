@@ -22,7 +22,6 @@ module {
 		homepage = 300;
 		readme = 100;
 		license = 30;
-		files = (20, 100);
 		scripts = (40, 50, 200);
 		dfx = 10;
 		moc = 10;
@@ -116,9 +115,6 @@ module {
 		if (config.keywords.size() > CONFIG_MAX_SIZES.keywords.0) {
 			return #err("invalid config: max keywords is " # Nat.toText(CONFIG_MAX_SIZES.keywords.0));
 		};
-		if (config.files.size() > CONFIG_MAX_SIZES.files.0) {
-			return #err("invalid config: max files is " # Nat.toText(CONFIG_MAX_SIZES.files.0));
-		};
 		if (config.dependencies.size() > CONFIG_MAX_SIZES.dependencies) {
 			return #err("invalid config: max dependencies is " # Nat.toText(CONFIG_MAX_SIZES.dependencies));
 		};
@@ -131,11 +127,6 @@ module {
 		for (keyword in config.keywords.vals()) {
 			if (keyword.size() > CONFIG_MAX_SIZES.keywords.1) {
 				return #err("invalid config: max keyword length is " # Nat.toText(CONFIG_MAX_SIZES.keywords.1));
-			};
-		};
-		for (file in config.files.vals()) {
-			if (file.size() > CONFIG_MAX_SIZES.files.1) {
-				return #err("invalid config: max file length is " # Nat.toText(CONFIG_MAX_SIZES.files.1));
 			};
 		};
 		for (script in config.scripts.vals()) {

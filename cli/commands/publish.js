@@ -59,7 +59,6 @@ export async function publish() {
 		'readme',
 		'license',
 		'isPrivate',
-		'files',
 		'dfx',
 		'moc',
 		'donation',
@@ -116,10 +115,6 @@ export async function publish() {
 
 	if (config.package.files) {
 		for (let file of config.package.files) {
-			if (file.length > 100) {
-				console.log(chalk.red('Error: ') + 'max file path length is 100');
-				return;
-			}
 			if (file.startsWith('/') || file.startsWith('../')) {
 				console.log(chalk.red('Error: ') + 'file path cannot start with \'/\' or \'../\'');
 				return;
@@ -140,7 +135,6 @@ export async function publish() {
 		license: config.package.license || '',
 		isPrivate: false,
 		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),
-		files: config.package.files || [],
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
@@ -173,8 +167,8 @@ export async function publish() {
 
 	// check allowed exts
 	for (let file of files) {
-		if (!minimatch(file, '**/*.{mo,md,did,toml}')) {
-			console.log(chalk.red('Error: ') + `file ${file} has unsupported extension. Allowed: .mo, .md, .did, .toml`);
+		if (!minimatch(file, '**/*.{mo,did,md,toml}')) {
+			console.log(chalk.red('Error: ') + `file ${file} has unsupported extension. Allowed: .mo, .did, .md, .toml`);
 			return;
 		}
 	}
