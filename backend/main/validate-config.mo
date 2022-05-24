@@ -39,6 +39,9 @@ module {
 		if (config.moc.size() > 0) {
 			return #err("invalid config: 'moc' field is not supported yet");
 		};
+		if (config.homepage.size() > 0) {
+			return #err("invalid config: 'homepage' field is not supported yet");
+		};
 		if (config.isPrivate) {
 			return #err("invalid config: 'isPrivate' field is not supported yet");
 		};
@@ -65,12 +68,13 @@ module {
 			if (not isLowerCaseLetter(char) and not Char.isDigit(char) and char != '.' and char != '-' and char != '_') {
 				return err;
 			};
-			// deny -lib, .lib, _lib, li..b,
+			// deny -lib, .lib, _lib, li..b
 			if ((prevChar == '.' or prevChar == '-' or prevChar == '_') and (char == '.' or char == '-' or char == '_')) {
 				return err;
 			};
 			prevChar := char;
 		};
+		// deny lib., lib_, lib-
 		if (prevChar == '.' or prevChar == '-' or prevChar == '_') {
 			return  #err("invalid config: name cannot end with '.', '-', '_' in name '" # config.name # "'");
 		};
