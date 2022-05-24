@@ -1,5 +1,6 @@
 import {svelte} from "@sveltejs/vite-plugin-svelte"
 import {defineConfig} from "vite"
+import {viteStaticCopy} from 'vite-plugin-static-copy'
 import path from "path"
 import dfxJson from "../dfx.json"
 import fs from "fs"
@@ -52,7 +53,17 @@ const DFX_PORT = dfxJson.networks.local.bind.split(":")[1]
 // See guide on how to configure Vite at:
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [svelte()],
+	plugins: [
+		svelte(),
+		viteStaticCopy({
+			targets: [
+				{
+					src: 'img/*',
+					dest: 'img'
+				}
+			]
+		})
+	],
 	build: {
 		target: ['es2020'],
 		lib: {

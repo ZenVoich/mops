@@ -10,7 +10,7 @@ import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import {hello} "mo:utils/test";
+// import {hello} "mo:utils/test";
 
 import Utils "../utils";
 import Version "./version";
@@ -290,9 +290,9 @@ actor {
 		});
 	};
 
-	public query func test(): async Text {
-		hello("world");
-	};
+	// public query func test(): async Text {
+	// 	hello("world");
+	// };
 
 
 	// SYSTEM
