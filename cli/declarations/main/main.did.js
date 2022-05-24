@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
   const Version = IDL.Text;
   const Access = IDL.Variant({ 'readOnly' : IDL.Null, 'readWrite' : IDL.Null });
   const Permission = IDL.Record({ 'access' : Access, 'user' : IDL.Principal });
+  const Script = IDL.Record({ 'name' : IDL.Text, 'command' : IDL.Text });
   const PackageName = IDL.Text;
   const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
   const PackageConfig = IDL.Record({
@@ -13,6 +14,7 @@ export const idlFactory = ({ IDL }) => {
     'moc' : IDL.Text,
     'files' : IDL.Vec(IDL.Text),
     'permissions' : IDL.Vec(Permission),
+    'scripts' : IDL.Vec(Script),
     'owner' : IDL.Principal,
     'documentation' : IDL.Text,
     'name' : PackageName,
@@ -65,7 +67,6 @@ export const idlFactory = ({ IDL }) => {
     'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
     'startPublish' : IDL.Func([PackageConfig], [Result_1], []),
-    'test' : IDL.Func([], [IDL.Text], ['query']),
     'uploadFile' : IDL.Func(
         [PublishingId, Text, IDL.Vec(IDL.Nat8)],
         [Result],

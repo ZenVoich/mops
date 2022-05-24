@@ -16,6 +16,7 @@ export interface PackageConfig {
   'moc' : string,
   'files' : Array<string>,
   'permissions' : Array<Permission>,
+  'scripts' : Array<Script>,
   'owner' : Principal,
   'documentation' : string,
   'name' : PackageName,
@@ -48,6 +49,7 @@ export type Result = { 'ok' : null } |
   { 'err' : Err };
 export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
+export interface Script { 'name' : string, 'command' : string }
 export type Text = string;
 export type Time = bigint;
 export type Version = string;
@@ -62,7 +64,6 @@ export interface _SERVICE {
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,
-  'test' : ActorMethod<[], string>,
   'uploadFile' : ActorMethod<[PublishingId, Text, Array<number>], Result>,
   'whoami' : ActorMethod<[], Text>,
 }

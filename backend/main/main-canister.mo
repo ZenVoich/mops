@@ -80,7 +80,7 @@ actor {
 		switch (lastConfigs.get(config.name)) {
 			case (null) {};
 			case (?lastConfig) {
-				// todo: check permission field
+				// todo: check permissions field
 				if (lastConfig.owner != caller) {
 					return #err("You don't have no permissions to publish this package");
 				};

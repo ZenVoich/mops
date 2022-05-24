@@ -20,6 +20,11 @@ module {
 		access: Access;
 	};
 
+	public type Script = {
+		name: Text; // max 50
+		value: Text; // max 200
+	};
+
 	public type PackageConfig = {
 		name: PackageName; // max 50
 		version: Text; // max 20
@@ -32,10 +37,11 @@ module {
 		license: Text; // max 30
 		isPrivate: Bool;
 		owner: Principal;
-		donation: Text; // max 64
+		donation: Text; // empty or 64 chars
 		files: [Text]; // max 20 items, max 100 chars
 		dependencies: [Dependency]; // max 100 items
 		permissions: [Permission]; // max 50 items
+		scripts: [Script]; // max 40 items
 		dfx: Text; // max 10
 		moc: Text; // max 10
 	};

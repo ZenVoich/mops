@@ -23,6 +23,7 @@ module {
 		readme = 100;
 		license = 30;
 		files = (20, 100);
+		scripts = (40, 50, 200);
 		dfx = 10;
 		moc = 10;
 		donation = 64;
@@ -44,6 +45,9 @@ module {
 		};
 		if (config.permissions.size() > 0) {
 			return #err("invalid config: 'permissions' field is not supported yet");
+		};
+		if (config.scripts.size() > 0) {
+			return #err("invalid config: 'scripts' field is not supported yet");
 		};
 
 		if (config.name.size() == 0) {
@@ -113,6 +117,9 @@ module {
 		if (config.permissions.size() > CONFIG_MAX_SIZES.permissions) {
 			return #err("invalid config: max permissions is " # Nat.toText(CONFIG_MAX_SIZES.permissions));
 		};
+		if (config.scripts.size() > CONFIG_MAX_SIZES.scripts.0) {
+			return #err("invalid config: max scripts is " # Nat.toText(CONFIG_MAX_SIZES.scripts.0));
+		};
 		for (keyword in config.keywords.vals()) {
 			if (keyword.size() > CONFIG_MAX_SIZES.keywords.1) {
 				return #err("invalid config: max keyword length is " # Nat.toText(CONFIG_MAX_SIZES.keywords.1));
@@ -121,6 +128,14 @@ module {
 		for (file in config.files.vals()) {
 			if (file.size() > CONFIG_MAX_SIZES.files.1) {
 				return #err("invalid config: max file length is " # Nat.toText(CONFIG_MAX_SIZES.files.1));
+			};
+		};
+		for (script in config.scripts.vals()) {
+			if (script.name.size() > CONFIG_MAX_SIZES.scripts.1) {
+				return #err("invalid config: max script name length is " # Nat.toText(CONFIG_MAX_SIZES.scripts.1));
+			};
+			if (script.value.size() > CONFIG_MAX_SIZES.scripts.2) {
+				return #err("invalid config: max script value length is " # Nat.toText(CONFIG_MAX_SIZES.scripts.2));
 			};
 		};
 		for (dep in config.dependencies.vals()) {

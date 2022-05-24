@@ -1,6 +1,11 @@
 type Version = text;
 type Time = int;
 type Text = text;
+type Script = 
+ record {
+   command: text;
+   name: text;
+ };
 type Result_1 = 
  variant {
    err: PublishingErr;
@@ -48,6 +53,7 @@ type PackageConfig =
    permissions: vec Permission;
    readme: text;
    repository: text;
+   scripts: vec Script;
    version: text;
  };
 type FileId = text;
@@ -79,7 +85,6 @@ service : {
   notifyInstall: (PackageName__1, Version) -> () oneway;
   search: (Text) -> (vec PackageSummary) query;
   startPublish: (PackageConfig) -> (Result_1);
-  test: () -> (text) query;
   uploadFile: (PublishingId, Text, blob) -> (Result);
   whoami: () -> (Text) query;
 }
