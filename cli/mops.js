@@ -11,22 +11,29 @@ import {decodeFile} from './pem.js';
 
 global.fetch = fetch;
 
-let network = 'local';
+let networkFile = new URL('./network.txt', import.meta.url);
 
-export async function setNetwork(net) {
-	network = net;
+export function setNetwork(network) {
+	fs.writeFileSync(networkFile, network);
 }
 
-function getNetwork() {
+export function getNetwork() {
+	let network = 'ic';
+	if (fs.existsSync(networkFile)) {
+		network = fs.readFileSync(networkFile).toString() || 'ic';
+	}
+
 	if (network === 'local') {
 		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
 		return {
+			network,
 			host: 'http://127.0.0.1:8000',
 			canisterId: ids.main.local,
 		};
 	}
 	else if (network === 'ic') {
 		return {
+			network,
 			host: 'https://mainnet.dfinity.network',
 			canisterId: '',
 		};
@@ -41,13 +48,9 @@ export let getIdentity = () => {
 };
 
 export let mainActor = async () => {
+	let network = getNetwork().network;
 	let host = getNetwork().host;
 	let canisterId = getNetwork().canisterId;
-
-	// if (network === 'local') {
-	// 	let ids = JSON.parse(fs.readFileSync('.dfx/local/canister_ids.json').toString());
-	// 	canisterId = await ids.main.local;
-	// }
 
 	let identity = getIdentity();
 	let agent = new HttpAgent({host, identity});

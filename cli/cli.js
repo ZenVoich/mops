@@ -11,7 +11,7 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-pem.js';
 import {sources} from './commands/sources.js';
-import {getLastVersion, setNetwork} from './mops.js';
+import {getLastVersion, getNetwork, setNetwork} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -80,6 +80,15 @@ program
 	.description('Set network local|dev|ic')
 	.action(async (network) => {
 		await setNetwork(network);
+		console.log(`Selected '${network}' network`);
+	});
+
+// get-network
+program
+	.command('get-network')
+	.description('Get network')
+	.action(async () => {
+		console.log(getNetwork().network);
 	});
 
 // import-pem
