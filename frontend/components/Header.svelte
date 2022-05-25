@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {push} from 'svelte-spa-router';
-	import {mainActor} from '/logic/actors';
 
 	export let searchText = '';
 
@@ -10,9 +9,7 @@
 			return;
 		}
 
-		mainActor().search(text).then((res) => {
-			push(`/search/${text}`);
-		});
+		push(`/search/${text}`);
 	}
 
 	function home(e: MouseEvent) {
