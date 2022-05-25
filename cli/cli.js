@@ -98,6 +98,7 @@ program
 	.description('Import .pem file data to use as identity')
 	.action(async (data) => {
 		await importPem(data);
+		whoami();
 	});
 
 // sources

@@ -3,11 +3,15 @@
 	import Router from 'svelte-spa-router';
 	import SearchResults from './SearchResults.svelte';
 	import Package from './Package.svelte';
+	import InstallDoc from './docs/InstallDoc.svelte';
+	import PublishDoc from './docs/PublishDoc.svelte';
 
 	let routes = {
 		'/': Home,
 		'/search/:search': SearchResults,
 		'/package/:package': Package,
+		'/docs/install': InstallDoc,
+		'/docs/publish': PublishDoc,
 	};
 </script>
 
@@ -35,7 +39,6 @@
 	.app {
 		/* display: flex;
 		flex-direction: column;
-		background: hsl(229deg, 17%, 29%);
 		width: 100vw;
 		height: 100vh; */
 	}
@@ -55,6 +58,12 @@
 
 	[hidden] {
 		display: none !important;
+	}
+
+	a {
+		color: #7c8659;
+		font-weight: 500;
+		text-decoration: none;
 	}
 
 	input, button, select, textarea {

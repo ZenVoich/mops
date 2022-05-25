@@ -15,7 +15,8 @@
 		});
 	}
 
-	function home() {
+	function home(e: MouseEvent) {
+		e.preventDefault();
 		push(`/`);
 	}
 
@@ -27,7 +28,9 @@
 </script>
 
 <div class="header">
-	<img class="logo" src="img/mops-motoko.svg" alt="mops" on:click="{home}">
+	<a href="/" on:click="{home}">
+		<img class="logo" src="img/mops-motoko.svg" alt="mops">
+	</a>
 	<div class="search">
 		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="50">
 		<div class="button" on:click="{search}">Search</div>

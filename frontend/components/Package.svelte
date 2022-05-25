@@ -150,12 +150,6 @@
 		text-overflow: ellipsis;
 	}
 
-	.detail a {
-		color: #7c8659;
-		font-weight: 500;
-		text-decoration: none;
-	}
-
 	.install-command {
 		display: flex;
 		border-radius: 3px;
