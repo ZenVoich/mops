@@ -16,7 +16,7 @@ function rootDir(cwd = process.cwd()) {
 	return rootDir(path.join(cwd, '..'));
 }
 
-// TODO: resolve deps for a specific file
+// TODO: resolve deps for a specific file to avoid conflicts
 // TODO: remove base-unofficial
 export async function sources({verbose} = {}) {
 	let root = rootDir();

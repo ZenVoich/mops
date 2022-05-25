@@ -82,7 +82,7 @@ actor {
 			case (?lastConfig) {
 				// todo: check permissions field
 				if (lastConfig.owner != caller) {
-					return #err("You don't have no permissions to publish this package");
+					return #err("You don't have permissions to publish this package");
 				};
 			};
 		};
