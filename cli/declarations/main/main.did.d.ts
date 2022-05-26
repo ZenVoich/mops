@@ -60,6 +60,7 @@ export interface _SERVICE {
   'getLastConfig' : ActorMethod<[PackageName__1], PackageConfig>,
   'getLastVersion' : ActorMethod<[PackageName__1], Version>,
   'getReadmeFile' : ActorMethod<[PackageName__1, Version], File>,
+  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,

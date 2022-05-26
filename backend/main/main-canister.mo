@@ -288,22 +288,46 @@ actor {
 			packages[i];
 		});
 
-		Array.map<PackageConfig, PackageSummary>(packages, func(config) {
-			let updatedAt = switch (packagePublications.get(config.name # "@" # config.version)) {
-				case (?pub) { pub.time };
-				case (null) { 0 };
+		Array.map<PackageConfig, PackageSummary>(packages, asPackageSummary);
+	};
+
+	public query func getRecentlyUpdatedPackages(): async [PackageSummary] {
+		let max = 5;
+		let packages = Buffer.Buffer<PackageSummary>(max);
+
+		let pubsDesc = Array.reverse(Iter.toArray(packagePublications.keys()));
+
+		label l for (packageId in pubsDesc.vals()) {
+			switch (packageConfigs.get(packageId)) {
+				case (?config) {
+					packages.add(asPackageSummary(config));
+
+					if (packages.size() >= max) {
+						break l;
+					};
+				};
+				case (null) {};
 			};
-			return {
-				name = config.name;
-				version = config.version;
-				description = config.description;
-				keywords = config.keywords;
-				owner = config.owner;
-				updatedAt = updatedAt;
-				downloadsInLast30Days = 0;
-				downloadsTotal = 0;
-			}
-		});
+		};
+
+		packages.toArray();
+	};
+
+	func asPackageSummary(config: PackageConfig): PackageSummary {
+		let updatedAt = switch (packagePublications.get(config.name # "@" # config.version)) {
+			case (?pub) { pub.time };
+			case (null) { 0 };
+		};
+		return {
+			name = config.name;
+			version = config.version;
+			description = config.description;
+			keywords = config.keywords;
+			owner = config.owner;
+			updatedAt = updatedAt;
+			downloadsInLast30Days = 0;
+			downloadsTotal = 0;
+		}
 	};
 
 	// public query func test(): async Text {

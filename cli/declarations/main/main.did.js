@@ -63,6 +63,11 @@ export const idlFactory = ({ IDL }) => {
     'getLastConfig' : IDL.Func([PackageName__1], [PackageConfig], ['query']),
     'getLastVersion' : IDL.Func([PackageName__1], [Version], ['query']),
     'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], ['query']),
+    'getRecentlyUpdatedPackages' : IDL.Func(
+        [],
+        [IDL.Vec(PackageSummary)],
+        ['query'],
+      ),
     'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
     'startPublish' : IDL.Func([PackageConfig], [Result_1], []),

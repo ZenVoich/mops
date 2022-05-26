@@ -81,6 +81,7 @@ service : {
   getLastConfig: (PackageName__1) -> (PackageConfig) query;
   getLastVersion: (PackageName__1) -> (Version) query;
   getReadmeFile: (PackageName__1, Version) -> (File) query;
+  getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;
   search: (Text) -> (vec PackageSummary) query;
   startPublish: (PackageConfig) -> (Result_1);

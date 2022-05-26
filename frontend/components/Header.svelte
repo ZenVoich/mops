@@ -87,8 +87,4 @@
 		border-radius: 0 3px 3px 0;
 		user-select: none;
 	}
-
-	.button:hover {
-		background: var(--color-primary-light);
-	}
 </style>

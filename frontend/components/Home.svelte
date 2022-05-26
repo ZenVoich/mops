@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {push} from 'svelte-spa-router';
 	import Header from './Header.svelte';
+	import TopPackages from './TopPackages.svelte';
 
 	function installDocs() {
 		push('/docs/install')
@@ -42,6 +43,10 @@
 				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://hwvjt-wqaaa-aaaam-qadra-cai.raw.ic0.app/">Internet Computer</a> blockchain network.</div>
 			</div>
 		</div>
+
+		<div class="delimiter"></div>
+
+		<TopPackages></TopPackages>
 	</div>
 </div>
 
