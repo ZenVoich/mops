@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 
-export async function init(name = {}) {
+export async function init(name = '') {
 	let configFile = path.join(process.cwd(), 'mops.toml');
 	let exists = fs.existsSync(configFile);
 	if (exists) {
