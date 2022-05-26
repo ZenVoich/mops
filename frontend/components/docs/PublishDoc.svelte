@@ -15,7 +15,7 @@
 		</ul>
 
 		<h3>1. Install CLI tool</h3>
-		<code>npm i ic-mops -g</code>
+		<code>npm i -g ic-mops</code>
 		<br>
 		<div>This command will install cli tool <code class="inline">mops</code></div>
 
