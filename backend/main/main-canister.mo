@@ -325,6 +325,11 @@ actor {
 
 	system func preupgrade() {
 		lastConfigsStable := Iter.toArray(lastConfigs.entries());
+		packagePublicationsStable := Iter.toArray(packagePublications.entries());
+		packageVersionsStable := Iter.toArray(packageVersions.entries());
+		packageConfigsStable := Iter.toArray(packageConfigs.entries());
+		filesStable := Iter.toArray(files.entries());
+		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
 	};
 
