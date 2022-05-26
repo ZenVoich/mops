@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 export async function importPem(data) {
 	try {
-		let url = new URL('./identity.pem', import.meta.url);
+		let url = new URL('../identity.pem', import.meta.url);
 		fs.writeFileSync(url, data);
 		console.log(chalk.green('Success'));
 	}
