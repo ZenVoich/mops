@@ -89,7 +89,7 @@
 
 	.getting-started .button {
 		padding: 14px 18px;
-		background: hsl(73deg 20% 44%);
+		background: var(--color-primary);
 		color: white;
 		cursor: pointer;
 		border-radius: 40px;

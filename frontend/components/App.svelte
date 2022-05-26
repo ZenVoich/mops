@@ -20,6 +20,11 @@
 </div>
 
 <style global>
+	:root {
+		--color-primary: hsl(73deg 20% 44%);
+		--color-primary-light: hsl(72deg 24% 55%);
+	}
+
 	body {
 		margin: 0;
 		font-family: sans-serif;

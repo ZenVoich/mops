@@ -60,7 +60,7 @@
 	.input {
 		width: 450px;
 		padding: 10px;
-		border: 2px solid #9da871;
+		border: 2px solid var(--color-primary-light);
 		outline: none;
 		border-right: none;
 		border-radius: 3px 0 0 3px;
@@ -70,13 +70,16 @@
 	}
 
 	.input:focus {
-		border-color: #7c8659;
+		border-color: var(--color-primary);
 	}
 
+	.button:hover {
+		background: var(--color-primary-light);
+	}
 	.button {
 		display: flex;
 		align-items: center;
-		background: #7c8659;
+		background: var(--color-primary);
 		color: #ffffff;
 		font-size: 18px;
 		padding: 10px 20px;
