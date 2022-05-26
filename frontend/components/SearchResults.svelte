@@ -7,6 +7,7 @@
 	import {mainActor} from '/logic/actors';
 
 	import Header from './Header.svelte';
+	import Loader from './Loader.svelte';
 
 	$: searchText = decodeURI($loc.split('/search/')[1]);
 	$: $loc && updateResults();
@@ -15,6 +16,8 @@
 	let loaded = false;
 
 	let updateResults = debounce(10, () => {
+		loaded = false;
+
 		mainActor().search(searchText).then((res) => {
 			packages = res;
 			loaded = true;
@@ -35,25 +38,29 @@
 <Header searchText="{searchText}"></Header>
 
 <div class="search-results">
-	{#each packages as pkg}
-		<div class="package">
-			<div class="left">
-				<div class="header">
-					<div class="name" on:click="{() => show(pkg.name)}">{pkg.name}</div>
-					<div class="version">{pkg.version}</div>
+	{#if loaded}
+		{#each packages as pkg}
+			<div class="package">
+				<div class="left">
+					<div class="header">
+						<div class="name" on:click="{() => show(pkg.name)}">{pkg.name}</div>
+						<div class="version">{pkg.version}</div>
+					</div>
+					<div class="description">{pkg.description}</div>
 				</div>
-				<div class="description">{pkg.description}</div>
+				<div class="right">
+					<div>Updated: {formatDate(Number(pkg.updatedAt / 1000000n))}</div>
+					<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
+				</div>
 			</div>
-			<div class="right">
-				<div>Updated: {formatDate(Number(pkg.updatedAt / 1000000n))}</div>
-				<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
-			</div>
-		</div>
+		{:else}
+			{#if loaded}
+				<div class="not-found">Packages not found</div>
+			{/if}
+		{/each}
 	{:else}
-		{#if loaded}
-			<div class="not-found">Packages not found</div>
-		{/if}
-	{/each}
+		<Loader></Loader>
+	{/if}
 </div>
 
 <style>

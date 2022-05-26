@@ -8,6 +8,7 @@
 	import {micromark} from 'micromark';
 
 	import Header from './Header.svelte';
+	import Loader from './Loader.svelte';
 
 	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
 	$: $loc && load();
@@ -21,6 +22,7 @@
 		if (!pkgName) {
 			return;
 		}
+		loaded = false;
 		config = await mainActor().getLastConfig(pkgName);
 		mainActor().getReadmeFile(config.name, config.version).then((res) => {
 			let readme = new TextDecoder().decode(new Uint8Array(res.content));
@@ -89,6 +91,8 @@
 				</div>
 			{/if}
 		</div>
+	{:else}
+		<Loader></Loader>
 	{/if}
 </div>
 
