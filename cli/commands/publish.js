@@ -202,7 +202,11 @@ export async function publish() {
 
 	// finish
 	progress();
-	await actor.finishPublish(puiblishingId);
+	let res = await actor.finishPublish(puiblishingId);
+	if (res.err) {
+		console.log(chalk.red('Error: ') + res.err);
+		return;
+	}
 
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);
 }

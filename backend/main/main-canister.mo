@@ -176,8 +176,24 @@ actor {
 		});
 		fileIdsByPackage.put(packageId, fileIds);
 
+		var mopsToml = false;
+		var readmeMd = false;
+
 		for (file in pubFiles.vals()) {
+			if (file.path == "mops.toml") {
+				mopsToml := true;
+			};
+			if (file.path == "README.md") {
+				readmeMd := true;
+			};
 			files.put(file.id, file);
+		};
+
+		if (not mopsToml) {
+			return #err("Missing required file mops.toml");
+		};
+		if (not readmeMd) {
+			return #err("Missing required file README.md");
 		};
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);

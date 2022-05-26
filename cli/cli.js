@@ -23,6 +23,8 @@ function wirteConfig(config) {
 	fs.writeFileSync(configFile, TOML.stringify(config).trim());
 }
 
+program.name('mops');
+
 // init
 program
 	.command('init [name]')
