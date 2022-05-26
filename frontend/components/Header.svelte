@@ -55,6 +55,7 @@
 	.search {
 		display: flex;
 		justify-content: center;
+		min-width: 0;
 	}
 
 	.input {
@@ -67,15 +68,13 @@
 		height: 50px;
 		font-size: 20px;
 		line-height: 50px;
+		min-width: 0;
 	}
 
 	.input:focus {
 		border-color: var(--color-primary);
 	}
 
-	.button:hover {
-		background: var(--color-primary-light);
-	}
 	.button {
 		display: flex;
 		align-items: center;
@@ -87,5 +86,9 @@
 		cursor: pointer;
 		border-radius: 0 3px 3px 0;
 		user-select: none;
+	}
+
+	.button:hover {
+		background: var(--color-primary-light);
 	}
 </style>

@@ -55,6 +55,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		margin-bottom: 100px;
 	}
 
 	.content > * {
@@ -84,6 +85,8 @@
 	}
 	.getting-started .buttons {
 		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
 		gap: 40px;
 	}
 
@@ -106,11 +109,22 @@
 	.motoko {
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
 		gap: 50px;
+		width: 100%;
+		padding: 0 40px;
+		box-sizing: border-box;
 	}
 
 	.motoko img {
 		width: 300px;
+	}
+
+	.motoko .text {
+		width: min-content;
+		min-width: 300px;
+		flex-grow: 1;
 	}
 
 	.motoko .title {
