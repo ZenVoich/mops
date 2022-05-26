@@ -27,7 +27,7 @@
 		<br>
 		<div>Import identity into the mops</div>
 		<br>
-		<code>mops import-pem -- "$(dfx identity export mops)"</code>
+		<code>mops import-identity -- "$(dfx identity export mops)"</code>
 
 		<h3>3. Initialize</h3>
 		<div>Run this command in your package root</div>
@@ -39,7 +39,6 @@
 		<br>
 
 		<div>Create <code class="inline">README.md</code> file with information on how to use your package.</div>
-
 
 		<h3>4. Publish</h3>
 		<div>Publish package to the mops registry!</div>

@@ -9,7 +9,7 @@ import TOML from '@iarna/toml';
 import {init} from './commands/init.js';
 import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
-import {importPem} from './commands/import-pem.js';
+import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
 import {getLastVersion, getNetwork, setNetwork} from './mops.js';
 import {whoami} from './commands/whoami.js';
@@ -94,9 +94,9 @@ program
 		console.log(getNetwork().network);
 	});
 
-// import-pem
+// import-identity
 program
-	.command('import-pem <data>')
+	.command('import-identity <data>')
 	.description('Import .pem file data to use as identity')
 	.action(async (data) => {
 		await importPem(data);
