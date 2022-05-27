@@ -35,23 +35,17 @@ module {
 		homepage: Text; // max 300
 		readme: Text; // max 100
 		license: Text; // max 30
-		isPrivate: Bool;
-		owner: Principal;
 		donation: Text; // empty or 64 chars
 		dependencies: [Dependency]; // max 100 items
-		permissions: [Permission]; // max 50 items
 		scripts: [Script]; // max 40 items
 		dfx: Text; // max 10
 		moc: Text; // max 10
 	};
 
-	public type PackageSummary = {
-		name: PackageName;
-		version: Text;
-		description: Text;
-		keywords: [Text];
+	public type PackageSummary = PackageConfig and {
+		owner: Principal;
+		updatedAt: Time.Time;
 		downloadsInLast30Days: Nat;
 		downloadsTotal: Nat;
-		updatedAt: Time.Time;
 	};
 };

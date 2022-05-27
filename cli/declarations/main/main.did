@@ -18,18 +18,24 @@ type Result =
  };
 type PublishingId = text;
 type PublishingErr = text;
-type Permission = 
- record {
-   access: Access;
-   user: principal;
- };
 type PackageSummary = 
  record {
+   dependencies: vec Dependency;
    description: text;
+   dfx: text;
+   documentation: text;
+   donation: text;
    downloadsInLast30Days: nat;
    downloadsTotal: nat;
+   homepage: text;
    keywords: vec text;
+   license: text;
+   moc: text;
    name: PackageName;
+   owner: principal;
+   readme: text;
+   repository: text;
+   scripts: vec Script;
    updatedAt: Time;
    version: text;
  };
@@ -43,13 +49,10 @@ type PackageConfig =
    documentation: text;
    donation: text;
    homepage: text;
-   isPrivate: bool;
    keywords: vec text;
    license: text;
    moc: text;
    name: PackageName;
-   owner: principal;
-   permissions: vec Permission;
    readme: text;
    repository: text;
    scripts: vec Script;
@@ -68,17 +71,13 @@ type Dependency =
    name: PackageName;
    version: text;
  };
-type Access = 
- variant {
-   readOnly;
-   readWrite;
- };
 service : {
   finishPublish: (PublishingId) -> (Result);
   getConfig: (PackageName__1, Version) -> (PackageConfig) query;
   getFile: (FileId) -> (File) query;
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
   getLastConfig: (PackageName__1) -> (PackageConfig) query;
+  getLastSummary: (PackageName__1) -> (PackageSummary) query;
   getLastVersion: (PackageName__1) -> (Version) query;
   getReadmeFile: (PackageName__1, Version) -> (File) query;
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;

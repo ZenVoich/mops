@@ -35,6 +35,7 @@ actor {
 
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var packageVersions = TrieMap.TrieMap<PackageName, [Version.Version]>(Text.equal, Text.hash);
+	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
 	var lastConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
 
@@ -73,15 +74,10 @@ actor {
 			};
 		};
 
-		if (config.owner != caller) {
-			return #err("Owner mismatch");
-		};
-
-		switch (lastConfigs.get(config.name)) {
+		switch (packageOwners.get(config.name)) {
 			case (null) {};
-			case (?lastConfig) {
-				// todo: check permissions field
-				if (lastConfig.owner != caller) {
+			case (?owner) {
+				if (owner != caller) {
 					return #err("You don't have permissions to publish this package");
 				};
 			};
@@ -161,7 +157,6 @@ actor {
 		#ok();
 	};
 
-	// TODO: check required files
 	public shared ({caller}) func finishPublish(publishingId: PublishingId): async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
@@ -200,6 +195,7 @@ actor {
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));
 
 		packageConfigs.put(packageId, publishing.config);
+		packageOwners.put(publishing.config.name, caller);
 		lastConfigs.put(publishing.config.name, publishing.config);
 		packagePublications.put(packageId, {
 			user = caller;
@@ -225,6 +221,10 @@ actor {
 
 	public shared query ({caller}) func getLastConfig(name: PackageName): async PackageConfig {
 		Utils.expect(lastConfigs.get(name), "Package '" # name # "' not found");
+	};
+
+	public shared query ({caller}) func getLastSummary(name: PackageName): async PackageSummary {
+		toPackageSummary(Utils.expect(lastConfigs.get(name), "Package '" # name # "' not found"));
 	};
 
 	public shared query ({caller}) func getConfig(name: PackageName, version: Version.Version): async PackageConfig {
@@ -288,7 +288,7 @@ actor {
 			packages[i];
 		});
 
-		Array.map<PackageConfig, PackageSummary>(packages, asPackageSummary);
+		Array.map<PackageConfig, PackageSummary>(packages, toPackageSummary);
 	};
 
 	public query func getRecentlyUpdatedPackages(): async [PackageSummary] {
@@ -300,7 +300,7 @@ actor {
 		label l for (packageId in pubsDesc.vals()) {
 			switch (packageConfigs.get(packageId)) {
 				case (?config) {
-					packages.add(asPackageSummary(config));
+					packages.add(toPackageSummary(config));
 
 					if (packages.size() >= max) {
 						break l;
@@ -313,17 +313,29 @@ actor {
 		packages.toArray();
 	};
 
-	func asPackageSummary(config: PackageConfig): PackageSummary {
+	func toPackageSummary(config: PackageConfig): PackageSummary {
 		let updatedAt = switch (packagePublications.get(config.name # "@" # config.version)) {
 			case (?pub) { pub.time };
 			case (null) { 0 };
 		};
 		return {
+			// config fields
 			name = config.name;
 			version = config.version;
 			description = config.description;
+			repository = config.repository;
 			keywords = config.keywords;
-			owner = config.owner;
+			documentation = config.documentation;
+			homepage = config.homepage;
+			readme = config.readme;
+			license = config.license;
+			donation = config.donation;
+			dependencies = config.dependencies;
+			scripts = config.scripts;
+			dfx = config.dfx;
+			moc = config.moc;
+			// extra fields
+			owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
 			updatedAt = updatedAt;
 			downloadsInLast30Days = 0;
 			downloadsTotal = 0;
@@ -338,6 +350,7 @@ actor {
 	// SYSTEM
 	stable var packagePublicationsStable: [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable: [(PackageName, [Version.Version])] = [];
+	stable var packageOwnersStable: [(PackageName, Principal)] = [];
 	stable var packageConfigsStable: [(PackageId, PackageConfig)] = [];
 	stable var lastConfigsStable: [(PackageName, PackageConfig)] = [];
 
@@ -351,6 +364,7 @@ actor {
 		lastConfigsStable := Iter.toArray(lastConfigs.entries());
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
+		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		packageConfigsStable := Iter.toArray(packageConfigs.entries());
 		filesStable := Iter.toArray(files.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
@@ -366,6 +380,9 @@ actor {
 
 		packageVersions := TrieMap.fromEntries<PackageName, [Version.Version]>(packageVersionsStable.vals(), Text.equal, Text.hash);
 		packageVersionsStable := [];
+
+		packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
+		packageOwnersStable := [];
 
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfig>(packageConfigsStable.vals(), Text.equal, Text.hash);
 		packageConfigsStable := [];

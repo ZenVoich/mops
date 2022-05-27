@@ -27,7 +27,6 @@ module {
 		moc = 10;
 		donation = 64;
 		dependencies = 100;
-		permissions = 50;
 	};
 
 	public func validateConfig(config: PackageConfig): Result.Result<(), Err> {
@@ -40,12 +39,6 @@ module {
 		};
 		if (config.homepage.size() > 0) {
 			return #err("invalid config: 'homepage' field is not supported yet");
-		};
-		if (config.isPrivate) {
-			return #err("invalid config: 'isPrivate' field is not supported yet");
-		};
-		if (config.permissions.size() > 0) {
-			return #err("invalid config: 'permissions' field is not supported yet");
 		};
 		if (config.scripts.size() > 0) {
 			return #err("invalid config: 'scripts' field is not supported yet");
@@ -117,9 +110,6 @@ module {
 		};
 		if (config.dependencies.size() > CONFIG_MAX_SIZES.dependencies) {
 			return #err("invalid config: max dependencies is " # Nat.toText(CONFIG_MAX_SIZES.dependencies));
-		};
-		if (config.permissions.size() > CONFIG_MAX_SIZES.permissions) {
-			return #err("invalid config: max permissions is " # Nat.toText(CONFIG_MAX_SIZES.permissions));
 		};
 		if (config.scripts.size() > CONFIG_MAX_SIZES.scripts.0) {
 			return #err("invalid config: max scripts is " # Nat.toText(CONFIG_MAX_SIZES.scripts.0));

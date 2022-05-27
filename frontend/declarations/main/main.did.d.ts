@@ -1,8 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export type Access = { 'readOnly' : null } |
-  { 'readWrite' : null };
 export interface Dependency { 'name' : PackageName, 'version' : string }
 export type Err = string;
 export interface File {
@@ -14,9 +12,7 @@ export type FileId = string;
 export interface PackageConfig {
   'dfx' : string,
   'moc' : string,
-  'permissions' : Array<Permission>,
   'scripts' : Array<Script>,
-  'owner' : Principal,
   'documentation' : string,
   'name' : PackageName,
   'homepage' : string,
@@ -24,7 +20,6 @@ export interface PackageConfig {
   'version' : string,
   'keywords' : Array<string>,
   'donation' : string,
-  'isPrivate' : boolean,
   'repository' : string,
   'dependencies' : Array<Dependency>,
   'license' : string,
@@ -33,15 +28,25 @@ export interface PackageConfig {
 export type PackageName = string;
 export type PackageName__1 = string;
 export interface PackageSummary {
+  'dfx' : string,
+  'moc' : string,
+  'scripts' : Array<Script>,
+  'owner' : Principal,
+  'documentation' : string,
   'name' : PackageName,
+  'homepage' : string,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'description' : string,
   'version' : string,
   'keywords' : Array<string>,
+  'donation' : string,
   'updatedAt' : Time,
+  'repository' : string,
+  'dependencies' : Array<Dependency>,
+  'license' : string,
+  'readme' : string,
 }
-export interface Permission { 'access' : Access, 'user' : Principal }
 export type PublishingErr = string;
 export type PublishingId = string;
 export type Result = { 'ok' : null } |
@@ -58,6 +63,7 @@ export interface _SERVICE {
   'getFile' : ActorMethod<[FileId], File>,
   'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
   'getLastConfig' : ActorMethod<[PackageName__1], PackageConfig>,
+  'getLastSummary' : ActorMethod<[PackageName__1], PackageSummary>,
   'getLastVersion' : ActorMethod<[PackageName__1], Version>,
   'getReadmeFile' : ActorMethod<[PackageName__1, Version], File>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,

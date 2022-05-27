@@ -39,6 +39,7 @@
 		padding: 0 20px;
 		box-sizing: border-box;
 		margin-top: 10px;
+		width: 600px;
 	}
 
 	.title {

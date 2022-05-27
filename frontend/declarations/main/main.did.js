@@ -4,17 +4,13 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
   const PackageName__1 = IDL.Text;
   const Version = IDL.Text;
-  const Access = IDL.Variant({ 'readOnly' : IDL.Null, 'readWrite' : IDL.Null });
-  const Permission = IDL.Record({ 'access' : Access, 'user' : IDL.Principal });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
   const PackageConfig = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
-    'permissions' : IDL.Vec(Permission),
     'scripts' : IDL.Vec(Script),
-    'owner' : IDL.Principal,
     'documentation' : IDL.Text,
     'name' : PackageName,
     'homepage' : IDL.Text,
@@ -22,7 +18,6 @@ export const idlFactory = ({ IDL }) => {
     'version' : IDL.Text,
     'keywords' : IDL.Vec(IDL.Text),
     'donation' : IDL.Text,
-    'isPrivate' : IDL.Bool,
     'repository' : IDL.Text,
     'dependencies' : IDL.Vec(Dependency),
     'license' : IDL.Text,
@@ -37,13 +32,24 @@ export const idlFactory = ({ IDL }) => {
   });
   const Time = IDL.Int;
   const PackageSummary = IDL.Record({
+    'dfx' : IDL.Text,
+    'moc' : IDL.Text,
+    'scripts' : IDL.Vec(Script),
+    'owner' : IDL.Principal,
+    'documentation' : IDL.Text,
     'name' : PackageName,
+    'homepage' : IDL.Text,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'description' : IDL.Text,
     'version' : IDL.Text,
     'keywords' : IDL.Vec(IDL.Text),
+    'donation' : IDL.Text,
     'updatedAt' : Time,
+    'repository' : IDL.Text,
+    'dependencies' : IDL.Vec(Dependency),
+    'license' : IDL.Text,
+    'readme' : IDL.Text,
   });
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
@@ -61,6 +67,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getLastConfig' : IDL.Func([PackageName__1], [PackageConfig], ['query']),
+    'getLastSummary' : IDL.Func([PackageName__1], [PackageSummary], ['query']),
     'getLastVersion' : IDL.Func([PackageName__1], [Version], ['query']),
     'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], ['query']),
     'getRecentlyUpdatedPackages' : IDL.Func(

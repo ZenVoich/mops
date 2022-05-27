@@ -17,7 +17,7 @@ export async function publish() {
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'dependencies', 'permissions', 'scripts'].includes(key)) {
+		if (!['package', 'dependencies', 'scripts'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			return;
 		}
@@ -59,7 +59,6 @@ export async function publish() {
 		'homepage',
 		'readme',
 		'license',
-		'isPrivate',
 		'files',
 		'dfx',
 		'moc',
@@ -101,11 +100,6 @@ export async function publish() {
 		return;
 	}
 
-	if (config.package.permissions && Object.keys(config.package.permissions).length > 50) {
-		console.log(chalk.red('Error: ') + 'max permissions is 50');
-		return;
-	}
-
 	if (config.package.keywords) {
 		for (let keyword of config.package.keywords) {
 			if (keyword.length > 20) {
@@ -135,7 +129,6 @@ export async function publish() {
 		documentation: config.package.documentation || '',
 		readme: 'README.md',
 		license: config.package.license || '',
-		isPrivate: false,
 		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
@@ -143,7 +136,6 @@ export async function publish() {
 		dependencies: (Object.entries(config.dependencies || {})).map(([name, version]) => {
 			return {name, version};
 		}),
-		permissions: [],
 		scripts: [],
 	};
 

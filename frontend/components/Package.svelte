@@ -3,7 +3,7 @@
 	import {debounce} from 'throttle-debounce';
 	import {location as loc} from 'svelte-spa-router';
 
-	import {PackageConfig} from '/declarations/main/main.did.js';
+	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 	import {micromark} from 'micromark';
 
@@ -14,7 +14,7 @@
 	$: $loc && load();
 
 	let readmeHtml: string;
-	let config: PackageConfig;
+	let packageSummary: PackageSummary;
 	let loaded = false;
 	let clipboardIcon = '📋';
 
@@ -23,8 +23,8 @@
 			return;
 		}
 		loaded = false;
-		config = await mainActor().getLastConfig(pkgName);
-		mainActor().getReadmeFile(config.name, config.version).then((res) => {
+		packageSummary = await mainActor().getLastSummary(pkgName);
+		mainActor().getReadmeFile(packageSummary.name, packageSummary.version).then((res) => {
 			let readme = new TextDecoder().decode(new Uint8Array(res.content));
 			readmeHtml = micromark(readme);
 			loaded = true;
@@ -33,7 +33,7 @@
 
 	let resetIconTimer: any;
 	function copyCommand() {
-		navigator.clipboard.writeText(`mops i ${config.name}`);
+		navigator.clipboard.writeText(`mops i ${packageSummary.name}`);
 		clipboardIcon = '✔️';
 		clearTimeout(resetIconTimer);
 		resetIconTimer = setTimeout(() => {
@@ -50,44 +50,44 @@
 	{#if loaded}
 		<div class="readme">
 			<!-- <div class="header">
-				<div class="name">{config.name}</div>
-				<div class="version">{config.version} published 1 day ago</div>
+				<div class="name">{packageSummary.name}</div>
+				<div class="version">{packageSummary.version} published 1 day ago</div>
 			</div> -->
 			<!-- <div class="install">
 				<div class="text">Install</div>
-				<div class="command">mops i {config.name}</div>
+				<div class="command">mops i {packageSummary.name}</div>
 			</div> -->
 			{@html readmeHtml}
 		</div>
 		<div class="right-panel">
 			<div class="detail">
 				<div class="label">Package</div>
-				<div class="value">{config.name}</div>
+				<div class="value">{packageSummary.name}</div>
 			</div>
 			<div class="detail">
 				<div class="label">Version</div>
-				<div class="value">{config.version}</div>
+				<div class="value">{packageSummary.version}</div>
 			</div>
 			<div class="detail">
 				<div class="label">Install</div>
-				<div class="value install-command" on:click="{copyCommand}">mops i {config.name} <div class="icon">{clipboardIcon}</div></div>
+				<div class="value install-command" on:click="{copyCommand}">mops i {packageSummary.name} <div class="icon">{clipboardIcon}</div></div>
 			</div>
-			{#if config.repository}
+			{#if packageSummary.repository}
 				<div class="detail">
 					<div class="label">Repository</div>
-					<a class="value" href="{config.repository}" target="_blank">{config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
+					<a class="value" href="{packageSummary.repository}" target="_blank">{packageSummary.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
 				</div>
 			{/if}
-			{#if config.documentation}
+			{#if packageSummary.documentation}
 				<div class="detail">
 					<div class="label">Documentation</div>
-					<a class="value" href="{config.documentation}" target="_blank">{config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
+					<a class="value" href="{packageSummary.documentation}" target="_blank">{packageSummary.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
 				</div>
 			{/if}
-			{#if config.owner}
+			{#if packageSummary.owner}
 				<div class="detail">
 					<div class="label">Owner</div>
-					<a class="value">{config.owner}</a>
+					<div class="value">{packageSummary.owner}</div>
 				</div>
 			{/if}
 		</div>
