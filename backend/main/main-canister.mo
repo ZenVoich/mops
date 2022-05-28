@@ -300,16 +300,6 @@ actor {
 			};
 		};
 
-		// for (name in packageVersions.keys()) {
-		// 	Option.iterate(_getMaxVersion(name), func(ver: Version.Version) {
-		// 		Option.iterate(packageConfigs.get(name # "@" # ver), func(config: PackageConfig) {
-		// 			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
-		// 				match.add(config);
-		// 			};
-		// 		});
-		// 	});
-		// };
-
 		var packages = Array.sort<PackageConfig>(match.toArray(), func(a, b) {
 			var aPoints = 0;
 			var bPoints = 0;
