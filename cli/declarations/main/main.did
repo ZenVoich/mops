@@ -76,9 +76,8 @@ service : {
   getConfig: (PackageName__1, Version) -> (PackageConfig) query;
   getFile: (FileId) -> (File) query;
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
-  getLastConfig: (PackageName__1) -> (PackageConfig) query;
-  getLastSummary: (PackageName__1) -> (PackageSummary) query;
-  getLastVersion: (PackageName__1) -> (Version) query;
+  getMaxVersion: (PackageName__1) -> (Version) query;
+  getPackageSummary: (PackageName__1, Version) -> (PackageSummary) query;
   getReadmeFile: (PackageName__1, Version) -> (File) query;
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;

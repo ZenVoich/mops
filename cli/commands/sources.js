@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
 import {install} from './install.js';
-import {getLastVersion, readConfig} from '../mops.js';
+import {getMaxVersion, readConfig} from '../mops.js';
 
 function rootDir(cwd = process.cwd()) {
 	let configFile = path.join(cwd, 'mops.toml');
@@ -73,7 +73,7 @@ export async function sources({verbose} = {}) {
 			packages['base-unofficial'] = downloadedPackages['base-unofficial'];
 		}
 		else {
-			let version = await getLastVersion('base-unofficial');
+			let version = await getMaxVersion('base-unofficial');
 			await install('base-unofficial', version, false, true);
 			packages['base-unofficial'] = version;
 		}

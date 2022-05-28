@@ -1,16 +1,16 @@
 {
 	"type": "module",
 	"scripts": {
-		"dev": "npm run replica && npm run deploy && npm run declarations && npm run declarations:cli && cd frontend && npm run dev && cd ..",
+		"dev": "npm run replica && npm run deploy && npm run decl && npm run decl:cli && cd frontend && npm run dev && cd ..",
 		"build": "cd frontend && npm run build",
-		"deploy": "npm run constants && dfx deploy main",
+		"deploy": "npm run const && dfx deploy main && npm run decl && npm run decl:cli",
 		"replica": "dfx stop && dfx start --emulator --background --clean",
-		"constants": "dfx canister create --all && node constants.js",
-		"constants:prod": "dfx canister --network ic create --all && node constants.js prod",
-		"declarations": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
-		"declarations:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
-		"build:prod": "NODE_ENV=production npm run constants:prod && dfx build --network ic",
-		"deploy:prod": "NODE_ENV=production npm run constants:prod && dfx deploy --network ic"
+		"const": "dfx canister create --all && node constants.js",
+		"const:prod": "dfx canister --network ic create --all && node constants.js prod",
+		"decl": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
+		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
+		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic",
+		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic"
 	},
 	"dependencies": {
 		"@dfinity/principal": "^0.11.1"

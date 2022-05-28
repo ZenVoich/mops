@@ -37,7 +37,7 @@ actor {
 	var packageVersions = TrieMap.TrieMap<PackageName, [Version.Version]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
-	var lastConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
+	var maxConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
 
 	// files
 	public type FileId = Text.Text;
@@ -63,6 +63,44 @@ actor {
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<File>>(Text.equal, Text.hash);
 
 
+	// PRIVATE
+	func _getMaxVersion(name: PackageName): ?Version.Version {
+		let versionsMaybe = packageVersions.get(name);
+		if (Option.isSome(versionsMaybe)) {
+			let versions = Utils.unwrap(versionsMaybe);
+			let verSorted = Array.sort(versions, Version.compare);
+
+			if (verSorted.size() != 0) {
+				return ?verSorted[verSorted.size() - 1];
+			};
+		};
+		return null;
+	};
+
+	func _resolveVersion(name: PackageName, version: Version.Version): Version.Version {
+		if (version == "max") {
+			Utils.expect(_getMaxVersion(name), "Package '" # name # "' not found");
+		}
+		else {
+			version;
+		};
+	};
+
+	func _updateMaxConfig(config: PackageConfig) {
+		switch (_getMaxVersion(name)) {
+			case (?ver) {
+				if (Version.compare(config.version, maxVer) == #greater) {
+					maxConfigs.put(config.name, config);
+				};
+			};
+			case (null) {
+				maxConfigs.put(config.name, config);
+			};
+		}
+	};
+
+
+	// PUBLIC
 	public shared ({caller}) func startPublish(config: PackageConfig): async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
 
@@ -83,23 +121,17 @@ actor {
 			};
 		};
 
-		// check version increment
-		let versionsMaybe = packageVersions.get(config.name);
-		if (Option.isSome(versionsMaybe)) {
-			let versions = Utils.unwrap(versionsMaybe);
-			let verSorted = Array.sort(versions, Version.compare);
-
-			if (verSorted.size() != 0) {
-				let maxVer = verSorted[verSorted.size() - 1];
-
-				let order = Version.compare(maxVer, config.version);
-				if (order == #equal) {
+		// check if the same version is published
+		switch (packageVersions.get(config.name)) {
+			case (?versions) {
+				let sameVersionOpt = Array.find<Version.Version>(versions, func(ver: Version.Version) {
+					ver == config.version;
+				});
+				if (sameVersionOpt != null) {
 					return #err(config.name # "@" # config.version # " already published");
 				};
-				if (order == #greater) {
-					return #err("Bigger version of package already published - " # maxVer # ". Please increment the package version");
-				};
 			};
+			case (null) {};
 		};
 
 		// check dependencies
@@ -196,7 +228,7 @@ actor {
 
 		packageConfigs.put(packageId, publishing.config);
 		packageOwners.put(publishing.config.name, caller);
-		lastConfigs.put(publishing.config.name, publishing.config);
+		maxConfigs.put(publishing.config.name, publishing.config);
 		packagePublications.put(packageId, {
 			user = caller;
 			time = Time.now();
@@ -214,21 +246,18 @@ actor {
 		Principal.toText(caller);
 	};
 
-	public shared query ({caller}) func getLastVersion(name: PackageName): async Version.Version {
-		let config = Utils.expect(lastConfigs.get(name), "Package '" # name # "' not found");
-		config.version;
+	public shared query ({caller}) func getMaxVersion(name: PackageName): async Version.Version {
+		Utils.expect(_getMaxVersion(name), "Package '" # name # "' not found");
 	};
 
-	public shared query ({caller}) func getLastConfig(name: PackageName): async PackageConfig {
-		Utils.expect(lastConfigs.get(name), "Package '" # name # "' not found");
-	};
-
-	public shared query ({caller}) func getLastSummary(name: PackageName): async PackageSummary {
-		toPackageSummary(Utils.expect(lastConfigs.get(name), "Package '" # name # "' not found"));
+	public shared query ({caller}) func getPackageSummary(name: PackageName, version: Version.Version): async PackageSummary {
+		var ver = _resolveVersion(name, version);
+		toPackageSummary(Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found"));
 	};
 
 	public shared query ({caller}) func getConfig(name: PackageName, version: Version.Version): async PackageConfig {
-		Utils.expect(packageConfigs.get(name # "@" # version), "Package '" # name # "@" # version # "' not found");
+		var ver = _resolveVersion(name, version);
+		Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
 	};
 
 	public shared query ({caller}) func getFileIds(name: PackageName, version: Version.Version): async [FileId] {
@@ -241,7 +270,8 @@ actor {
 	};
 
 	public shared query ({caller}) func getReadmeFile(name: PackageName, version: Version.Version): async File {
-		let config = Utils.expect(packageConfigs.get(name # "@" # version), "Package '" # name # "@" # version # "' not found");
+		var ver = _resolveVersion(name, version);
+		let config = Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
 		let fileId = config.name # "@" # config.version # "/" # config.readme;
 		Utils.expect(files.get(fileId), "File '" # fileId # "' not found");
 	};
@@ -264,11 +294,21 @@ actor {
 		let match = Buffer.Buffer<PackageConfig>(max);
 		let pattern = #text(searchText);
 
-		for (config in lastConfigs.vals()) {
+		for (config in maxConfigs.vals()) {
 			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
 				match.add(config);
 			};
 		};
+
+		// for (name in packageVersions.keys()) {
+		// 	Option.iterate(_getMaxVersion(name), func(ver: Version.Version) {
+		// 		Option.iterate(packageConfigs.get(name # "@" # ver), func(config: PackageConfig) {
+		// 			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
+		// 				match.add(config);
+		// 			};
+		// 		});
+		// 	});
+		// };
 
 		var packages = Array.sort<PackageConfig>(match.toArray(), func(a, b) {
 			var aPoints = 0;
@@ -352,7 +392,7 @@ actor {
 	stable var packageVersionsStable: [(PackageName, [Version.Version])] = [];
 	stable var packageOwnersStable: [(PackageName, Principal)] = [];
 	stable var packageConfigsStable: [(PackageId, PackageConfig)] = [];
-	stable var lastConfigsStable: [(PackageName, PackageConfig)] = [];
+	stable var maxConfigsStable: [(PackageName, PackageConfig)] = [];
 
 	stable var fileIdsByPackageStable: [(PackageId, [FileId])] = [];
 	stable var filesStable: [(FileId, File)] = [];
@@ -361,7 +401,7 @@ actor {
 
 
 	system func preupgrade() {
-		lastConfigsStable := Iter.toArray(lastConfigs.entries());
+		maxConfigsStable := Iter.toArray(maxConfigs.entries());
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
@@ -372,8 +412,8 @@ actor {
 	};
 
 	system func postupgrade() {
-		lastConfigs := TrieMap.fromEntries<PackageName, PackageConfig>(lastConfigsStable.vals(), Text.equal, Text.hash);
-		lastConfigsStable := [];
+		maxConfigs := TrieMap.fromEntries<PackageName, PackageConfig>(maxConfigsStable.vals(), Text.equal, Text.hash);
+		maxConfigsStable := [];
 
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
 		packagePublicationsStable := [];

@@ -23,12 +23,16 @@
 			return;
 		}
 		loaded = false;
-		packageSummary = await mainActor().getLastSummary(pkgName);
-		mainActor().getReadmeFile(packageSummary.name, packageSummary.version).then((res) => {
-			let readme = new TextDecoder().decode(new Uint8Array(res.content));
-			readmeHtml = micromark(readme);
-			loaded = true;
-		});
+		await Promise.all([
+			mainActor().getPackageSummary(pkgName, 'max').then((res) => {
+				packageSummary = res;
+			}),
+			mainActor().getReadmeFile(pkgName, 'max').then((res) => {
+				let readme = new TextDecoder().decode(new Uint8Array(res.content));
+				readmeHtml = micromark(readme);
+			}),
+		]);
+		loaded = true;
 	});
 
 	let resetIconTimer: any;
