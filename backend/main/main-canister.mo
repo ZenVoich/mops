@@ -87,9 +87,9 @@ actor {
 	};
 
 	func _updateMaxConfig(config: PackageConfig) {
-		switch (_getMaxVersion(name)) {
+		switch (_getMaxVersion(config.name)) {
 			case (?ver) {
-				if (Version.compare(config.version, maxVer) == #greater) {
+				if (Version.compare(config.version, ver) == #greater) {
 					maxConfigs.put(config.name, config);
 				};
 			};

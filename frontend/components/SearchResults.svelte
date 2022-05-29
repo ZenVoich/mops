@@ -43,9 +43,8 @@
 		{#each packages as pkg}
 			<PackageSummaryEl {pkg}></PackageSummaryEl>
 		{:else}
-			{#if loaded}
-				<div class="not-found">Packages not found</div>
-			{/if}
+			<div class="not-found">Packages not found</div>
+			<img class="not-found-img" src="/img/sad-mops.svg" alt="">
 		{/each}
 	{:else}
 		<Loader></Loader>
@@ -62,7 +61,12 @@
 	}
 
 	.not-found {
-		font-size: 20px;
+		font-size: 24px;
 		color: #9d9d9d;
+		margin: 20px 0;
+	}
+
+	.not-found-img {
+		width: 250px;
 	}
 </style>
