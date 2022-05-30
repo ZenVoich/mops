@@ -73,6 +73,7 @@ type Dependency =
  };
 service : {
   finishPublish: (PublishingId) -> (Result);
+  getApiVersion: () -> (Text) query;
   getConfig: (PackageName__1, Version) -> (PackageConfig) query;
   getFile: (FileId) -> (File) query;
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
@@ -84,5 +85,4 @@ service : {
   search: (Text) -> (vec PackageSummary) query;
   startPublish: (PackageConfig) -> (Result_1);
   uploadFile: (PublishingId, Text, blob) -> (Result);
-  whoami: () -> (Text) query;
 }

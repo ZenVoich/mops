@@ -59,6 +59,7 @@ export type Time = bigint;
 export type Version = string;
 export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
+  'getApiVersion' : ActorMethod<[], Text>,
   'getConfig' : ActorMethod<[PackageName__1, Version], PackageConfig>,
   'getFile' : ActorMethod<[FileId], File>,
   'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
@@ -70,5 +71,4 @@ export interface _SERVICE {
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,
   'uploadFile' : ActorMethod<[PublishingId, Text, Array<number>], Result>,
-  'whoami' : ActorMethod<[], Text>,
 }

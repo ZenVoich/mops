@@ -11,6 +11,9 @@ import {decodeFile} from './pem.js';
 
 global.fetch = fetch;
 
+// (!) make changes in pair with backend
+let apiVersion = '0.1';
+
 let networkFile = new URL('./network.txt', import.meta.url);
 
 export function setNetwork(network) {
@@ -87,4 +90,23 @@ export async function getMaxVersion(pkgName) {
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	let text = fs.readFileSync(configFile).toString();
 	return TOML.parse(text);
+}
+
+// warn on minor mismatch
+// err on major mismatch
+export async function checkApiCompatibility() {
+	let actor = await mainActor();
+	let backendApiVer = await actor.getApiVersion();
+	if (backendApiVer.split('.')[0] !== apiVersion.split('.')[0]) {
+		console.log(chalk.red('ERR: ') + `CLI incompatible with backend. CLI v${apiVersion}, Backend v${backendApiVer}`);
+		console.log('Run ' + chalk.greenBright('npm i -g ic-mops') + ' to upgrade cli.');
+		return false;
+	}
+	else if (backendApiVer.split('.')[1] !== apiVersion.split('.')[1]) {
+		console.log('-'.repeat(50));
+		console.log(chalk.yellow('WARN: ') + `CLI probably incompatible with backend. CLI v${apiVersion}, Backend v${backendApiVer}`);
+		console.log('Recommended to run ' + chalk.greenBright('npm i -g ic-mops') + ' to upgrade cli.');
+		console.log('-'.repeat(50));
+	}
+	return true;
 }

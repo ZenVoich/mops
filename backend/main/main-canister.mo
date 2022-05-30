@@ -33,6 +33,7 @@ actor {
 		time: Time.Time;
 	};
 
+	let apiVersion = "0.1"; // (!) make changes in pair with cli
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var packageVersions = TrieMap.TrieMap<PackageName, [Version.Version]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
@@ -242,8 +243,8 @@ actor {
 
 
 	// QUERY
-	public shared query ({caller}) func whoami(): async Text.Text {
-		Principal.toText(caller);
+	public shared query ({caller}) func getApiVersion(): async Text.Text {
+		apiVersion;
 	};
 
 	public shared query ({caller}) func getMaxVersion(name: PackageName): async Version.Version {

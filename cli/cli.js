@@ -11,7 +11,7 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {getMaxVersion, getNetwork, setNetwork} from './mops.js';
+import {checkApiCompatibility, getMaxVersion, getNetwork, setNetwork} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -55,6 +55,11 @@ program
 			config.dependencies = {};
 		}
 
+		let compatible = await checkApiCompatibility();
+		if (!compatible) {
+			return;
+		}
+
 		if (!pkg) {
 			installAll(options);
 		}
@@ -74,7 +79,10 @@ program
 	.command('publish')
 	.description('Publish package to the mops registry')
 	.action(async () => {
-		await publish();
+		let compatible = await checkApiCompatibility();
+		if (compatible) {
+			await publish();
+		}
 	});
 
 // set-network

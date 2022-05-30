@@ -2,6 +2,7 @@ export const idlFactory = ({ IDL }) => {
   const PublishingId = IDL.Text;
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
+  const Text = IDL.Text;
   const PackageName__1 = IDL.Text;
   const Version = IDL.Text;
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
@@ -24,7 +25,6 @@ export const idlFactory = ({ IDL }) => {
     'readme' : IDL.Text,
   });
   const FileId = IDL.Text;
-  const Text = IDL.Text;
   const File = IDL.Record({
     'id' : FileId,
     'content' : IDL.Vec(IDL.Nat8),
@@ -55,6 +55,7 @@ export const idlFactory = ({ IDL }) => {
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
   return IDL.Service({
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
+    'getApiVersion' : IDL.Func([], [Text], ['query']),
     'getConfig' : IDL.Func(
         [PackageName__1, Version],
         [PackageConfig],
@@ -86,7 +87,6 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
-    'whoami' : IDL.Func([], [Text], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };
