@@ -5,6 +5,7 @@
 	import Package from './Package.svelte';
 	import InstallDoc from './docs/InstallDoc.svelte';
 	import PublishDoc from './docs/PublishDoc.svelte';
+	import ConfigDoc from './docs/ConfigDoc.svelte';
 
 	let routes = {
 		'/': Home,
@@ -12,6 +13,7 @@
 		'/package/:package': Package,
 		'/docs/install': InstallDoc,
 		'/docs/publish': PublishDoc,
+		'/docs/config': ConfigDoc,
 	};
 </script>
 

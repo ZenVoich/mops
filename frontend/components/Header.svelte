@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {push} from 'svelte-spa-router';
+	import {push, link} from 'svelte-spa-router';
 
 	export let searchText = '';
 
@@ -12,11 +12,6 @@
 		push(`/search/${text}`);
 	}
 
-	function home(e: MouseEvent) {
-		e.preventDefault();
-		push(`/`);
-	}
-
 	function onKeyDown(e: KeyboardEvent) {
 		if (e.key == 'Enter') {
 			search();
@@ -25,7 +20,7 @@
 </script>
 
 <div class="header">
-	<a href="/" on:click="{home}">
+	<a href="/" use:link>
 		<img class="logo" src="img/mops-motoko.svg" alt="mops">
 	</a>
 	<div class="search">

@@ -1,15 +1,7 @@
 <script lang="ts">
-	import {push} from 'svelte-spa-router';
+	import {link} from 'svelte-spa-router';
 	import Header from './Header.svelte';
 	import TopPackages from './TopPackages.svelte';
-
-	function installDocs() {
-		push('/docs/install')
-	}
-
-	function publishDocs() {
-		push('/docs/publish')
-	}
 </script>
 
 <div class="main">
@@ -21,9 +13,10 @@
 		<div class="getting-started">
 			<div class="title">Getting Started</div>
 			<div class="buttons">
-				<div class="button" on:click="{installDocs}">Install Package</div>
-				<div class="button" on:click="{publishDocs}">Publish Package</div>
+				<a class="button" href="/docs/install" use:link>Install Package</a>
+				<a class="button" href="/docs/publish" use:link>Publish Package</a>
 			</div>
+			<a class="link" href="/docs/config" use:link>Config file</a>
 		</div>
 
 		<!-- <div class="delimiter"></div>

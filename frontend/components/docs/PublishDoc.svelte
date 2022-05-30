@@ -22,7 +22,7 @@
 		<h3>2. Import Identity</h3>
 		<div>Create new identity to publish packages</div>
 		<br>
-		<code>dfx identity new --disable-encryption mops</code>
+		<code>dfx identity new mops</code>
 
 		<br>
 		<div>Import identity into the mops</div>

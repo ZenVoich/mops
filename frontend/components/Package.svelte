@@ -135,7 +135,7 @@
 	} */
 
 	.right-panel {
-		width: 200px;
+		width: 240px;
 		display: flex;
 		flex-direction: column;
 		gap: 15px;

@@ -24,7 +24,6 @@ actor {
 	public type Err = Text.Text;
 	public type Dependency = Types.Dependency;
 	public type Access = Types.Access;
-	public type Permission = Types.Permission;
 	public type PackageConfig = Types.PackageConfig;
 	public type PackageSummary = Types.PackageSummary;
 
