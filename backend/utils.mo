@@ -9,7 +9,7 @@ import Constants "./constants";
 
 module {
 	let admins = {
-		local = ["2vxsx-fae"];
+		local = ["hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"];
 		ic = ["hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"];
 	};
 

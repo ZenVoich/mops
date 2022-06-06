@@ -1,9 +1,10 @@
 import chalk from 'chalk';
 import fs from 'fs';
-import {getIdentity} from '../mops.js';
+import path from 'path';
+import {getIdentity, globalCacheDir} from '../mops.js';
 
 export function whoami() {
-	let identityPem = new URL('../identity.pem', import.meta.url);
+	let identityPem = path.resolve(globalCacheDir, 'identity.pem');
 	if (fs.existsSync(identityPem)) {
 		let identity = getIdentity();
 		console.log(identity.getPrincipal().toText());

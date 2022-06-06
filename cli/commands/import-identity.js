@@ -1,10 +1,15 @@
 import fs from 'fs';
 import chalk from 'chalk';
+import path from 'path';
+import {globalCacheDir} from '../mops.js';
 
 export async function importPem(data) {
 	try {
-		let url = new URL('../identity.pem', import.meta.url);
-		fs.writeFileSync(url, data);
+		if (!fs.existsSync(globalCacheDir)) {
+			fs.mkdirSync(globalCacheDir);
+		}
+		let identityPem = path.resolve(globalCacheDir, 'identity.pem');
+		fs.writeFileSync(identityPem, data);
 		console.log(chalk.green('Success'));
 	}
 	catch (err) {

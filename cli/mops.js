@@ -16,6 +16,8 @@ let apiVersion = '0.1';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 
+export let globalCacheDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+
 export function setNetwork(network) {
 	fs.writeFileSync(networkFile, network);
 }
@@ -44,7 +46,7 @@ export function getNetwork() {
 }
 
 export let getIdentity = () => {
-	let identityPem = new URL('./identity.pem', import.meta.url);
+	let identityPem = path.resolve(globalCacheDir, 'identity.pem');
 	if (fs.existsSync(identityPem)) {
 		return decodeFile(identityPem);
 	}
