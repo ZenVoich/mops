@@ -4,7 +4,7 @@ import logUpdate from 'log-update';
 import {checkConfigFile, getMaxVersion, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 
-export async function install(pkg, version = '', verbose = false, dep = false) {
+export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -18,7 +18,7 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 
 	// cache
 	if (fs.existsSync(dir)) {
-		logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
 	}
 	// no cache
 	else {
@@ -34,7 +34,7 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 		let step = 0;
 		let progress = () => {
 			step++;
-			logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} ${progressBar(step, total)}`);
+			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} ${progressBar(step, total)}`);
 		};
 
 		// download files
@@ -48,12 +48,12 @@ export async function install(pkg, version = '', verbose = false, dep = false) {
 	}
 
 	if (verbose) {
-		logUpdate.done();
+		silent || logUpdate.done();
 	}
 
 	// install dependencies
 	let config = readConfig(path.join(dir, 'mops.toml'));
 	for (let [name, version] of Object.entries(config.dependencies || {})) {
-		await install(name, version, verbose, true);
+		await install(name, version, {verbose, silent, dep: true});
 	}
 }

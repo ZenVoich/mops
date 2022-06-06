@@ -65,7 +65,7 @@ program
 		}
 		else {
 			let version = await getMaxVersion(pkg);
-			await install(pkg, version, options.verbose);
+			await install(pkg, version, {verbose: options.verbose});
 
 			config.dependencies[pkg] = version;
 			wirteConfig(config);

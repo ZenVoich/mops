@@ -12,7 +12,7 @@ export async function installAll({verbose} = {}) {
 	let deps = Object.entries(config.dependencies || {});
 
 	for (let [pkg, ver] of deps) {
-		await install(pkg, ver, verbose);
+		await install(pkg, ver, {verbose});
 	}
 
 	logUpdate.clear();

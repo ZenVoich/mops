@@ -74,7 +74,7 @@ export async function sources({verbose} = {}) {
 		}
 		else {
 			let version = await getMaxVersion('base-unofficial');
-			await install('base-unofficial', version, false, true);
+			await install('base-unofficial', version, {silent: true, dep: true});
 			packages['base-unofficial'] = version;
 		}
 	}
