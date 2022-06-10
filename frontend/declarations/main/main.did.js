@@ -61,7 +61,7 @@ export const idlFactory = ({ IDL }) => {
         [PackageConfig],
         ['query'],
       ),
-    'getFile' : IDL.Func([FileId], [File], ['query']),
+    'getFile' : IDL.Func([FileId], [File], []),
     'getFileIds' : IDL.Func(
         [PackageName__1, Version],
         [IDL.Vec(FileId)],
@@ -73,7 +73,7 @@ export const idlFactory = ({ IDL }) => {
         [PackageSummary],
         ['query'],
       ),
-    'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], ['query']),
+    'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], []),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
         [IDL.Vec(PackageSummary)],

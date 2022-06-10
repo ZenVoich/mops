@@ -1,6 +1,5 @@
 [package]
-name = 'hello'
-version = '0.1.1'
-description = 'hello lib'
-repository = ''
-files = ['test.mo']
+name = "hello"
+version = "0.1.5"
+description = "hello lib"
+repository = "..."

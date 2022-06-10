@@ -75,11 +75,11 @@ service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
   getConfig: (PackageName__1, Version) -> (PackageConfig) query;
-  getFile: (FileId) -> (File) query;
+  getFile: (FileId) -> (File);
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
   getMaxVersion: (PackageName__1) -> (Version) query;
   getPackageSummary: (PackageName__1, Version) -> (PackageSummary) query;
-  getReadmeFile: (PackageName__1, Version) -> (File) query;
+  getReadmeFile: (PackageName__1, Version) -> (File);
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;
   search: (Text) -> (vec PackageSummary) query;

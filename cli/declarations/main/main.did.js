@@ -61,7 +61,7 @@ export const idlFactory = ({ IDL }) => {
         [PackageConfig],
         ['query'],
       ),
-    'getFile' : IDL.Func([FileId], [File], ['query']),
+    'getFile' : IDL.Func([FileId], [File], []),
     'getFileIds' : IDL.Func(
         [PackageName__1, Version],
         [IDL.Vec(FileId)],

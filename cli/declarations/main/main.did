@@ -75,7 +75,7 @@ service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
   getConfig: (PackageName__1, Version) -> (PackageConfig) query;
-  getFile: (FileId) -> (File) query;
+  getFile: (FileId) -> (File);
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
   getMaxVersion: (PackageName__1) -> (Version) query;
   getPackageSummary: (PackageName__1, Version) -> (PackageSummary) query;

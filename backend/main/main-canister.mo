@@ -17,6 +17,9 @@ import Version "./version";
 import Types "./types";
 import {validateConfig} "./validate-config";
 import DownloadLog "./download-log";
+import StorageManager "../storage/storage-manager";
+import Storage "../storage/storage-canister";
+import {generateId} "../generate-id";
 
 actor {
 	public type PackageName = Text.Text; // lib
@@ -28,8 +31,9 @@ actor {
 	public type PackageSummary = Types.PackageSummary;
 
 	public type PackagePublication = {
-		user: Principal;
 		time: Time.Time;
+		user: Principal;
+		storage: Principal;
 	};
 
 	let apiVersion = "0.1"; // (!) make changes in pair with cli
@@ -50,6 +54,7 @@ actor {
 	var files = TrieMap.TrieMap<FileId, File>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 	let downloadLog = DownloadLog.DownloadLog();
+	let storageManager = StorageManager.StorageManager();
 
 	// publish
 	type PublishingId = Text.Text;
@@ -58,6 +63,7 @@ actor {
 		time: Time.Time;
 		user: Principal;
 		config: PackageConfig;
+		storage: Principal;
 	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<File>>(Text.equal, Text.hash);
@@ -112,6 +118,7 @@ actor {
 			};
 		};
 
+		// check permissions
 		switch (packageOwners.get(config.name)) {
 			case (null) {};
 			case (?owner) {
@@ -145,24 +152,27 @@ actor {
 			};
 		};
 
-		// TODO: generate id
-		let publishingId = Nat.toText(publishingPackages.size());
+		let publishingId = await generateId();
 
 		if (publishingPackages.get(publishingId) != null) {
 			return #err("Already publishing");
 		};
+
+		await storageManager.ensureUploadableStorages();
 
 		// start
 		publishingPackages.put(publishingId, {
 			time = Time.now();
 			user = caller;
 			config = config;
+			storage = storageManager.getStorageForUpload();
 		});
 		publishingFiles.put(publishingId, Buffer.Buffer(10));
 
 		#ok(publishingId);
 	};
 
+	// public shared ({caller}) func startFileUpload(publishingId: PublishingId, path: Text.Text, chunkCount: Nat): async Result.Result<(), Err> {
 	public shared ({caller}) func uploadFile(publishingId: PublishingId, path: Text.Text, content: Blob): async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
@@ -172,12 +182,22 @@ actor {
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
 		assert(pubFiles.size() < 100);
 
-		let moMd = Text.endsWith(path, #text ".mo") or Text.endsWith(path, #text ".md");
-		let didToml = Text.endsWith(path, #text ".did") or Text.endsWith(path, #text ".toml");
-		let license = Text.endsWith(path, #text "LICENSE") or Text.endsWith(path, #text "LICENSE.md") or Text.endsWith(path, #text "license");
+		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
+		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
+		let license = Text.endsWith(path, #text("LICENSE")) or Text.endsWith(path, #text("LICENSE.md")) or Text.endsWith(path, #text("license"));
 		if (not (moMd or didToml or license)) {
 			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
+
+		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
+
+		await storageManager.startUpload(publishing.storage, {
+			id = fileId;
+			path = path;
+			chunkCount = 1;
+			owners = [];
+		});
+		await storageManager.uploadChunk(publishing.storage, fileId, 0, content);
 
 		let file: File = {
 			id = publishing.config.name # "@" # publishing.config.version # "/" # path;
@@ -213,7 +233,6 @@ actor {
 			if (file.path == "README.md") {
 				readmeMd := true;
 			};
-			files.put(file.id, file);
 		};
 
 		if (not mopsToml) {
@@ -221,6 +240,11 @@ actor {
 		};
 		if (not readmeMd) {
 			return #err("Missing required file README.md");
+		};
+
+		for (file in pubFiles.vals()) {
+			files.put(file.id, file);
+			await storageManager.finishUpload(publishing.storage, file.id);
 		};
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
@@ -232,6 +256,7 @@ actor {
 		packagePublications.put(packageId, {
 			user = caller;
 			time = Time.now();
+			storage = publishing.storage;
 		});
 
 		publishingFiles.delete(publishingId);
@@ -265,15 +290,25 @@ actor {
 		Utils.expect(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared query ({caller}) func getFile(fileId: FileId): async File {
-		Utils.expect(files.get(fileId), "File '" # fileId # "' not found");
+	public shared ({caller}) func getFile(fileId: FileId): async File {
+		// Utils.expect(files.get(fileId), "File '" # fileId # "' not found");
+		let storageId = storageManager.getStorageOfFile(fileId);
+		let storage = actor(Principal.toText(storageId)): Storage.Storage;
+		let fileMeta = Utils.unwrap(Result.toOption(await storage.getFileMeta(fileId)));
+		let chunk = Utils.unwrap(Result.toOption(await storage.downloadChunk(fileId, 0)));
+
+		return {
+			id = fileId;
+			path = fileMeta.path;
+			content = chunk;
+		};
 	};
 
-	public shared query ({caller}) func getReadmeFile(name: PackageName, version: Version.Version): async File {
+	public shared ({caller}) func getReadmeFile(name: PackageName, version: Version.Version): async File {
 		var ver = _resolveVersion(name, version);
 		let config = Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
 		let fileId = config.name # "@" # config.version # "/" # config.readme;
-		Utils.expect(files.get(fileId), "File '" # fileId # "' not found");
+		await getFile(fileId);
 	};
 
 	public shared ({caller}) func notifyInstall(name: PackageName, version: Version.Version) {
@@ -388,6 +423,7 @@ actor {
 	stable var filesStable: [(FileId, File)] = [];
 
 	stable var downloadLogStable: DownloadLog.Stable = null;
+	stable var storageManagerStable: StorageManager.Stable = null;
 
 
 	system func preupgrade() {
@@ -399,6 +435,7 @@ actor {
 		filesStable := Iter.toArray(files.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
+		storageManagerStable := storageManager.toStable();
 	};
 
 	system func postupgrade() {
@@ -425,5 +462,8 @@ actor {
 
 		downloadLog.loadStable(downloadLogStable);
 		downloadLogStable := null;
+
+		storageManager.loadStable(storageManagerStable);
+		storageManagerStable := null;
 	};
 };

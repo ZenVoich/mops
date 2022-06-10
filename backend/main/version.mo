@@ -123,24 +123,4 @@ module {
 
 		#ok();
 	};
-
-	func isDigit(char: Char): Bool {
-		let digits = "0123456789";
-		for (digit in digits.chars()) {
-			if (char == digit) {
-				return true;
-			}
-		};
-		return false;
-	};
-
-	func isLetter(char: Char): Bool {
-		let letters = "abcdefghijklmnopqrstuvwxyz";
-		for (letter in letters.chars()) {
-			if (char == letter) {
-				return true;
-			}
-		};
-		return false;
-	};
 };
