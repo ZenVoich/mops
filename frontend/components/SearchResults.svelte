@@ -8,7 +8,7 @@
 
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
-	import PackageSummaryEl from './PackageSummaryEl.svelte';
+	import PackageCard from './PackageCard.svelte';
 
 	$: searchText = decodeURI($loc.split('/search/')[1]);
 	$: $loc && updateResults();
@@ -45,7 +45,7 @@
 <div class="search-results">
 	{#if loaded}
 		{#each packages as pkg}
-			<PackageSummaryEl {pkg}></PackageSummaryEl>
+			<PackageCard {pkg}></PackageCard>
 		{:else}
 			<div class="not-found">Packages not found</div>
 			<img class="not-found-img" src="/img/sad-mops.svg" alt="">

@@ -32,12 +32,15 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 
 	let apiVersion = "0.1"; // (!) make changes in pair with cli
-	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
+
 	var packageVersions = TrieMap.TrieMap<PackageName, [Version.Version]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
 	var maxConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
+
+	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
+	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+
 	let downloadLog = DownloadLog.DownloadLog();
 	let storageManager = StorageManager.StorageManager();
 

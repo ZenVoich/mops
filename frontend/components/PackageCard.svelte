@@ -1,15 +1,10 @@
 <script lang="ts">
-	import {onMount} from 'svelte';
-	import {debounce} from 'throttle-debounce';
 	import {push, location as loc} from 'svelte-spa-router';
+	import Date from './Date.svelte';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
 	export let pkg: PackageDetails;
-
-	function formatDate(date: number) {
-		return Intl.DateTimeFormat(navigator.language, {year: 'numeric', month: 'long', day: 'numeric'}).format(date);
-	}
 
 	function show(name: string) {
 		push(`/package/${name}`);
@@ -25,7 +20,7 @@
 		<div class="description">{pkg.config.description}</div>
 	</div>
 	<div class="right">
-		<div>Updated: {formatDate(Number(pkg.publication.time / 1000000n))}</div>
+		<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
 		<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
 	</div>
 </div>

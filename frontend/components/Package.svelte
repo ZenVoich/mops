@@ -9,6 +9,7 @@
 
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
+	import Date from './Date.svelte';
 
 	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
 	$: $loc && load();
@@ -16,7 +17,8 @@
 	let readmeHtml: string;
 	let packageDetails: PackageDetails;
 	let loaded = false;
-	let clipboardIcon = '📋';
+	let installHovered = false;
+	let copiedToClipboard = false;
 
 	let load = debounce(10, async () => {
 		if (!pkgName) {
@@ -34,14 +36,34 @@
 		loaded = true;
 	});
 
+	let installHoverTimer: any;
+	function installMouseenter() {
+		clearTimeout(installHoverTimer);
+		console.log(copiedToClipboard)
+		installHoverTimer = setTimeout(() => {
+			installHovered = true;
+		}, 600);
+	}
+
+	function installMouseleave() {
+		clearTimeout(installHoverTimer);
+		if (!copiedToClipboard) {
+			installHovered = false;
+		}
+	}
+
 	let resetIconTimer: any;
 	function copyCommand() {
 		navigator.clipboard.writeText(`mops i ${packageDetails.config.name}`);
-		clipboardIcon = '✔️';
+		copiedToClipboard = true;
+		installHovered = true;
 		clearTimeout(resetIconTimer);
 		resetIconTimer = setTimeout(() => {
-			clipboardIcon = '📋';
-		}, 2000);
+			installHovered = false;
+			setTimeout(() => {
+				copiedToClipboard = false;
+			}, 300);
+		}, 3000);
 	}
 
 	onMount(load);
@@ -55,48 +77,44 @@
 
 <div class="package">
 	{#if loaded}
-		<div class="readme">
-			<!-- <div class="header">
+		<div class="header">
+			<div class="header-content">
 				<div class="name">{packageDetails.config.name}</div>
-				<div class="version">{packageDetails.config.version} published 1 day ago</div>
-			</div> -->
-			<!-- <div class="install">
-				<div class="text">Install</div>
-				<div class="command">mops i {packageDetails.config.name}</div>
-			</div> -->
-			{@html readmeHtml}
+				<div class="version">{packageDetails.config.version} published <Date date="{Number(packageDetails.publication.time / 1000000n)}"></Date></div>
+
+				<div class="install">
+					<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
+						<div class="text" on:click="{copyCommand}">Install</div>
+						<div class="command" on:click="{copyCommand}">mops i {packageDetails.config.name}</div>
+					</div>
+					<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
+				</div>
+			</div>
 		</div>
-		<div class="right-panel">
-			<div class="detail">
-				<div class="label">Package</div>
-				<div class="value">{packageDetails.config.name}</div>
+		<div class="body">
+			<div class="readme">
+				{@html readmeHtml}
 			</div>
-			<div class="detail">
-				<div class="label">Version</div>
-				<div class="value">{packageDetails.config.version}</div>
+			<div class="right-panel">
+				{#if packageDetails.config.repository}
+					<div class="detail">
+						<div class="label">Repository</div>
+						<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
+					</div>
+				{/if}
+				{#if packageDetails.config.documentation}
+					<div class="detail">
+						<div class="label">Documentation</div>
+						<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
+					</div>
+				{/if}
+				{#if packageDetails.owner}
+					<div class="detail">
+						<div class="label">Owner</div>
+						<div class="value">{packageDetails.owner}</div>
+					</div>
+				{/if}
 			</div>
-			<div class="detail">
-				<div class="label">Install</div>
-				<div class="value install-command" on:click="{copyCommand}">mops i {packageDetails.config.name} <div class="icon">{clipboardIcon}</div></div>
-			</div>
-			{#if packageDetails.config.repository}
-				<div class="detail">
-					<div class="label">Repository</div>
-					<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
-				</div>
-			{/if}
-			{#if packageDetails.config.documentation}
-				<div class="detail">
-					<div class="label">Documentation</div>
-					<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
-				</div>
-			{/if}
-			{#if packageDetails.owner}
-				<div class="detail">
-					<div class="label">Owner</div>
-					<div class="value">{packageDetails.owner}</div>
-				</div>
-			{/if}
 		</div>
 	{:else}
 		<Loader></Loader>
@@ -106,36 +124,93 @@
 <style>
 	.package {
 		display: flex;
-		justify-content: center;
-		margin-top: 30px;
+		flex-direction: column;
+		align-items: center;
 	}
 
-	/* .install {
+	.header {
+		display: flex;
+		justify-content: center;
+		flex-grow: 1;
+		align-self: stretch;
+		background: rgb(213 217 208);
+	}
+
+	.header .name {
+		font-size: 35px;
+		font-weight: 500;
+	}
+
+	.header .version {
+		font-size: 14px;
+	}
+
+	.header-content {
+		width: 900px;
+		padding: 20px;
+		box-sizing: border-box;
+	}
+
+	.header .install {
 		display: inline-flex;
 		padding: 0px;
 		align-items: center;
-		margin-bottom: 30px;
+		margin: 10px 0;
 	}
 
-	.install .text {
-		font-weight: 600;
+	.header .install .command-container {
+		display: flex;
+	}
+
+	.header .install .text {
+		font-weight: 500;
 		padding: 10px;
 		background: #7c865942;
 		height: 41px;
 		box-sizing: border-box;
+		cursor: pointer;
 	}
 
-	.install .command {
-		font-family: monospace;
-		font-size: 18px;
-		border: 2px solid #7c865942;
+	.header .install .command {
 		display: flex;
 		align-items: center;
 		height: 41px;
 		box-sizing: border-box;
+		border: 2px solid #7c865942;
+		font-family: monospace;
+		font-size: 18px;
 		padding: 0 11px;
+		white-space: nowrap;
 		cursor: pointer;
-	} */
+	}
+
+	.header .command-container.hover + .clipboard-text {
+		opacity: 1;
+	}
+
+	.header .install .clipboard-text {
+		margin-left: 8px;
+		font-size: 14px;
+		font-style: italic;
+		color: rgb(100, 100, 100);
+		opacity: 0;
+		transition: opacity 0.3s;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.body {
+		display: flex;
+		width: 900px;
+		margin-top: 20px;
+	}
+
+	.readme {
+		flex-grow: 1;
+		background: white;
+		padding: 20px;
+		padding-top: 0;
+	}
 
 	.right-panel {
 		width: 240px;
@@ -159,40 +234,6 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.install-command {
-		display: flex;
-		border-radius: 3px;
-		border: 2px solid #b9b9b9;
-		padding: 7px 10px;
-		font-family: monospace;
-		font-size: 16px;
-		cursor: pointer;
-		color: #7a7a7a;
-		white-space: normal;
-	}
-
-	.install-command:hover {
-		background: #efefef;
-		color: black;
-	}
-	.install-command:hover > .icon {
-		opacity: 1;
-	}
-
-	.install-command > .icon {
-		font-size: medium;
-		margin-left: auto;
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	.readme {
-		width: 600px;
-		background: white;
-		padding: 20px;
-		padding-top: 0;
 	}
 
 	:global(h1, h2) {

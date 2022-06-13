@@ -17,6 +17,7 @@
     "@dfinity/auth-client": "^0.10.2",
     "@dfinity/principal": "^0.10.2",
     "@types/throttle-debounce": "^2.1.0",
+    "date-fns": "^2.28.0",
     "events": "^3.3.0",
     "micromark": "^3.0.10",
     "svelte-icons": "^2.1.0",
