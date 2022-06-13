@@ -25,11 +25,6 @@ export const idlFactory = ({ IDL }) => {
     'readme' : IDL.Text,
   });
   const FileId = IDL.Text;
-  const File = IDL.Record({
-    'id' : FileId,
-    'content' : IDL.Vec(IDL.Nat8),
-    'path' : Text,
-  });
   const Time = IDL.Int;
   const PackageSummary = IDL.Record({
     'dfx' : IDL.Text,
@@ -62,7 +57,6 @@ export const idlFactory = ({ IDL }) => {
         [PackageConfig],
         ['query'],
       ),
-    'getFile' : IDL.Func([FileId], [File], []),
     'getFileIds' : IDL.Func(
         [PackageName__1, Version],
         [IDL.Vec(FileId)],
@@ -74,7 +68,6 @@ export const idlFactory = ({ IDL }) => {
         [PackageSummary],
         ['query'],
       ),
-    'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], []),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
         [IDL.Vec(PackageSummary)],

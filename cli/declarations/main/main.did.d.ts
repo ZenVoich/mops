@@ -3,11 +3,6 @@ import type { ActorMethod } from '@dfinity/agent';
 
 export interface Dependency { 'name' : PackageName, 'version' : string }
 export type Err = string;
-export interface File {
-  'id' : FileId,
-  'content' : Array<number>,
-  'path' : Text,
-}
 export type FileId = string;
 export interface PackageConfig {
   'dfx' : string,
@@ -62,11 +57,9 @@ export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getApiVersion' : ActorMethod<[], Text>,
   'getConfig' : ActorMethod<[PackageName__1, Version], PackageConfig>,
-  'getFile' : ActorMethod<[FileId], File>,
   'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
   'getMaxVersion' : ActorMethod<[PackageName__1], Version>,
   'getPackageSummary' : ActorMethod<[PackageName__1, Version], PackageSummary>,
-  'getReadmeFile' : ActorMethod<[PackageName__1, Version], File>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,

@@ -70,7 +70,7 @@ program
 			config.dependencies[pkg] = version;
 			wirteConfig(config);
 			logUpdate.clear();
-			console.log(chalk.green('Package installed ') + `${pkg} = '${version}'`);
+			console.log(chalk.green('Package installed ') + `${pkg} = "${version}"`);
 		}
 	});
 

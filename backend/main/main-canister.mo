@@ -42,16 +42,6 @@ actor {
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
 	var maxConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
-
-	// files
-	public type FileId = Text.Text;
-	public type File = {
-		id: FileId;
-		path: Text.Text;
-		content: Blob;
-	};
-
-	var files = TrieMap.TrieMap<FileId, File>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 	let downloadLog = DownloadLog.DownloadLog();
 	let storageManager = StorageManager.StorageManager();
@@ -65,8 +55,13 @@ actor {
 		config: PackageConfig;
 		storage: Principal;
 	};
+	public type FileId = Text.Text;
+	public type PublishingFile = {
+		id: FileId;
+		path: Text.Text;
+	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
-	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<File>>(Text.equal, Text.hash);
+	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
 
 
 	// PRIVATE
@@ -199,10 +194,9 @@ actor {
 		});
 		await storageManager.uploadChunk(publishing.storage, fileId, 0, content);
 
-		let file: File = {
+		let file: PublishingFile = {
 			id = publishing.config.name # "@" # publishing.config.version # "/" # path;
 			path = path;
-			content = content;
 		};
 		pubFiles.add(file);
 
@@ -218,7 +212,7 @@ actor {
 		let packageId = publishing.config.name # "@" # publishing.config.version;
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
 
-		let fileIds = Array.map(pubFiles.toArray(), func(file: File): Text.Text {
+		let fileIds = Array.map(pubFiles.toArray(), func(file: PublishingFile): Text.Text {
 			file.id;
 		});
 		fileIdsByPackage.put(packageId, fileIds);
@@ -243,7 +237,6 @@ actor {
 		};
 
 		for (file in pubFiles.vals()) {
-			files.put(file.id, file);
 			await storageManager.finishUpload(publishing.storage, file.id);
 		};
 
@@ -288,27 +281,6 @@ actor {
 	public shared query ({caller}) func getFileIds(name: PackageName, version: Version.Version): async [FileId] {
 		let packageId = name # "@" # version;
 		Utils.expect(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
-	};
-
-	public shared ({caller}) func getFile(fileId: FileId): async File {
-		// Utils.expect(files.get(fileId), "File '" # fileId # "' not found");
-		let storageId = storageManager.getStorageOfFile(fileId);
-		let storage = actor(Principal.toText(storageId)): Storage.Storage;
-		let fileMeta = Utils.unwrap(Result.toOption(await storage.getFileMeta(fileId)));
-		let chunk = Utils.unwrap(Result.toOption(await storage.downloadChunk(fileId, 0)));
-
-		return {
-			id = fileId;
-			path = fileMeta.path;
-			content = chunk;
-		};
-	};
-
-	public shared ({caller}) func getReadmeFile(name: PackageName, version: Version.Version): async File {
-		var ver = _resolveVersion(name, version);
-		let config = Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
-		let fileId = config.name # "@" # config.version # "/" # config.readme;
-		await getFile(fileId);
 	};
 
 	public shared ({caller}) func notifyInstall(name: PackageName, version: Version.Version) {
@@ -419,7 +391,6 @@ actor {
 	stable var maxConfigsStable: [(PackageName, PackageConfig)] = [];
 
 	stable var fileIdsByPackageStable: [(PackageId, [FileId])] = [];
-	stable var filesStable: [(FileId, File)] = [];
 
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
@@ -431,7 +402,6 @@ actor {
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		packageConfigsStable := Iter.toArray(packageConfigs.entries());
-		filesStable := Iter.toArray(files.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
@@ -452,9 +422,6 @@ actor {
 
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfig>(packageConfigsStable.vals(), Text.equal, Text.hash);
 		packageConfigsStable := [];
-
-		files := TrieMap.fromEntries<FileId, File>(filesStable.vals(), Text.equal, Text.hash);
-		filesStable := [];
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];

@@ -4,7 +4,7 @@
 	import {location as loc} from 'svelte-spa-router';
 
 	import {PackageSummary} from '/declarations/main/main.did.js';
-	import {mainActor} from '/logic/actors';
+	import {mainActor, storageActor} from '/logic/actors';
 	import {micromark} from 'micromark';
 
 	import Header from './Header.svelte';
@@ -23,15 +23,14 @@
 			return;
 		}
 		loaded = false;
-		await Promise.all([
-			mainActor().getPackageSummary(pkgName, 'max').then((res) => {
-				packageSummary = res;
-			}),
-			mainActor().getReadmeFile(pkgName, 'max').then((res) => {
-				let readme = new TextDecoder().decode(new Uint8Array(res.content));
-				readmeHtml = micromark(readme);
-			}),
-		]);
+
+		packageSummary = await mainActor().getPackageSummary(pkgName, 'max');
+
+		let res = await storageActor(packageSummary.storage).downloadChunk(`${packageSummary.name}@${packageSummary.version}/${packageSummary.readme}`, 0n);
+		if ('ok' in res) {
+			let readme = new TextDecoder().decode(new Uint8Array(res.ok));
+			readmeHtml = micromark(readme);
+		}
 		loaded = true;
 	});
 
