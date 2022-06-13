@@ -20,28 +20,35 @@ export interface PackageConfig {
   'license' : string,
   'readme' : string,
 }
-export type PackageName = string;
-export type PackageName__1 = string;
-export interface PackageSummary {
+export interface PackageConfig__1 {
   'dfx' : string,
   'moc' : string,
   'scripts' : Array<Script>,
-  'owner' : Principal,
   'documentation' : string,
-  'storage' : Principal,
   'name' : PackageName,
   'homepage' : string,
-  'downloadsTotal' : bigint,
-  'downloadsInLast30Days' : bigint,
   'description' : string,
   'version' : string,
   'keywords' : Array<string>,
   'donation' : string,
-  'updatedAt' : Time,
   'repository' : string,
   'dependencies' : Array<Dependency>,
   'license' : string,
   'readme' : string,
+}
+export interface PackageDetails {
+  'owner' : Principal,
+  'downloadsTotal' : bigint,
+  'downloadsInLast30Days' : bigint,
+  'config' : PackageConfig__1,
+  'publication' : PackagePublication,
+}
+export type PackageName = string;
+export type PackageName__1 = string;
+export interface PackagePublication {
+  'storage' : Principal,
+  'time' : Time,
+  'user' : Principal,
 }
 export type PublishingErr = string;
 export type PublishingId = string;
@@ -56,13 +63,12 @@ export type Version = string;
 export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getApiVersion' : ActorMethod<[], Text>,
-  'getConfig' : ActorMethod<[PackageName__1, Version], PackageConfig>,
   'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
   'getMaxVersion' : ActorMethod<[PackageName__1], Version>,
-  'getPackageSummary' : ActorMethod<[PackageName__1, Version], PackageSummary>,
-  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
+  'getPackageDetails' : ActorMethod<[PackageName__1, Version], PackageDetails>,
+  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
-  'search' : ActorMethod<[Text], Array<PackageSummary>>,
+  'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,
   'uploadFile' : ActorMethod<[PublishingId, Text, Array<number>], Result>,
 }

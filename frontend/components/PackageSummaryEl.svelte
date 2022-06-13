@@ -3,9 +3,9 @@
 	import {debounce} from 'throttle-debounce';
 	import {push, location as loc} from 'svelte-spa-router';
 
-	import {PackageSummary} from '/declarations/main/main.did.js';
+	import {PackageDetails} from '/declarations/main/main.did.js';
 
-	export let pkg: PackageSummary;
+	export let pkg: PackageDetails;
 
 	function formatDate(date: number) {
 		return Intl.DateTimeFormat(navigator.language, {year: 'numeric', month: 'long', day: 'numeric'}).format(date);
@@ -19,13 +19,13 @@
 <div class="package">
 	<div class="left">
 		<div class="header">
-			<div class="name" on:click="{() => show(pkg.name)}">{pkg.name}</div>
-			<div class="version">{pkg.version}</div>
+			<div class="name" on:click="{() => show(pkg.config.name)}">{pkg.config.name}</div>
+			<div class="version">{pkg.config.version}</div>
 		</div>
-		<div class="description">{pkg.description}</div>
+		<div class="description">{pkg.config.description}</div>
 	</div>
 	<div class="right">
-		<div>Updated: {formatDate(Number(pkg.updatedAt / 1000000n))}</div>
+		<div>Updated: {formatDate(Number(pkg.publication.time / 1000000n))}</div>
 		<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
 	</div>
 </div>

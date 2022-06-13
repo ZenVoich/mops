@@ -5,9 +5,39 @@ export const idlFactory = ({ IDL }) => {
   const Text = IDL.Text;
   const PackageName__1 = IDL.Text;
   const Version = IDL.Text;
+  const FileId = IDL.Text;
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
+  const PackageConfig__1 = IDL.Record({
+    'dfx' : IDL.Text,
+    'moc' : IDL.Text,
+    'scripts' : IDL.Vec(Script),
+    'documentation' : IDL.Text,
+    'name' : PackageName,
+    'homepage' : IDL.Text,
+    'description' : IDL.Text,
+    'version' : IDL.Text,
+    'keywords' : IDL.Vec(IDL.Text),
+    'donation' : IDL.Text,
+    'repository' : IDL.Text,
+    'dependencies' : IDL.Vec(Dependency),
+    'license' : IDL.Text,
+    'readme' : IDL.Text,
+  });
+  const Time = IDL.Int;
+  const PackagePublication = IDL.Record({
+    'storage' : IDL.Principal,
+    'time' : Time,
+    'user' : IDL.Principal,
+  });
+  const PackageDetails = IDL.Record({
+    'owner' : IDL.Principal,
+    'downloadsTotal' : IDL.Nat,
+    'downloadsInLast30Days' : IDL.Nat,
+    'config' : PackageConfig__1,
+    'publication' : PackagePublication,
+  });
   const PackageConfig = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
@@ -24,57 +54,29 @@ export const idlFactory = ({ IDL }) => {
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
-  const FileId = IDL.Text;
-  const Time = IDL.Int;
-  const PackageSummary = IDL.Record({
-    'dfx' : IDL.Text,
-    'moc' : IDL.Text,
-    'scripts' : IDL.Vec(Script),
-    'owner' : IDL.Principal,
-    'documentation' : IDL.Text,
-    'storage' : IDL.Principal,
-    'name' : PackageName,
-    'homepage' : IDL.Text,
-    'downloadsTotal' : IDL.Nat,
-    'downloadsInLast30Days' : IDL.Nat,
-    'description' : IDL.Text,
-    'version' : IDL.Text,
-    'keywords' : IDL.Vec(IDL.Text),
-    'donation' : IDL.Text,
-    'updatedAt' : Time,
-    'repository' : IDL.Text,
-    'dependencies' : IDL.Vec(Dependency),
-    'license' : IDL.Text,
-    'readme' : IDL.Text,
-  });
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
   return IDL.Service({
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
-    'getConfig' : IDL.Func(
-        [PackageName__1, Version],
-        [PackageConfig],
-        ['query'],
-      ),
     'getFileIds' : IDL.Func(
         [PackageName__1, Version],
         [IDL.Vec(FileId)],
         ['query'],
       ),
     'getMaxVersion' : IDL.Func([PackageName__1], [Version], ['query']),
-    'getPackageSummary' : IDL.Func(
+    'getPackageDetails' : IDL.Func(
         [PackageName__1, Version],
-        [PackageSummary],
+        [PackageDetails],
         ['query'],
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
-        [IDL.Vec(PackageSummary)],
+        [IDL.Vec(PackageDetails)],
         ['query'],
       ),
     'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),
-    'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
+    'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
     'startPublish' : IDL.Func([PackageConfig], [Result_1], []),
     'uploadFile' : IDL.Func(
         [PublishingId, Text, IDL.Vec(IDL.Nat8)],

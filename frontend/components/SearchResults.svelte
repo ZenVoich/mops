@@ -3,7 +3,7 @@
 	import {debounce} from 'throttle-debounce';
 	import {push, location as loc} from 'svelte-spa-router';
 
-	import {PackageSummary} from '/declarations/main/main.did.js';
+	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
 	import Header from './Header.svelte';
@@ -13,7 +13,7 @@
 	$: searchText = decodeURI($loc.split('/search/')[1]);
 	$: $loc && updateResults();
 
-	let packages: PackageSummary[] = [];
+	let packages: PackageDetails[] = [];
 	let loaded = false;
 
 	let updateResults = debounce(10, () => {

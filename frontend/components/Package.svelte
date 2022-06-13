@@ -3,7 +3,7 @@
 	import {debounce} from 'throttle-debounce';
 	import {location as loc} from 'svelte-spa-router';
 
-	import {PackageSummary} from '/declarations/main/main.did.js';
+	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
 	import {micromark} from 'micromark';
 
@@ -14,7 +14,7 @@
 	$: $loc && load();
 
 	let readmeHtml: string;
-	let packageSummary: PackageSummary;
+	let packageDetails: PackageDetails;
 	let loaded = false;
 	let clipboardIcon = '📋';
 
@@ -24,9 +24,9 @@
 		}
 		loaded = false;
 
-		packageSummary = await mainActor().getPackageSummary(pkgName, 'max');
+		packageDetails = await mainActor().getPackageDetails(pkgName, 'max');
 
-		let res = await storageActor(packageSummary.storage).downloadChunk(`${packageSummary.name}@${packageSummary.version}/${packageSummary.readme}`, 0n);
+		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 		if ('ok' in res) {
 			let readme = new TextDecoder().decode(new Uint8Array(res.ok));
 			readmeHtml = micromark(readme);
@@ -36,7 +36,7 @@
 
 	let resetIconTimer: any;
 	function copyCommand() {
-		navigator.clipboard.writeText(`mops i ${packageSummary.name}`);
+		navigator.clipboard.writeText(`mops i ${packageDetails.config.name}`);
 		clipboardIcon = '✔️';
 		clearTimeout(resetIconTimer);
 		resetIconTimer = setTimeout(() => {
@@ -48,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>{packageSummary ? packageSummary.name + ' - ' : ''}Motoko Packages</title>
+	<title>{packageDetails ? packageDetails.config.name + ' - ' : ''}Motoko Packages</title>
 </svelte:head>
 
 <Header></Header>
@@ -57,44 +57,44 @@
 	{#if loaded}
 		<div class="readme">
 			<!-- <div class="header">
-				<div class="name">{packageSummary.name}</div>
-				<div class="version">{packageSummary.version} published 1 day ago</div>
+				<div class="name">{packageDetails.config.name}</div>
+				<div class="version">{packageDetails.config.version} published 1 day ago</div>
 			</div> -->
 			<!-- <div class="install">
 				<div class="text">Install</div>
-				<div class="command">mops i {packageSummary.name}</div>
+				<div class="command">mops i {packageDetails.config.name}</div>
 			</div> -->
 			{@html readmeHtml}
 		</div>
 		<div class="right-panel">
 			<div class="detail">
 				<div class="label">Package</div>
-				<div class="value">{packageSummary.name}</div>
+				<div class="value">{packageDetails.config.name}</div>
 			</div>
 			<div class="detail">
 				<div class="label">Version</div>
-				<div class="value">{packageSummary.version}</div>
+				<div class="value">{packageDetails.config.version}</div>
 			</div>
 			<div class="detail">
 				<div class="label">Install</div>
-				<div class="value install-command" on:click="{copyCommand}">mops i {packageSummary.name} <div class="icon">{clipboardIcon}</div></div>
+				<div class="value install-command" on:click="{copyCommand}">mops i {packageDetails.config.name} <div class="icon">{clipboardIcon}</div></div>
 			</div>
-			{#if packageSummary.repository}
+			{#if packageDetails.config.repository}
 				<div class="detail">
 					<div class="label">Repository</div>
-					<a class="value" href="{packageSummary.repository}" target="_blank">{packageSummary.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
+					<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
 				</div>
 			{/if}
-			{#if packageSummary.documentation}
+			{#if packageDetails.config.documentation}
 				<div class="detail">
 					<div class="label">Documentation</div>
-					<a class="value" href="{packageSummary.documentation}" target="_blank">{packageSummary.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
+					<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
 				</div>
 			{/if}
-			{#if packageSummary.owner}
+			{#if packageDetails.owner}
 				<div class="detail">
 					<div class="label">Owner</div>
-					<div class="value">{packageSummary.owner}</div>
+					<div class="value">{packageDetails.owner}</div>
 				</div>
 			{/if}
 		</div>

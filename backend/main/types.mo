@@ -42,11 +42,17 @@ module {
 		moc: Text; // max 10
 	};
 
-	public type PackageSummary = PackageConfig and {
-		owner: Principal;
-		updatedAt: Time.Time;
-		downloadsInLast30Days: Nat;
-		downloadsTotal: Nat;
+	public type PackagePublication = {
+		time: Time.Time;
+		user: Principal;
 		storage: Principal;
+	};
+
+	public type PackageDetails = {
+		owner: Principal;
+		config: PackageConfig;
+		publication: PackagePublication;
+		downloadsTotal: Nat;
+		downloadsInLast30Days: Nat;
 	};
 };

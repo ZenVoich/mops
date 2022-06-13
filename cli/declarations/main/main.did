@@ -18,30 +18,39 @@ type Result =
  };
 type PublishingId = text;
 type PublishingErr = text;
-type PackageSummary = 
+type PackagePublication = 
+ record {
+   storage: principal;
+   time: Time;
+   user: principal;
+ };
+type PackageName__1 = text;
+type PackageName = text;
+type PackageDetails = 
+ record {
+   config: PackageConfig__1;
+   downloadsInLast30Days: nat;
+   downloadsTotal: nat;
+   owner: principal;
+   publication: PackagePublication;
+ };
+type PackageConfig__1 = 
  record {
    dependencies: vec Dependency;
    description: text;
    dfx: text;
    documentation: text;
    donation: text;
-   downloadsInLast30Days: nat;
-   downloadsTotal: nat;
    homepage: text;
    keywords: vec text;
    license: text;
    moc: text;
    name: PackageName;
-   owner: principal;
    readme: text;
    repository: text;
    scripts: vec Script;
-   storage: principal;
-   updatedAt: Time;
    version: text;
  };
-type PackageName__1 = text;
-type PackageName = text;
 type PackageConfig = 
  record {
    dependencies: vec Dependency;
@@ -69,13 +78,12 @@ type Dependency =
 service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
-  getConfig: (PackageName__1, Version) -> (PackageConfig) query;
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
   getMaxVersion: (PackageName__1) -> (Version) query;
-  getPackageSummary: (PackageName__1, Version) -> (PackageSummary) query;
-  getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
+  getPackageDetails: (PackageName__1, Version) -> (PackageDetails) query;
+  getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;
-  search: (Text) -> (vec PackageSummary) query;
+  search: (Text) -> (vec PackageDetails) query;
   startPublish: (PackageConfig) -> (Result_1);
   uploadFile: (PublishingId, Text, blob) -> (Result);
 }

@@ -28,13 +28,8 @@ actor {
 	public type Dependency = Types.Dependency;
 	public type Access = Types.Access;
 	public type PackageConfig = Types.PackageConfig;
-	public type PackageSummary = Types.PackageSummary;
-
-	public type PackagePublication = {
-		time: Time.Time;
-		user: Principal;
-		storage: Principal;
-	};
+	public type PackagePublication = Types.PackagePublication;
+	public type PackageDetails = Types.PackageDetails;
 
 	let apiVersion = "0.1"; // (!) make changes in pair with cli
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
@@ -268,15 +263,15 @@ actor {
 		Utils.expect(_getMaxVersion(name), "Package '" # name # "' not found");
 	};
 
-	public shared query ({caller}) func getPackageSummary(name: PackageName, version: Version.Version): async PackageSummary {
+	public shared query ({caller}) func getPackageDetails(name: PackageName, version: Version.Version): async PackageDetails {
 		var ver = _resolveVersion(name, version);
-		toPackageSummary(Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found"));
+		_getPackageDetails(name, ver);
 	};
 
-	public shared query ({caller}) func getConfig(name: PackageName, version: Version.Version): async PackageConfig {
-		var ver = _resolveVersion(name, version);
-		Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
-	};
+	// public shared query ({caller}) func getConfig(name: PackageName, version: Version.Version): async PackageConfig {
+	// 	var ver = _resolveVersion(name, version);
+	// 	Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
+	// };
 
 	public shared query ({caller}) func getFileIds(name: PackageName, version: Version.Version): async [FileId] {
 		let packageId = name # "@" # version;
@@ -296,18 +291,18 @@ actor {
 		});
 	};
 
-	public query func search(searchText: Text.Text): async [PackageSummary] {
+	public query func search(searchText: Text.Text): async [PackageDetails] {
 		let max = 20;
-		let match = Buffer.Buffer<PackageConfig>(max);
+		let matchedConfigs = Buffer.Buffer<PackageConfig>(max);
 		let pattern = #text(searchText);
 
 		for (config in maxConfigs.vals()) {
 			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
-				match.add(config);
+				matchedConfigs.add(config);
 			};
 		};
 
-		var packages = Array.sort<PackageConfig>(match.toArray(), func(a, b) {
+		var configs = Array.sort<PackageConfig>(matchedConfigs.toArray(), func(a, b) {
 			var aPoints = 0;
 			var bPoints = 0;
 
@@ -321,25 +316,23 @@ actor {
 		});
 
 		// limit results
-		packages := Array.tabulate<PackageConfig>(Nat.min(packages.size(), max), func(i: Nat) {
-			packages[i];
+		Array.tabulate<PackageDetails>(Nat.min(configs.size(), max), func(i: Nat) {
+			_getPackageDetails(configs[i].name, configs[i].version);
 		});
-
-		Array.map<PackageConfig, PackageSummary>(packages, toPackageSummary);
 	};
 
-	public query func getRecentlyUpdatedPackages(): async [PackageSummary] {
+	public query func getRecentlyUpdatedPackages(): async [PackageDetails] {
 		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
+		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		let pubsDesc = Array.reverse(Iter.toArray(packagePublications.keys()));
+		let pubsReversed = Array.reverse(Iter.toArray(packagePublications.keys()));
 
-		label l for (packageId in pubsDesc.vals()) {
+		label l for (packageId in pubsReversed.vals()) {
 			switch (packageConfigs.get(packageId)) {
 				case (?config) {
-					packages.add(toPackageSummary(config));
+					packagesDetails.add(_getPackageDetails(config.name, config.version));
 
-					if (packages.size() >= max) {
+					if (packagesDetails.size() >= max) {
 						break l;
 					};
 				};
@@ -347,40 +340,22 @@ actor {
 			};
 		};
 
-		packages.toArray();
+		packagesDetails.toArray();
 	};
 
-	func toPackageSummary(config: PackageConfig): PackageSummary {
-		let packageId = config.name # "@" # config.version;
+	func _getPackageDetails(name: PackageName, version: Version.Version): PackageDetails {
+		let packageId = name # "@" # version;
+		let config = Utils.expect(packageConfigs.get(name # "@" # version), "Package '" # packageId # "' not found");
 		let publication = Utils.expect(packagePublications.get(packageId), "Publication not found for package " # packageId);
+
 		return {
-			// config fields
-			name = config.name;
-			version = config.version;
-			description = config.description;
-			repository = config.repository;
-			keywords = config.keywords;
-			documentation = config.documentation;
-			homepage = config.homepage;
-			readme = config.readme;
-			license = config.license;
-			donation = config.donation;
-			dependencies = config.dependencies;
-			scripts = config.scripts;
-			dfx = config.dfx;
-			moc = config.moc;
-			// extra fields
 			owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
-			updatedAt = publication.time;
+			config = config;
+			publication = publication;
 			downloadsInLast30Days = 0;
 			downloadsTotal = 0;
-			storage = publication.storage;
 		}
 	};
-
-	// public query func test(): async Text {
-	// 	hello("world");
-	// };
 
 
 	// SYSTEM

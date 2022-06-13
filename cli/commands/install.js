@@ -28,9 +28,9 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 		if (!dep) {
 			actor.notifyInstall(pkg, version);
 		}
-		let packageSummary = await actor.getPackageSummary(pkg, version);
+		let packageDetails = await actor.getPackageDetails(pkg, version);
 		let filesIds = await actor.getFileIds(pkg, version);
-		let storage = await storageActor(packageSummary.storage);
+		let storage = await storageActor(packageDetails.publication.storage);
 
 		// progress
 		let total = filesIds.length + 1;

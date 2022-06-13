@@ -2,11 +2,11 @@
 	import {onMount} from 'svelte';
 	import Loader from './Loader.svelte';
 	import PackageSummaryEl from './PackageSummaryEl.svelte';
-	import {PackageSummary} from '/declarations/main/main.did.js';
+	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
 	let loaded = false;
-	let packages: PackageSummary[] = [];
+	let packages: PackageDetails[] = [];
 
 	onMount(async () => {
 		packages = await mainActor().getRecentlyUpdatedPackages();
