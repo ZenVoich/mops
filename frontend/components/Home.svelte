@@ -4,6 +4,10 @@
 	import TopPackages from './TopPackages.svelte';
 </script>
 
+<svelte:head>
+	<title>Motoko Packages</title>
+</svelte:head>
+
 <div class="main">
 	<Header></Header>
 

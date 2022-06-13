@@ -36,6 +36,10 @@
 	onMount(updateResults);
 </script>
 
+<svelte:head>
+	<title>Motoko Packages</title>
+</svelte:head>
+
 <Header searchText="{searchText}"></Header>
 
 <div class="search-results">

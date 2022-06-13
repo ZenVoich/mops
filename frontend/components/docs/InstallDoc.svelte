@@ -2,6 +2,10 @@
 	import Header from '../Header.svelte';
 </script>
 
+<svelte:head>
+	<title>Install - Motoko Packages</title>
+</svelte:head>
+
 <Header></Header>
 
 <div class="documentation">

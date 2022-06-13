@@ -47,6 +47,10 @@
 	onMount(load);
 </script>
 
+<svelte:head>
+	<title>{packageSummary ? packageSummary.name + ' - ' : ''}Motoko Packages</title>
+</svelte:head>
+
 <Header></Header>
 
 <div class="package">
