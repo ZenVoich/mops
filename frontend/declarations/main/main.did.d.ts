@@ -33,6 +33,7 @@ export interface PackageSummary {
   'scripts' : Array<Script>,
   'owner' : Principal,
   'documentation' : string,
+  'storage' : Principal,
   'name' : PackageName,
   'homepage' : string,
   'downloadsTotal' : bigint,

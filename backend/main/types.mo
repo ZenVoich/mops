@@ -47,5 +47,6 @@ module {
 		updatedAt: Time.Time;
 		downloadsInLast30Days: Nat;
 		downloadsTotal: Nat;
+		storage: Principal;
 	};
 };

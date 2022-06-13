@@ -1,0 +1,46 @@
+type StorageStats =
+ record {
+   cyclesBalance: nat;
+   fileCount: nat;
+   memorySize: nat;
+ };
+type Storage =
+ service {
+   acceptCycles: () -> ();
+   deleteFile: (FileId) -> ();
+   downloadChunk: (FileId, nat) -> (Result_2) query;
+   finishUpload: (FileId) -> ();
+   getFileIdsRange: (nat, nat) -> (vec FileId) query;
+   getFileMeta: (FileId) -> (Result_1) query;
+   getStats: () -> (StorageStats) query;
+   startUpload: (FileMeta) -> (Result);
+   updateFileOwners: (FileId, vec principal) -> ();
+   uploadChunk: (FileId, nat, Chunk) -> ();
+ };
+type Result_2 =
+ variant {
+   err: Err;
+   ok: Chunk;
+ };
+type Result_1 =
+ variant {
+   err: Err;
+   ok: FileMeta;
+ };
+type Result =
+ variant {
+   err: Err;
+   ok;
+ };
+type FileMeta =
+ record {
+   chunkCount: nat;
+   id: FileId__1;
+   owners: vec principal;
+   path: text;
+ };
+type FileId__1 = text;
+type FileId = text;
+type Err = text;
+type Chunk = blob;
+service : () -> Storage

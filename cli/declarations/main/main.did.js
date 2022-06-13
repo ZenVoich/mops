@@ -37,6 +37,7 @@ export const idlFactory = ({ IDL }) => {
     'scripts' : IDL.Vec(Script),
     'owner' : IDL.Principal,
     'documentation' : IDL.Text,
+    'storage' : IDL.Principal,
     'name' : PackageName,
     'homepage' : IDL.Text,
     'downloadsTotal' : IDL.Nat,
@@ -73,7 +74,7 @@ export const idlFactory = ({ IDL }) => {
         [PackageSummary],
         ['query'],
       ),
-    'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], ['query']),
+    'getReadmeFile' : IDL.Func([PackageName__1, Version], [File], []),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
         [IDL.Vec(PackageSummary)],

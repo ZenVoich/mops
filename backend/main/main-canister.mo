@@ -379,10 +379,8 @@ actor {
 	};
 
 	func toPackageSummary(config: PackageConfig): PackageSummary {
-		let updatedAt = switch (packagePublications.get(config.name # "@" # config.version)) {
-			case (?pub) { pub.time };
-			case (null) { 0 };
-		};
+		let packageId = config.name # "@" # config.version;
+		let publication = Utils.expect(packagePublications.get(packageId), "Publication not found for package " # packageId);
 		return {
 			// config fields
 			name = config.name;
@@ -401,9 +399,10 @@ actor {
 			moc = config.moc;
 			// extra fields
 			owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
-			updatedAt = updatedAt;
+			updatedAt = publication.time;
 			downloadsInLast30Days = 0;
 			downloadsTotal = 0;
+			storage = publication.storage;
 		}
 	};
 

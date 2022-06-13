@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 
 import {idlFactory} from './declarations/main/main.did.js';
+import {idlFactory as storageIdlFactory} from './declarations/storage/storage.did.js';
 import {decodeFile} from './pem.js';
 
 
@@ -67,6 +68,23 @@ export let mainActor = async () => {
 	return Actor.createActor(idlFactory, {
 		agent,
 		canisterId,
+	});
+};
+
+export let storageActor = async (storageId) => {
+	let network = getNetwork().network;
+	let host = getNetwork().host;
+
+	let identity = getIdentity();
+	let agent = new HttpAgent({host, identity});
+
+	if (network === 'local') {
+		await agent.fetchRootKey();
+	}
+
+	return Actor.createActor(storageIdlFactory, {
+		agent,
+		canisterId: storageId,
 	});
 };
 

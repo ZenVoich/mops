@@ -36,6 +36,7 @@ type PackageSummary =
    readme: text;
    repository: text;
    scripts: vec Script;
+   storage: principal;
    updatedAt: Time;
    version: text;
  };
