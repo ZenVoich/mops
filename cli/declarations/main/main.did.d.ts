@@ -57,6 +57,12 @@ export type Result = { 'ok' : null } |
 export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
 export interface Script { 'value' : string, 'name' : string }
+export type StorageId = Principal;
+export interface StorageStats {
+  'fileCount' : bigint,
+  'cyclesBalance' : bigint,
+  'memorySize' : bigint,
+}
 export type Text = string;
 export type Time = bigint;
 export type Version = string;
@@ -64,9 +70,10 @@ export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getApiVersion' : ActorMethod<[], Text>,
   'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
-  'getMaxVersion' : ActorMethod<[PackageName__1], Version>,
+  'getHighestVersion' : ActorMethod<[PackageName__1], Version>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Version], PackageDetails>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
+  'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,

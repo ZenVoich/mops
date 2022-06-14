@@ -110,7 +110,7 @@ module {
 			storageByFileId.put(fileId, storageId);
 
 			counter += 1;
-			if (counter % 100 == 0) {
+			if (counter % 10 == 0) {
 				await _updateStorageStats();
 				await ensureUploadableStorages();
 			};
@@ -119,6 +119,10 @@ module {
 		// QUERY
 		public func getAllStorages(): [StorageId] {
 			Iter.toArray(storages.keys());
+		};
+
+		public func getStoragesStats(): [(StorageId, StorageStats)] {
+			Iter.toArray(storages.entries());
 		};
 
 		public func getStorageForUpload(): StorageId {

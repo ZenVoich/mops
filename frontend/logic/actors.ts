@@ -18,3 +18,11 @@ export let mainActor = () => {
 export let storageActor = (storageId: string | Principal) => {
 	return createStorageActor(storageId, getOptions());
 }
+
+window.getStoragesStats = () => {
+	mainActor().getStoragesStats().then((statsAr) => {
+		console.log(statsAr.map(([principal, stats]) => {
+			return [principal.toText(), stats];
+		}))
+	});
+}

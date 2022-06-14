@@ -102,9 +102,9 @@ export function progressBar(step, total) {
 	return `[${':'.repeat(done)}${' '.repeat(10 - done)}]`;
 }
 
-export async function getMaxVersion(pkgName) {
+export async function getHighestVersion(pkgName) {
 	let actor = await mainActor();
-	return actor.getMaxVersion(pkgName);
+	return actor.getHighestVersion(pkgName);
 }
 
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {

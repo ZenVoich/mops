@@ -11,7 +11,7 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getMaxVersion, getNetwork, setNetwork} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, setNetwork} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -64,7 +64,7 @@ program
 			installAll(options);
 		}
 		else {
-			let version = await getMaxVersion(pkg);
+			let version = await getHighestVersion(pkg);
 			await install(pkg, version, {verbose: options.verbose});
 
 			config.dependencies[pkg] = version;

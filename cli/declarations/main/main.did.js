@@ -38,6 +38,12 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfig__1,
     'publication' : PackagePublication,
   });
+  const StorageId = IDL.Principal;
+  const StorageStats = IDL.Record({
+    'fileCount' : IDL.Nat,
+    'cyclesBalance' : IDL.Nat,
+    'memorySize' : IDL.Nat,
+  });
   const PackageConfig = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
@@ -64,7 +70,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(FileId)],
         ['query'],
       ),
-    'getMaxVersion' : IDL.Func([PackageName__1], [Version], ['query']),
+    'getHighestVersion' : IDL.Func([PackageName__1], [Version], ['query']),
     'getPackageDetails' : IDL.Func(
         [PackageName__1, Version],
         [PackageDetails],
@@ -73,6 +79,11 @@ export const idlFactory = ({ IDL }) => {
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
         [IDL.Vec(PackageDetails)],
+        ['query'],
+      ),
+    'getStoragesStats' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(StorageId, StorageStats))],
         ['query'],
       ),
     'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),

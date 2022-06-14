@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import logUpdate from 'log-update';
-import {checkConfigFile, getMaxVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
+import {checkConfigFile, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
 import {parallel} from '../parallel.js';
 import chalk from 'chalk';
 
@@ -11,7 +11,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 
 	if (!version) {
-		version = await getMaxVersion(pkg);
+		version = await getHighestVersion(pkg);
 	}
 
 	let dir = path.join(process.cwd(), '.mops', `${pkg}@${version}`);

@@ -1,6 +1,13 @@
 type Version = text;
 type Time = int;
 type Text = text;
+type StorageStats = 
+ record {
+   cyclesBalance: nat;
+   fileCount: nat;
+   memorySize: nat;
+ };
+type StorageId = principal;
 type Script = 
  record {
    name: text;
@@ -79,9 +86,13 @@ service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
   getFileIds: (PackageName__1, Version) -> (vec FileId) query;
-  getMaxVersion: (PackageName__1) -> (Version) query;
+  getHighestVersion: (PackageName__1) -> (Version) query;
   getPackageDetails: (PackageName__1, Version) -> (PackageDetails) query;
   getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
+  getStoragesStats: () -> (vec record {
+                                 StorageId;
+                                 StorageStats;
+                               }) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
   startPublish: (PackageConfig) -> (Result_1);

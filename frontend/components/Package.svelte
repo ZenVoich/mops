@@ -26,7 +26,7 @@
 		}
 		loaded = false;
 
-		packageDetails = await mainActor().getPackageDetails(pkgName, 'max');
+		packageDetails = await mainActor().getPackageDetails(pkgName, 'highest');
 
 		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 		if ('ok' in res) {
