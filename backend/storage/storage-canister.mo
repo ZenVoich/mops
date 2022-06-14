@@ -75,15 +75,36 @@ shared({caller = parent}) actor class Storage() {
 		#ok();
 	};
 
-	public shared ({caller}) func uploadChunk(fileId: FileId, chunkIndex: Nat, chunk: Chunk): async () {
+	public shared ({caller}) func uploadChunk(fileId: FileId, chunkIndex: Nat, chunk: Chunk): async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		let fileMeta = Utils.expect(activeUploadsMeta.get(fileId), "File '" # fileId # "' is not uploading");
 		let chunks = Utils.expect(activeUploadsChunks.get(fileId), "File '" # fileId # "' is not uploading");
 		chunks[chunkIndex] := chunk;
+
+		#ok();
 	};
 
-	public shared ({caller}) func finishUpload(fileId: FileId): async () {
+	// TODO...
+	func _finishUpload(fileId: FileId): Result.Result<(), Err> {
+		#ok();
+	};
+
+	public shared ({caller}) func finishUploads(fileIds: [FileId]): async Result.Result<(), Err> {
+		assert(caller == parent);
+
+		for (fileId in fileIds.vals()) {
+			switch (_finishUpload(fileId)) {
+				case (#err(err)) {
+					return #err(err);
+				};
+				case (_) {};
+			}
+		};
+		#ok();
+	};
+
+	public shared ({caller}) func finishUpload(fileId: FileId): async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		let fileMeta = Utils.expect(activeUploadsMeta.get(fileId), "File '" # fileId # "' is not uploading");
@@ -94,10 +115,12 @@ shared({caller = parent}) actor class Storage() {
 
 		activeUploadsMeta.delete(fileId);
 		activeUploadsChunks.delete(fileId);
+
+		#ok();
 	};
 
 	// update file owners
-	public shared ({caller}) func updateFileOwners(fileId: FileId, owners: [Principal]): async () {
+	public shared ({caller}) func updateFileOwners(fileId: FileId, owners: [Principal]): async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		let fileMeta = Utils.expect(filesMeta.get(fileId), "File '" # fileId # "' not found");
@@ -107,6 +130,8 @@ shared({caller = parent}) actor class Storage() {
 			chunkCount = fileMeta.chunkCount;
 			owners = owners;
 		});
+
+		#ok();
 	};
 
 	// delete file

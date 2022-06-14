@@ -93,27 +93,29 @@ module {
 		};
 
 		// UPLOAD
-		public func startUpload(storageId: Principal, fileMeta: FileMeta): async () {
+		public func startUpload(storageId: Principal, fileMeta: FileMeta): async Result.Result<(), Err> {
 			let storage = actor(Principal.toText(storageId)): Storage.Storage;
-			ignore await storage.startUpload(fileMeta);
+			await storage.startUpload(fileMeta);
 		};
 
-		public func uploadChunk(storageId: Principal, fileId: FileId, chunkIndex: Nat, chunk: Chunk): async () {
+		public func uploadChunk(storageId: Principal, fileId: FileId, chunkIndex: Nat, chunk: Chunk): async Result.Result<(), Err> {
 			let storage = actor(Principal.toText(storageId)): Storage.Storage;
 			await storage.uploadChunk(fileId, chunkIndex, chunk);
 		};
 
 		var counter = 0;
-		public func finishUpload(storageId: Principal, fileId: FileId): async () {
+		public func finishUpload(storageId: Principal, fileId: FileId): async Result.Result<(), Err> {
 			let storage = actor(Principal.toText(storageId)): Storage.Storage;
-			await storage.finishUpload(fileId);
+			ignore await storage.finishUpload(fileId);
 			storageByFileId.put(fileId, storageId);
 
-			counter += 1;
-			if (counter % 10 == 0) {
+			if (counter % 50 == 0) {
 				await _updateStorageStats();
 				await ensureUploadableStorages();
 			};
+			counter += 1;
+
+			#ok();
 		};
 
 		// QUERY

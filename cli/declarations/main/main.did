@@ -13,6 +13,11 @@ type Script =
    name: text;
    value: text;
  };
+type Result_2 = 
+ variant {
+   err: Err;
+   ok: FileId;
+ };
 type Result_1 = 
  variant {
    err: PublishingErr;
@@ -95,6 +100,7 @@ service : {
                                }) query;
   notifyInstall: (PackageName__1, Version) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
+  startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfig) -> (Result_1);
-  uploadFile: (PublishingId, Text, blob) -> (Result);
+  uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
 }

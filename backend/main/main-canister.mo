@@ -179,8 +179,7 @@ actor {
 		#ok(publishingId);
 	};
 
-	// public shared ({caller}) func startFileUpload(publishingId: PublishingId, path: Text.Text, chunkCount: Nat): async Result.Result<(), Err> {
-	public shared ({caller}) func uploadFile(publishingId: PublishingId, path: Text.Text, content: Blob): async Result.Result<(), Err> {
+	public shared ({caller}) func startFileUpload(publishingId: PublishingId, path: Text.Text, chunkCount: Nat, firstChunk: Blob): async Result.Result<FileId, Err> {
 		assert(Utils.isAuthorized(caller));
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
@@ -198,21 +197,31 @@ actor {
 
 		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
 
-		await storageManager.startUpload(publishing.storage, {
+		ignore await storageManager.startUpload(publishing.storage, {
 			id = fileId;
 			path = path;
-			chunkCount = 1;
+			chunkCount = chunkCount;
 			owners = [];
 		});
-		await storageManager.uploadChunk(publishing.storage, fileId, 0, content);
 
-		let file: PublishingFile = {
-			id = publishing.config.name # "@" # publishing.config.version # "/" # path;
+		if (chunkCount != 0) {
+			ignore await storageManager.uploadChunk(publishing.storage, fileId, 0, firstChunk);
+		};
+
+		let pubFile: PublishingFile = {
+			id = fileId;
 			path = path;
 		};
-		pubFiles.add(file);
+		pubFiles.add(pubFile);
 
-		#ok();
+		#ok(fileId);
+	};
+
+	public shared ({caller}) func uploadFileChunk(publishingId: PublishingId, fileId: FileId, chunkIndex: Nat, chunk: Blob): async Result.Result<(), Err> {
+		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		assert(publishing.user == caller);
+
+		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
 	};
 
 	public shared ({caller}) func finishPublish(publishingId: PublishingId): async Result.Result<(), Err> {
@@ -223,11 +232,6 @@ actor {
 
 		let packageId = publishing.config.name # "@" # publishing.config.version;
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
-
-		let fileIds = Array.map(pubFiles.toArray(), func(file: PublishingFile): Text.Text {
-			file.id;
-		});
-		fileIdsByPackage.put(packageId, fileIds);
 
 		var mopsToml = false;
 		var readmeMd = false;
@@ -249,8 +253,14 @@ actor {
 		};
 
 		for (file in pubFiles.vals()) {
-			await storageManager.finishUpload(publishing.storage, file.id);
+			// TODO: finishUploads
+			ignore await storageManager.finishUpload(publishing.storage, file.id);
 		};
+
+		let fileIds = Array.map(pubFiles.toArray(), func(file: PublishingFile): Text.Text {
+			file.id;
+		});
+		fileIdsByPackage.put(packageId, fileIds);
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));

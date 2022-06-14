@@ -56,6 +56,8 @@ export type Result = { 'ok' : null } |
   { 'err' : Err };
 export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
+export type Result_2 = { 'ok' : FileId } |
+  { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
 export type StorageId = Principal;
 export interface StorageStats {
@@ -76,6 +78,13 @@ export interface _SERVICE {
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
+  'startFileUpload' : ActorMethod<
+    [PublishingId, Text, bigint, Array<number>],
+    Result_2,
+  >,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,
-  'uploadFile' : ActorMethod<[PublishingId, Text, Array<number>], Result>,
+  'uploadFileChunk' : ActorMethod<
+    [PublishingId, FileId, bigint, Array<number>],
+    Result,
+  >,
 }

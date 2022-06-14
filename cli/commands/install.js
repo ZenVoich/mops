@@ -50,7 +50,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 			}
 			let fileMeta = fileMetaRes.ok;
 
-			let chunks = Array(fileMeta.chunkCount);
+			let chunks = Array(Number(fileMeta.chunkCount));
 			for (let i = 0; i < fileMeta.chunkCount; i++) {
 				let chunkRes = await storage.downloadChunk(fileId, i);
 				if (chunkRes.err) {

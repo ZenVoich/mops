@@ -188,8 +188,27 @@ export async function publish() {
 	// upload files
 	await parallel(8, files, async (file) => {
 		progress();
+
+		let chunkSize = 1024 * 1024 + 512 * 1024; // 1.5mb
 		let content = fs.readFileSync(file);
-		await actor.uploadFile(puiblishingId, file, Array.from(content));
+		let chunkCount = Math.ceil(content.length / chunkSize);
+		let firstChunk = Array.from(content.slice(0, chunkSize));
+
+		let res = await actor.startFileUpload(puiblishingId, file, chunkCount, firstChunk);
+		if (res.err) {
+			console.log(chalk.red('Error: ') + res.err);
+			return;
+		}
+		let fileId = res.ok;
+
+		for (let i = 1, start = i * chunkSize; start < content.length; i++) {
+			let chunk = Array.from(content.slice(start, start + chunkSize));
+			let res = await actor.uploadFileChunk(puiblishingId, fileId, i, chunk);
+			if (res.err) {
+				console.log(chalk.red('Error: ') + res.err);
+				return;
+			}
+		}
 	});
 
 	// finish

@@ -44,6 +44,7 @@ export const idlFactory = ({ IDL }) => {
     'cyclesBalance' : IDL.Nat,
     'memorySize' : IDL.Nat,
   });
+  const Result_2 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
   const PackageConfig = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
@@ -88,9 +89,14 @@ export const idlFactory = ({ IDL }) => {
       ),
     'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
+    'startFileUpload' : IDL.Func(
+        [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],
+        [Result_2],
+        [],
+      ),
     'startPublish' : IDL.Func([PackageConfig], [Result_1], []),
-    'uploadFile' : IDL.Func(
-        [PublishingId, Text, IDL.Vec(IDL.Nat8)],
+    'uploadFileChunk' : IDL.Func(
+        [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],
         [],
       ),
