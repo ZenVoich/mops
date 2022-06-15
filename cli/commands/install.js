@@ -50,18 +50,18 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 			}
 			let fileMeta = fileMetaRes.ok;
 
-			let chunks = Array(Number(fileMeta.chunkCount));
+			let buffer = Buffer.from([]);
 			for (let i = 0; i < fileMeta.chunkCount; i++) {
 				let chunkRes = await storage.downloadChunk(fileId, i);
 				if (chunkRes.err) {
 					console.log(chalk.red('ERR: ') + chunkRes.err);
 					return;
 				}
-				chunks[i] = chunkRes.ok;
+				buffer = Buffer.concat([buffer, chunkRes.ok]);
 			}
 
 			fs.mkdirSync(path.join(dir, path.dirname(fileMeta.path)), {recursive: true});
-			fs.writeFileSync(path.join(dir, fileMeta.path), Buffer.from(chunks.flat()));
+			fs.writeFileSync(path.join(dir, fileMeta.path), buffer);
 			progress();
 		});
 	}

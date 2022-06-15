@@ -30,6 +30,8 @@ shared({caller = parent}) actor class Storage() {
 			fileCount = filesMeta.size();
 			memorySize = rts_memory_size();
 			cyclesBalance = Cycles.balance();
+			activeUploadsMeta = activeUploadsMeta.size();
+			activeUploadsChunks = activeUploadsChunks.size();
 		};
 	};
 
@@ -80,6 +82,9 @@ shared({caller = parent}) actor class Storage() {
 				#err("File '" # fileId # "' is not uploading");
 			};
 			case (?chunks) {
+				if (chunkIndex < 0 or chunkIndex >= chunks.size()) {
+					return #err("Invalid chunk index '" # Nat.toText(chunkIndex) # "' for file '" # fileId # "'");
+				};
 				chunks[chunkIndex] := chunk;
 				#ok();
 			};
@@ -140,6 +145,16 @@ shared({caller = parent}) actor class Storage() {
 		filesChunks.delete(fileId);
 	};
 
+	public shared ({caller}) func clearActiveUploads(): async Result.Result<(), Err> {
+		assert(caller == parent);
+
+		for (fileId in activeUploadsMeta.keys()) {
+			activeUploadsMeta.delete(fileId);
+		};
+		for (fileId in activeUploadsChunks.keys()) {
+			activeUploadsChunks.delete(fileId);
+		};
+	};
 
 	// DOWNLOAD
 	func _getFileMeta(fileId: FileId, caller: Principal): Result.Result<FileMeta, Err>  {
@@ -176,6 +191,9 @@ shared({caller = parent}) actor class Storage() {
 		};
 
 		let chunks = Utils.unwrap(filesChunks.get(fileId));
+		if (chunkIndex < 0 or chunkIndex >= chunks.size()) {
+			return #err("Invalid chunk index '" # Nat.toText(chunkIndex) # "' for file '" # fileId # "'");
+		};
 		#ok(chunks[chunkIndex]);
 	};
 

@@ -201,7 +201,8 @@ export async function publish() {
 		}
 		let fileId = res.ok;
 
-		for (let i = 1, start = i * chunkSize; start < content.length; i++) {
+		for (let i = 1; i < chunkCount; i++) {
+			let start = i * chunkSize;
 			let chunk = Array.from(content.slice(start, start + chunkSize));
 			let res = await actor.uploadFileChunk(puiblishingId, fileId, i, chunk);
 			if (res.err) {

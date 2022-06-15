@@ -284,20 +284,18 @@ actor {
 		apiVersion;
 	};
 
+	// TODO: return Result
 	public shared query ({caller}) func getHighestVersion(name: PackageName): async Version.Version {
 		Utils.expect(_getHighestVersion(name), "Package '" # name # "' not found");
 	};
 
+	// TODO: return Result
 	public shared query ({caller}) func getPackageDetails(name: PackageName, version: Version.Version): async PackageDetails {
 		var ver = _resolveVersion(name, version);
 		_getPackageDetails(name, ver);
 	};
 
-	// public shared query ({caller}) func getConfig(name: PackageName, version: Version.Version): async PackageConfig {
-	// 	var ver = _resolveVersion(name, version);
-	// 	Utils.expect(packageConfigs.get(name # "@" # ver), "Package '" # name # "@" # version # "' not found");
-	// };
-
+	// TODO: return Result
 	public shared query ({caller}) func getFileIds(name: PackageName, version: Version.Version): async [FileId] {
 		let packageId = name # "@" # version;
 		Utils.expect(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");

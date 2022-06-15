@@ -33,6 +33,9 @@
 			let readme = new TextDecoder().decode(new Uint8Array(res.ok));
 			readmeHtml = micromark(readme);
 		}
+		else {
+			readmeHtml = '<i>Not found README.md</i>';
+		}
 		loaded = true;
 	});
 
