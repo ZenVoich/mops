@@ -104,10 +104,17 @@ module {
 		};
 
 		var counter = 0;
-		public func finishUpload(storageId: Principal, fileId: FileId): async Result.Result<(), Err> {
+		public func finishUploads(storageId: Principal, fileIds: [FileId]): async Result.Result<(), Err> {
 			let storage = actor(Principal.toText(storageId)): Storage.Storage;
-			ignore await storage.finishUpload(fileId);
-			storageByFileId.put(fileId, storageId);
+
+			let res = await storage.finishUploads(fileIds);
+			if (Result.isErr(res)) {
+				return res;
+			};
+
+			for (fileId in fileIds.vals()) {
+				storageByFileId.put(fileId, storageId);
+			};
 
 			if (counter % 50 == 0) {
 				await _updateStorageStats();

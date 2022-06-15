@@ -151,11 +151,8 @@ actor {
 		// check dependencies
 		for (dep in config.dependencies.vals()) {
 			let packageId = dep.name # "@" # dep.version;
-			switch (packageConfigs.get(packageId)) {
-				case (null) {
-					return #err("Dependency " # packageId # " not found in registry");
-				};
-				case (_) {};
+			if (packageConfigs.get(packageId) == null) {
+				return #err("Dependency " # packageId # " not found in registry");
 			};
 		};
 
@@ -252,14 +249,15 @@ actor {
 			return #err("Missing required file README.md");
 		};
 
-		for (file in pubFiles.vals()) {
-			// TODO: finishUploads
-			ignore await storageManager.finishUpload(publishing.storage, file.id);
-		};
-
 		let fileIds = Array.map(pubFiles.toArray(), func(file: PublishingFile): Text.Text {
 			file.id;
 		});
+
+		let res = await storageManager.finishUploads(publishing.storage, fileIds);
+		if (Result.isErr(res)) {
+			return res;
+		};
+
 		fileIdsByPackage.put(packageId, fileIds);
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);

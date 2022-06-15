@@ -62,11 +62,8 @@ shared({caller = parent}) actor class Storage() {
 	public shared ({caller}) func startUpload(fileMeta: FileMeta): async Result.Result<(), Err> {
 		assert(caller == parent);
 
-		switch (filesMeta.get(fileMeta.id)) {
-			case (null) {};
-			case (_) {
-				return #err("File '" # fileMeta.id # "' already exists");
-			};
+		if (filesMeta.get(fileMeta.id) != null) {
+			return #err("File '" # fileMeta.id # "' already exists");
 		};
 
 		activeUploadsMeta.put(fileMeta.id, fileMeta);
@@ -78,43 +75,39 @@ shared({caller = parent}) actor class Storage() {
 	public shared ({caller}) func uploadChunk(fileId: FileId, chunkIndex: Nat, chunk: Chunk): async Result.Result<(), Err> {
 		assert(caller == parent);
 
-		let fileMeta = Utils.expect(activeUploadsMeta.get(fileId), "File '" # fileId # "' is not uploading");
-		let chunks = Utils.expect(activeUploadsChunks.get(fileId), "File '" # fileId # "' is not uploading");
-		chunks[chunkIndex] := chunk;
-
-		#ok();
-	};
-
-	// TODO...
-	func _finishUpload(fileId: FileId): Result.Result<(), Err> {
-		#ok();
+		switch (activeUploadsChunks.get(fileId)) {
+			case (null) {
+				#err("File '" # fileId # "' is not uploading");
+			};
+			case (?chunks) {
+				chunks[chunkIndex] := chunk;
+				#ok();
+			};
+		};
 	};
 
 	public shared ({caller}) func finishUploads(fileIds: [FileId]): async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		for (fileId in fileIds.vals()) {
-			switch (_finishUpload(fileId)) {
-				case (#err(err)) {
-					return #err(err);
-				};
-				case (_) {};
-			}
+			if (Option.isNull(activeUploadsMeta.get(fileId))) {
+				return #err("File '" # fileId # "' is not uploading");
+			};
+			if (Option.isNull(activeUploadsChunks.get(fileId))) {
+				return #err("File '" # fileId # "' is not uploading");
+			};
 		};
-		#ok();
-	};
 
-	public shared ({caller}) func finishUpload(fileId: FileId): async Result.Result<(), Err> {
-		assert(caller == parent);
+		for (fileId in fileIds.vals()) {
+			let fileMeta = Utils.unwrap(activeUploadsMeta.get(fileId));
+			let chunks = Utils.unwrap(activeUploadsChunks.get(fileId));
 
-		let fileMeta = Utils.expect(activeUploadsMeta.get(fileId), "File '" # fileId # "' is not uploading");
-		let chunks = Utils.expect(activeUploadsChunks.get(fileId), "File '" # fileId # "' is not uploading");
+			filesMeta.put(fileId, fileMeta);
+			filesChunks.put(fileId, Array.freeze<Chunk>(chunks));
 
-		filesMeta.put(fileId, fileMeta);
-		filesChunks.put(fileId, Array.freeze<Chunk>(chunks));
-
-		activeUploadsMeta.delete(fileId);
-		activeUploadsChunks.delete(fileId);
+			activeUploadsMeta.delete(fileId);
+			activeUploadsChunks.delete(fileId);
+		};
 
 		#ok();
 	};
@@ -123,15 +116,20 @@ shared({caller = parent}) actor class Storage() {
 	public shared ({caller}) func updateFileOwners(fileId: FileId, owners: [Principal]): async Result.Result<(), Err> {
 		assert(caller == parent);
 
-		let fileMeta = Utils.expect(filesMeta.get(fileId), "File '" # fileId # "' not found");
-		filesMeta.put(fileId, {
-			id = fileMeta.id;
-			path = fileMeta.path;
-			chunkCount = fileMeta.chunkCount;
-			owners = owners;
-		});
-
-		#ok();
+		switch (filesMeta.get(fileId)) {
+			case (null) {
+				#err("File '" # fileId # "' not found");
+			};
+			case (?fileMeta) {
+				filesMeta.put(fileId, {
+					id = fileMeta.id;
+					path = fileMeta.path;
+					chunkCount = fileMeta.chunkCount;
+					owners = owners;
+				});
+				#ok();
+			};
+		};
 	};
 
 	// delete file
