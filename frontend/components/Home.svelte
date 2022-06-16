@@ -13,6 +13,14 @@
 
 	<div class="content">
 
+		<div class="section">
+			<img src="/img/mops.svg" style="width: 100px;">
+			<div class="text">
+				<div class="description"><b>MOPS</b> is a package manager for Motoko with fully on-chain package registry.</div>
+			</div>
+		</div>
+
+		<div class="delimiter"></div>
 
 		<div class="getting-started">
 			<div class="title">Getting Started</div>
@@ -23,21 +31,14 @@
 			<a class="link" href="/docs/config" use:link>Config file</a>
 		</div>
 
-		<!-- <div class="delimiter"></div>
-		<div class="motoko">
-			<div class="text">
-				<img src="/img/mops.svg" style="width: 100px;">
-				<div class="description"><b>MOPS</b> is a Motoko package manager with totally on-chain package registry.</div>
-			</div>
-		</div> -->
 
 		<div class="delimiter"></div>
 
-		<div class="motoko">
+		<div class="section">
 			<img src="/img/motoko.svg" alt="">
 			<div class="text">
 				<div class="title">Built for Motoko</div>
-				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://hwvjt-wqaaa-aaaam-qadra-cai.raw.ic0.app/">Internet Computer</a> blockchain network.</div>
+				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://internetcomputer.org/">Internet Computer</a> blockchain network.</div>
 			</div>
 		</div>
 
@@ -57,6 +58,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		margin-top: 40px;
 		margin-bottom: 100px;
 	}
 
@@ -108,7 +110,7 @@
 		box-shadow: -1px 1px 2px #555;
 	}
 
-	.motoko {
+	.section {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -119,23 +121,23 @@
 		box-sizing: border-box;
 	}
 
-	.motoko img {
+	.section img {
 		width: 300px;
 	}
 
-	.motoko .text {
+	.section .text {
 		width: min-content;
 		min-width: 300px;
 		flex-grow: 1;
 	}
 
-	.motoko .title {
+	.section .title {
 		margin-bottom: 30px;
 		font-weight: 500;
 		font-size: 30px;
 	}
 
-	.motoko .description {
+	.section .description {
 		font-size: 18px;
 	}
 </style>

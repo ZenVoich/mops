@@ -21,7 +21,7 @@
 	</div>
 	<div class="right">
 		<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
-		<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
+		<!-- <div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div> -->
 	</div>
 </div>
 

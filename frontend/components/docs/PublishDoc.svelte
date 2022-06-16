@@ -15,7 +15,7 @@
 		<h2>Requirements</h2>
 		<ul>
 			<li><a href="https://nodejs.org/" target="_blank">Node.js</a></li>
-			<li><a href="https://hwvjt-wqaaa-aaaam-qadra-cai.raw.ic0.app/docs/current/developer-docs/quickstart/local-quickstart" target="_blank">DFX</a> >= 0.10.0</li>
+			<li><a href="https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart" target="_blank">DFX</a> >= 0.10.0</li>
 		</ul>
 
 		<h3>1. Install CLI tool</h3>

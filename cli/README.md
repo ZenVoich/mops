@@ -1,5 +1,5 @@
 # MOPS
-CLI tool for [MOPS](http://mops.one)
+CLI tool for [MOPS](https://mops.one)
 
 ## Usage
 
@@ -13,4 +13,4 @@ npm i -g ic-mops
 mops i <package_name>
 ```
 
-For more docs visit http://mops.one
+For more docs visit https://mops.one
