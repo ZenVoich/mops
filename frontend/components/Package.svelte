@@ -10,6 +10,7 @@
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
 	import Date from './Date.svelte';
+	import NotFound from './NotFound.svelte';
 
 	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
 	$: $loc && load();
@@ -26,7 +27,15 @@
 		}
 		loaded = false;
 
-		packageDetails = await mainActor().getPackageDetails(pkgName, 'highest');
+		let packageDetailsRes = await mainActor().getPackageDetails(pkgName, 'highest');
+		if ('ok' in packageDetailsRes) {
+			packageDetails = packageDetailsRes.ok;
+		}
+		else {
+			packageDetails = null;
+			loaded = true;
+			return;
+		}
 
 		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 		if ('ok' in res) {
@@ -80,45 +89,51 @@
 
 <div class="package">
 	{#if loaded}
-		<div class="header">
-			<div class="header-content">
-				<div class="name">{packageDetails.config.name}</div>
-				<div class="version">{packageDetails.config.version} published <Date date="{Number(packageDetails.publication.time / 1000000n)}"></Date></div>
+		{#if packageDetails}
+			<div class="header">
+				<div class="header-content">
+					<div class="name">{packageDetails.config.name}</div>
+					<div class="version">{packageDetails.config.version} published <Date date="{Number(packageDetails.publication.time / 1000000n)}"></Date></div>
 
-				<div class="install">
-					<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
-						<div class="text" on:click="{copyCommand}">Install</div>
-						<div class="command" on:click="{copyCommand}">mops i {packageDetails.config.name}</div>
+					<div class="install">
+						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
+							<div class="text" on:click="{copyCommand}">Install</div>
+							<div class="command" on:click="{copyCommand}">mops i {packageDetails.config.name}</div>
+						</div>
+						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>
-					<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 				</div>
 			</div>
-		</div>
-		<div class="body">
-			<div class="readme">
-				{@html readmeHtml}
+			<div class="body">
+				<div class="readme">
+					{@html readmeHtml}
+				</div>
+				<div class="right-panel">
+					{#if packageDetails.config.repository}
+						<div class="detail">
+							<div class="label">Repository</div>
+							<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
+						</div>
+					{/if}
+					{#if packageDetails.config.documentation}
+						<div class="detail">
+							<div class="label">Documentation</div>
+							<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
+						</div>
+					{/if}
+					{#if packageDetails.owner}
+						<div class="detail">
+							<div class="label">Owner</div>
+							<div class="value">{packageDetails.owner}</div>
+						</div>
+					{/if}
+				</div>
 			</div>
-			<div class="right-panel">
-				{#if packageDetails.config.repository}
-					<div class="detail">
-						<div class="label">Repository</div>
-						<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
-					</div>
-				{/if}
-				{#if packageDetails.config.documentation}
-					<div class="detail">
-						<div class="label">Documentation</div>
-						<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
-					</div>
-				{/if}
-				{#if packageDetails.owner}
-					<div class="detail">
-						<div class="label">Owner</div>
-						<div class="value">{packageDetails.owner}</div>
-					</div>
-				{/if}
+		{:else}
+			<div class="not-found">
+				<NotFound>Package "{pkgName}" not found</NotFound>
 			</div>
-		</div>
+		{/if}
 	{:else}
 		<Loader></Loader>
 	{/if}
@@ -131,11 +146,14 @@
 		align-items: center;
 	}
 
+	.not-found {
+		margin-top: 20px;
+	}
+
 	.header {
 		display: flex;
 		justify-content: center;
-		flex-grow: 1;
-		align-self: stretch;
+		width: 100%;
 		background: rgb(213 217 208);
 	}
 
@@ -204,8 +222,10 @@
 
 	.body {
 		display: flex;
-		width: 900px;
+		justify-content: center;
 		margin-top: 20px;
+		width: 100%;
+		max-width: 900px;
 	}
 
 	.readme {
@@ -213,6 +233,7 @@
 		background: white;
 		padding: 20px;
 		padding-top: 0;
+		min-width: 0;
 	}
 
 	.right-panel {
@@ -249,11 +270,23 @@
 		background: rgb(233, 233, 233);
 		padding: 3px;
 		border-radius: 3px;
+		overflow-x: auto;
 	}
 
 	:global(pre > code) {
 		display: block;
 		padding: 10px;
 		tab-size: 4;
+	}
+
+	@media (max-width: 750px) {
+		.body {
+			flex-wrap: wrap;
+		}
+
+		.right-panel {
+			margin-left: 20px;
+			margin-bottom: 20px;
+		}
 	}
 </style>

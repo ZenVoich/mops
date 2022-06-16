@@ -9,6 +9,7 @@
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
 	import PackageCard from './PackageCard.svelte';
+	import NotFound from './NotFound.svelte';
 
 	$: searchText = decodeURI($loc.split('/search/')[1]);
 	$: $loc && updateResults();
@@ -47,8 +48,7 @@
 		{#each packages as pkg}
 			<PackageCard {pkg}></PackageCard>
 		{:else}
-			<div class="not-found">Packages not found</div>
-			<img class="not-found-img" src="/img/sad-mops.svg" alt="">
+			<NotFound>Packages not found</NotFound>
 		{/each}
 	{:else}
 		<Loader></Loader>
@@ -62,15 +62,5 @@
 		align-items: center;
 		margin: 20px 10px;
 		gap: 20px;
-	}
-
-	.not-found {
-		font-size: 24px;
-		color: #9d9d9d;
-		margin: 20px 0;
-	}
-
-	.not-found-img {
-		width: 250px;
 	}
 </style>

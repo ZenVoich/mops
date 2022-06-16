@@ -26,4 +26,5 @@
 .documentation code {
 	display: block;
 	padding: 10px 12px;
+	overflow-x: auto;
 }

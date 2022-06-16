@@ -77,12 +77,12 @@ actor {
 		return null;
 	};
 
-	func _resolveVersion(name: PackageName, version: Ver): Ver {
+	func _resolveVersion(name: PackageName, version: Ver): ?Ver {
 		if (version == "highest") {
-			Utils.expect(_getHighestVersion(name), "Package '" # name # "' not found");
+			_getHighestVersion(name);
 		}
 		else {
-			version;
+			?version;
 		};
 	};
 
@@ -305,8 +305,11 @@ actor {
 	};
 
 	public shared query ({caller}) func getPackageDetails(name: PackageName, version: Ver): async Result.Result<PackageDetails, Err> {
-		var ver = _resolveVersion(name, version);
-		Result.fromOption(_getPackageDetails(name, ver), "Package '" # name # "' not found");
+		let packageDetails = do ? {
+			let ver = _resolveVersion(name, version)!;
+			_getPackageDetails(name, ver)!;
+		};
+		Result.fromOption(packageDetails, "Package '" # name # "' not found");
 	};
 
 	public shared query ({caller}) func getFileIds(name: PackageName, version: Ver): async Result.Result<[FileId], Err> {
