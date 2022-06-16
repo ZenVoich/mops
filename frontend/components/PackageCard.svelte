@@ -1,20 +1,16 @@
 <script lang="ts">
-	import {push, location as loc} from 'svelte-spa-router';
+	import {link, location as loc} from 'svelte-spa-router';
 	import Date from './Date.svelte';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
 	export let pkg: PackageDetails;
-
-	function show(name: string) {
-		push(`/package/${name}`);
-	}
 </script>
 
 <div class="package">
 	<div class="left">
 		<div class="header">
-			<div class="name" on:click="{() => show(pkg.config.name)}">{pkg.config.name}</div>
+			<a class="name" href="/package/{pkg.config.name}" use:link>{pkg.config.name}</a>
 			<div class="version">{pkg.config.version}</div>
 		</div>
 		<div class="description">{pkg.config.description}</div>

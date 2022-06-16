@@ -31,8 +31,9 @@
 
 <style>
 	.logo {
-		width: 60px;
-		height: 60px;
+		width: 75px;
+		height: 75px;
+		margin: -10px 0;
 		cursor: pointer;
 		user-select: none;
 		-webkit-user-drag: none;

@@ -115,7 +115,7 @@
 		align-items: center;
 		justify-content: center;
 		flex-wrap: wrap;
-		gap: 50px;
+		gap: 40px;
 		width: 100%;
 		padding: 0 40px;
 		box-sizing: border-box;
