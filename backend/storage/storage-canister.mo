@@ -145,7 +145,7 @@ shared({caller = parent}) actor class Storage() {
 		filesChunks.delete(fileId);
 	};
 
-	public shared ({caller}) func clearActiveUploads(): async Result.Result<(), Err> {
+	public shared ({caller}) func clearActiveUploads(): async () {
 		assert(caller == parent);
 
 		for (fileId in activeUploadsMeta.keys()) {

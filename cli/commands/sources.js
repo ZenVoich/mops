@@ -73,7 +73,13 @@ export async function sources({verbose} = {}) {
 			packages['base-unofficial'] = downloadedPackages['base-unofficial'];
 		}
 		else {
-			let version = await getHighestVersion('base-unofficial');
+			let versionRes = await getHighestVersion('base-unofficial');
+			if (versionRes.err) {
+				console.log(chalk.red('Error: ') + versionRes.err);
+				return;
+			}
+			let version = versionRes.ok;
+
 			await install('base-unofficial', version, {silent: true, dep: true});
 			packages['base-unofficial'] = version;
 		}

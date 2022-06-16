@@ -58,6 +58,12 @@ export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
 export type Result_2 = { 'ok' : FileId } |
   { 'err' : Err };
+export type Result_3 = { 'ok' : PackageDetails } |
+  { 'err' : Err };
+export type Result_4 = { 'ok' : Ver } |
+  { 'err' : Err };
+export type Result_5 = { 'ok' : Array<FileId> } |
+  { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
 export type StorageId = Principal;
 export interface StorageStats {
@@ -67,16 +73,16 @@ export interface StorageStats {
 }
 export type Text = string;
 export type Time = bigint;
-export type Version = string;
+export type Ver = string;
 export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getApiVersion' : ActorMethod<[], Text>,
-  'getFileIds' : ActorMethod<[PackageName__1, Version], Array<FileId>>,
-  'getHighestVersion' : ActorMethod<[PackageName__1], Version>,
-  'getPackageDetails' : ActorMethod<[PackageName__1, Version], PackageDetails>,
+  'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
+  'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
+  'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_3>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
-  'notifyInstall' : ActorMethod<[PackageName__1, Version], undefined>,
+  'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Array<number>],

@@ -1,4 +1,4 @@
-type Version = text;
+type Ver = text;
 type Time = int;
 type Text = text;
 type StorageStats = 
@@ -12,6 +12,21 @@ type Script =
  record {
    name: text;
    value: text;
+ };
+type Result_5 = 
+ variant {
+   err: Err;
+   ok: vec FileId;
+ };
+type Result_4 = 
+ variant {
+   err: Err;
+   ok: Ver;
+ };
+type Result_3 = 
+ variant {
+   err: Err;
+   ok: PackageDetails;
  };
 type Result_2 = 
  variant {
@@ -90,15 +105,15 @@ type Dependency =
 service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
-  getFileIds: (PackageName__1, Version) -> (vec FileId) query;
-  getHighestVersion: (PackageName__1) -> (Version) query;
-  getPackageDetails: (PackageName__1, Version) -> (PackageDetails) query;
+  getFileIds: (PackageName__1, Ver) -> (Result_5) query;
+  getHighestVersion: (PackageName__1) -> (Result_4) query;
+  getPackageDetails: (PackageName__1, Ver) -> (Result_3) query;
   getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
                                  StorageStats;
                                }) query;
-  notifyInstall: (PackageName__1, Version) -> () oneway;
+  notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfig) -> (Result_1);

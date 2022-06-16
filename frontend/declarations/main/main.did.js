@@ -4,8 +4,10 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
   const Text = IDL.Text;
   const PackageName__1 = IDL.Text;
-  const Version = IDL.Text;
+  const Ver = IDL.Text;
   const FileId = IDL.Text;
+  const Result_5 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
+  const Result_4 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
@@ -38,6 +40,7 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfig__1,
     'publication' : PackagePublication,
   });
+  const Result_3 = IDL.Variant({ 'ok' : PackageDetails, 'err' : Err });
   const StorageId = IDL.Principal;
   const StorageStats = IDL.Record({
     'fileCount' : IDL.Nat,
@@ -66,15 +69,11 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
-    'getFileIds' : IDL.Func(
-        [PackageName__1, Version],
-        [IDL.Vec(FileId)],
-        ['query'],
-      ),
-    'getHighestVersion' : IDL.Func([PackageName__1], [Version], ['query']),
+    'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),
+    'getHighestVersion' : IDL.Func([PackageName__1], [Result_4], ['query']),
     'getPackageDetails' : IDL.Func(
-        [PackageName__1, Version],
-        [PackageDetails],
+        [PackageName__1, Ver],
+        [Result_3],
         ['query'],
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(
@@ -87,7 +86,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(StorageId, StorageStats))],
         ['query'],
       ),
-    'notifyInstall' : IDL.Func([PackageName__1, Version], [], ['oneway']),
+    'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
     'startFileUpload' : IDL.Func(
         [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],

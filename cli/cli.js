@@ -64,7 +64,13 @@ program
 			installAll(options);
 		}
 		else {
-			let version = await getHighestVersion(pkg);
+			let versionRes = await getHighestVersion(pkg);
+			if (versionRes.err) {
+				console.log(chalk.red('Error: ') + versionRes.err);
+				return;
+			}
+			let version = versionRes.ok;
+
 			await install(pkg, version, {verbose: options.verbose});
 
 			config.dependencies[pkg] = version;

@@ -11,7 +11,12 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 
 	if (!version) {
-		version = await getHighestVersion(pkg);
+		let versionRes = await getHighestVersion(pkg);
+		if (versionRes.err) {
+			console.log(chalk.red('Error: ') + versionRes.err);
+			return;
+		}
+		version = versionRes.ok;
 	}
 
 	let dir = path.join(process.cwd(), '.mops', `${pkg}@${version}`);
@@ -28,8 +33,21 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 		if (!dep) {
 			actor.notifyInstall(pkg, version);
 		}
-		let packageDetails = await actor.getPackageDetails(pkg, version);
-		let filesIds = await actor.getFileIds(pkg, version);
+
+		let packageDetailsRes = await actor.getPackageDetails(pkg, version);
+		if (packageDetailsRes.err) {
+			console.log(chalk.red('Error: ') + packageDetailsRes.err);
+			return;
+		}
+		let packageDetails = packageDetailsRes.ok;
+
+		let filesIdsRes = await actor.getFileIds(pkg, version);
+		if (filesIdsRes.err) {
+			console.log(chalk.red('Error: ') + filesIdsRes.err);
+			return;
+		}
+		let filesIds = filesIdsRes.ok;
+
 		let storage = await storageActor(packageDetails.publication.storage);
 
 		// progress
@@ -57,7 +75,8 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 					console.log(chalk.red('ERR: ') + chunkRes.err);
 					return;
 				}
-				buffer = Buffer.concat([buffer, chunkRes.ok]);
+				let chunk = chunkRes.ok;
+				buffer = Buffer.concat([buffer, Buffer.from(chunk)]);
 			}
 
 			fs.mkdirSync(path.join(dir, path.dirname(fileMeta.path)), {recursive: true});
