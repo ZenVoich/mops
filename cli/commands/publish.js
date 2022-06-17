@@ -57,6 +57,7 @@ export async function publish() {
 		'repository',
 		'documentation',
 		'homepage',
+		'baseDir',
 		'readme',
 		'license',
 		'files',
@@ -86,6 +87,7 @@ export async function publish() {
 		dfx: 10,
 		moc: 10,
 		donation: 64,
+		root: 50,
 	};
 
 	for (let [key, max] of Object.entries(keysMax)) {
@@ -127,6 +129,7 @@ export async function publish() {
 		repository: config.package.repository || '',
 		homepage: config.package.homepage || '',
 		documentation: config.package.documentation || '',
+		baseDir: 'src',
 		readme: 'README.md',
 		license: config.package.license || '',
 		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),

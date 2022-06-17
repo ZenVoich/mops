@@ -33,6 +33,7 @@ module {
 		keywords: [Text]; // max 5 items, max 20 chars
 		documentation: Text; // max 300
 		homepage: Text; // max 300
+		baseDir: Text; // max 50
 		readme: Text; // max 100
 		license: Text; // max 30
 		donation: Text; // empty or 64 chars

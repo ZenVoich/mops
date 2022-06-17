@@ -96,7 +96,7 @@ export async function sources({verbose} = {}) {
 
 	// sources
 	for (let [name, ver] of Object.entries(packages)) {
-		let pkgDir = path.relative(process.cwd(), path.join(root, `.mops/${name}@${ver}`));
+		let pkgDir = path.relative(process.cwd(), path.join(root, `.mops/${name}@${ver}/src`));
 		console.log(`--package ${name} ${pkgDir}`);
 
 		// fallback base to base-unofficial
