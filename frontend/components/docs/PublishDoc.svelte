@@ -42,6 +42,8 @@
 		<div>Edit <code class="inline">description</code> and <code class="inline">repository</code> fields in <code class="inline">mops.toml</code> file.</div>
 		<br>
 
+		<div>Write your package code in <code class="inline">*.mo</code> source files in the <code class="inline">src/</code> directory.</div>
+		<br>
 		<div>Create <code class="inline">README.md</code> file with information on how to use your package.</div>
 
 		<h3>4. Publish</h3>
