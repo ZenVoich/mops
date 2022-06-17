@@ -63,8 +63,10 @@ type PackageDetails =
  };
 type PackageConfig__1 = 
  record {
+   baseDir: text;
    dependencies: vec Dependency;
    description: text;
+   devDependencies: vec Dependency;
    dfx: text;
    documentation: text;
    donation: text;
@@ -80,8 +82,10 @@ type PackageConfig__1 =
  };
 type PackageConfig = 
  record {
+   baseDir: text;
    dependencies: vec Dependency;
    description: text;
+   devDependencies: vec Dependency;
    dfx: text;
    documentation: text;
    donation: text;

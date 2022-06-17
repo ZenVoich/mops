@@ -139,6 +139,7 @@ export async function publish() {
 		dependencies: (Object.entries(config.dependencies || {})).map(([name, version]) => {
 			return {name, version};
 		}),
+		devDependencies: [],
 		scripts: [],
 	};
 

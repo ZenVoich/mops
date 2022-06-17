@@ -160,6 +160,14 @@ actor {
 			};
 		};
 
+		// check devDependencies
+		for (dep in config.devDependencies.vals()) {
+			let packageId = dep.name # "@" # dep.version;
+			if (packageConfigs.get(packageId) == null) {
+				return #err("Dependency " # packageId # " not found in registry");
+			};
+		};
+
 		let publishingId = await generateId();
 
 		if (publishingPackages.get(publishingId) != null) {

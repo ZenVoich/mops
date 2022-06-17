@@ -27,6 +27,7 @@ module {
 		moc = 10;
 		donation = 64;
 		dependencies = 100;
+		devDependencies = 100;
 	};
 
 	public func validateConfig(config: PackageConfig): Result.Result<(), Err> {
@@ -39,6 +40,9 @@ module {
 		};
 		if (config.homepage.size() > 0) {
 			return #err("invalid config: 'homepage' field is not supported yet");
+		};
+		if (config.devDependencies.size() > 0) {
+			return #err("invalid config: 'devDependencies' field is not supported yet");
 		};
 		if (config.scripts.size() > 0) {
 			return #err("invalid config: 'scripts' field is not supported yet");
@@ -114,6 +118,9 @@ module {
 		if (config.dependencies.size() > CONFIG_MAX_SIZES.dependencies) {
 			return #err("invalid config: max dependencies is " # Nat.toText(CONFIG_MAX_SIZES.dependencies));
 		};
+		if (config.devDependencies.size() > CONFIG_MAX_SIZES.devDependencies) {
+			return #err("invalid config: max devDependencies is " # Nat.toText(CONFIG_MAX_SIZES.devDependencies));
+		};
 		if (config.scripts.size() > CONFIG_MAX_SIZES.scripts.0) {
 			return #err("invalid config: max scripts is " # Nat.toText(CONFIG_MAX_SIZES.scripts.0));
 		};
@@ -131,6 +138,18 @@ module {
 			};
 		};
 		for (dep in config.dependencies.vals()) {
+			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
+				return #err("invalid config: dependency name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
+			};
+			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
+				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
+			};
+			let versionValid = Version.validate(dep.version);
+			if (Result.isErr(versionValid)) {
+				return versionValid;
+			};
+		};
+		for (dep in config.devDependencies.vals()) {
 			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
 				return #err("invalid config: dependency name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
 			};

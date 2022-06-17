@@ -38,6 +38,7 @@ module {
 		license: Text; // max 30
 		donation: Text; // empty or 64 chars
 		dependencies: [Dependency]; // max 100 items
+		devDependencies: [Dependency]; // max 100 items
 		scripts: [Script]; // max 40 items
 		dfx: Text; // max 10
 		moc: Text; // max 10
