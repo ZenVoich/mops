@@ -165,7 +165,7 @@ export async function publish() {
 
 	// check allowed exts
 	for (let file of files) {
-		if (!minimatch(file, '**/*.{mo,did,md,toml}')) {
+		if (!minimatch(file, '**/*.{mo,did,md,toml}') && !file.toLowerCase().endsWith('license')) {
 			console.log(chalk.red('Error: ') + `file ${file} has unsupported extension. Allowed: .mo, .did, .md, .toml`);
 			return;
 		}
