@@ -18,7 +18,7 @@
 	},
 	"defaults": {
 		"build": {
-			"packtool": "mops sources"
+			"packtool": ""
 		}
 	},
 	"networks": {

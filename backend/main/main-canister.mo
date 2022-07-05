@@ -378,7 +378,18 @@ actor {
 			ignore do ? {
 				let config = packageConfigs.get(packageId)!;
 				let packageDetails = _getPackageDetails(config.name, config.version)!;
-				packagesDetails.add(packageDetails);
+
+				var has = false;
+				label find for (details in packagesDetails.vals()) {
+					if (details.config.name == config.name) {
+						has := true;
+						break find;
+					};
+				};
+
+				if (not has) {
+					packagesDetails.add(packageDetails);
+				};
 
 				if (packagesDetails.size() >= max) {
 					break l;
