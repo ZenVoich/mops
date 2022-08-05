@@ -2,6 +2,7 @@
 	import {link} from 'svelte-spa-router';
 	import Header from './Header.svelte';
 	import TopPackages from './TopPackages.svelte';
+	import Footer from "./Footer.svelte";
 </script>
 
 <svelte:head>
@@ -47,6 +48,8 @@
 		<TopPackages></TopPackages>
 	</div>
 </div>
+
+<Footer />
 
 <style>
 	.main {

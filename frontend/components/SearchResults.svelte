@@ -10,6 +10,7 @@
 	import Loader from './Loader.svelte';
 	import PackageCard from './PackageCard.svelte';
 	import NotFound from './NotFound.svelte';
+	import Footer from "./Footer.svelte";
 
 	$: searchText = decodeURI($loc.split('/search/')[1]);
 	$: $loc && updateResults();
@@ -54,6 +55,8 @@
 		<Loader></Loader>
 	{/if}
 </div>
+
+<Footer />
 
 <style>
 	.search-results {

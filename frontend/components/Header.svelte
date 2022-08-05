@@ -1,5 +1,6 @@
 <script lang="ts">
-	import {push, link} from 'svelte-spa-router';
+	import {push} from 'svelte-spa-router';
+	import Logo from "./links/Logo.svelte";
 
 	export let searchText = '';
 
@@ -19,27 +20,16 @@
 	}
 </script>
 
-<div class="header">
-	<a href="/" use:link>
-		<img class="logo" src="img/mops-motoko.svg" alt="mops">
-	</a>
+<header>
+	<Logo />
 	<div class="search">
 		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="50">
 		<div class="button" on:click="{search}">Search</div>
 	</div>
-</div>
+</header>
 
 <style>
-	.logo {
-		width: 75px;
-		height: 75px;
-		margin: -10px 0;
-		cursor: pointer;
-		user-select: none;
-		-webkit-user-drag: none;
-	}
-
-	.header {
+	header {
 		position: relative;
 		z-index: 100;
 		display: flex;
