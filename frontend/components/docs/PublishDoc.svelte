@@ -1,5 +1,6 @@
 <script>
 	import Header from '../Header.svelte';
+	import Footer from "../Footer.svelte";
 </script>
 
 <svelte:head>
@@ -52,6 +53,8 @@
 		<code>mops publish</code>
 	</div>
 </div>
+
+<Footer />
 
 <style>
 	@import "./docs.css";

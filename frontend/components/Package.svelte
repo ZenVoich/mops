@@ -11,6 +11,7 @@
 	import Loader from './Loader.svelte';
 	import Date from './Date.svelte';
 	import NotFound from './NotFound.svelte';
+	import Footer from "./Footer.svelte";
 
 	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
 	$: $loc && load();
@@ -138,6 +139,8 @@
 		<Loader></Loader>
 	{/if}
 </div>
+
+<Footer />
 
 <style>
 	.package {
