@@ -270,6 +270,7 @@
 		align-items: center;
 		line-height: 1;
 		gap: 5px;
+		white-space: normal;
 	}
 
 	.github-icon {
