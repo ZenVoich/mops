@@ -113,7 +113,10 @@
 					{#if packageDetails.config.repository}
 						<div class="detail">
 							<div class="label">Repository</div>
-							<a class="value" href="{packageDetails.config.repository}" target="_blank">{packageDetails.config.repository.replace(/https?:\/\/(www\.)?/, '')}</a>
+							<a class="value repository" href="{packageDetails.config.repository}" target="_blank">
+								<img class="github-icon" src="img/github.svg" alt="GitHub logo" loading="lazy" />
+								{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
+							</a>
 						</div>
 					{/if}
 					{#if packageDetails.config.documentation}
@@ -260,6 +263,19 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	.repository {
+		display: flex;
+		align-items: center;
+		line-height: 1;
+		gap: 5px;
+	}
+
+	.github-icon {
+		width: 20px;
+		height: 20px;
+		filter: hue-rotate(45deg) contrast(0.6);
 	}
 
 	:global(h1, h2) {
