@@ -225,7 +225,6 @@
 
 	.body {
 		display: flex;
-		justify-content: center;
 		margin-top: 20px;
 		width: 100%;
 		max-width: 900px;
