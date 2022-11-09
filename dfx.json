@@ -1,6 +1,6 @@
 {
 	"version": 1,
-	"dfx": "0.10.1",
+	"dfx": "0.12.0",
 	"canisters": {
 		"main": {
 			"type": "motoko",
