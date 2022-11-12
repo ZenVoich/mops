@@ -6,12 +6,12 @@
 		"deploy": "npm run const && dfx deploy main && npm run decl",
 		"replica": "dfx stop && dfx start --emulator --background --clean",
 		"const": "dfx canister create --all && node constants.js",
-		"const:prod": "dfx canister --network ic create --all && node constants.js prod",
+		"const:prod": "dfx canister --network ic create --all --no-wallet && node constants.js prod",
 		"decl": "npm run decl:frontend && npm run decl:cli",
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
 		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic && npm run const",
-		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic && npm run const"
+		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const"
 	},
 	"dependencies": {
 		"@dfinity/principal": "^0.11.1"

@@ -109,7 +109,12 @@
 				<div class="readme">
 					{@html readmeHtml}
 				</div>
+
 				<div class="right-panel">
+					<div class="detail">
+						<div class="label">Downloads</div>
+						<div class="value">{packageDetails.downloadsTotal}</div>
+					</div>
 					{#if packageDetails.config.repository}
 						<div class="detail">
 							<div class="label">Repository</div>

@@ -27,7 +27,7 @@ module {
 
 	public class DownloadLog() = {
 		var log = Buffer.Buffer<Record>(1000);
-		var downloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
+		public var downloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 		var downloadsByPackageId = TrieMap.TrieMap<PackageId, Nat>(Text.equal, Text.hash);
 
 		public func add(record: Record) {
@@ -35,6 +35,30 @@ module {
 			log.add(record);
 			downloadsByPackageName.put(record.name, Option.get(downloadsByPackageName.get(record.name), 0) + 1);
 			downloadsByPackageId.put(packageId, Option.get(downloadsByPackageId.get(packageId), 0) + 1);
+		};
+
+		public func getTotalDownloads(): Nat {
+			var total = 0;
+			for (count in downloadsByPackageName.vals()) {
+				total += count;
+			};
+			total;
+		};
+
+		public func getTotalDownloadsByPackageName(name: PackageName): Nat {
+			Option.get(downloadsByPackageName.get(name), 0);
+		};
+
+		public func get30DayDownloadsByPackageName(name: PackageName): Nat {
+			let t30Days = 1_000_000_000 * 60 * 60 * 24 * 30;
+			let t30DaysAgo = Time.now() - t30Days;
+			var total = 0;
+			for (record in log.vals()) {
+				if (record.name == name and record.time > t30DaysAgo) {
+					total += 1;
+				};
+			};
+			total;
 		};
 
 		public func toStable(): Stable {

@@ -5,21 +5,27 @@
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
+	export let type: 'recently-updated' | 'most-downloaded' = 'recently-updated';
 	let loaded = false;
 	let packages: PackageDetails[] = [];
 
 	onMount(async () => {
-		packages = await mainActor().getRecentlyUpdatedPackages();
+		if (type === 'recently-updated') {
+			packages = await mainActor().getRecentlyUpdatedPackages();
+		}
+		else if (type === 'most-downloaded') {
+			packages = await mainActor().getMostDownloadedPackages();
+		}
 		loaded = true;
 	});
 </script>
 
 <div class="top-packages">
-	<div class="title">Recently Updated Pacakges</div>
+	<div class="title">{type === 'recently-updated' ? 'Recently Updated' : 'Most Downloaded'}</div>
 
 	{#if loaded}
 		{#each packages as pkg}
-			<PackageCard {pkg}></PackageCard>
+			<PackageCard {pkg} showUpdated={type === 'recently-updated'} showDownloads={type === 'most-downloaded'}></PackageCard>
 		{:else}
 			{#if loaded}
 				<div class="not-found">Packages not found</div>
@@ -35,11 +41,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+		align-self: flex-start;
 		max-width: 100%;
-		padding: 0 20px;
 		box-sizing: border-box;
 		margin-top: 10px;
-		width: 600px;
+		width: 390px;
 	}
 
 	.title {

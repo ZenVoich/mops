@@ -10,6 +10,7 @@ import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
+import Order "mo:base/Order";
 // import {hello} "mo:utils/test";
 
 import Utils "../utils";
@@ -110,8 +111,8 @@ actor {
 				owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
 				config = config;
 				publication = publication;
-				downloadsInLast30Days = 0;
-				downloadsTotal = 0;
+				downloadsInLast30Days = downloadLog.get30DayDownloadsByPackageName(config.name);
+				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 			}
 		};
 	};
@@ -398,6 +399,39 @@ actor {
 		};
 
 		packagesDetails.toArray();
+	};
+
+	public query func getMostDownloadedPackages(): async [PackageDetails] {
+		let max = 5;
+		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
+
+		let arr = Iter.toArray(downloadLog.downloadsByPackageName.entries());
+		let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
+			Nat.compare(b.1, a.1);
+		});
+
+		label l for ((packageName, _) in sorted.vals()) {
+			ignore do ? {
+				let version = _getHighestVersion(packageName)!;
+				let packageDetails = _getPackageDetails(packageName, version)!;
+
+				packagesDetails.add(packageDetails);
+
+				if (packagesDetails.size() >= max) {
+					break l;
+				};
+			};
+		};
+
+		packagesDetails.toArray();
+	};
+
+	public func getTotalDownloads(): async Nat {
+		downloadLog.getTotalDownloads();
+	};
+
+	public func getTotalPackages(): async Nat {
+		packageVersions.size();
 	};
 
 	public query func getStoragesStats(): async [(StorageManager.StorageId, StorageManager.StorageStats)] {

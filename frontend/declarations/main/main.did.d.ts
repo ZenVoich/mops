@@ -83,18 +83,21 @@ export interface _SERVICE {
   'getApiVersion' : ActorMethod<[], Text>,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
+  'getMostDownloadedPackages' : ActorMethod<[], Array<PackageDetails>>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_3>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
+  'getTotalDownloads' : ActorMethod<[], bigint>,
+  'getTotalPackages' : ActorMethod<[], bigint>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startFileUpload' : ActorMethod<
-    [PublishingId, Text, bigint, Array<number>],
+    [PublishingId, Text, bigint, Uint8Array],
     Result_2,
   >,
   'startPublish' : ActorMethod<[PackageConfig], Result_1>,
   'uploadFileChunk' : ActorMethod<
-    [PublishingId, FileId, bigint, Array<number>],
+    [PublishingId, FileId, bigint, Uint8Array],
     Result,
   >,
 }

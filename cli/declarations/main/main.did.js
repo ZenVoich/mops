@@ -75,6 +75,11 @@ export const idlFactory = ({ IDL }) => {
     'getApiVersion' : IDL.Func([], [Text], ['query']),
     'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),
     'getHighestVersion' : IDL.Func([PackageName__1], [Result_4], ['query']),
+    'getMostDownloadedPackages' : IDL.Func(
+        [],
+        [IDL.Vec(PackageDetails)],
+        ['query'],
+      ),
     'getPackageDetails' : IDL.Func(
         [PackageName__1, Ver],
         [Result_3],
@@ -90,6 +95,8 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(StorageId, StorageStats))],
         ['query'],
       ),
+    'getTotalDownloads' : IDL.Func([], [IDL.Nat], []),
+    'getTotalPackages' : IDL.Func([], [IDL.Nat], []),
     'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
     'startFileUpload' : IDL.Func(

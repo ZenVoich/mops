@@ -1,4 +1,4 @@
 module {
 	public let NETWORK = "local";
-	public let MAIN_CANISTER_ID = "3wdpc-uaoaq-aaaaa-aaaaa-c";
+	public let MAIN_CANISTER_ID = "hozae-racaq-aaaaa-aaaaa-c";
 }

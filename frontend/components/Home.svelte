@@ -3,6 +3,7 @@
 	import Header from './Header.svelte';
 	import TopPackages from './TopPackages.svelte';
 	import Footer from "./Footer.svelte";
+	import TotalStats from './TotalStats.svelte';
 </script>
 
 <svelte:head>
@@ -23,6 +24,10 @@
 
 		<div class="delimiter"></div>
 
+		<TotalStats></TotalStats>
+
+		<div class="delimiter"></div>
+
 		<div class="getting-started">
 			<div class="title">Getting Started</div>
 			<div class="buttons">
@@ -31,7 +36,6 @@
 			</div>
 			<a class="link" href="/docs/config" use:link>Config file</a>
 		</div>
-
 
 		<div class="delimiter"></div>
 
@@ -45,7 +49,10 @@
 
 		<div class="delimiter"></div>
 
-		<TopPackages></TopPackages>
+		<div class="section">
+			<TopPackages type="most-downloaded"></TopPackages>
+			<TopPackages type="recently-updated"></TopPackages>
+		</div>
 	</div>
 </div>
 

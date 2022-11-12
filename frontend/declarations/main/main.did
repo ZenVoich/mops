@@ -111,12 +111,15 @@ service : {
   getApiVersion: () -> (Text) query;
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
+  getMostDownloadedPackages: () -> (vec PackageDetails) query;
   getPackageDetails: (PackageName__1, Ver) -> (Result_3) query;
   getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
                                  StorageStats;
                                }) query;
+  getTotalDownloads: () -> (nat);
+  getTotalPackages: () -> (nat);
   notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
