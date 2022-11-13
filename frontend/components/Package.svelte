@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-	<title>{packageDetails ? packageDetails.config.name + ' - ' : ''}Motoko Packages</title>
+	<title>{packageDetails ? packageDetails.config.name + ' &nbsp;&bull;&nbsp; ' : ''}Motoko Package</title>
 </svelte:head>
 
 <Header></Header>

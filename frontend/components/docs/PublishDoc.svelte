@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Publish - Motoko Packages</title>
+	<title>MOPS &nbsp;&bull;&nbsp; Publish</title>
 </svelte:head>
 
 <Header></Header>

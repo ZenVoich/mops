@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>mops.toml - Motoko Packages</title>
+	<title>MOPS &nbsp;&bull;&nbsp; mops.toml</title>
 </svelte:head>
 
 <Header></Header>

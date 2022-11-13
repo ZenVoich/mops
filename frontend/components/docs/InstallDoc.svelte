@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Install - Motoko Packages</title>
+	<title>MOPS &nbsp;&bull;&nbsp; Install</title>
 </svelte:head>
 
 <Header></Header>
