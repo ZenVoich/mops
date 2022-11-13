@@ -1,3 +1,4 @@
+type Version = text;
 type Ver = text;
 type Time = int;
 type Text = text;
@@ -109,6 +110,10 @@ type Dependency =
 service : {
   finishPublish: (PublishingId) -> (Result);
   getApiVersion: () -> (Text) query;
+  getDefaultPackages: (text) -> (vec record {
+                                       PackageName__1;
+                                       Version;
+                                     }) query;
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
   getMostDownloadedPackages: () -> (vec PackageDetails) query;

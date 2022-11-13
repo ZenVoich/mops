@@ -4,6 +4,7 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
   const Text = IDL.Text;
   const PackageName__1 = IDL.Text;
+  const Version = IDL.Text;
   const Ver = IDL.Text;
   const FileId = IDL.Text;
   const Result_5 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
@@ -73,6 +74,11 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
+    'getDefaultPackages' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(IDL.Tuple(PackageName__1, Version))],
+        ['query'],
+      ),
     'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),
     'getHighestVersion' : IDL.Func([PackageName__1], [Result_4], ['query']),
     'getMostDownloadedPackages' : IDL.Func(

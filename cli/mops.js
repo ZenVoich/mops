@@ -13,7 +13,7 @@ import {decodeFile} from './pem.js';
 global.fetch = fetch;
 
 // (!) make changes in pair with backend
-let apiVersion = '0.1';
+let apiVersion = '0.2';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 
@@ -110,6 +110,20 @@ export async function getHighestVersion(pkgName) {
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	let text = fs.readFileSync(configFile).toString();
 	return TOML.parse(text);
+}
+
+export function readDfxJson() {
+	let dir = process.cwd();
+	let dfxJson = null;
+	for (let i = 0; i < 5; i++) {
+		let file = path.resolve(dir, 'dfx.json');
+		if (fs.existsSync(file)) {
+			dfxJson = JSON.parse(fs.readFileSync(file).toString());
+			break;
+		}
+		dir = path.resolve(dir, '..');
+	}
+	return dfxJson;
 }
 
 // warn on minor mismatch

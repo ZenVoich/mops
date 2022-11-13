@@ -78,9 +78,14 @@ export interface StorageStats {
 export type Text = string;
 export type Time = bigint;
 export type Ver = string;
+export type Version = string;
 export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getApiVersion' : ActorMethod<[], Text>,
+  'getDefaultPackages' : ActorMethod<
+    [string],
+    Array<[PackageName__1, Version]>,
+  >,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageDetails>>,

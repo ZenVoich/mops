@@ -33,7 +33,7 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
-	let apiVersion = "0.1"; // (!) make changes in pair with cli
+	let apiVersion = "0.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [Ver]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
@@ -307,6 +307,20 @@ actor {
 	// QUERY
 	public shared query ({caller}) func getApiVersion(): async Text.Text {
 		apiVersion;
+	};
+
+	public shared query ({caller}) func getDefaultPackages(dfxVersion: Text): async [(PackageName, Version.Version)] {
+		switch (dfxVersion) {
+			case ("0.12.0") [("base-unofficial", "0.7.3")];
+			case ("0.11.2") [("base-unofficial", "0.6.29")];
+			case ("0.11.1") [("base-unofficial", "0.6.29")];
+			case ("0.10.1") [("base-unofficial", "0.6.28")];
+			case ("0.10.0") [("base-unofficial", "0.6.26")];
+			case ("0.9.3") [("base-unofficial", "0.6.25")];
+			case ("0.9.2") [("base-unofficial", "0.6.21")];
+			case ("0.9.0") [("base-unofficial", "0.6.20")];
+			case (_) [("base-unofficial", "0.7.3")];
+		};
 	};
 
 	public shared query ({caller}) func getHighestVersion(name: PackageName): async Result.Result<Ver, Err> {
