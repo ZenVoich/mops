@@ -11,7 +11,8 @@
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
 		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic && npm run const",
-		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const"
+		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const",
+		"dhall--to-json": "dhall-to-json"
 	},
 	"dependencies": {
 		"@dfinity/principal": "^0.11.1"

@@ -15,6 +15,7 @@ import {checkApiCompatibility, getHighestVersion, getNetwork, setNetwork} from '
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
+import { installFromGithub } from './vessel.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -62,6 +63,22 @@ program
 
 		if (!pkg) {
 			installAll(options);
+		}
+		else if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+			const url = pkg.split('#');
+			const repo = url[0];
+			const version = url[1] || 'master';
+
+			const paths = repo.split('/');
+			const name = paths[paths.length - 1];
+
+			await installFromGithub({name, repo, version}, {verbose: options.verbose});
+
+			config.dependencies[name] = `${repo}#${version}`;
+			wirteConfig(config);
+
+			logUpdate.clear();
+			console.log(chalk.green('Package installed ') + `${name} = "${repo}#${version}"`);
 		}
 		else {
 			let versionRes = await getHighestVersion(pkg);

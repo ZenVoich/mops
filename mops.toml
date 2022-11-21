@@ -5,5 +5,6 @@ description = "Test lib"
 repository = ""
 
 [dependencies]
-hello = "2.0.0"
-pkg = "0.2.0"
+http-parser = "0.1.0"
+"Itertools.mo" = "https://github.com/NatLabs/Itertools.mo#master"
+serde = "https://github.com/NatLabs/serde#master"
