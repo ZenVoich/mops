@@ -63,10 +63,15 @@ program
 		else if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
 
 			const pkgDetails = parseGithubURL(pkg);
+			const {name, repo, version} = pkgDetails;
+
+			// edge case when pkg with name is already installed
+			if (config.dependencies[name]){
+
+			};
 
 			await installFromGithub(pkgDetails, {verbose: options.verbose});
 
-			const {name, repo, version} = pkgDetails;
 			config.dependencies[name] = pkgDetails;
 			writeConfig(config);
 

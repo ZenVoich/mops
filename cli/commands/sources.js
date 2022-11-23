@@ -110,6 +110,7 @@ export async function sources({verbose} = {}) {
 		}
 	}
 
+
 	// sources
 	for (let [name, {repo, version}] of Object.entries(packages)) {
 		let pkgDir;
@@ -119,11 +120,11 @@ export async function sources({verbose} = {}) {
 			pkgDir = path.relative(process.cwd(), path.join(root, `.mops/${name}@${version}/src`));
 		}
 
-
-		console.log(`--package ${name} ${pkgDir}`);
-
-		// fallback base to base-unofficial
-		if (name == 'base-unofficial' && !packages.base) {
+		if (name !== 'base-unofficial') {
+			console.log(`--package ${name} ${pkgDir}`);
+		}
+		else if (!packages.base){
+			// fallback base to base-unofficial
 			console.log(`--package base ${pkgDir}`);
 		}
 	}
