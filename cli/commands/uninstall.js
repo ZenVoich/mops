@@ -1,16 +1,32 @@
-import {checkConfigFile} from '../mops.js';
-import path from 'path';
+import {checkConfigFile, readConfig} from '../mops.js';
 import fs from 'fs';
 import del from 'del';
 import chalk from 'chalk';
+import { formatDir, formatGithubDir } from '../mops.js';
 
-export async function uninstall(pkg, version) {
+export async function uninstall(pkg, _version) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
 	// TODO: check if deps relate on this package
-	let pkgDir = path.join(process.cwd(), '.mops', `${pkg}@${version}`);
+	const config = readConfig();
+
+	const pkgDetails = config.dependencies[pkg];
+
+	if (!pkgDetails){
+		console.log(`No dependency to remove ${pkg} = "${version}"`);
+		return;
+	}
+
+	const {repo, version} = pkgDetails;
+	let pkgDir;
+
+	if (repo){
+		pkgDir = formatGithubDir(pkg, version);
+	}else{
+		pkgDir = formatDir(pkg, version);
+	}
 
 	if (!fs.existsSync(pkgDir)) {
 		console.log(`No cache to remove ${pkg} = "${version}"`);

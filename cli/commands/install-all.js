@@ -10,17 +10,13 @@ export async function installAll({verbose} = {}) {
 	}
 
 	let config = readConfig();
-	let deps = Object.entries(config.dependencies || {});
+	const deps = Object.values(config.dependencies || {});
 
-	for (let [pkg, ver] of deps) {
-		if (ver.startsWith('https://github.com/')){
-			const url = ver.split('#');
-			const repo = url[0];
-			const version = url[1];
-
-			await installFromGithub({name: pkg, repo, version}, {verbose});
+	for (let {name, repo, version} of deps) {
+		if (repo){
+			await installFromGithub({name, repo, version}, {verbose});
 		}else{
-			await install(pkg, ver, {verbose});
+			await install(name, version, {verbose});
 		}
 	}
 

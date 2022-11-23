@@ -11,7 +11,7 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getHighestVersion, getNetwork, setNetwork} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, setNetwork, writeConfig} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -19,10 +19,6 @@ import { installFromGithub } from './vessel.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
-
-function wirteConfig(config) {
-	fs.writeFileSync(configFile, TOML.stringify(config).trim());
-}
 
 program.name('mops');
 
@@ -65,22 +61,19 @@ program
 			installAll(options);
 		}
 		else if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
-			const url = pkg.split('#');
-			const repo = url[0];
-			const version = url[1] || 'master';
 
-			const paths = repo.split('/');
-			const name = paths[paths.length - 1];
+			const pkgDetails = parseGithubURL(pkg);
 
-			await installFromGithub({name, repo, version}, {verbose: options.verbose});
+			await installFromGithub(pkgDetails, {verbose: options.verbose});
 
-			config.dependencies[name] = `${repo}#${version}`;
-			wirteConfig(config);
+			const {name, repo, version} = pkgDetails;
+			config.dependencies[name] = pkgDetails;
+			writeConfig(config);
 
 			logUpdate.clear();
 			console.log(chalk.green('Package installed ') + `${name} = "${repo}#${version}"`);
 		}
-		else {
+		else if (!config.dependencies[pkg]){
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
@@ -90,10 +83,14 @@ program
 
 			await install(pkg, version, {verbose: options.verbose});
 
-			config.dependencies[pkg] = version;
-			wirteConfig(config);
+			config.dependencies[pkg] = {version};
+			writeConfig(config);
+
 			logUpdate.clear();
 			console.log(chalk.green('Package installed ') + `${pkg} = "${version}"`);
+		}else{
+			const {version} = config.dependencies[pkg];
+			options.silent || logUpdate(`Installing ${pkg}@${version} (cache)`);
 		}
 	});
 

@@ -3,7 +3,7 @@ import { execaCommand} from 'execa';
 import chalk from 'chalk';
 import downloadGitRepo from 'download-git-repo';
 import logUpdate from 'log-update';
-import path from 'path';
+import { formatGithubDir, parseGithubURL } from './mops.js';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
@@ -38,43 +38,32 @@ export const readVesselConfig = async (configFile) => {
 
 	let config = {
 		compiler : vessel.compiler,
-		dependencies : vessel.dependencies.map(name => packageSet[name])
+		dependencies : vessel.dependencies.map(name => {
+			const {repo, version} = packageSet[name];
+			return {...parseGithubURL(repo), name, version};
+		})
 	};
 	return config;
 };
 
-export const installFromGithub = async (details, options = {})=>{
+export const installFromGithub = async (pkgDetails, options = {})=>{
 
-	const {name, version} = details;
+	const {name, repo, version} = pkgDetails;
 	const {verbose, dep, silent} = options;
 
-	let repo = details.repo;
-	if (repo.startsWith('https://github.com/'))
-		repo = repo.substring(19);
-
-	if (repo.endsWith('.git'))
-		repo = repo.substring(0, repo.length - 4);
-
-	let dir = path.join(process.cwd(), `.mops/github/${name}@${version}`);
+	const dir = formatGithubDir(name, version);
 
 	if (existsSync(dir)){
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo}@${version } (cache) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo}@${version} (cache) from Github`);
 	}
 	else {
 		mkdirSync(dir, {recursive: true});
 		if (verbose) {console.log();}
 
-		let url = repo;
-
-		if (version){
-			url = `${repo}#${version}`;
-		}
-
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing '} ${name}@${version} from Github`);
 
-
-		let download = new Promise((resolve, reject) => {
-			downloadGitRepo(url, dir, {filename: 'src', extract: true}, (e) => {
+		const download = new Promise((resolve, reject) => {
+			downloadGitRepo(`${repo}#${version}`, dir, {filename: 'src', extract: true}, (e) => {
 				if (e){
 					rmdirSync(dir);
 					reject(e);
@@ -87,7 +76,7 @@ export const installFromGithub = async (details, options = {})=>{
 		await download.catch((err)=> console.log(chalk.red('Error: ') + err));
 	}
 
-	let config = await readVesselConfig(dir);
+	const config = await readVesselConfig(dir);
 
 	if (config){
 		for (const depDetails of config.dependencies){
@@ -99,5 +88,3 @@ export const installFromGithub = async (details, options = {})=>{
 		}
 	}
 };
-
-// await readVesselConfig('/Users/dire.sol/Documents/dev/icp/icrc1');

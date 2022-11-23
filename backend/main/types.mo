@@ -7,6 +7,7 @@ module {
 
 	public type Dependency = {
 		name: PackageName; // max 50
+		repo: Text; // max 250
 		version: Text; // max 20
 	};
 
