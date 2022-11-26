@@ -170,9 +170,9 @@ actor {
 		// check dependencies
 		for (dep in config.dependencies.vals()) {
 			let packageId = dep.name # "@" # dep.version;
-			// if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
-			// 	return #err("Dependency " # packageId # " not found in registry");
-			// };
+			if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
+				return #err("Dependency " # packageId # " not found in registry");
+			};
 		};
 
 		// check devDependencies
