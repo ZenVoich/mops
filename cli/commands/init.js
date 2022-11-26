@@ -18,11 +18,11 @@ export async function init(name = '') {
 	let config = {};
 	let vesselConfig = {};
 
-	const vesselFilePath = path.join(process.cwd(), 'vessel.dhall');
+	const vesselFile = path.join(process.cwd(), 'vessel.dhall');
 
-	if (fs.existsSync(vesselFilePath)){
+	if (fs.existsSync(vesselFile)){
 		console.log('Reading vessel.dhall file');
-		vesselConfig = await readVesselConfig()|| {};
+		vesselConfig = await readVesselConfig() || {};
 	}
 
 	if (vesselConfig.dependencies){
@@ -40,7 +40,6 @@ export async function init(name = '') {
 			version: '0.1.0',
 			description: '',
 			repository: '',
-			moc: vesselConfig.compiler || ''
 		};
 
 		writeConfig(config);

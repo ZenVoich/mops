@@ -4,7 +4,7 @@ import del from 'del';
 import chalk from 'chalk';
 import { formatDir, formatGithubDir } from '../mops.js';
 
-export async function uninstall(pkg, _version) {
+export async function uninstall(pkg, version) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -19,11 +19,11 @@ export async function uninstall(pkg, _version) {
 		return;
 	}
 
-	const {repo, version} = pkgDetails;
+	const {repo} = pkgDetails;
 	let pkgDir;
 
 	if (repo){
-		pkgDir = formatGithubDir(pkg, version);
+		pkgDir = formatGithubDir(pkg, repo);
 	}else{
 		pkgDir = formatDir(pkg, version);
 	}

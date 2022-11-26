@@ -117,15 +117,11 @@ export function parseGithubURL(url){
 	url = url.split('#');
 
 	const repo = url[0];
-	const version = url[1] || 'master';
+	const branch =  url[1] || 'master';
 
-	const paths = repo.split('/');
+	const [org, gitName] = repo.split('/');
 
-	return {
-		name : paths[paths.length - 1],
-		repo,
-		version
-	};
+	return { org, gitName, branch };
 }
 
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
@@ -136,7 +132,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 
 	Object.entries(deps).forEach(([name, data])=>{
 		if (data.startsWith('https://github.com/')){
-			deps[name] = {...parseGithubURL(data), name};
+			deps[name] = {name, repo: data, version: ''};
 		}else{
 			deps[name] = {name, repo: '', version: data};
 		}
@@ -145,16 +141,12 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	return toml;
 }
 
-export function formatGithubURL({repo, version}){
-	return `https://github.com/${repo}#${version}`;
-}
-
 export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = config.dependencies;
 
 	Object.entries(deps).forEach(([name, {repo, version}])=>{
 		if (repo){
-			deps[name] = formatGithubURL({repo, version});
+			deps[name] = repo;
 		}else{
 			deps[name] = version;
 		}
@@ -167,8 +159,9 @@ export function formatDir(name, version){
 	return path.join(process.cwd(), '.mops', `${name}@${version}`);
 }
 
-export function formatGithubDir(name, version){
-	return path.join(process.cwd(), '.mops/_github', `${name}@${version}`);
+export function formatGithubDir(name, repo){
+	const { branch } = parseGithubURL(repo);
+	return path.join(process.cwd(), '.mops/_github', `${name}@${branch}`);
 }
 
 export function readDfxJson() {

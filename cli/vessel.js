@@ -4,10 +4,12 @@ import chalk from 'chalk';
 import downloadGitRepo from 'download-git-repo';
 import logUpdate from 'log-update';
 import { formatGithubDir, parseGithubURL } from './mops.js';
+import path from 'path';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
-		const res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd:'/Users/dire.sol/Documents/dev/icp/mops/cli'});
+		let cwd = new URL(path.dirname(import.meta.url)).pathname;
+		const res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
 
 		if (res.exitCode === 0){
 			return JSON.parse(res.stdout);
@@ -33,37 +35,38 @@ export const readVesselConfig = async (configFile) => {
 
 	if (!vessel || !packageSetArray) return null;
 
-	let packageSet = {};
-	packageSetArray.forEach(dep => packageSet[dep.name] = dep);
+	let repos = {};
+	for (const { name, repo, version } of packageSetArray){
+		repos[name] = `${repo}#${version}`;
+	}
 
 	let config = {
 		compiler : vessel.compiler,
 		dependencies : vessel.dependencies.map(name => {
-			const {repo, version} = packageSet[name];
-			return {...parseGithubURL(repo), name, version};
+			return {name, repo: repos[name], version: ''};
 		})
 	};
 	return config;
 };
 
-export const installFromGithub = async (pkgDetails, options = {})=>{
+export const installFromGithub = async (name, repo, options = {})=>{
 
-	const {name, repo, version} = pkgDetails;
 	const {verbose, dep, silent} = options;
 
-	const dir = formatGithubDir(name, version);
+	const {branch, org, gitName} = parseGithubURL(repo);
+	const dir = formatGithubDir(name, repo);
 
 	if (existsSync(dir)){
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo}@${version} (cache) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} (cache) from Github`);
 	}
 	else {
 		mkdirSync(dir, {recursive: true});
 		if (verbose) {console.log();}
 
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing '} ${name}@${version} from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing '} ${name}@${branch} from Github`);
 
 		const download = new Promise((resolve, reject) => {
-			downloadGitRepo(`${repo}#${version}`, dir, {filename: 'src', extract: true}, (e) => {
+			downloadGitRepo(`${org}/${gitName}#${branch}`, dir, {filename: 'src', extract: true}, (e) => {
 				if (e){
 					rmdirSync(dir);
 					reject(e);
@@ -79,12 +82,8 @@ export const installFromGithub = async (pkgDetails, options = {})=>{
 	const config = await readVesselConfig(dir);
 
 	if (config){
-		for (const depDetails of config.dependencies){
-
-			// ignore the 'base' module
-			if (depDetails.name === 'base') continue;
-
-			await installFromGithub(depDetails, {verbose, silent, dep: true });
+		for (const {name, repo} of config.dependencies){
+			await installFromGithub(name, repo, {verbose, silent, dep: true });
 		}
 	}
 };

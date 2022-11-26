@@ -1,6 +1,7 @@
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Char "mo:base/Char";
+import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 
@@ -81,10 +82,10 @@ module {
 		if (config.version.size() > CONFIG_MAX_SIZES.version) {
 			return #err("invalid config: version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 		};
-		let versionValid = Version.validate(config.version);
-		if (Result.isErr(versionValid)) {
-			return versionValid;
-		};
+		// let versionValid = Version.validate(config.version);
+		// if (Result.isErr(versionValid)) {
+		// 	return versionValid;
+		// };
 		if (config.description.size() > CONFIG_MAX_SIZES.description) {
 			return #err("invalid config: description max length is " # Nat.toText(CONFIG_MAX_SIZES.description));
 		};
@@ -144,10 +145,14 @@ module {
 			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 			};
-			let versionValid = Version.validate(dep.version);
-			if (Result.isErr(versionValid)) {
-				return versionValid;
-			};
+
+			// if (dep.repo.size() == 0){
+			// 	let versionValid = Version.validate(dep.version);
+			// 	if (Result.isErr(versionValid)) {
+			// 		return versionValid;
+			// 	};
+			// };
+
 		};
 		for (dep in config.devDependencies.vals()) {
 			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
@@ -156,10 +161,13 @@ module {
 			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 			};
-			let versionValid = Version.validate(dep.version);
-			if (Result.isErr(versionValid)) {
-				return versionValid;
-			};
+
+			// if (dep.repo.size() == 0){
+			// 	let versionValid = Version.validate(dep.version);
+			// 	if (Result.isErr(versionValid)) {
+			// 		return versionValid;
+			// 	};
+			// };
 		};
 		#ok();
 	};

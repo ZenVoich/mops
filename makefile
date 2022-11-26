@@ -1,0 +1,2 @@
+generate:
+	dfx generate main

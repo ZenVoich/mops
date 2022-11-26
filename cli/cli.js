@@ -4,14 +4,13 @@ import fs from 'fs';
 import path from 'path';
 import {program} from 'commander';
 import chalk from 'chalk';
-import TOML from '@iarna/toml';
 
 import {init} from './commands/init.js';
 import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, setNetwork, writeConfig} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -41,8 +40,7 @@ program
 		let config = {};
 		let exists = fs.existsSync(configFile);
 		if (exists) {
-			let text = fs.readFileSync(configFile).toString();
-			config = TOML.parse(text);
+			config = readConfig(configFile);
 		}
 		else {
 			console.log(chalk.red('Error: ') + `mops.toml not found. Please run ${chalk.green('mops init')} first`);
@@ -59,44 +57,62 @@ program
 
 		if (!pkg) {
 			installAll(options);
+			return;
 		}
-		else if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
 
-			const pkgDetails = parseGithubURL(pkg);
-			const {name, repo, version} = pkgDetails;
+		let pkgDetails;
+		let existingPkg = config.dependencies[pkg];
 
-			// edge case when pkg with name is already installed
-			if (config.dependencies[name]){
-
+		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+			pkgDetails = {
+				name: parseGithubURL(pkg).gitName,
+				repo: pkg,
+				version: ''
 			};
 
-			await installFromGithub(pkgDetails, {verbose: options.verbose});
+			existingPkg = config.dependencies[pkgDetails.name];
 
-			config.dependencies[name] = pkgDetails;
-			writeConfig(config);
-
-			logUpdate.clear();
-			console.log(chalk.green('Package installed ') + `${name} = "${repo}#${version}"`);
-		}
-		else if (!config.dependencies[pkg]){
+		}else if (!existingPkg || !existingPkg.repo){
+			console.log({existingPkg});
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
 				return;
 			}
-			let version = versionRes.ok;
 
-			await install(pkg, version, {verbose: options.verbose});
+			pkgDetails = {
+				name: pkg,
+				repo: '',
+				version:  versionRes.ok
+			};
 
-			config.dependencies[pkg] = {version};
-			writeConfig(config);
-
-			logUpdate.clear();
-			console.log(chalk.green('Package installed ') + `${pkg} = "${version}"`);
 		}else{
-			const {version} = config.dependencies[pkg];
-			options.silent || logUpdate(`Installing ${pkg}@${version} (cache)`);
+			options.silent || logUpdate(`Installing ${existingPkg.name}@${existingPkg.version} (cache) from Github`);
+			return;
 		}
+
+		const {name, repo, version} = pkgDetails;
+
+		if (repo){
+			// pkg name conflict with an installed mops pkg
+			if (existingPkg && !existingPkg.repo){
+				console.log(chalk.red('Error: ') + `Conflicting Package Name '${name}`);
+				console.log('Consider entering the repo url and assigning a new name in the \'mops.toml\' file');
+				return;
+			}
+
+			await installFromGithub(name, repo, {verbose: options.verbose});
+		}else{
+			await install(name, version, {verbose: options.verbose});
+		}
+
+		config.dependencies[name] = pkgDetails;
+		writeConfig(config);
+
+		logUpdate.clear();
+		console.log(
+			chalk.green('Package installed ') + `${name} = "${repo || version}"`
+		);
 	});
 
 // publish

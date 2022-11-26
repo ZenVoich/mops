@@ -1,6 +1,6 @@
 {
 	"version": 1,
-	"dfx": "0.12.0",
+	"dfx": "0.12.0-beta.3",
 	"canisters": {
 		"main": {
 			"type": "motoko",
@@ -11,9 +11,7 @@
 			"frontend": {
 				"entrypoint": "frontend/dist/index.html"
 			},
-			"source": [
-				"frontend/dist/"
-			]
+			"source": ["frontend/dist/"]
 		}
 	},
 	"defaults": {
@@ -28,15 +26,11 @@
 		},
 		"dev": {
 			"type": "persistent",
-			"providers": [
-				"https://mainnet.dfinity.network"
-			]
+			"providers": ["https://mainnet.dfinity.network"]
 		},
 		"ic": {
 			"type": "persistent",
-			"providers": [
-				"https://mainnet.dfinity.network"
-			]
+			"providers": ["https://mainnet.dfinity.network"]
 		}
 	}
 }

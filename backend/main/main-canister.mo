@@ -23,6 +23,8 @@ import Storage "../storage/storage-canister";
 import {generateId} "../generate-id";
 
 actor {
+	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
+
 	public type PackageName = Text.Text; // lib
 	public type PackageId = Text.Text; // lib@1.2.3
 	public type Err = Text.Text;
@@ -33,15 +35,26 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
+	// previous v1 types
+	public type DependencyV1 = Types.DependencyV1;
+	public type PackageConfigV1 = Types.PackageConfigV1;
+
 	let apiVersion = "0.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [Ver]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
 
-	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
+	// renamed previous collections
+	var prevPackageConfigsV1 = TrieMap.TrieMap<PackageId, PackageConfigV1>(Text.equal, Text.hash);
+	var prevHighestConfigsV1 = TrieMap.TrieMap<PackageName, PackageConfigV1>(Text.equal, Text.hash);
+
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
+
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+
+	// new collections to migrate to
+	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
+	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	let storageManager = StorageManager.StorageManager();
@@ -121,6 +134,7 @@ actor {
 	// PUBLIC
 	public shared ({caller}) func startPublish(config: PackageConfig): async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
+		Debug.print("startPublish");
 
 		// validate config
 		switch (validateConfig(config)) {
@@ -156,16 +170,16 @@ actor {
 		// check dependencies
 		for (dep in config.dependencies.vals()) {
 			let packageId = dep.name # "@" # dep.version;
-			if (packageConfigs.get(packageId) == null) {
-				return #err("Dependency " # packageId # " not found in registry");
-			};
+			// if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
+			// 	return #err("Dependency " # packageId # " not found in registry");
+			// };
 		};
 
 		// check devDependencies
 		for (dep in config.devDependencies.vals()) {
 			let packageId = dep.name # "@" # dep.version;
 			if (packageConfigs.get(packageId) == null) {
-				return #err("Dependency " # packageId # " not found in registry");
+				return #err("Dev Dependency " # packageId # " not found in registry");
 			};
 		};
 
@@ -465,16 +479,45 @@ actor {
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
 
+	func migrateConfigs(triemap: TrieMap<PackageName, PackageConfigV1>): [(PackageName, PackageConfig)]{
+		Iter.toArray(
+			Iter.map<(PackageName, PackageConfigV1), (PackageName, PackageConfig)>(
+				prevHighestConfigsV1.entries(),
+				func((name, config)){
+					let newConfig = {
+						config with dependencies = Array.map(
+							config.dependencies,
+							func(dep: DependencyV1): Dependency {
+								{ dep with repo = ""}
+							}
+						);
+
+						devDependencies = Array.map(
+							config.dependencies,
+							func(dep: DependencyV1): Dependency {
+								{ dep with repo = ""}
+							}
+						);
+					};
+
+					(name, newConfig)
+				}
+			)
+		)
+	};
 
 	system func preupgrade() {
-		highestConfigsStable := Iter.toArray(highestConfigs.entries());
+
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
-		packageConfigsStable := Iter.toArray(packageConfigs.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
+
+		// migrations
+		highestConfigsStable := migrateConfigs(prevHighestConfigsV1);
+		packageConfigsStable := migrateConfigs(prevPackageConfigsV1);
 	};
 
 	system func postupgrade() {
