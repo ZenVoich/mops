@@ -1,10 +1,13 @@
-import {existsSync, mkdirSync, rmdirSync } from 'fs';
+import {existsSync, mkdirSync, createWriteStream } from 'fs';
+import del from 'del';
 import { execaCommand} from 'execa';
 import chalk from 'chalk';
-import downloadGitRepo from 'download-git-repo';
 import logUpdate from 'log-update';
-import { formatGithubDir, parseGithubURL } from './mops.js';
+import { formatGithubDir, parseGithubURL, progressBar } from './mops.js';
 import path from 'path';
+import got from 'got';
+import decompress from 'decompress';
+import {pipeline} from 'stream/promises';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
@@ -37,7 +40,8 @@ export const readVesselConfig = async (configFile) => {
 
 	let repos = {};
 	for (const { name, repo, version } of packageSetArray){
-		repos[name] = `${repo}#${version}`;
+		const {org, gitName} = parseGithubURL(repo);
+		repos[name] = `https://github.com/${org}/${gitName}#${version}`;
 	}
 
 	let config = {
@@ -49,11 +53,70 @@ export const readVesselConfig = async (configFile) => {
 	return config;
 };
 
+export const downloadFromGithub = async (repo, dest, onProgress = null) => {
+	const {branch, org, gitName} = parseGithubURL(repo);
+
+	const zipFile = `https://github.com/${org}/${gitName}/archive/${branch}.zip`;
+	const readStream = got.stream(zipFile);
+
+	const promise = new Promise((resolve, reject) => {
+
+		readStream.on('downloadProgress', ({ transferred, total}) => {
+			onProgress?.(transferred, total || 2 * (1024 ** 2) );
+		});
+
+		readStream.on('response', (response) => {
+			if (response.headers.age > 3600) {
+				console.log(chalk.red('Error: ') +  'Failure - response too old');
+				readStream.destroy(); // Destroy the stream to prevent hanging resources.
+				reject();
+				return;
+			}
+
+			// Prevent `onError` being called twice.
+			readStream.off('error', reject);
+			const tmpDir = process.cwd() + '/.mops/_tmp/';
+			const tmpFile = tmpDir + `/${gitName}@${branch}.zip`;
+
+			try {
+				mkdirSync(tmpDir, {recursive: true});
+
+				pipeline(readStream, createWriteStream(tmpFile))
+					.then(() => {
+						let options = {
+							extract: true,
+							strip: 1,
+							headers: {
+								accept: 'application/zip'
+							}
+						};
+
+						return decompress(tmpFile, dest, options);
+
+					}).then((unzippedFiles) => {
+						del.sync([tmpDir]);
+						resolve(unzippedFiles);
+
+					}).catch(err => {
+						del.sync([tmpDir]);
+						reject(err);
+					});
+
+			} catch (err) {
+				del.sync([tmpDir]);
+				reject(err);
+			}
+		});
+	});
+
+	return promise;
+};
+
 export const installFromGithub = async (name, repo, options = {})=>{
 
 	const {verbose, dep, silent} = options;
 
-	const {branch, org, gitName} = parseGithubURL(repo);
+	const {branch} = parseGithubURL(repo);
 	const dir = formatGithubDir(name, repo);
 
 	if (existsSync(dir)){
@@ -63,20 +126,15 @@ export const installFromGithub = async (name, repo, options = {})=>{
 		mkdirSync(dir, {recursive: true});
 		if (verbose) {console.log();}
 
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing '} ${name}@${branch} from Github`);
+		let progress = (step, total) => {
+			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} ${progressBar(step, total)}`);
+		};
 
-		const download = new Promise((resolve, reject) => {
-			downloadGitRepo(`${org}/${gitName}#${branch}`, dir, {filename: 'src', extract: true}, (e) => {
-				if (e){
-					rmdirSync(dir);
-					reject(e);
-				}else{
-					resolve();
-				}
-			});
+		progress(0, 2 * (1024 ** 2));
+		await downloadFromGithub(repo, dir, progress).catch((err)=> {
+			del.sync([dir]);
+			console.log(chalk.red('Error: ') + err);
 		});
-
-		await download.catch((err)=> console.log(chalk.red('Error: ') + err));
 	}
 
 	const config = await readVesselConfig(dir);

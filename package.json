@@ -15,6 +15,8 @@
 		"dhall--to-json": "dhall-to-json"
 	},
 	"dependencies": {
-		"@dfinity/principal": "^0.11.1"
+		"@dfinity/principal": "^0.11.1",
+		"decompress": "^4.2.1",
+		"got": "^12.5.3"
 	}
 }

@@ -1,2 +1,4 @@
-generate:
-	dfx generate main
+.PHONY = declarations
+
+declarations:
+	dfx generate storage

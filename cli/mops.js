@@ -107,19 +107,15 @@ export async function getHighestVersion(pkgName) {
 	return actor.getHighestVersion(pkgName);
 }
 
-export function parseGithubURL(url){
-	if (url.startsWith('https://github.com/'))
-		url = url.substring(19);
+export function parseGithubURL(href){
+	const url = new URL(href);
+	const branch =  url.hash?.substring(1) || 'master';
 
-	if (url.endsWith('.git'))
-		url = url.substring(0, url.length - 4);
+	let [org, gitName] = url.pathname.split('/').filter(path => !!path);
 
-	url = url.split('#');
-
-	const repo = url[0];
-	const branch =  url[1] || 'master';
-
-	const [org, gitName] = repo.split('/');
+	if (gitName.endsWith('.git')){
+		gitName = gitName.substring(0, gitName.length - 4);
+	}
 
 	return { org, gitName, branch };
 }

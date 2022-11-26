@@ -134,7 +134,6 @@ actor {
 	// PUBLIC
 	public shared ({caller}) func startPublish(config: PackageConfig): async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
-		Debug.print("startPublish");
 
 		// validate config
 		switch (validateConfig(config)) {

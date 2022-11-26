@@ -64,9 +64,11 @@ program
 		let existingPkg = config.dependencies[pkg];
 
 		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+			const {org, gitName, branch} = parseGithubURL(pkg);
+
 			pkgDetails = {
 				name: parseGithubURL(pkg).gitName,
-				repo: pkg,
+				repo: `https://github.com/${org}/${gitName}#${branch}`,
 				version: ''
 			};
 
@@ -92,7 +94,7 @@ program
 		}
 
 		const {name, repo, version} = pkgDetails;
-
+		console.log({repo});
 		if (repo){
 			// pkg name conflict with an installed mops pkg
 			if (existingPkg && !existingPkg.repo){
