@@ -146,6 +146,10 @@ module {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 			};
 
+			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
+				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
+			};
+
 			if (dep.repo.size() == 0){
 				let versionValid = Version.validate(dep.version);
 				if (Result.isErr(versionValid)) {
@@ -160,6 +164,10 @@ module {
 			};
 			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
+			};
+
+			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
+				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
 			};
 
 			if (dep.repo.size() == 0){

@@ -75,7 +75,6 @@ program
 			existingPkg = config.dependencies[pkgDetails.name];
 
 		}else if (!existingPkg || !existingPkg.repo){
-			console.log({existingPkg});
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
@@ -94,7 +93,7 @@ program
 		}
 
 		const {name, repo, version} = pkgDetails;
-		console.log({repo});
+
 		if (repo){
 			// pkg name conflict with an installed mops pkg
 			if (existingPkg && !existingPkg.repo){

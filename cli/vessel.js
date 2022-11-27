@@ -124,7 +124,6 @@ export const installFromGithub = async (name, repo, options = {})=>{
 	}
 	else {
 		mkdirSync(dir, {recursive: true});
-		if (verbose) {console.log();}
 
 		let progress = (step, total) => {
 			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} ${progressBar(step, total)}`);
@@ -135,6 +134,10 @@ export const installFromGithub = async (name, repo, options = {})=>{
 			del.sync([dir]);
 			console.log(chalk.red('Error: ') + err);
 		});
+	}
+
+	if (verbose) {
+		silent || logUpdate.done();
 	}
 
 	const config = await readVesselConfig(dir);
