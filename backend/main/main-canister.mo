@@ -28,33 +28,28 @@ actor {
 	public type PackageName = Text.Text; // lib
 	public type PackageId = Text.Text; // lib@1.2.3
 	public type Err = Text.Text;
-	public type Dependency = Types.Dependency;
+	public type DependencyV2 = Types.DependencyV2;
 	public type Access = Types.Access;
-	public type PackageConfig = Types.PackageConfig;
+	public type PackageConfigV2 = Types.PackageConfigV2;
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
-	// previous v1 types
-	public type DependencyV1 = Types.DependencyV1;
-	public type PackageConfigV1 = Types.PackageConfigV1;
+	// depracated v1 types
+	public type Dependency = Types.Dependency;
+	public type PackageConfig = Types.PackageConfig;
 
 	let apiVersion = "0.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [Ver]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
 
-	// renamed previous collections
-	var prevPackageConfigsV1 = TrieMap.TrieMap<PackageId, PackageConfigV1>(Text.equal, Text.hash);
-	var prevHighestConfigsV1 = TrieMap.TrieMap<PackageName, PackageConfigV1>(Text.equal, Text.hash);
-
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 
-	// new collections to migrate to
-	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfig>(Text.equal, Text.hash);
-	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfig>(Text.equal, Text.hash);
+	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
+	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	let storageManager = StorageManager.StorageManager();
@@ -65,7 +60,7 @@ actor {
 	type PublishingPackage = {
 		time: Time.Time;
 		user: Principal;
-		config: PackageConfig;
+		config: PackageConfigV2;
 		storage: Principal;
 	};
 	public type FileId = Text.Text;
@@ -100,7 +95,7 @@ actor {
 		};
 	};
 
-	func _updateHighestConfig(config: PackageConfig) {
+	func _updateHighestConfig(config: PackageConfigV2) {
 		switch (_getHighestVersion(config.name)) {
 			case (?ver) {
 				if (Version.compare(config.version, ver) == #greater) {
@@ -132,7 +127,7 @@ actor {
 
 
 	// PUBLIC
-	public shared ({caller}) func startPublish(config: PackageConfig): async Result.Result<PublishingId, PublishingErr> {
+	public shared ({caller}) func startPublish(config: PackageConfigV2): async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
 
 		// validate config
@@ -287,7 +282,7 @@ actor {
 			return #err("Missing required file README.md");
 		};
 
-		let fileIds = Array.map(pubFiles.toArray(), func(file: PublishingFile): Text.Text {
+		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file: PublishingFile): Text.Text {
 			file.id;
 		});
 
@@ -368,7 +363,7 @@ actor {
 
 	public query func search(searchText: Text.Text): async [PackageDetails] {
 		let max = 20;
-		let matchedConfigs = Buffer.Buffer<PackageConfig>(max);
+		let matchedConfigs = Buffer.Buffer<PackageConfigV2>(max);
 		let pattern = #text(searchText);
 
 		for (config in highestConfigs.vals()) {
@@ -377,7 +372,7 @@ actor {
 			};
 		};
 
-		var configs = Array.sort<PackageConfig>(matchedConfigs.toArray(), func(a, b) {
+		var configs = Array.sort<PackageConfigV2>(Buffer.toArray(matchedConfigs), func(a, b) {
 			var aPoints = 0;
 			var bPoints = 0;
 
@@ -425,7 +420,7 @@ actor {
 			};
 		};
 
-		packagesDetails.toArray();
+		Buffer.toArray(packagesDetails)
 	};
 
 	public query func getMostDownloadedPackages(): async [PackageDetails] {
@@ -450,7 +445,7 @@ actor {
 			};
 		};
 
-		packagesDetails.toArray();
+		Buffer.toArray(packagesDetails);
 	};
 
 	public func getTotalDownloads(): async Nat {
@@ -470,38 +465,40 @@ actor {
 	stable var packagePublicationsStable: [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable: [(PackageName, [Ver])] = [];
 	stable var packageOwnersStable: [(PackageName, Principal)] = [];
-	stable var packageConfigsStable: [(PackageId, PackageConfig)] = [];
-	stable var highestConfigsStable: [(PackageName, PackageConfig)] = [];
+	stable var packageConfigsStableV2: [(PackageId, PackageConfigV2)] = [];
+	stable var highestConfigsStableV2: [(PackageName, PackageConfigV2)] = [];
 
 	stable var fileIdsByPackageStable: [(PackageId, [FileId])] = [];
 
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
 
-	func migrateConfigs(triemap: TrieMap<PackageName, PackageConfigV1>): [(PackageName, PackageConfig)]{
-		Iter.toArray(
-			Iter.map<(PackageName, PackageConfigV1), (PackageName, PackageConfig)>(
-				prevHighestConfigsV1.entries(),
-				func((name, config)){
-					let newConfig = {
-						config with dependencies = Array.map(
-							config.dependencies,
-							func(dep: DependencyV1): Dependency {
-								{ dep with repo = ""}
-							}
-						);
+	// depracated stable collections
+	stable var packageConfigsStable: [(PackageId, PackageConfigV2)] = [];
+	stable var highestConfigsStable: [(PackageName, PackageConfigV2)] = [];
 
-						devDependencies = Array.map(
-							config.dependencies,
-							func(dep: DependencyV1): Dependency {
-								{ dep with repo = ""}
-							}
-						);
-					};
+	func migrateConfigs(array: [(PackageName, PackageConfig)]): [(PackageName, PackageConfigV2)]{
+		Array.map<(PackageName, PackageConfig), (PackageName, PackageConfigV2)>(
+			array,
+			func((name, config)){
+				let newConfig = {
+					config with dependencies = Array.map(
+						config.dependencies,
+						func(dep: Dependency): DependencyV2 {
+							{ dep with repo = ""}
+						}
+					);
 
-					(name, newConfig)
-				}
-			)
+					devDependencies = Array.map(
+						config.dependencies,
+						func(dep: Dependency): DependencyV2 {
+							{ dep with repo = ""}
+						}
+					);
+				};
+
+				(name, newConfig)
+			}
 		)
 	};
 
@@ -514,14 +511,11 @@ actor {
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 
-		// migrations
-		highestConfigsStable := migrateConfigs(prevHighestConfigsV1);
-		packageConfigsStable := migrateConfigs(prevPackageConfigsV1);
+		highestConfigsStableV2 := Iter.toArray(highestConfigs.entries());
+		packageConfigsStableV2 := Iter.toArray(packageConfigs.entries());
 	};
 
 	system func postupgrade() {
-		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfig>(highestConfigsStable.vals(), Text.equal, Text.hash);
-		highestConfigsStable := [];
 
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
 		packagePublicationsStable := [];
@@ -532,8 +526,6 @@ actor {
 		packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
 		packageOwnersStable := [];
 
-		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfig>(packageConfigsStable.vals(), Text.equal, Text.hash);
-		packageConfigsStable := [];
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
@@ -543,5 +535,19 @@ actor {
 
 		storageManager.loadStable(storageManagerStable);
 		storageManagerStable := null;
+
+		// migrations
+		highestConfigsStableV2 := migrateConfigs(highestConfigsStable);
+		packageConfigsStableV2 := migrateConfigs(packageConfigsStable);
+
+		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
+		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
+
+		highestConfigsStableV2 := [];
+		packageConfigsStableV2 := [];
+
+		highestConfigsStable := [];
+		packageConfigsStable := [];
+
 	};
 };

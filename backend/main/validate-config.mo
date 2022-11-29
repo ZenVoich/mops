@@ -10,7 +10,7 @@ import Version "./version";
 import {isLowerCaseLetter} "./is-letter";
 
 module {
-	type PackageConfig = Types.PackageConfig;
+	type PackageConfigV2 = Types.PackageConfigV2;
 	type Err = Types.Err;
 
 	let CONFIG_MAX_SIZES = {
@@ -31,7 +31,7 @@ module {
 		devDependencies = 100;
 	};
 
-	public func validateConfig(config: PackageConfig): Result.Result<(), Err> {
+	public func validateConfig(config: PackageConfigV2): Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
 			return #err("invalid config: 'dfx' field is not supported yet");

@@ -53,7 +53,7 @@ shared({caller = parent}) actor class Storage() {
 			buffer.add(fileIds[i]);
 		};
 
-		buffer.toArray();
+		Buffer.toArray(buffer);
 	};
 
 
