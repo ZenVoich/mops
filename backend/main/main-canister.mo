@@ -35,7 +35,7 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
-	// depracated v1 types
+	// deprecated v1 types
 	public type Dependency = Types.Dependency;
 	public type PackageConfig = Types.PackageConfig;
 
@@ -473,9 +473,9 @@ actor {
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
 
-	// depracated stable collections
-	stable var packageConfigsStable: [(PackageId, PackageConfigV2)] = [];
-	stable var highestConfigsStable: [(PackageName, PackageConfigV2)] = [];
+	// deprecated stable collections
+	stable var packageConfigsStable: [(PackageId, PackageConfig)] = [];
+	stable var highestConfigsStable: [(PackageName, PackageConfig)] = [];
 
 	func migrateConfigs(array: [(PackageName, PackageConfig)]): [(PackageName, PackageConfigV2)]{
 		Array.map<(PackageName, PackageConfig), (PackageName, PackageConfigV2)>(
