@@ -124,7 +124,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
-	const deps = toml.dependencies;
+	const deps = toml.dependencies || {};
 
 	Object.entries(deps).forEach(([name, data])=>{
 		if (data.startsWith('https://github.com/')){

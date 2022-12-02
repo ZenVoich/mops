@@ -82,10 +82,12 @@ module {
 		if (config.version.size() > CONFIG_MAX_SIZES.version) {
 			return #err("invalid config: version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 		};
-		// let versionValid = Version.validate(config.version);
-		// if (Result.isErr(versionValid)) {
-		// 	return versionValid;
-		// };
+
+		let versionValid = Version.validate(config.version);
+		if (Result.isErr(versionValid)) {
+			return versionValid;
+		};
+
 		if (config.description.size() > CONFIG_MAX_SIZES.description) {
 			return #err("invalid config: description max length is " # Nat.toText(CONFIG_MAX_SIZES.description));
 		};
