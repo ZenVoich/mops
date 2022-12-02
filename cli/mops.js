@@ -138,7 +138,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 }
 
 export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
-	const deps = config.dependencies;
+	const deps = config.dependencies || {};
 
 	Object.entries(deps).forEach(([name, {repo, version}])=>{
 		if (repo){

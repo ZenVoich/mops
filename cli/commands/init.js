@@ -22,7 +22,8 @@ export async function init(name = '') {
 
 	if (fs.existsSync(vesselFile)){
 		console.log('Reading vessel.dhall file');
-		vesselConfig = await readVesselConfig() || {};
+		const res = await readVesselConfig(process.cwd(), { cache: false });
+		vesselConfig = {...res};
 	}
 
 	if (vesselConfig.dependencies){
@@ -44,7 +45,7 @@ export async function init(name = '') {
 
 		writeConfig(config);
 
-		if (Object.keys(config.dependencies).length)
+		if (Object.keys(config.dependencies || {}).length)
 			await installAll({verbose: true});
 	}
 

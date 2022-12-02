@@ -1,4 +1,6 @@
-import {existsSync, mkdirSync, createWriteStream } from 'fs';
+import {
+	existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync
+} from 'fs';
 import del from 'del';
 import { execaCommand} from 'execa';
 import chalk from 'chalk';
@@ -25,31 +27,41 @@ const dhallFileToJson = async (filePath) => {
 	return null;
 };
 
-export const readVesselConfig = async (configFile) => {
-	let vessel, packageSetArray;
+export const readVesselConfig = async (
+	configFile,
+	{ cache = true } = { cache: true }
+) => {
+	const cachedFile = (configFile || process.cwd()) + '/vessel.json';
 
-	if (!configFile){
-		vessel = await dhallFileToJson(process.cwd() + '/vessel.dhall');
-		packageSetArray = await dhallFileToJson(process.cwd() + '/package-set.dhall');
-	}else{
-		vessel = await dhallFileToJson(configFile + '/vessel.dhall');
-		packageSetArray = await dhallFileToJson(configFile + '/package-set.dhall');
+	if (existsSync(cachedFile)) {
+		let cachedConfig = readFileSync(cachedFile);
+		return JSON.parse(cachedConfig);
 	}
+
+	const [vessel, packageSetArray] = await Promise.all([
+		dhallFileToJson((configFile || process.cwd()) + '/vessel.dhall'),
+		dhallFileToJson((configFile || process.cwd()) + '/package-set.dhall')
+	]);
 
 	if (!vessel || !packageSetArray) return null;
 
 	let repos = {};
-	for (const { name, repo, version } of packageSetArray){
-		const {org, gitName} = parseGithubURL(repo);
+	for (const { name, repo, version } of packageSetArray) {
+		const { org, gitName } = parseGithubURL(repo);
 		repos[name] = `https://github.com/${org}/${gitName}#${version}`;
 	}
 
 	let config = {
-		compiler : vessel.compiler,
-		dependencies : vessel.dependencies.map(name => {
-			return {name, repo: repos[name], version: ''};
-		})
+		compiler: vessel.compiler,
+		dependencies: vessel.dependencies.map((name) => {
+			return { name, repo: repos[name], version: '' };
+		}),
 	};
+
+	if (cache === true) {
+		writeFileSync(cachedFile, JSON.stringify(config), 'utf-8');
+	}
+
 	return config;
 };
 
