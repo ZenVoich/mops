@@ -31,9 +31,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	else {
 		fs.mkdirSync(dir, {recursive: true});
 
-		if (!dep) {
-			actor.notifyInstall(pkg, version);
-		}
+		actor.notifyInstall(pkg, version);
 
 		let packageDetailsRes = await actor.getPackageDetails(pkg, version);
 		if (packageDetailsRes.err) {
