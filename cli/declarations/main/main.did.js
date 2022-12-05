@@ -11,12 +11,12 @@ export const idlFactory = ({ IDL }) => {
   const Result_4 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
-  const Dependency = IDL.Record({
+  const DependencyV2 = IDL.Record({
     'name' : PackageName,
     'repo' : IDL.Text,
     'version' : IDL.Text,
   });
-  const PackageConfig__1 = IDL.Record({
+  const PackageConfigV2__1 = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
     'scripts' : IDL.Vec(Script),
@@ -28,9 +28,9 @@ export const idlFactory = ({ IDL }) => {
     'version' : IDL.Text,
     'keywords' : IDL.Vec(IDL.Text),
     'donation' : IDL.Text,
-    'devDependencies' : IDL.Vec(Dependency),
+    'devDependencies' : IDL.Vec(DependencyV2),
     'repository' : IDL.Text,
-    'dependencies' : IDL.Vec(Dependency),
+    'dependencies' : IDL.Vec(DependencyV2),
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
@@ -44,7 +44,7 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Principal,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
-    'config' : PackageConfig__1,
+    'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
   const Result_3 = IDL.Variant({ 'ok' : PackageDetails, 'err' : Err });
@@ -55,7 +55,7 @@ export const idlFactory = ({ IDL }) => {
     'memorySize' : IDL.Nat,
   });
   const Result_2 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
-  const PackageConfig = IDL.Record({
+  const PackageConfigV2 = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
     'scripts' : IDL.Vec(Script),
@@ -67,9 +67,9 @@ export const idlFactory = ({ IDL }) => {
     'version' : IDL.Text,
     'keywords' : IDL.Vec(IDL.Text),
     'donation' : IDL.Text,
-    'devDependencies' : IDL.Vec(Dependency),
+    'devDependencies' : IDL.Vec(DependencyV2),
     'repository' : IDL.Text,
-    'dependencies' : IDL.Vec(Dependency),
+    'dependencies' : IDL.Vec(DependencyV2),
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
@@ -114,7 +114,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_2],
         [],
       ),
-    'startPublish' : IDL.Func([PackageConfig], [Result_1], []),
+    'startPublish' : IDL.Func([PackageConfigV2], [Result_1], []),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],

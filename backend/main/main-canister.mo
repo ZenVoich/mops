@@ -35,10 +35,6 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
-	// deprecated v1 types
-	public type Dependency = Types.Dependency;
-	public type PackageConfig = Types.PackageConfig;
-
 	let apiVersion = "0.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [Ver]>(Text.equal, Text.hash);
@@ -473,37 +469,7 @@ actor {
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
 
-	// deprecated stable collections
-	stable var packageConfigsStable: [(PackageId, PackageConfig)] = [];
-	stable var highestConfigsStable: [(PackageName, PackageConfig)] = [];
-
-	func migrateConfigs(array: [(PackageName, PackageConfig)]): [(PackageName, PackageConfigV2)]{
-		Array.map<(PackageName, PackageConfig), (PackageName, PackageConfigV2)>(
-			array,
-			func((name, config)){
-				let newConfig = {
-					config with dependencies = Array.map(
-						config.dependencies,
-						func(dep: Dependency): DependencyV2 {
-							{ dep with repo = ""}
-						}
-					);
-
-					devDependencies = Array.map(
-						config.dependencies,
-						func(dep: Dependency): DependencyV2 {
-							{ dep with repo = ""}
-						}
-					);
-				};
-
-				(name, newConfig)
-			}
-		)
-	};
-
 	system func preupgrade() {
-
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
@@ -516,7 +482,6 @@ actor {
 	};
 
 	system func postupgrade() {
-
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
 		packagePublicationsStable := [];
 
@@ -525,7 +490,6 @@ actor {
 
 		packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
 		packageOwnersStable := [];
-
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
@@ -536,18 +500,10 @@ actor {
 		storageManager.loadStable(storageManagerStable);
 		storageManagerStable := null;
 
-		// migrations
-		highestConfigsStableV2 := migrateConfigs(highestConfigsStable);
-		packageConfigsStableV2 := migrateConfigs(packageConfigsStable);
-
 		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
 
 		highestConfigsStableV2 := [];
 		packageConfigsStableV2 := [];
-
-		highestConfigsStable := [];
-		packageConfigsStable := [];
-
 	};
 };

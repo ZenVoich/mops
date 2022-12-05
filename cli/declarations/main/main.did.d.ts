@@ -1,14 +1,14 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export interface Dependency {
+export interface DependencyV2 {
   'name' : PackageName,
   'repo' : string,
   'version' : string,
 }
 export type Err = string;
 export type FileId = string;
-export interface PackageConfig {
+export interface PackageConfigV2 {
   'dfx' : string,
   'moc' : string,
   'scripts' : Array<Script>,
@@ -20,13 +20,13 @@ export interface PackageConfig {
   'version' : string,
   'keywords' : Array<string>,
   'donation' : string,
-  'devDependencies' : Array<Dependency>,
+  'devDependencies' : Array<DependencyV2>,
   'repository' : string,
-  'dependencies' : Array<Dependency>,
+  'dependencies' : Array<DependencyV2>,
   'license' : string,
   'readme' : string,
 }
-export interface PackageConfig__1 {
+export interface PackageConfigV2__1 {
   'dfx' : string,
   'moc' : string,
   'scripts' : Array<Script>,
@@ -38,9 +38,9 @@ export interface PackageConfig__1 {
   'version' : string,
   'keywords' : Array<string>,
   'donation' : string,
-  'devDependencies' : Array<Dependency>,
+  'devDependencies' : Array<DependencyV2>,
   'repository' : string,
-  'dependencies' : Array<Dependency>,
+  'dependencies' : Array<DependencyV2>,
   'license' : string,
   'readme' : string,
 }
@@ -48,7 +48,7 @@ export interface PackageDetails {
   'owner' : Principal,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
-  'config' : PackageConfig__1,
+  'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
 export type PackageName = string;
@@ -104,7 +104,7 @@ export interface _SERVICE {
     [PublishingId, Text, bigint, Uint8Array],
     Result_2,
   >,
-  'startPublish' : ActorMethod<[PackageConfig], Result_1>,
+  'startPublish' : ActorMethod<[PackageConfigV2], Result_1>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array],
     Result,

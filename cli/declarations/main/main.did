@@ -56,18 +56,18 @@ type PackageName__1 = text;
 type PackageName = text;
 type PackageDetails = 
  record {
-   config: PackageConfig__1;
+   config: PackageConfigV2__1;
    downloadsInLast30Days: nat;
    downloadsTotal: nat;
    owner: principal;
    publication: PackagePublication;
  };
-type PackageConfig__1 = 
+type PackageConfigV2__1 = 
  record {
    baseDir: text;
-   dependencies: vec Dependency;
+   dependencies: vec DependencyV2;
    description: text;
-   devDependencies: vec Dependency;
+   devDependencies: vec DependencyV2;
    dfx: text;
    documentation: text;
    donation: text;
@@ -81,12 +81,12 @@ type PackageConfig__1 =
    scripts: vec Script;
    version: text;
  };
-type PackageConfig = 
+type PackageConfigV2 = 
  record {
    baseDir: text;
-   dependencies: vec Dependency;
+   dependencies: vec DependencyV2;
    description: text;
-   devDependencies: vec Dependency;
+   devDependencies: vec DependencyV2;
    dfx: text;
    documentation: text;
    donation: text;
@@ -102,7 +102,7 @@ type PackageConfig =
  };
 type FileId = text;
 type Err = text;
-type Dependency = 
+type DependencyV2 = 
  record {
    name: PackageName;
    repo: text;
@@ -129,6 +129,6 @@ service : {
   notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
-  startPublish: (PackageConfig) -> (Result_1);
+  startPublish: (PackageConfigV2) -> (Result_1);
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
 }
