@@ -83,7 +83,11 @@
 </script>
 
 <svelte:head>
-	<title>{packageDetails ? packageDetails.config.name + ' &nbsp;&bull;&nbsp; ' : ''}Motoko Package</title>
+	{#if packageDetails}
+		<title>{packageDetails.config.name}  &nbsp;&bull;&nbsp; Motoko Package</title>
+	{:else}
+		<title>Motoko Package</title>
+	{/if}
 </svelte:head>
 
 <Header></Header>

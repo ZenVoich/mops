@@ -1,7 +1,7 @@
-cd aa && mpos-local publish && cd ..
-cd bb && mpos-local publish && cd ..
-cd cc && mpos-local publish && cd ..
-cd dd && mpos-local publish && cd ..
-cd ee && mpos-local publish && cd ..
-cd ff && mpos-local publish && cd ..
-cd gg && mpos-local publish && cd ..
+cd aa && mops-local publish && cd ..
+cd bb && mops-local publish && cd ..
+cd cc && mops-local publish && cd ..
+cd dd && mops-local publish && cd ..
+cd ee && mops-local publish && cd ..
+cd ff && mops-local publish && cd ..
+cd gg && mops-local publish && cd ..
