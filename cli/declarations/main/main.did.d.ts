@@ -1,7 +1,11 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export interface Dependency { 'name' : PackageName, 'version' : string }
+export interface Dependency {
+  'name' : PackageName,
+  'repo' : string,
+  'version' : string,
+}
 export type Err = string;
 export type FileId = string;
 export interface PackageConfig {

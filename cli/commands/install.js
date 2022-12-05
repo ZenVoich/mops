@@ -1,9 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 import logUpdate from 'log-update';
-import {checkConfigFile, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
+import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
 import {parallel} from '../parallel.js';
 import chalk from 'chalk';
+import { installFromGithub } from '../vessel.js';
 
 export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	if (!checkConfigFile()) {
@@ -19,7 +20,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 		version = versionRes.ok;
 	}
 
-	let dir = path.join(process.cwd(), '.mops', `${pkg}@${version}`);
+	let dir = formatDir(pkg, version);
 	let actor = await mainActor();
 
 	// cache
@@ -91,7 +92,11 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 
 	// install dependencies
 	let config = readConfig(path.join(dir, 'mops.toml'));
-	for (let [name, version] of Object.entries(config.dependencies || {})) {
-		await install(name, version, {verbose, silent, dep: true});
+	for (const {name, repo, version} of Object.values(config.dependencies || {})) {
+		if (repo){
+			await installFromGithub(name, repo, {verbose});
+		}else{
+			await install(name, version, {verbose});
+		}
 	}
 }

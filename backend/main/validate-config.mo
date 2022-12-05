@@ -1,6 +1,7 @@
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Char "mo:base/Char";
+import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 
@@ -9,7 +10,7 @@ import Version "./version";
 import {isLowerCaseLetter} "./is-letter";
 
 module {
-	type PackageConfig = Types.PackageConfig;
+	type PackageConfigV2 = Types.PackageConfigV2;
 	type Err = Types.Err;
 
 	let CONFIG_MAX_SIZES = {
@@ -30,7 +31,7 @@ module {
 		devDependencies = 100;
 	};
 
-	public func validateConfig(config: PackageConfig): Result.Result<(), Err> {
+	public func validateConfig(config: PackageConfigV2): Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
 			return #err("invalid config: 'dfx' field is not supported yet");
@@ -81,10 +82,12 @@ module {
 		if (config.version.size() > CONFIG_MAX_SIZES.version) {
 			return #err("invalid config: version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 		};
+
 		let versionValid = Version.validate(config.version);
 		if (Result.isErr(versionValid)) {
 			return versionValid;
 		};
+
 		if (config.description.size() > CONFIG_MAX_SIZES.description) {
 			return #err("invalid config: description max length is " # Nat.toText(CONFIG_MAX_SIZES.description));
 		};
@@ -144,10 +147,18 @@ module {
 			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 			};
-			let versionValid = Version.validate(dep.version);
-			if (Result.isErr(versionValid)) {
-				return versionValid;
+
+			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
+				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
 			};
+
+			if (dep.repo.size() == 0){
+				let versionValid = Version.validate(dep.version);
+				if (Result.isErr(versionValid)) {
+					return versionValid;
+				};
+			};
+
 		};
 		for (dep in config.devDependencies.vals()) {
 			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
@@ -156,9 +167,16 @@ module {
 			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
 				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 			};
-			let versionValid = Version.validate(dep.version);
-			if (Result.isErr(versionValid)) {
-				return versionValid;
+
+			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
+				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
+			};
+
+			if (dep.repo.size() == 0){
+				let versionValid = Version.validate(dep.version);
+				if (Result.isErr(versionValid)) {
+					return versionValid;
+				};
 			};
 		};
 		#ok();

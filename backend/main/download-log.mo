@@ -63,7 +63,7 @@ module {
 
 		public func toStable(): Stable {
 			?#v1(
-				log.toArray(),
+				Buffer.toArray(log),
 				Iter.toArray(downloadsByPackageName.entries()),
 				Iter.toArray(downloadsByPackageId.entries()),
 			);

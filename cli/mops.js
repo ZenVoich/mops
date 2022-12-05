@@ -107,9 +107,57 @@ export async function getHighestVersion(pkgName) {
 	return actor.getHighestVersion(pkgName);
 }
 
+export function parseGithubURL(href){
+	const url = new URL(href);
+	const branch =  url.hash?.substring(1) || 'master';
+
+	let [org, gitName] = url.pathname.split('/').filter(path => !!path);
+
+	if (gitName.endsWith('.git')){
+		gitName = gitName.substring(0, gitName.length - 4);
+	}
+
+	return { org, gitName, branch };
+}
+
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	let text = fs.readFileSync(configFile).toString();
-	return TOML.parse(text);
+	let toml = TOML.parse(text);
+
+	const deps = toml.dependencies || {};
+
+	Object.entries(deps).forEach(([name, data])=>{
+		if (data.startsWith('https://github.com/')){
+			deps[name] = {name, repo: data, version: ''};
+		}else{
+			deps[name] = {name, repo: '', version: data};
+		}
+	});
+
+	return toml;
+}
+
+export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
+	const deps = config.dependencies || {};
+
+	Object.entries(deps).forEach(([name, {repo, version}])=>{
+		if (repo){
+			deps[name] = repo;
+		}else{
+			deps[name] = version;
+		}
+	});
+
+	fs.writeFileSync(configFile, TOML.stringify(config).trim());
+}
+
+export function formatDir(name, version){
+	return path.join(process.cwd(), '.mops', `${name}@${version}`);
+}
+
+export function formatGithubDir(name, repo){
+	const { branch } = parseGithubURL(repo);
+	return path.join(process.cwd(), '.mops/_github', `${name}@${branch}`);
 }
 
 export function readDfxJson() {

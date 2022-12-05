@@ -136,9 +136,7 @@ export async function publish() {
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
-		dependencies: (Object.entries(config.dependencies || {})).map(([name, version]) => {
-			return {name, version};
-		}),
+		dependencies: Object.values(config.dependencies || {}),
 		devDependencies: [],
 		scripts: [],
 	};

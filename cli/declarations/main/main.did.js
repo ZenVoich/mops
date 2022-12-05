@@ -11,7 +11,11 @@ export const idlFactory = ({ IDL }) => {
   const Result_4 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
-  const Dependency = IDL.Record({ 'name' : PackageName, 'version' : IDL.Text });
+  const Dependency = IDL.Record({
+    'name' : PackageName,
+    'repo' : IDL.Text,
+    'version' : IDL.Text,
+  });
   const PackageConfig__1 = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,

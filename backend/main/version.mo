@@ -26,7 +26,7 @@ module {
 	func textToNat(text: Text): Nat {
 		var res = 0;
 		for (char in text.chars()) {
-			let n = Nat32.toNat(Char.toNat32(char)) - 48;
+			let n = (Nat32.toNat(Char.toNat32(char)) - 48) : Nat;
 			res := res * 10 + n;
 		};
 		res;

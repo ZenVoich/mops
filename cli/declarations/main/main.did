@@ -105,6 +105,7 @@ type Err = text;
 type Dependency = 
  record {
    name: PackageName;
+   repo: text;
    version: text;
  };
 service : {

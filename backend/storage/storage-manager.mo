@@ -58,7 +58,7 @@ module {
 				};
 			};
 
-			uploadableStorages.toArray();
+			Buffer.toArray(uploadableStorages);
 		};
 
 		func _updateStorageStats(): async () {

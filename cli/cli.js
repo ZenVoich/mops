@@ -4,24 +4,20 @@ import fs from 'fs';
 import path from 'path';
 import {program} from 'commander';
 import chalk from 'chalk';
-import TOML from '@iarna/toml';
 
 import {init} from './commands/init.js';
 import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getHighestVersion, getNetwork, setNetwork} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
+import { installFromGithub } from './vessel.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
-
-function wirteConfig(config) {
-	fs.writeFileSync(configFile, TOML.stringify(config).trim());
-}
 
 program.name('mops');
 
@@ -44,8 +40,7 @@ program
 		let config = {};
 		let exists = fs.existsSync(configFile);
 		if (exists) {
-			let text = fs.readFileSync(configFile).toString();
-			config = TOML.parse(text);
+			config = readConfig(configFile);
 		}
 		else {
 			console.log(chalk.red('Error: ') + `mops.toml not found. Please run ${chalk.green('mops init')} first`);
@@ -62,22 +57,63 @@ program
 
 		if (!pkg) {
 			installAll(options);
+			return;
 		}
-		else {
+
+		let pkgDetails;
+		let existingPkg = config.dependencies[pkg];
+
+		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+			const {org, gitName, branch} = parseGithubURL(pkg);
+
+			pkgDetails = {
+				name: parseGithubURL(pkg).gitName,
+				repo: `https://github.com/${org}/${gitName}#${branch}`,
+				version: ''
+			};
+
+			existingPkg = config.dependencies[pkgDetails.name];
+
+		}else if (!existingPkg || !existingPkg.repo){
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
 				return;
 			}
-			let version = versionRes.ok;
 
-			await install(pkg, version, {verbose: options.verbose});
+			pkgDetails = {
+				name: pkg,
+				repo: '',
+				version:  versionRes.ok
+			};
 
-			config.dependencies[pkg] = version;
-			wirteConfig(config);
-			logUpdate.clear();
-			console.log(chalk.green('Package installed ') + `${pkg} = "${version}"`);
+		}else{
+			options.silent || logUpdate(`Installing ${existingPkg.name}@${existingPkg.version} (cache) from Github`);
+			return;
 		}
+
+		const {name, repo, version} = pkgDetails;
+
+		if (repo){
+			// pkg name conflict with an installed mops pkg
+			if (existingPkg && !existingPkg.repo){
+				console.log(chalk.red('Error: ') + `Conflicting Package Name '${name}`);
+				console.log('Consider entering the repo url and assigning a new name in the \'mops.toml\' file');
+				return;
+			}
+
+			await installFromGithub(name, repo, {verbose: options.verbose});
+		}else{
+			await install(name, version, {verbose: options.verbose});
+		}
+
+		config.dependencies[name] = pkgDetails;
+		writeConfig(config);
+
+		logUpdate.clear();
+		console.log(
+			chalk.green('Package installed ') + `${name} = "${repo || version}"`
+		);
 	});
 
 // publish
