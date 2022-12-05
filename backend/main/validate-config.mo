@@ -55,9 +55,6 @@ module {
 		if (config.name.size() == 0) {
 			return #err("invalid config: name cannot be empty");
 		};
-		if (config.name == "base") {
-			return #err("invalid config: reserved package name 'base'");
-		};
 		if (config.name.size() > CONFIG_MAX_SIZES.name) {
 			return #err("invalid config: name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
 		};

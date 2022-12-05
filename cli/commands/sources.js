@@ -17,8 +17,7 @@ function rootDir(cwd = process.cwd()) {
 	return rootDir(path.join(cwd, '..'));
 }
 
-// TODO: resolve deps for a specific file to avoid conflicts
-// TODO: remove base-unofficial
+// TODO: resolve conflicts
 export async function sources({verbose} = {}) {
 	let root = rootDir();
 	if (!root) {
@@ -101,32 +100,6 @@ export async function sources({verbose} = {}) {
 	let config = readConfig(path.join(root, 'mops.toml'));
 	await collectDeps(config, true);
 
-	// install base-unofficial if base is missing
-	if (!packages['base'] && !packages['base-unofficial']) {
-		let dirs = fs.readdirSync(path.join(root, '.mops'));
-
-		let downloadedPackages = Object.fromEntries(dirs.map((dir) => {
-			return dir.split('@');
-		}));
-
-		if (downloadedPackages['base-unofficial']) {
-			packages['base-unofficial'] = {
-				version: downloadedPackages['base-unofficial'],
-			};
-		}
-		else {
-			let versionRes = await getHighestVersion('base-unofficial');
-			if (versionRes.err) {
-				console.log(chalk.red('Error: ') + versionRes.err);
-				return;
-			}
-			let version = versionRes.ok;
-
-			await install('base-unofficial', version, {silent: true, dep: true});
-			packages['base-unofficial'] = {version};
-		}
-	}
-
 	// show conflicts
 	if (verbose) {
 		for (let [dep, vers] of Object.entries(versions)) {
@@ -146,10 +119,5 @@ export async function sources({verbose} = {}) {
 		}
 
 		console.log(`--package ${name} ${pkgDir}`);
-
-		// fallback base to base-unofficial
-		if (!packages.base && name === 'base-unofficial') {
-			console.log(`--package base ${pkgDir}`);
-		}
 	}
 }
