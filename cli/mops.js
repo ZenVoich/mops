@@ -13,7 +13,7 @@ import {decodeFile} from './pem.js';
 global.fetch = fetch;
 
 // (!) make changes in pair with backend
-let apiVersion = '0.2';
+let apiVersion = '1.2';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 

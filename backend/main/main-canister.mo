@@ -35,7 +35,7 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type Ver = Version.Version;
 
-	let apiVersion = "0.2"; // (!) make changes in pair with cli
+	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [Ver]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
