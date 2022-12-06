@@ -47,18 +47,4 @@ module {
 			case (null) Prelude.unreachable();
 		};
 	};
-
-	public func arrayToBuffer<T>(array: [T]): Buffer.Buffer<T> {
-		let count = array.size();
-		let buffer = Buffer.Buffer<T>(count);
-
-		var i = 0;
-		label l loop {
-			if (i >= count) break l;
-			buffer.add(array[i]);
-			i += 1;
-		};
-
-		buffer;
-	};
 }

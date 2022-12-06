@@ -73,7 +73,7 @@ module {
 			switch (stab) {
 				case (null) {};
 				case (?#v1(records, byName, byId)) {
-					log := Utils.arrayToBuffer<Record>(records);
+					log := Buffer.fromArray<Record>(records);
 					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(byName.vals(), Text.equal, Text.hash);
 					downloadsByPackageId := TrieMap.fromEntries<PackageId, Nat>(byId.vals(), Text.equal, Text.hash);
 				};
