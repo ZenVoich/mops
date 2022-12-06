@@ -66,7 +66,7 @@ export async function init(name = '') {
 			config.dependencies = {};
 
 		defaultPackages.forEach(([name, version]) => {
-			config.dependencies[name] =  version;
+			config.dependencies[name] = {version};
 		});
 
 		writeConfig(config);
