@@ -1,7 +1,6 @@
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
-import {install} from './install.js';
 import {formatDir, formatGithubDir, getHighestVersion, parseGithubURL, readConfig} from '../mops.js';
 import { readVesselConfig } from '../vessel.js';
 
@@ -63,12 +62,15 @@ export async function sources({verbose} = {}) {
 
 			// take root dep version or bigger one
 			if (
-				isRoot ||
-				!packages[name] ||
-				repo && compareGitVersions(packages[name].repo, repo) === -1 ||
-				compareVersions(packages[name].version, version) === -1
+				isRoot
+				|| !packages[name]
+				|| !packages[name].isRoot
+				&& (
+					repo && packages[name].repo && compareGitVersions(packages[name].repo, repo) === -1
+					|| compareVersions(packages[name].version, version) === -1)
 			) {
 				packages[name] = pkgDetails;
+				packages[name].isRoot = isRoot;
 			}
 
 			let nestedConfig;
