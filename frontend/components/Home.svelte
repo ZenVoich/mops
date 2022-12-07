@@ -2,7 +2,7 @@
 	import {link} from 'svelte-spa-router';
 	import Header from './Header.svelte';
 	import TopPackages from './TopPackages.svelte';
-	import Footer from "./Footer.svelte";
+	import Footer from './Footer.svelte';
 	import TotalStats from './TotalStats.svelte';
 </script>
 
@@ -16,7 +16,7 @@
 	<div class="content">
 
 		<div class="section">
-			<img src="/img/mops.svg" style="width: 100px;">
+			<img src="/img/mops.svg" alt="mops logo" style="width: 100px;">
 			<div class="text">
 				<div class="description"><b>MOPS</b> is a package manager for Motoko with fully on-chain package registry.</div>
 			</div>

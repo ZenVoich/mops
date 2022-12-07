@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {link, location as loc} from 'svelte-spa-router';
+	import {link} from 'svelte-spa-router';
 	import Date from './Date.svelte';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';

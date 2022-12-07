@@ -11,7 +11,7 @@
 	import Loader from './Loader.svelte';
 	import Date from './Date.svelte';
 	import NotFound from './NotFound.svelte';
-	import Footer from "./Footer.svelte";
+	import Footer from './Footer.svelte';
 
 	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
 	$: $loc && load();
@@ -52,7 +52,6 @@
 	let installHoverTimer: any;
 	function installMouseenter() {
 		clearTimeout(installHoverTimer);
-		console.log(copiedToClipboard)
 		installHoverTimer = setTimeout(() => {
 			installHovered = true;
 		}, 600);

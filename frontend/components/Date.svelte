@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {formatDistance} from 'date-fns'
+	import {formatDistance} from 'date-fns';
 
 	export let date: number | Date;
 

@@ -9,11 +9,11 @@ export function useAuth(fn: Function) {
 			fn();
 			isAuthenticated = auth.isAuthenticated;
 		}
-	}
+	};
 
 	onMount(() => {
-		onAuthUpdate()
-		auth.on('update', onAuthUpdate)
+		onAuthUpdate();
+		auth.on('update', onAuthUpdate);
 	});
 
 	onDestroy(() => {

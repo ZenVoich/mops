@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
-	import {mainActor, storageActor} from '/logic/actors';
+	import {mainActor} from '/logic/actors';
 
 	let totalPackages: bigint;
 	let totalDownloads: bigint;

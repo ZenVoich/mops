@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {push} from 'svelte-spa-router';
-	import Logo from "./links/Logo.svelte";
+	import Logo from './links/Logo.svelte';
 
 	export let searchText = '';
 

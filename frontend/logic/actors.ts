@@ -8,21 +8,26 @@ let getOptions = () => {
 		agentOptions: {
 			identity: process.env.NODE_ENV === 'production' && auth.identity,
 		}
-	}
-}
+	};
+};
 
 export let mainActor = () => {
 	return createMainActor(mainCanisterId, getOptions());
-}
+};
 
 export let storageActor = (storageId: string | Principal) => {
 	return createStorageActor(storageId, getOptions());
+};
+
+declare global {
+	// eslint-disable-next-line no-unused-vars
+	var getStoragesStats: () => void;
 }
 
 window.getStoragesStats = () => {
 	mainActor().getStoragesStats().then((statsAr) => {
 		console.log(statsAr.map(([principal, stats]) => {
 			return [principal.toText(), stats];
-		}))
+		}));
 	});
-}
+};

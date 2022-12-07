@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Logo from "./links/Logo.svelte";
-	import GitHub from "./links/GitHub.svelte";
-	import Twitter from "./links/Twitter.svelte";
+	import Logo from './links/Logo.svelte';
+	import GitHub from './links/GitHub.svelte';
+	import Twitter from './links/Twitter.svelte';
 </script>
 
 <footer>
