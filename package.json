@@ -8,9 +8,16 @@
 		"const": "dfx canister create --all && node constants.js",
 		"const:prod": "dfx canister --network ic create --all --no-wallet && node constants.js prod",
 		"decl": "npm run decl:frontend && npm run decl:cli",
+		"lint": "npm run lint:cli && npm run lint:frontend",
+		"lint:frontend": "eslint frontend/**/*.{svelte,ts}",
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
 		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic && npm run const",
 		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const"
+	},
+	"devDependencies": {
+		"@typescript-eslint/parser": "^5.45.1",
+		"eslint": "^8.29.0",
+		"eslint-plugin-svelte": "^2.14.0"
 	}
 }
