@@ -1,6 +1,4 @@
-import {
-	existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync
-} from 'fs';
+import {existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync} from 'fs';
 import del from 'del';
 import { execaCommand} from 'execa';
 import chalk from 'chalk';
@@ -14,7 +12,13 @@ import {pipeline} from 'stream/promises';
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
 		let cwd = new URL(path.dirname(import.meta.url)).pathname;
-		const res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
+		let res;
+		try {
+			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
+		}
+		catch (e) {
+			return null;
+		}
 
 		if (res.exitCode === 0){
 			return JSON.parse(res.stdout);
@@ -125,7 +129,6 @@ export const downloadFromGithub = async (repo, dest, onProgress = null) => {
 };
 
 export const installFromGithub = async (name, repo, options = {})=>{
-
 	const {verbose, dep, silent} = options;
 
 	const {branch} = parseGithubURL(repo);
