@@ -105,8 +105,8 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(StorageId, StorageStats))],
         ['query'],
       ),
-    'getTotalDownloads' : IDL.Func([], [IDL.Nat], []),
-    'getTotalPackages' : IDL.Func([], [IDL.Nat], []),
+    'getTotalDownloads' : IDL.Func([], [IDL.Nat], ['query']),
+    'getTotalPackages' : IDL.Func([], [IDL.Nat], ['query']),
     'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
     'startFileUpload' : IDL.Func(

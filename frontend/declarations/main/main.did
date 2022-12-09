@@ -124,8 +124,8 @@ service : {
                                  StorageId;
                                  StorageStats;
                                }) query;
-  getTotalDownloads: () -> (nat);
-  getTotalPackages: () -> (nat);
+  getTotalDownloads: () -> (nat) query;
+  getTotalPackages: () -> (nat) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageDetails) query;
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);

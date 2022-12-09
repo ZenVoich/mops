@@ -444,11 +444,11 @@ actor {
 		Buffer.toArray(packagesDetails);
 	};
 
-	public func getTotalDownloads(): async Nat {
+	public query func getTotalDownloads(): async Nat {
 		downloadLog.getTotalDownloads();
 	};
 
-	public func getTotalPackages(): async Nat {
+	public query func getTotalPackages(): async Nat {
 		packageVersions.size();
 	};
 
