@@ -15,7 +15,8 @@ export async function installAll({verbose} = {}) {
 	for (let {name, repo, version} of deps) {
 		if (repo){
 			await installFromGithub(name, repo, {verbose});
-		}else{
+		}
+		else {
 			await install(name, version, {verbose});
 		}
 	}

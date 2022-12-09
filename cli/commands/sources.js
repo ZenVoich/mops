@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
-import {formatDir, formatGithubDir, getHighestVersion, parseGithubURL, readConfig} from '../mops.js';
-import { readVesselConfig } from '../vessel.js';
+import {formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
+import {readVesselConfig} from '../vessel.js';
 
 function rootDir(cwd = process.cwd()) {
 	let configFile = path.join(cwd, 'mops.toml');
@@ -49,9 +49,11 @@ export async function sources({verbose} = {}) {
 
 		if (gitVerRegex.test(a) && gitVerRegex.test(b)){
 			return compareVersions(a.substring(1) , b.substring(1));
-		}else if (!gitVerRegex.test(a)){
+		}
+		else if (!gitVerRegex.test(a)){
 			return -1;
-		}else{
+		}
+		else {
 			return 1;
 		}
 	};
@@ -79,7 +81,7 @@ export async function sources({verbose} = {}) {
 				const dir = formatGithubDir(name, repo);
 				nestedConfig = await readVesselConfig(dir) || {};
 			}
-			else{
+			else {
 				const dir = formatDir(name, version) + '/mops.toml';
 				nestedConfig = readConfig(dir);
 			}
@@ -93,7 +95,8 @@ export async function sources({verbose} = {}) {
 			if (repo){
 				const {branch} = parseGithubURL(repo);
 				versions[name].push(branch);
-			}else{
+			}
+			else {
 				versions[name].push(version);
 			}
 		}
@@ -116,7 +119,8 @@ export async function sources({verbose} = {}) {
 		let pkgDir;
 		if (repo){
 			pkgDir =  path.relative(process.cwd(), formatGithubDir(name, repo)) + '/src';
-		}else{
+		}
+		else {
 			pkgDir = path.relative(process.cwd(), formatDir(name, version)) + '/src';
 		}
 

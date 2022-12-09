@@ -9,6 +9,7 @@
 		"const:prod": "dfx canister --network ic create --all --no-wallet && node constants.js prod",
 		"decl": "npm run decl:frontend && npm run decl:cli",
 		"lint": "npm run lint:cli && npm run lint:frontend",
+		"lint:cli": "eslint cli/**/*.js --no-error-on-unmatched-pattern",
 		"lint:frontend": "eslint frontend/**/*.{svelte,ts}",
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",

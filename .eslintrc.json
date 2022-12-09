@@ -7,7 +7,8 @@
         "eslint:recommended"
     ],
     "ignorePatterns": [
-        "node_modules/"
+        "node_modules/",
+        "declarations/"
     ],
     "rules": {
         "indent": [
@@ -29,6 +30,21 @@
         "object-curly-spacing": [
             "error",
             "never"
+        ],
+        "brace-style": [
+            "error",
+            "stroustrup"
+        ],
+        "space-in-parens": [
+            "error",
+            "never"
+        ],
+        "keyword-spacing": [
+            "error",
+            {
+                "before": true,
+                "after": true
+            }
         ]
     }
 }

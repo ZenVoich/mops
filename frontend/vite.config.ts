@@ -19,7 +19,8 @@ try {
 	canisterIds = JSON.parse(
 		fs.readFileSync(isDev ? '../.dfx/local/canister_ids.json' : '../canister_ids.json').toString(),
 	);
-} catch (e) {
+}
+catch (e) {
 	console.error('\n⚠️  Before starting the dev server run: dfx deploy\n\n');
 }
 

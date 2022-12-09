@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import {checkApiCompatibility, mainActor, readDfxJson, writeConfig} from '../mops.js';
 import {installAll} from './install-all.js';
-import { readVesselConfig } from '../vessel.js';
+import {readVesselConfig} from '../vessel.js';
 
 export async function init(name = '') {
 	let configFile = path.join(process.cwd(), 'mops.toml');
@@ -22,7 +22,7 @@ export async function init(name = '') {
 
 	if (fs.existsSync(vesselFile)){
 		console.log('Reading vessel.dhall file');
-		const res = await readVesselConfig(process.cwd(), { cache: false });
+		const res = await readVesselConfig(process.cwd(), {cache: false});
 		vesselConfig = {...res};
 	}
 

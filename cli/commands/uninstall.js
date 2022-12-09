@@ -2,7 +2,7 @@ import {checkConfigFile, readConfig} from '../mops.js';
 import fs from 'fs';
 import del from 'del';
 import chalk from 'chalk';
-import { formatDir, formatGithubDir } from '../mops.js';
+import {formatDir, formatGithubDir} from '../mops.js';
 
 export async function uninstall(pkg, version) {
 	if (!checkConfigFile()) {
@@ -24,7 +24,8 @@ export async function uninstall(pkg, version) {
 
 	if (repo){
 		pkgDir = formatGithubDir(pkg, repo);
-	}else{
+	}
+	else {
 		pkgDir = formatDir(pkg, version);
 	}
 

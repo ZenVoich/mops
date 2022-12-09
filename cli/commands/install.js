@@ -4,7 +4,7 @@ import logUpdate from 'log-update';
 import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
 import {parallel} from '../parallel.js';
 import chalk from 'chalk';
-import { installFromGithub } from '../vessel.js';
+import {installFromGithub} from '../vessel.js';
 
 export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	if (!checkConfigFile()) {
@@ -93,7 +93,8 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	for (const {name, repo, version} of Object.values(config.dependencies || {})) {
 		if (repo){
 			await installFromGithub(name, repo, {verbose});
-		}else{
+		}
+		else {
 			await install(name, version, {verbose});
 		}
 	}
