@@ -14,7 +14,7 @@ import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, re
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
-import { installFromGithub } from './vessel.js';
+import {installFromGithub} from './vessel.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -63,18 +63,24 @@ program
 		let pkgDetails;
 		let existingPkg = config.dependencies[pkg];
 
-		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+		if (existingPkg?.repo) {
+			pkgDetails = existingPkg;
+		}
+		else if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+
 			const {org, gitName, branch} = parseGithubURL(pkg);
 
 			pkgDetails = {
-				name: parseGithubURL(pkg).gitName,
+				name: gitName,
 				repo: `https://github.com/${org}/${gitName}#${branch}`,
 				version: ''
 			};
 
-			existingPkg = config.dependencies[pkgDetails.name];
-
-		}else if (!existingPkg || !existingPkg.repo){
+			if (!existingPkg) {
+				existingPkg = config.dependencies[gitName];
+			}
+		}
+		else {
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
@@ -86,10 +92,6 @@ program
 				repo: '',
 				version:  versionRes.ok
 			};
-
-		}else{
-			options.silent || logUpdate(`Installing ${existingPkg.name}@${existingPkg.version} (cache) from Github`);
-			return;
 		}
 
 		const {name, repo, version} = pkgDetails;
@@ -103,7 +105,8 @@ program
 			}
 
 			await installFromGithub(name, repo, {verbose: options.verbose});
-		}else{
+		}
+		else {
 			await install(name, version, {verbose: options.verbose});
 		}
 

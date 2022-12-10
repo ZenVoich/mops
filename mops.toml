@@ -7,5 +7,5 @@ repository = ""
 [dependencies]
 base = "0.6.27"
 http-parser = "0.1.0"
-"Itertools.mo" = "https://github.com/NatLabs/Itertools.mo#master"
 serde = "https://github.com/NatLabs/serde#master"
+"Itertools.mo" = "https://github.com/NatLabs/Itertools.mo#master"
