@@ -6,6 +6,7 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Time "mo:base/Time";
 import Nat "mo:base/Nat";
+import Int "mo:base/Int";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Option "mo:base/Option";
@@ -391,9 +392,11 @@ actor {
 		let max = 5;
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		let pubsReversed = Array.reverse(Iter.toArray(packagePublications.keys()));
+		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a: (PackageId, PackagePublication), b: (PackageId, PackagePublication)): Order.Order {
+			Int.compare(b.1.time, a.1.time);
+		});
 
-		label l for (packageId in pubsReversed.vals()) {
+		label l for ((packageId, _) in pubsSorted.vals()) {
 			ignore do ? {
 				let config = packageConfigs.get(packageId)!;
 				let packageDetails = _getPackageDetails(config.name, config.version)!;
