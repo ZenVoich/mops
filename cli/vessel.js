@@ -7,7 +7,7 @@ import { formatGithubDir, parseGithubURL, progressBar } from './mops.js';
 import path from 'path';
 import got from 'got';
 import decompress from 'decompress';
-import {pipeline} from 'stream/promises';
+import {pipeline} from 'stream';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
@@ -16,7 +16,8 @@ const dhallFileToJson = async (filePath) => {
 		try {
 			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
 		}
-		catch (e) {
+		catch (err) {
+			console.error('dhall-to-json error:', err);
 			return null;
 		}
 
@@ -97,28 +98,30 @@ export const downloadFromGithub = async (repo, dest, onProgress = null) => {
 			try {
 				mkdirSync(tmpDir, {recursive: true});
 
-				pipeline(readStream, createWriteStream(tmpFile))
-					.then(() => {
+				pipeline(readStream, createWriteStream(tmpFile), (err) => {
+					if (err) {
+						del.sync([tmpDir]);
+						reject(err);
+					}
+					else {
 						let options = {
 							extract: true,
 							strip: 1,
 							headers: {
-								accept: 'application/zip'
-							}
+								accept: 'application/zip',
+							},
 						};
-
-						return decompress(tmpFile, dest, options);
-
-					}).then((unzippedFiles) => {
-						del.sync([tmpDir]);
-						resolve(unzippedFiles);
-
-					}).catch(err => {
-						del.sync([tmpDir]);
-						reject(err);
-					});
-
-			} catch (err) {
+						decompress(tmpFile, dest, options).then((unzippedFiles) => {
+							del.sync([tmpDir]);
+							resolve(unzippedFiles);
+						}).catch(err => {
+							del.sync([tmpDir]);
+							reject(err);
+						});
+					}
+				});
+			}
+			catch (err) {
 				del.sync([tmpDir]);
 				reject(err);
 			}
