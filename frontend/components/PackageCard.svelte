@@ -10,21 +10,23 @@
 </script>
 
 <div class="package">
-	<div class="left">
-		<div class="header">
-			<a class="name" href="/package/{pkg.config.name}" use:link>{pkg.config.name}</a>
-			<div class="version">{pkg.config.version}</div>
+	<div class="summary">
+		<div class="left">
+			<div class="header">
+				<a class="name" href="/package/{pkg.config.name}" use:link>{pkg.config.name}</a>
+				<div class="version">{pkg.config.version}</div>
+			</div>
 		</div>
-		<div class="description">{pkg.config.description}</div>
+		<div class="right">
+			{#if showUpdated}
+				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+			{/if}
+			{#if showDownloads}
+				<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
+			{/if}
+		</div>
 	</div>
-	<div class="right">
-		{#if showUpdated}
-			<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
-		{/if}
-		{#if showDownloads}
-			<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>
-		{/if}
-	</div>
+	<div class="description">{pkg.config.description}</div>
 </div>
 
 <style>
@@ -34,6 +36,7 @@
 
 	.package {
 		display: flex;
+		flex-direction: column;
 		padding: 17px;
 		box-sizing: border-box;
 		width: 600px;
@@ -41,6 +44,10 @@
 		gap: 10px;
 		box-shadow: 0 1px 3px #c1c1c1;
 		border-radius: 3px;
+	}
+
+	.summary {
+		display: flex;
 	}
 
 	.left {
