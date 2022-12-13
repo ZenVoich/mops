@@ -5,7 +5,7 @@
 	"bin": {
 		"mops": "cli.js"
 	},
-	"homepage": "http://mops.one",
+	"homepage": "https://mops.one",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ZenVoich/mops.git"
