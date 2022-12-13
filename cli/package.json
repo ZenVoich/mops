@@ -1,10 +1,11 @@
 {
 	"name": "ic-mops",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"type": "module",
 	"bin": {
 		"mops": "cli.js"
 	},
+	"homepage": "http://mops.one/",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ZenVoich/mops.git"
