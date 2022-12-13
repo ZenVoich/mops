@@ -13,7 +13,7 @@ export async function installAll({verbose} = {}) {
 	const deps = Object.values(config.dependencies || {});
 
 	for (let {name, repo, version} of deps) {
-		if (repo){
+		if (repo) {
 			await installFromGithub(name, repo, {verbose});
 		}
 		else {

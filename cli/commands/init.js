@@ -20,16 +20,16 @@ export async function init(name = '') {
 
 	const vesselFile = path.join(process.cwd(), 'vessel.dhall');
 
-	if (fs.existsSync(vesselFile)){
+	if (fs.existsSync(vesselFile)) {
 		console.log('Reading vessel.dhall file');
 		const res = await readVesselConfig(process.cwd(), {cache: false});
 		vesselConfig = {...res};
 	}
 
-	if (vesselConfig.dependencies){
+	if (vesselConfig.dependencies) {
 		config.dependencies = {};
 
-		for (const dep of (vesselConfig.dependencies || [])){
+		for (const dep of (vesselConfig.dependencies || [])) {
 			config.dependencies[dep.name] = dep;
 		}
 	}

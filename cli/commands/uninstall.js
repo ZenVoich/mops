@@ -14,7 +14,7 @@ export async function uninstall(pkg, version) {
 
 	const pkgDetails = config.dependencies[pkg];
 
-	if (!pkgDetails){
+	if (!pkgDetails) {
 		console.log(`No dependency to remove ${pkg} = "${version}"`);
 		return;
 	}
@@ -22,7 +22,7 @@ export async function uninstall(pkg, version) {
 	const {repo} = pkgDetails;
 	let pkgDir;
 
-	if (repo){
+	if (repo) {
 		pkgDir = formatGithubDir(pkg, repo);
 	}
 	else {

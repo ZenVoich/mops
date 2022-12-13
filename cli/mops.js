@@ -107,17 +107,17 @@ export async function getHighestVersion(pkgName) {
 	return actor.getHighestVersion(pkgName);
 }
 
-export function parseGithubURL(href){
+export function parseGithubURL(href) {
 	const url = new URL(href);
 	const branch =  url.hash?.substring(1) || 'master';
 
 	let [org, gitName] = url.pathname.split('/').filter(path => !!path);
 
-	if (gitName.endsWith('.git')){
+	if (gitName.endsWith('.git')) {
 		gitName = gitName.substring(0, gitName.length - 4);
 	}
 
-	return { org, gitName, branch };
+	return {org, gitName, branch};
 }
 
 export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
@@ -127,9 +127,10 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = toml.dependencies || {};
 
 	Object.entries(deps).forEach(([name, data])=>{
-		if (data.startsWith('https://github.com/')){
+		if (data.startsWith('https://github.com/')) {
 			deps[name] = {name, repo: data, version: ''};
-		}else{
+		}
+		else {
 			deps[name] = {name, repo: '', version: data};
 		}
 	});
@@ -141,9 +142,10 @@ export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.
 	const deps = config.dependencies || {};
 
 	Object.entries(deps).forEach(([name, {repo, version}])=>{
-		if (repo){
+		if (repo) {
 			deps[name] = repo;
-		}else{
+		}
+		else {
 			deps[name] = version;
 		}
 	});
@@ -151,12 +153,12 @@ export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.
 	fs.writeFileSync(configFile, TOML.stringify(config).trim());
 }
 
-export function formatDir(name, version){
+export function formatDir(name, version) {
 	return path.join(process.cwd(), '.mops', `${name}@${version}`);
 }
 
-export function formatGithubDir(name, repo){
-	const { branch } = parseGithubURL(repo);
+export function formatGithubDir(name, repo) {
+	const {branch} = parseGithubURL(repo);
 	return path.join(process.cwd(), '.mops/_github', `${name}@${branch}`);
 }
 

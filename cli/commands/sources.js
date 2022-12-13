@@ -47,10 +47,10 @@ export async function sources({verbose} = {}) {
 		const {branch: a} = parseGithubURL(repoA);
 		const {branch: b} = parseGithubURL(repoB);
 
-		if (gitVerRegex.test(a) && gitVerRegex.test(b)){
+		if (gitVerRegex.test(a) && gitVerRegex.test(b)) {
 			return compareVersions(a.substring(1) , b.substring(1));
 		}
-		else if (!gitVerRegex.test(a)){
+		else if (!gitVerRegex.test(a)) {
 			return -1;
 		}
 		else {
@@ -77,7 +77,7 @@ export async function sources({verbose} = {}) {
 
 			let nestedConfig;
 
-			if (repo){
+			if (repo) {
 				const dir = formatGithubDir(name, repo);
 				nestedConfig = await readVesselConfig(dir) || {};
 			}
@@ -92,7 +92,7 @@ export async function sources({verbose} = {}) {
 				versions[name] = [];
 			}
 
-			if (repo){
+			if (repo) {
 				const {branch} = parseGithubURL(repo);
 				versions[name].push(branch);
 			}
@@ -117,7 +117,7 @@ export async function sources({verbose} = {}) {
 	// sources
 	for (let [name, {repo, version}] of Object.entries(packages)) {
 		let pkgDir;
-		if (repo){
+		if (repo) {
 			pkgDir =  path.relative(process.cwd(), formatGithubDir(name, repo)) + '/src';
 		}
 		else {

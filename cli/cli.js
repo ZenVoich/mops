@@ -14,7 +14,7 @@ import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, re
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
-import { installFromGithub } from './vessel.js';
+import {installFromGithub} from './vessel.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -63,7 +63,7 @@ program
 		let pkgDetails;
 		let existingPkg = config.dependencies[pkg];
 
-		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1){
+		if (pkg.startsWith('https://github.com') || pkg.split('/') > 1) {
 			const {org, gitName, branch} = parseGithubURL(pkg);
 
 			pkgDetails = {
@@ -74,7 +74,8 @@ program
 
 			existingPkg = config.dependencies[pkgDetails.name];
 
-		}else if (!existingPkg || !existingPkg.repo){
+		}
+		else if (!existingPkg || !existingPkg.repo) {
 			let versionRes = await getHighestVersion(pkg);
 			if (versionRes.err) {
 				console.log(chalk.red('Error: ') + versionRes.err);
@@ -87,23 +88,25 @@ program
 				version:  versionRes.ok
 			};
 
-		}else{
+		}
+		else {
 			options.silent || logUpdate(`Installing ${existingPkg.name}@${existingPkg.version} (cache) from Github`);
 			return;
 		}
 
 		const {name, repo, version} = pkgDetails;
 
-		if (repo){
+		if (repo) {
 			// pkg name conflict with an installed mops pkg
-			if (existingPkg && !existingPkg.repo){
+			if (existingPkg && !existingPkg.repo) {
 				console.log(chalk.red('Error: ') + `Conflicting Package Name '${name}`);
 				console.log('Consider entering the repo url and assigning a new name in the \'mops.toml\' file');
 				return;
 			}
 
 			await installFromGithub(name, repo, {verbose: options.verbose});
-		}else{
+		}
+		else {
 			await install(name, version, {verbose: options.verbose});
 		}
 

@@ -39,6 +39,10 @@
             "error",
             "never"
         ],
+        "space-before-blocks": [
+            "error",
+            "always"
+        ],
         "keyword-spacing": [
             "error",
             {
