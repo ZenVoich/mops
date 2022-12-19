@@ -127,6 +127,9 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = toml.dependencies || {};
 
 	Object.entries(deps).forEach(([name, data])=>{
+		if (!data || typeof data !== 'string') {
+			throw Error(`Invalid dependency value ${name} = "${data}"`);
+		}
 		if (data.startsWith('https://github.com/')) {
 			deps[name] = {name, repo: data, version: ''};
 		}
