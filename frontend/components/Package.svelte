@@ -247,6 +247,7 @@
 		padding: 20px;
 		padding-top: 0;
 		min-width: 0;
+		word-break: break-word;
 	}
 
 	.right-panel {
