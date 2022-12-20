@@ -17,6 +17,7 @@ export async function init(name = '') {
 
 	let config = {};
 	let vesselConfig = {};
+	let vesselDeps;
 
 	const vesselFile = path.join(process.cwd(), 'vessel.dhall');
 
@@ -27,10 +28,10 @@ export async function init(name = '') {
 	}
 
 	if (vesselConfig.dependencies) {
-		config.dependencies = {};
+		vesselDeps = {};
 
 		for (const dep of (vesselConfig.dependencies || [])) {
-			config.dependencies[dep.name] = dep;
+			vesselDeps[dep.name] = dep;
 		}
 	}
 
@@ -42,6 +43,10 @@ export async function init(name = '') {
 			description: '',
 			repository: '',
 		};
+
+		if (vesselDeps) {
+			config.dependencies = vesselDeps;
+		}
 
 		writeConfig(config);
 
@@ -64,6 +69,10 @@ export async function init(name = '') {
 
 		if (!config.dependencies)
 			config.dependencies = {};
+
+		if (vesselDeps) {
+			config.dependencies = vesselDeps;
+		}
 
 		defaultPackages.forEach(([name, version]) => {
 			config.dependencies[name] = {version};
