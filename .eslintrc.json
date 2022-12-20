@@ -27,6 +27,10 @@
             "error",
             "always"
         ],
+        "curly": [
+            "error",
+            "all"
+        ],
         "object-curly-spacing": [
             "error",
             "never"

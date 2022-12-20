@@ -50,8 +50,9 @@ export async function init(name = '') {
 
 		writeConfig(config);
 
-		if (Object.keys(config.dependencies || {}).length)
+		if (Object.keys(config.dependencies || {}).length) {
 			await installAll({verbose: true});
+		}
 	}
 
 	// project mode
@@ -67,8 +68,9 @@ export async function init(name = '') {
 		let actor = await mainActor();
 		let defaultPackages = await actor.getDefaultPackages(dfxVersion);
 
-		if (!config.dependencies)
+		if (!config.dependencies) {
 			config.dependencies = {};
+		}
 
 		if (vesselDeps) {
 			config.dependencies = vesselDeps;
