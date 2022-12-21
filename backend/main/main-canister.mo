@@ -316,6 +316,7 @@ actor {
 
 	public shared query ({caller}) func getDefaultPackages(dfxVersion: Text): async [(PackageName, Version.Version)] {
 		switch (dfxVersion) {
+			case ("0.12.1") [("base", "0.7.3")];
 			case ("0.12.0") [("base", "0.7.3")];
 			case ("0.11.2") [("base", "0.6.29")];
 			case ("0.11.1") [("base", "0.6.29")];
@@ -324,7 +325,7 @@ actor {
 			case ("0.9.3") [("base", "0.6.25")];
 			case ("0.9.2") [("base", "0.6.21")];
 			case ("0.9.0") [("base", "0.6.20")];
-			case (_) [("base", "0.7.3")];
+			case (_) [("base", "0.7.4")];
 		};
 	};
 
