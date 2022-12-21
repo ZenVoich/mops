@@ -32,10 +32,7 @@ const dhallFileToJson = async (filePath) => {
 	return null;
 };
 
-export const readVesselConfig = async (
-	configFile,
-	{cache = true} = {cache: true}
-) => {
+export const readVesselConfig = async (configFile, {cache = true} = {cache: true}) => {
 	const cachedFile = (configFile || process.cwd()) + '/vessel.json';
 
 	if (existsSync(cachedFile)) {
@@ -48,7 +45,9 @@ export const readVesselConfig = async (
 		dhallFileToJson((configFile || process.cwd()) + '/package-set.dhall')
 	]);
 
-	if (!vessel || !packageSetArray) return null;
+	if (!vessel || !packageSetArray) {
+		return null;
+	}
 
 	let repos = {};
 	for (const {name, repo, version} of packageSetArray) {
