@@ -2,7 +2,7 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
 import { idlFactory } from './main.did.js';
-export { idlFactory} from './main.did.js';
+export { idlFactory } from './main.did.js';
 // CANISTER_ID is replaced by webpack based on node environment
 export const canisterId = process.env.MAIN_CANISTER_ID;
 
@@ -18,7 +18,7 @@ export const createActor = (canisterId, options = {}) => {
 
 See https://internetcomputer.org/docs/current/developer-docs/updates/release-notes/ for migration instructions`);
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
-
+  
   // Fetch root key for certificate validation during development
   if (process.env.DFX_NETWORK !== "ic") {
     agent.fetchRootKey().catch(err => {
@@ -34,7 +34,7 @@ See https://internetcomputer.org/docs/current/developer-docs/updates/release-not
     ...(options ? options.actorOptions : {}),
   });
 };
-
+  
 /**
  * A ready-to-use agent for the main canister
  * @type {import("@dfinity/agent").ActorSubclass<import("./main.did.js")._SERVICE>}

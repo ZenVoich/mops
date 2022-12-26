@@ -361,37 +361,45 @@ actor {
 
 	public query func search(searchText: Text.Text): async [PackageDetails] {
 		let max = 20;
-		let matchedConfigs = Buffer.Buffer<PackageConfigV2>(max);
+		type ConfigWithPoints = {
+			config: PackageConfigV2;
+			sortingPoints: Nat;
+		};
+		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(max);
 		let pattern = #text(searchText);
 
 		for (config in highestConfigs.vals()) {
-			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
-				matchedConfigs.add(config);
+			var sortingPoints = 0;
+			if (Text.contains(config.name, pattern)) {
+				sortingPoints += 3;
 			};
-
+			if (Text.contains(config.description, pattern)) {
+				sortingPoints += 1;
+			};
 			for (keyword in config.keywords.vals()) {
 				if (Text.contains(keyword, pattern)) {
-					matchedConfigs.add(config);
+					sortingPoints += 2;
 				};
+			};
+
+			if (sortingPoints > 0) {
+				matchedConfigs.add({config; sortingPoints});
 			};
 		};
 
-		var configs = Array.sort<PackageConfigV2>(Buffer.toArray(matchedConfigs), func(a, b) {
-			var aPoints = 0;
-			var bPoints = 0;
+		var configs = Array.sort<ConfigWithPoints>(Buffer.toArray(matchedConfigs), func(a, b) {
+			var aPoints = a.sortingPoints;
+			var bPoints = b.sortingPoints;
 
-			if (Text.contains(a.name, pattern)) aPoints += 10;
-			if (Text.contains(b.name, pattern)) bPoints += 10;
-
-			if (a.name.size() < b.name.size()) aPoints += 1;
-			if (a.name.size() > b.name.size()) bPoints += 1;
+			if (a.config.name.size() < b.config.name.size()) aPoints += 1;
+			if (a.config.name.size() > b.config.name.size()) bPoints += 1;
 
 			Nat.compare(bPoints, aPoints);
 		});
 
 		// limit results
 		Array.tabulate<PackageDetails>(Nat.min(configs.size(), max), func(i: Nat) {
-			Utils.unwrap(_getPackageDetails(configs[i].name, configs[i].version));
+			Utils.unwrap(_getPackageDetails(configs[i].config.name, configs[i].config.version));
 		});
 	};
 

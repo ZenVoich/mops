@@ -3,3 +3,4 @@ name = "hello"
 version = "0.1.5"
 description = "hello lib"
 repository = "..."
+keywords = ["test", "map"]
