@@ -368,6 +368,12 @@ actor {
 			if (Text.contains(config.name, pattern) or Text.contains(config.description, pattern)) {
 				matchedConfigs.add(config);
 			};
+
+			for (keyword in config.keywords.vals()) {
+				if (Text.contains(keyword, pattern)) {
+					matchedConfigs.add(config);
+				};
+			};
 		};
 
 		var configs = Array.sort<PackageConfigV2>(Buffer.toArray(matchedConfigs), func(a, b) {
