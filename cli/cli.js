@@ -10,7 +10,7 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig, apiVersion} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
@@ -20,6 +20,10 @@ let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
 
 program.name('mops');
+
+// --version
+let packageJson = JSON.parse(fs.readFileSync(new URL('package.json', import.meta.url)));
+program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version');
 
 // init
 program
