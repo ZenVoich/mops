@@ -78,19 +78,25 @@ program
 			};
 
 			existingPkg = config.dependencies[pkgDetails.name];
-
 		}
 		else if (!existingPkg || !existingPkg.repo) {
-			let versionRes = await getHighestVersion(pkg);
-			if (versionRes.err) {
-				console.log(chalk.red('Error: ') + versionRes.err);
-				return;
+			let ver;
+			if (pkg.includes('@')) {
+				[pkg, ver] = pkg.split('@');
+			}
+			else {
+				let versionRes = await getHighestVersion(pkg);
+				if (versionRes.err) {
+					console.log(chalk.red('Error: ') + versionRes.err);
+					return;
+				}
+				ver = versionRes.ok;
 			}
 
 			pkgDetails = {
 				name: pkg,
 				repo: '',
-				version:  versionRes.ok
+				version:  ver,
 			};
 
 		}
@@ -112,7 +118,10 @@ program
 			await installFromGithub(name, repo, {verbose: options.verbose});
 		}
 		else {
-			await install(name, version, {verbose: options.verbose});
+			let ok = await install(name, version, {verbose: options.verbose});
+			if (!ok) {
+				return;
+			}
 		}
 
 		config.dependencies[name] = pkgDetails;

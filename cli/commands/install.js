@@ -8,14 +8,14 @@ import {installFromGithub} from '../vessel.js';
 
 export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	if (!checkConfigFile()) {
-		return;
+		return false;
 	}
 
 	if (!version) {
 		let versionRes = await getHighestVersion(pkg);
 		if (versionRes.err) {
 			console.log(chalk.red('Error: ') + versionRes.err);
-			return;
+			return false;
 		}
 		version = versionRes.ok;
 	}
@@ -29,25 +29,23 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 	// no cache
 	else {
-		fs.mkdirSync(dir, {recursive: true});
-
-		actor.notifyInstall(pkg, version);
-
 		let packageDetailsRes = await actor.getPackageDetails(pkg, version);
 		if (packageDetailsRes.err) {
 			console.log(chalk.red('Error: ') + packageDetailsRes.err);
-			return;
+			return false;
 		}
 		let packageDetails = packageDetailsRes.ok;
 
 		let filesIdsRes = await actor.getFileIds(pkg, version);
 		if (filesIdsRes.err) {
 			console.log(chalk.red('Error: ') + filesIdsRes.err);
-			return;
+			return false;
 		}
 		let filesIds = filesIdsRes.ok;
 
 		let storage = await storageActor(packageDetails.publication.storage);
+
+		actor.notifyInstall(pkg, version);
 
 		// progress
 		let total = filesIds.length + 1;
@@ -58,6 +56,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 		};
 
 		// download files
+		fs.mkdirSync(dir, {recursive: true});
 		progress();
 		await parallel(8, filesIds, async (fileId) => {
 			let fileMetaRes = await storage.getFileMeta(fileId);
@@ -89,13 +88,19 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 
 	// install dependencies
+	let ok = true;
 	let config = readConfig(path.join(dir, 'mops.toml'));
 	for (const {name, repo, version} of Object.values(config.dependencies || {})) {
 		if (repo) {
 			await installFromGithub(name, repo, {verbose});
 		}
 		else {
-			await install(name, version, {verbose});
+			let res = await install(name, version, {verbose});
+			if (!res) {
+				ok = false;
+			}
 		}
 	}
+
+	return ok;
 }

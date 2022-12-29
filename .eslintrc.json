@@ -47,6 +47,12 @@
             "error",
             "always"
         ],
+        "no-empty": [
+            "error",
+            {
+                "allowEmptyCatch": true
+            }
+        ],
         "keyword-spacing": [
             "error",
             {
