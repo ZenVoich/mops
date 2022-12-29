@@ -66,7 +66,7 @@
 
 	let resetIconTimer: any;
 	function copyCommand() {
-		navigator.clipboard.writeText(`mops i ${packageDetails.config.name}`);
+		navigator.clipboard.writeText(`mops add ${packageDetails.config.name}`);
 		copiedToClipboard = true;
 		installHovered = true;
 		clearTimeout(resetIconTimer);
@@ -102,7 +102,7 @@
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
 							<div class="text" on:click="{copyCommand}">Install</div>
-							<div class="command" on:click="{copyCommand}">mops i {packageDetails.config.name}</div>
+							<div class="command" on:click="{copyCommand}">mops add {packageDetails.config.name}</div>
 						</div>
 						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>

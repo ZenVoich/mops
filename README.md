@@ -41,7 +41,7 @@ mops init
 Install your favorite packages
 
 ```
-mops install <package_name>
+mops add <package_name>
 ```
 
 ### 4. Import Package

@@ -35,7 +35,7 @@ program
 // add
 program
 	.command('add <pkg>')
-	.description('Install package and save it as a dependency in the mops.toml file')
+	.description('Install the package and save it to mops.toml')
 	.option('--verbose')
 	.action(async (pkg, options) => {
 		await add(pkg, options);
@@ -59,6 +59,7 @@ program
 		}
 
 		if (pkg) {
+			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
 			await add(pkg, options);
 		}
 		else {

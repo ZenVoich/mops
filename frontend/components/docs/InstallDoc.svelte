@@ -45,7 +45,7 @@
 		<h3>4. Install Motoko Packages</h3>
 		<div>Install your favorite packages</div>
 		<br>
-		<code>mops install &lt;package_name&gt;</code>
+		<code>mops add &lt;package_name&gt;</code>
 
 		<h3>5. Import Package</h3>
 		<div>Now you can import installed packages in your Motoko code</div>
