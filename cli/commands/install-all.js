@@ -17,7 +17,10 @@ export async function installAll({verbose} = {}) {
 			await installFromGithub(name, repo, {verbose});
 		}
 		else {
-			await install(name, version, {verbose});
+			let ok = await install(name, version, {verbose});
+			if (!ok) {
+				return;
+			}
 		}
 	}
 
