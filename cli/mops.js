@@ -126,7 +126,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 
 	const deps = toml.dependencies || {};
 
-	Object.entries(deps).forEach(([name, data])=>{
+	Object.entries(deps).forEach(([name, data]) => {
 		if (!data || typeof data !== 'string') {
 			throw Error(`Invalid dependency value ${name} = "${data}"`);
 		}
@@ -144,7 +144,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = config.dependencies || {};
 
-	Object.entries(deps).forEach(([name, {repo, version}])=>{
+	Object.entries(deps).forEach(([name, {repo, version}]) => {
 		if (repo) {
 			deps[name] = repo;
 		}
