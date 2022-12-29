@@ -10,12 +10,12 @@ import {install} from './commands/install.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig, apiVersion, mainActor} from './mops.js';
+import {checkApiCompatibility, getHighestVersion, getNetwork, parseGithubURL, readConfig, setNetwork, writeConfig, apiVersion} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import logUpdate from 'log-update';
 import {installFromGithub} from './vessel.js';
-import asTable from 'as-table';
+import {search} from './commands/search.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -193,36 +193,7 @@ program
 	.alias('find')
 	.description('Search for packages')
 	.action(async (text) => {
-		let actor = await mainActor();
-		let res = await actor.search(text);
-
-		let ellipsis = (text, max) => {
-			if (text.length <= max) {
-				return text;
-			}
-			else {
-				return text.slice(0, max) + '…';
-			}
-		};
-
-		let maxNameLength = Math.max(...res.map(a => a.config.name.length));
-
-		let table = res.map((item) => {
-			return {
-				NAME: chalk.bold(item.config.name),
-				VERSION: item.config.version,
-				DESCRIPTION: ellipsis(item.config.description, process.stdout.columns - 40 - maxNameLength),
-				UPDATED: new Date(Number(item.publication.time / 1_000_000n)).toISOString().split('T')[0],
-			};
-		});
-
-		console.log('');
-		console.log(asTable.configure({
-			delimiter: chalk.gray(' | '),
-			dash: chalk.gray('─'),
-			title: t => chalk.gray.bold(t),
-		})(table));
-		console.log('');
+		await search(text);
 	});
 
 program.parse();
