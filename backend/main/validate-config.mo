@@ -31,6 +31,27 @@ module {
 		devDependencies = 100;
 	};
 
+	let reservedNames = [
+		"mops",
+		"doc",
+		"docs",
+		"search",
+		"api",
+		"p",
+		"page",
+		"policies",
+		"about",
+		"help",
+		"support",
+		"contact",
+		"policies",
+		"how-to",
+		"howto",
+		"faq",
+		"wiki",
+		"cli",
+	];
+
 	public func validateConfig(config: PackageConfigV2): Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
@@ -41,6 +62,9 @@ module {
 		};
 		if (config.homepage.size() > 0) {
 			return #err("invalid config: 'homepage' field is not supported yet");
+		};
+		if (config.documentation.size() > 0) {
+			return #err("invalid config: 'documentation' field is not supported yet");
 		};
 		if (config.devDependencies.size() > 0) {
 			return #err("invalid config: 'devDependencies' field is not supported yet");
@@ -58,6 +82,14 @@ module {
 		if (config.name.size() > CONFIG_MAX_SIZES.name) {
 			return #err("invalid config: name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
 		};
+
+		// reserved package names
+		for (reserved in reservedNames.vals()) {
+			if (config.name == reserved) {
+				return #err("invalid config: reserved package name '" # config.name # "'");
+			};
+		};
+
 		// [a-z0-9-_.]
 		var prevChar = '.';
 		for (char in config.name.chars()) {
