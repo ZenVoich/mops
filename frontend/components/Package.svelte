@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
-	import {location as loc} from 'svelte-spa-router';
+	import {currentURL} from 'svelte-spa-history-router';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
@@ -13,8 +13,8 @@
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
 
-	$: pkgName = $loc.split('/package/')[1] ? decodeURI($loc.split('/package/')[1]) : '';
-	$: $loc && load();
+	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]) : '';
+	$: $currentURL && load();
 
 	let readmeHtml: string;
 	let packageDetails: PackageDetails;
@@ -122,7 +122,7 @@
 						<div class="detail">
 							<div class="label">Repository</div>
 							<a class="value repository" href="{packageDetails.config.repository}" target="_blank">
-								<img class="github-icon" src="img/github.svg" alt="GitHub logo" loading="lazy" />
+								<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
 								{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
 							</a>
 						</div>

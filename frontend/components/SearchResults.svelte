@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
-	import {location as loc} from 'svelte-spa-router';
+	import {currentURL} from 'svelte-spa-history-router';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
@@ -12,8 +12,8 @@
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
 
-	$: searchText = decodeURI($loc.split('/search/')[1]);
-	$: $loc && updateResults();
+	$: searchText = decodeURI($currentURL.pathname.split('/search/')[1]);
+	$: $currentURL && updateResults();
 
 	let packages: PackageDetails[] = [];
 	let loaded = false;

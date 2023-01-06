@@ -1,11 +1,11 @@
 <script lang="ts">
-	import {link} from 'svelte-spa-router';
+	import {link} from 'svelte-spa-history-router';
 
 	export let size: 'small' | 'big' = 'big';
 </script>
 
 <a href="/" use:link>
-	<img class="logo" src="img/mops-motoko.svg" alt="mops" class:small={size === 'small'} loading="lazy">
+	<img class="logo" src="/img/mops-motoko.svg" alt="mops" class:small={size === 'small'} loading="lazy">
 </a>
 
 <style>

@@ -1,20 +1,46 @@
 <script lang="ts">
+	import {Router, currentURL} from 'svelte-spa-history-router';
+	import {onMount} from 'svelte';
+
 	import Home from './Home.svelte';
-	import Router from 'svelte-spa-router';
 	import SearchResults from './SearchResults.svelte';
 	import Package from './Package.svelte';
 	import InstallDoc from './docs/InstallDoc.svelte';
 	import PublishDoc from './docs/PublishDoc.svelte';
 	import ConfigDoc from './docs/ConfigDoc.svelte';
 
-	let routes = {
-		'/': Home,
-		'/search/:search': SearchResults,
-		'/package/:package': Package,
-		'/docs/install': InstallDoc,
-		'/docs/publish': PublishDoc,
-		'/docs/config': ConfigDoc,
-	};
+	let routes = [
+		{path: '/', component: Home},
+		{path: '/docs/install', component: InstallDoc},
+		{path: '/docs/publish', component: PublishDoc},
+		{path: '/docs/config', component: ConfigDoc},
+		{path: '/search/(?<search>.*)', component: SearchResults},
+		{path: '/(?<package>.*)', component: Package},
+	];
+
+	// redirect legacy paths
+	if (location.hash.match(/^#\/(docs|search|package)/)) {
+		location.href = location.origin + location.hash.replace('#/package/', '/').replace('#/', '/');
+	}
+
+	// reset scroll on navigate
+	let resetScrollTimer: any;
+	onMount(() => {
+		let popstate = () => {
+			clearTimeout(resetScrollTimer);
+		};
+		window.addEventListener('popstate', popstate);
+		return () => {
+			window.removeEventListener('popstate', popstate);
+		};
+	});
+	$: {
+		if ($currentURL) {
+			resetScrollTimer = setTimeout(() => {
+				window.scrollTo(0, 0);
+			});
+		}
+	}
 </script>
 
 <div class="app">

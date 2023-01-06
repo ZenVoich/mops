@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {link} from 'svelte-spa-router';
+	import {link} from 'svelte-spa-history-router';
 	import Date from './Date.svelte';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
@@ -13,7 +13,7 @@
 	<div class="summary">
 		<div class="left">
 			<div class="header">
-				<a class="name" href="/package/{pkg.config.name}" use:link>{pkg.config.name}</a>
+				<a class="name" href="/{pkg.config.name}" use:link>{pkg.config.name}</a>
 				<div class="version">{pkg.config.version}</div>
 			</div>
 		</div>

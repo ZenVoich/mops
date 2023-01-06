@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {link} from 'svelte-spa-router';
+	import {link} from 'svelte-spa-history-router';
 	import Header from './Header.svelte';
 	import TopPackages from './TopPackages.svelte';
 	import Footer from './Footer.svelte';
