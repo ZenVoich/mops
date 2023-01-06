@@ -116,7 +116,7 @@ program
 // whoami
 program
 	.command('whoami')
-	.description('prints your principal')
+	.description('Print your principal')
 	.action(async () => {
 		whoami();
 	});
