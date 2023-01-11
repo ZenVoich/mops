@@ -88,7 +88,7 @@ export interface _SERVICE {
   'getApiVersion' : ActorMethod<[], Text>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName__1, Version]>,
+    Array<[PackageName__1, Version]>
   >,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
@@ -102,11 +102,11 @@ export interface _SERVICE {
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array],
-    Result_2,
+    Result_2
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_1>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array],
-    Result,
+    Result
   >,
 }

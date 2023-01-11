@@ -8,6 +8,7 @@ import Result "mo:base/Result";
 import Types "./types";
 import Version "./version";
 import {isLowerCaseLetter} "./is-letter";
+import {validateLicense} "./validate-license";
 
 module {
 	type PackageConfigV2 = Types.PackageConfigV2;
@@ -22,7 +23,7 @@ module {
 		documentation = 300;
 		homepage = 300;
 		readme = 100;
-		license = 30;
+		license = 40;
 		scripts = (40, 50, 200);
 		dfx = 10;
 		moc = 10;
@@ -132,9 +133,15 @@ module {
 		if (config.readme.size() > CONFIG_MAX_SIZES.readme) {
 			return #err("invalid config: readme max length is " # Nat.toText(CONFIG_MAX_SIZES.readme));
 		};
+
 		if (config.license.size() > CONFIG_MAX_SIZES.license) {
 			return #err("invalid config: license max length is " # Nat.toText(CONFIG_MAX_SIZES.license));
 		};
+		let licenseValid = validateLicense(config.license);
+		if (Result.isErr(licenseValid)) {
+			return licenseValid;
+		};
+
 		if (config.dfx.size() > CONFIG_MAX_SIZES.dfx) {
 			return #err("invalid config: dfx max length is " # Nat.toText(CONFIG_MAX_SIZES.dfx));
 		};

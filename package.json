@@ -1,6 +1,7 @@
 {
 	"type": "module",
 	"scripts": {
+		"start": "npm run dev",
 		"dev": "npm run replica && npm run deploy && npm run decl && cd frontend && npm run dev && cd ..",
 		"build": "cd frontend && npm run build",
 		"deploy": "npm run const && dfx deploy main --no-wallet --identity anonymous && npm run decl",
