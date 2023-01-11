@@ -1,10 +1,14 @@
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
+import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
 export async function add(pkg, {verbose, silent} = {}) {
+	if (!checkConfigFile()) {
+		return false;
+	}
+
 	let config = readConfig();
 	if (!config.dependencies) {
 		config.dependencies = {};
