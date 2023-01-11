@@ -133,6 +133,12 @@
 							<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
 						</div>
 					{/if}
+					{#if packageDetails.config.license}
+						<div class="detail">
+							<div class="label">License</div>
+							<a class="value" href="https://spdx.org/licenses/{packageDetails.config.license}.html" target="_blank">{packageDetails.config.license}</a>
+						</div>
+					{/if}
 					{#if packageDetails.owner}
 						<div class="detail">
 							<div class="label">Owner</div>
