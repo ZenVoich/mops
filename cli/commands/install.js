@@ -11,6 +11,15 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 		return false;
 	}
 
+	// progress
+	let total = Infinity;
+	let step = 0;
+	let progress = () => {
+		step++;
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} ${progressBar(step, total)}`);
+	};
+	progress();
+
 	if (!version) {
 		let versionRes = await getHighestVersion(pkg);
 		if (versionRes.err) {
@@ -29,36 +38,31 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 	// no cache
 	else {
-		let packageDetailsRes = await actor.getPackageDetails(pkg, version);
+		let [packageDetailsRes, filesIdsRes] = await Promise.all([
+			actor.getPackageDetails(pkg, version),
+			actor.getFileIds(pkg, version),
+		]);
+
 		if (packageDetailsRes.err) {
 			console.log(chalk.red('Error: ') + packageDetailsRes.err);
 			return false;
 		}
 		let packageDetails = packageDetailsRes.ok;
 
-		let filesIdsRes = await actor.getFileIds(pkg, version);
 		if (filesIdsRes.err) {
 			console.log(chalk.red('Error: ') + filesIdsRes.err);
 			return false;
 		}
 		let filesIds = filesIdsRes.ok;
+		total = filesIds.length + 2;
 
 		let storage = await storageActor(packageDetails.publication.storage);
 
 		actor.notifyInstall(pkg, version);
 
-		// progress
-		let total = filesIds.length + 1;
-		let step = 0;
-		let progress = () => {
-			step++;
-			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} ${progressBar(step, total)}`);
-		};
-
 		// download files
-		fs.mkdirSync(dir, {recursive: true});
-		progress();
-		await parallel(8, filesIds, async (fileId) => {
+		let filesData = new Map;
+		await parallel(16, filesIds, async (fileId) => {
 			let fileMetaRes = await storage.getFileMeta(fileId);
 			if (fileMetaRes.err) {
 				console.log(chalk.red('ERR: ') + fileMetaRes.err);
@@ -76,11 +80,16 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 				let chunk = chunkRes.ok;
 				buffer = Buffer.concat([buffer, Buffer.from(chunk)]);
 			}
-
-			fs.mkdirSync(path.join(dir, path.dirname(fileMeta.path)), {recursive: true});
-			fs.writeFileSync(path.join(dir, fileMeta.path), buffer);
+			filesData.set(fileMeta.path, buffer);
 			progress();
 		});
+
+		// write files to disk
+		for (let [filePath, buffer] of filesData.entries()) {
+			fs.mkdirSync(path.join(dir, path.dirname(filePath)), {recursive: true});
+			fs.writeFileSync(path.join(dir, filePath), buffer);
+		}
+		progress();
 	}
 
 	if (verbose) {
