@@ -30,8 +30,8 @@ module {
 		var storageByFileId: TrieMap.TrieMap<FileId, StorageId> = TrieMap.TrieMap(Text.equal, Text.hash);
 
 		let MIN_UPLOADABLE_STORAGES = 1;
-		let OWN_MIN_CYCLES = if (Constants.NETWORK == "ic") 500_000_000_000 else 500_000_000_000; // 5TC
-		let STORAGE_INITIAL_CYCLES = if (Constants.NETWORK == "ic") 500_000_000_000 else 500_000_000_000; // 5TC
+		let OWN_MIN_CYCLES = if (Constants.NETWORK == "ic") 5_000_000_000_000 else 500_000_000_000; // 5TC
+		let STORAGE_INITIAL_CYCLES = if (Constants.NETWORK == "ic") 5_000_000_000_000 else 500_000_000_000; // 5TC
 		let STORAGE_MIN_CYCLES = 2_000_000_000_000; // 2TC
 		let STORAGE_TOP_UP_CYCLES = 3_000_000_000_000; // 3TC
 
