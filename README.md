@@ -38,17 +38,26 @@ mops init
 ```
 
 ### 3. Install Motoko Packages
-Install your favorite packages
+Use `mops add` to install a specific package and save it to `mops.toml`
 
 ```
 mops add <package_name>
+```
+
+Use `mops install` to install all packages specified in `mops.toml`
+```
+mops install
 ```
 
 ### 4. Import Package
 Now you can import installed packages in your Motoko code
 
 ```motoko
-import Lib "mo:<package_name>";
+import PackageName "mo:<package_name>";
+```
+for example
+```
+import Itertools "mo:itertools/Iter";
 ```
 
 ## Publish a Package
@@ -117,7 +126,7 @@ mops-local set-network local
 
 3. Revert changes made to `cli/package.json`
 
-Now you can install/publish packages locally like this `mops-local install lib`
+Now you can install/publish packages locally like this `mops-local add <pkg>`
 
 ------------
 *Built for the [Supernova Hackathon](https://dfinity.org/supernova/)*

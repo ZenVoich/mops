@@ -43,14 +43,24 @@
 		<code>mops init</code>
 
 		<h3>4. Install Motoko Packages</h3>
-		<div>Install your favorite packages</div>
+		<div>Use <code class="inline">mops add </code> to install a specific package and save it to <code class="inline">mops.toml</code></div>
 		<br>
 		<code>mops add &lt;package_name&gt;</code>
+
+		<br>
+		<br>
+		<div>Use <code class="inline">mops install</code> to install all packages specified in <code class="inline">mops.toml</code></div>
+		<br>
+		<code>mops install</code>
 
 		<h3>5. Import Package</h3>
 		<div>Now you can import installed packages in your Motoko code</div>
 		<br>
-		<code>import Lib "mo:&lt;package_name&gt;";</code>
+		<code>import PackageName "mo:&lt;package_name&gt;";</code>
+		<br>
+		<div>for example</div>
+		<br>
+		<code>import Itertools "mo:itertools/Iter";</code>
 
 		<!-- <h3>6. Gitignore cache files</h3>
 		<div>Add following line into the <code class="inline">.gitignore</code> file</div>

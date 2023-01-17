@@ -38,17 +38,26 @@ mops init
 ```
 
 ### 3. Install Motoko Packages
-Install your favorite packages
+Use `mops add` to install a specific package and save it to `mops.toml`
 
 ```
 mops add <package_name>
+```
+
+Use `mops install` to install all packages specified in `mops.toml`
+```
+mops install
 ```
 
 ### 4. Import Package
 Now you can import installed packages in your Motoko code
 
 ```motoko
-import Lib "mo:<package_name>";
+import PackageName "mo:<package_name>";
+```
+for example
+```
+import Itertools "mo:itertools/Iter";
 ```
 
 ## Publish a Package
