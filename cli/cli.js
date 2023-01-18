@@ -14,6 +14,7 @@ import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
+import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -124,10 +125,17 @@ program
 // search
 program
 	.command('search <text>')
-	.alias('find')
 	.description('Search for packages')
 	.action(async (text) => {
 		await search(text);
+	});
+
+// search
+program
+	.command('upgrade')
+	.description('Upgrade mops CLI to the latest version')
+	.action(async () => {
+		upgrade();
 	});
 
 program.parse();
