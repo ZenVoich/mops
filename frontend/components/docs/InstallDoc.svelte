@@ -39,13 +39,22 @@
 
 		<h3>3. Initialize</h3>
 		<div>Run this command in the root directory of your project (where is <code class="inline">dfx.json</code> placed)</div>
+		<div>If there are Vessel config files, mops will migrate packages from <code class="inline">vessel.dhall</code> to <code class="inline">mops.toml</code></div>
 		<br>
 		<code>mops init</code>
 
 		<h3>4. Install Motoko Packages</h3>
-		<div>Use <code class="inline">mops add </code> to install a specific package and save it to <code class="inline">mops.toml</code></div>
+		<div>Use <code class="inline">mops add &lt;package_name&gt;</code> to install a specific package and save it to <code class="inline">mops.toml</code></div>
 		<br>
-		<code>mops add &lt;package_name&gt;</code>
+		<code>mops add base</code>
+		<br>
+		<div>You can also add packages from GitHub like this</div>
+		<br>
+		<code>mops add https://github.com/dfinity/motoko-base</code>
+		<br>
+		<div>You can also add local packages like this (put source files inside <code class="inline">src</code> directory)</div>
+		<br>
+		<code>mops add ./shared</code>
 
 		<br>
 		<br>

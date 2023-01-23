@@ -19,7 +19,6 @@
 	},
 	"devDependencies": {
 		"@typescript-eslint/parser": "^5.45.1",
-		"as-table": "^1.0.55",
 		"eslint": "^8.29.0",
 		"eslint-plugin-svelte": "^2.14.0"
 	}

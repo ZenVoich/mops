@@ -4,4 +4,7 @@ version = "0.1.6"
 description = "hello lib"
 repository = "..."
 license = "Apache-2.0"
-keywords = ["test", "map"]
+keywords = [ "test", "map" ]
+
+[dependencies]
+_ = "./"

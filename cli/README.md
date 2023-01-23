@@ -32,16 +32,27 @@ Add `mops` as a packtool to your `dfx.json`
 
 ### 2. Initialize
 Run this command in the root directory of your project (where is `dfx.json` placed)
+If there are Vessel config files, mops will migrate packages from `vessel.dhall` to `mops.toml`
 
 ```
 mops init
 ```
 
 ### 3. Install Motoko Packages
-Use `mops add` to install a specific package and save it to `mops.toml`
+Use `mops add <package_name>` to install a specific package and save it to `mops.toml`
 
 ```
-mops add <package_name>
+mops add base
+```
+
+You can also add packages from GitHub like this
+```
+mops add https://github.com/dfinity/motoko-base
+```
+
+You can also add local packages like this (put source files inside `src` directory)
+```
+mops add ./shared
 ```
 
 Use `mops install` to install all packages specified in `mops.toml`

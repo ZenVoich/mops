@@ -133,6 +133,9 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 		if (data.startsWith('https://github.com/')) {
 			deps[name] = {name, repo: data, version: ''};
 		}
+		else if (data.match(/^(\.?\.)?\//)) {
+			deps[name] = {name, repo: '', path: data, version: ''};
+		}
 		else {
 			deps[name] = {name, repo: '', version: data};
 		}
@@ -144,13 +147,8 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = config.dependencies || {};
 
-	Object.entries(deps).forEach(([name, {repo, version}]) => {
-		if (repo) {
-			deps[name] = repo;
-		}
-		else {
-			deps[name] = version;
-		}
+	Object.entries(deps).forEach(([name, {repo, path, version}]) => {
+		deps[name] = repo || path || version;
 	});
 
 	fs.writeFileSync(configFile, TOML.stringify(config).trim());

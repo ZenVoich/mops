@@ -12,11 +12,11 @@ export async function installAll({verbose} = {}) {
 	let config = readConfig();
 	const deps = Object.values(config.dependencies || {});
 
-	for (let {name, repo, version} of deps) {
+	for (let {name, repo, path, version} of deps) {
 		if (repo) {
 			await installFromGithub(name, repo, {verbose});
 		}
-		else {
+		else if (!path) {
 			let ok = await install(name, version, {verbose});
 			if (!ok) {
 				return;

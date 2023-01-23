@@ -97,9 +97,19 @@ export async function publish() {
 		}
 	}
 
-	if (config.package.dependencies && Object.keys(config.package.dependencies).length > 100) {
-		console.log(chalk.red('Error: ') + 'max dependencies is 100');
-		return;
+	if (config.dependencies) {
+		if (Object.keys(config.dependencies).length > 100) {
+			console.log(chalk.red('Error: ') + 'max dependencies is 100');
+			return;
+		}
+
+		for (let dep of Object.values(config.dependencies)) {
+			if (dep.path) {
+				console.log(chalk.red('Error: ') + 'you can\'t publish packages with local dependencies');
+				return;
+			}
+			delete dep.path;
+		}
 	}
 
 	if (config.package.keywords) {

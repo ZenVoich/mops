@@ -12,9 +12,8 @@ import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
-// import {hello} "mo:utils/test";
 
-import Utils "../utils";
+import Utils "mo:_/utils";
 import Version "./version";
 import Types "./types";
 import {validateConfig} "./validate-config";

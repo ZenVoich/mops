@@ -81,12 +81,14 @@ export async function sources({verbose} = {}) {
 				const dir = formatGithubDir(name, repo);
 				nestedConfig = await readVesselConfig(dir) || {};
 			}
-			else {
+			else if (!pkgDetails.path) {
 				const dir = formatDir(name, version) + '/mops.toml';
 				nestedConfig = readConfig(dir);
 			}
 
-			await collectDeps(nestedConfig);
+			if (!pkgDetails.path) {
+				await collectDeps(nestedConfig);
+			}
 
 			if (!versions[name]) {
 				versions[name] = [];
@@ -115,15 +117,28 @@ export async function sources({verbose} = {}) {
 	}
 
 	// sources
-	for (let [name, {repo, version}] of Object.entries(packages)) {
+	for (let [name, pkg] of Object.entries(packages)) {
 		let pkgDir;
-		if (repo) {
-			pkgDir =  path.relative(process.cwd(), formatGithubDir(name, repo)) + '/src';
+		if (pkg.path) {
+			pkgDir = path.relative(process.cwd(), path.resolve(pkg.path));
+		}
+		else if (pkg.repo) {
+			pkgDir = path.relative(process.cwd(), formatGithubDir(name, pkg.repo));
 		}
 		else {
-			pkgDir = path.relative(process.cwd(), formatDir(name, version)) + '/src';
+			pkgDir = path.relative(process.cwd(), formatDir(name, pkg.version));
 		}
 
-		console.log(`--package ${name} ${pkgDir}`);
+		// append baseDir
+		let pkgBaseDir;
+		if (fs.existsSync(path.join(pkgDir, 'mops.toml'))) {
+			let config = readConfig(path.join(pkgDir, 'mops.toml'));
+			pkgBaseDir = path.join(pkgDir, config.package?.baseDir || 'src');
+		}
+		else {
+			pkgBaseDir = path.join(pkgDir, 'src');
+		}
+
+		console.log(`--package ${name} ${pkgBaseDir}`);
 	}
 }
