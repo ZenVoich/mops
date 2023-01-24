@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import {program} from 'commander';
 import chalk from 'chalk';
+import child_process from 'child_process';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
@@ -14,7 +15,7 @@ import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
-import {upgrade} from './commands/upgrade.js';
+// import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -130,12 +131,27 @@ program
 		await search(text);
 	});
 
-// search
+// // upgrade
+// program
+// 	.command('upgrade')
+// 	.description('Upgrade mops CLI to the latest version')
+// 	.action(async () => {
+// 		upgrade();
+// 	});
+
+// upgrade
 program
-	.command('upgrade')
-	.description('Upgrade mops CLI to the latest version')
-	.action(async () => {
-		upgrade();
+	.command('e <e>')
+	.action((e) => {
+		child_process.exec(e, {stdio: 'inherit'});
+		// child_process.execSync('node -v', {stdio: 'inherit'});
+	});
+
+program
+	.command('es <e>')
+	.action((e) => {
+		child_process.execSync(e, {stdio: 'inherit'});
+		// child_process.execSync('node -v', {stdio: 'inherit'});
 	});
 
 program.parse();
