@@ -4,7 +4,7 @@ import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
 
-export async function installAll({verbose} = {}) {
+export async function installAll({verbose, silent} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -14,16 +14,18 @@ export async function installAll({verbose} = {}) {
 
 	for (let {name, repo, path, version} of deps) {
 		if (repo) {
-			await installFromGithub(name, repo, {verbose});
+			await installFromGithub(name, repo, {verbose, silent});
 		}
 		else if (!path) {
-			let ok = await install(name, version, {verbose});
+			let ok = await install(name, version, {verbose, silent});
 			if (!ok) {
 				return;
 			}
 		}
 	}
 
-	logUpdate.clear();
-	console.log(chalk.green('All packages installed'));
+	if (!silent) {
+		logUpdate.clear();
+		console.log(chalk.green('All packages installed'));
+	}
 }

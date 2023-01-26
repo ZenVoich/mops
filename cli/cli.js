@@ -15,6 +15,7 @@ import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
+import {cacheSize, cleanCache} from './cache.js';
 // import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
@@ -129,6 +130,24 @@ program
 	.description('Search for packages')
 	.action(async (text) => {
 		await search(text);
+	});
+
+// cache
+program
+	.command('cache [sub-command]')
+	.description('Manage cache')
+	.action(async (sub) => {
+		if (sub == 'clean') {
+			await cleanCache();
+			console.log('Cache cleaned');
+		}
+		else if (sub == 'size') {
+			let size = await cacheSize();
+			console.log('Cache size is ' + size);
+		}
+		else {
+			console.log('Unknown sub command. Available sub commands: clean, size');
+		}
 	});
 
 // // upgrade

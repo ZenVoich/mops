@@ -8,6 +8,7 @@ import path from 'path';
 import got from 'got';
 import decompress from 'decompress';
 import {pipeline} from 'stream';
+import {addCache, copyCache, isCached} from './cache.js';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
@@ -135,8 +136,13 @@ export const installFromGithub = async (name, repo, options = {}) => {
 
 	const {branch} = parseGithubURL(repo);
 	const dir = formatGithubDir(name, repo);
+	const cacheName = `github_${name}@${branch}`;
 
 	if (existsSync(dir)) {
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} (already installed) from Github`);
+	}
+	else if (isCached(cacheName)) {
+		await copyCache(cacheName, dir);
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} (cache) from Github`);
 	}
 	else {
@@ -151,6 +157,9 @@ export const installFromGithub = async (name, repo, options = {}) => {
 			del.sync([dir]);
 			console.log(chalk.red('Error: ') + err);
 		});
+
+		// add to cache
+		await addCache(cacheName, dir);
 	}
 
 	if (verbose) {

@@ -5,6 +5,7 @@ import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, r
 import {parallel} from '../parallel.js';
 import chalk from 'chalk';
 import {installFromGithub} from '../vessel.js';
+import {addCache, copyCache, isCached} from '../cache.js';
 
 export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	if (!checkConfigFile()) {
@@ -32,11 +33,16 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	let dir = formatDir(pkg, version);
 	let actor = await mainActor();
 
-	// cache
+	// already installed
 	if (fs.existsSync(dir)) {
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (already installed)`);
+	}
+	// copy from cache
+	else if (isCached(`${pkg}@${version}`)) {
+		await copyCache(`${pkg}@${version}`, dir);
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
 	}
-	// no cache
+	// download
 	else {
 		let [packageDetailsRes, filesIdsRes] = await Promise.all([
 			actor.getPackageDetails(pkg, version),
@@ -89,6 +95,10 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 			fs.mkdirSync(path.join(dir, path.dirname(filePath)), {recursive: true});
 			fs.writeFileSync(path.join(dir, filePath), buffer);
 		}
+
+		// add to cache
+		await addCache(`${pkg}@${version}`, dir);
+
 		progress();
 	}
 
