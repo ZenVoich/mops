@@ -4,6 +4,7 @@ import fs from 'fs';
 import {checkApiCompatibility, mainActor, readDfxJson, writeConfig} from '../mops.js';
 import {installAll} from './install-all.js';
 import {readVesselConfig} from '../vessel.js';
+import {execSync} from 'child_process';
 
 export async function init(name = '') {
 	let configFile = path.join(process.cwd(), 'mops.toml');
@@ -64,6 +65,16 @@ export async function init(name = '') {
 
 		let dfxJson = readDfxJson();
 		let dfxVersion = dfxJson?.dfx || '';
+		if (!dfxVersion) {
+			try {
+				let res = execSync('dfx --version').toString();
+				let match = res.match(/\d+\.\d+\.\d+/);
+				if (match) {
+					dfxVersion = match[0];
+				}
+			}
+			catch {}
+		}
 
 		let actor = await mainActor();
 		let defaultPackages = await actor.getDefaultPackages(dfxVersion);
