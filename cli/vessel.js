@@ -4,7 +4,7 @@ import {execaCommand} from 'execa';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
-import path from 'path';
+import os from 'os';
 import got from 'got';
 import decompress from 'decompress';
 import {pipeline} from 'stream';
@@ -12,7 +12,7 @@ import {addCache, copyCache, isCached} from './cache.js';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
-		let cwd = new URL(path.dirname(import.meta.url)).pathname;
+		let cwd = os.cwd();
 		let res;
 		try {
 			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});

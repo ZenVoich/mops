@@ -15,7 +15,7 @@ global.fetch = fetch;
 // (!) make changes in pair with backend
 export let apiVersion = '1.2';
 
-let networkFile = new URL('./network.txt', import.meta.url);
+let networkFile = './network.txt';
 
 export let globalCacheDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
 
@@ -30,7 +30,7 @@ export function getNetwork() {
 	}
 
 	if (network === 'local') {
-		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
+		let ids = JSON.parse(fs.readFileSync('../.dfx/local/canister_ids.json', 'utf8'));
 		return {
 			network,
 			host: 'http://127.0.0.1:8000',

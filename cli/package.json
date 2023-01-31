@@ -1,9 +1,9 @@
 {
 	"name": "ic-mops",
 	"version": "0.6.1",
-	"type": "module",
+	"type": "commonjs",
 	"bin": {
-		"mops": "cli.js"
+		"mops": "dist/cli.js"
 	},
 	"homepage": "https://mops.one",
 	"repository": {
@@ -11,6 +11,12 @@
 		"url": "https://github.com/ZenVoich/mops.git"
 	},
 	"author": "Zen Voich <zen.voich@gmail.com>",
+	"scripts": {
+		"cli": "npm run build && node dist/cli.js",
+		"build": "shx rm -r ./dist && node build.mjs",
+		"package": "shx rm -r ./pkg && npm run build && pkg . -o pkg/mops",
+		"prepublishOnly": "npm run build"
+	},
 	"dependencies": {
 		"@dfinity/agent": "^0.11.0",
 		"@dfinity/candid": "^0.11.0",
@@ -34,5 +40,25 @@
 		"node-fetch": "^2.6.7",
 		"pem-file": "^1.0.1",
 		"prompts": "^2.4.2"
+	},
+	"devDependencies": {
+		"@chialab/esbuild-plugin-meta-url": "^0.17.2",
+		"esbuild": "^0.17.5",
+		"pkg": "^5.8.0",
+		"shx": "^0.3.4"
+	},
+	"files": [
+		"dist/**/*"
+	],
+	"pkg": {
+		"compress": "GZip",
+		"assets": [
+			"dist/package.json"
+		],
+		"targets": [
+			"node18-linux",
+			"node18-macos",
+			"node18-win"
+		]
 	}
 }
