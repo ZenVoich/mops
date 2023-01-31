@@ -16,6 +16,7 @@
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
 		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic && npm run const",
 		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const",
+		"cli": "cd cli && npm run cli",
 		"package": "cd cli && npm run package"
 	},
 	"devDependencies": {
