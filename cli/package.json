@@ -13,8 +13,8 @@
 	"author": "Zen Voich <zen.voich@gmail.com>",
 	"scripts": {
 		"cli": "npm run build && node dist/cli.js",
-		"build": "shx rm -r ./dist && node build.mjs",
-		"package": "shx rm -r ./pkg && npm run build && pkg . -o pkg/mops",
+		"build": "shx rm -rf ./dist && node build.mjs",
+		"package": "shx rm -rf ./pkg && npm run build && pkg . -o pkg/mops",
 		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {

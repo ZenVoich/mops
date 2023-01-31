@@ -4,7 +4,6 @@ import {execaCommand} from 'execa';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
-import os from 'os';
 import got from 'got';
 import decompress from 'decompress';
 import {pipeline} from 'stream';
@@ -12,10 +11,10 @@ import {addCache, copyCache, isCached} from './cache.js';
 
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
-		let cwd = os.cwd();
+		// TODO: find a way to get `dhall-to-json` working with `pkg`
 		let res;
 		try {
-			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
+			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd:process.cwd()});
 		}
 		catch (err) {
 			console.error('dhall-to-json error:', err);
