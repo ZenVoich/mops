@@ -12,9 +12,10 @@ import {addCache, copyCache, isCached} from './cache.js';
 const dhallFileToJson = async (filePath) => {
 	if (existsSync(filePath)) {
 		// TODO: find a way to get `dhall-to-json` working with `pkg`
+		let cwd = __dirname;
 		let res;
 		try {
-			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd:process.cwd()});
+			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
 		}
 		catch (err) {
 			console.error('dhall-to-json error:', err);
