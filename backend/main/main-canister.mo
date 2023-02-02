@@ -115,6 +115,7 @@ actor {
 				owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
 				config = config;
 				publication = publication;
+				downloadsInLast7Days = downloadLog.get7DayDownloadsByPackageName(config.name);
 				downloadsInLast30Days = downloadLog.get30DayDownloadsByPackageName(config.name);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 			}
@@ -441,6 +442,35 @@ actor {
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
 		let arr = Iter.toArray(downloadLog.downloadsByPackageName.entries());
+		let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
+			Nat.compare(b.1, a.1);
+		});
+
+		label l for ((packageName, _) in sorted.vals()) {
+			ignore do ? {
+				let version = _getHighestVersion(packageName)!;
+				let packageDetails = _getPackageDetails(packageName, version)!;
+
+				packagesDetails.add(packageDetails);
+
+				if (packagesDetails.size() >= max) {
+					break l;
+				};
+			};
+		};
+
+		Buffer.toArray(packagesDetails);
+	};
+
+	public query func getMostDownloadedPackagesIn7Days(): async [PackageDetails] {
+		let max = 5;
+		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
+
+		var arr = Iter.toArray(downloadLog.downloadsByPackageName.entries());
+		arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
+			(item.0, downloadLog.get7DayDownloadsByPackageName(item.0));
+		});
+
 		let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
 			Nat.compare(b.1, a.1);
 		});

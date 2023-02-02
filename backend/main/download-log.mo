@@ -5,6 +5,8 @@ import Time "mo:base/Time";
 import Buffer "mo:base/Buffer";
 import TrieMap "mo:base/TrieMap";
 
+import {DAY} "mo:time-consts";
+
 import Version "./version";
 import Utils "../utils";
 
@@ -50,11 +52,23 @@ module {
 		};
 
 		public func get30DayDownloadsByPackageName(name: PackageName): Nat {
-			let t30Days = 1_000_000_000 * 60 * 60 * 24 * 30;
+			let t30Days = 30 * DAY;
 			let t30DaysAgo = Time.now() - t30Days;
 			var total = 0;
 			for (record in log.vals()) {
 				if (record.name == name and record.time > t30DaysAgo) {
+					total += 1;
+				};
+			};
+			total;
+		};
+
+		public func get7DayDownloadsByPackageName(name: PackageName): Nat {
+			let t7Days = 7 * DAY;
+			let t7DaysAgo = Time.now() - t7Days;
+			var total = 0;
+			for (record in log.vals()) {
+				if (record.name == name and record.time > t7DaysAgo) {
 					total += 1;
 				};
 			};

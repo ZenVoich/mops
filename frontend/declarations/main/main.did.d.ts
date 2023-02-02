@@ -48,6 +48,7 @@ export interface PackageDetails {
   'owner' : Principal,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
+  'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
@@ -93,6 +94,7 @@ export interface _SERVICE {
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageDetails>>,
+  'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageDetails>>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_3>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
