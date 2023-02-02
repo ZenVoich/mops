@@ -5,8 +5,9 @@
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
 	export let pkg: PackageDetails;
-	export let showUpdated = true;
-	export let showDownloads = true;
+	export let showUpdated = false;
+	export let showDownloads = false;
+	export let show7DayDownloads = false;
 </script>
 
 <div class="package">
@@ -20,6 +21,9 @@
 		<div class="right">
 			{#if showUpdated}
 				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+			{/if}
+			{#if show7DayDownloads}
+				<div>Downloads: {pkg.downloadsInLast7Days.toLocaleString()}</div>
 			{/if}
 			{#if showDownloads}
 				<div>Downloads: {pkg.downloadsTotal.toLocaleString()}</div>

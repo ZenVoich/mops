@@ -57,5 +57,6 @@ module {
 		publication: PackagePublication;
 		downloadsTotal: Nat;
 		downloadsInLast30Days: Nat;
+		downloadsInLast7Days: Nat;
 	};
 };

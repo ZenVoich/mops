@@ -14,18 +14,18 @@
 			packages = await mainActor().getRecentlyUpdatedPackages();
 		}
 		else if (type === 'most-downloaded') {
-			packages = await mainActor().getMostDownloadedPackages();
+			packages = await mainActor().getMostDownloadedPackagesIn7Days();
 		}
 		loaded = true;
 	});
 </script>
 
 <div class="top-packages">
-	<div class="title">{type === 'recently-updated' ? 'Recently Updated' : 'Most Downloaded'}</div>
+	<div class="title">{type === 'recently-updated' ? 'Recently Updated' : 'Most Downloaded in 7 days'}</div>
 
 	{#if loaded}
 		{#each packages as pkg}
-			<PackageCard {pkg} showUpdated={type === 'recently-updated'} showDownloads={type === 'most-downloaded'}></PackageCard>
+			<PackageCard {pkg} showUpdated={type === 'recently-updated'} show7DayDownloads={type === 'most-downloaded'}></PackageCard>
 		{:else}
 			{#if loaded}
 				<div class="not-found">Packages not found</div>

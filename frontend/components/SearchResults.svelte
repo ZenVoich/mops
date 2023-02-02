@@ -39,7 +39,7 @@
 <div class="search-results">
 	{#if loaded}
 		{#each packages as pkg}
-			<PackageCard {pkg}></PackageCard>
+			<PackageCard {pkg} showUpdated={true} showDownloads={true}></PackageCard>
 		{:else}
 			<NotFound>Packages not found</NotFound>
 		{/each}

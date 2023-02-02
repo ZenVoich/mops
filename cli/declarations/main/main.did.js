@@ -44,6 +44,7 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Principal,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
+    'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
@@ -86,6 +87,11 @@ export const idlFactory = ({ IDL }) => {
     'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),
     'getHighestVersion' : IDL.Func([PackageName__1], [Result_4], ['query']),
     'getMostDownloadedPackages' : IDL.Func(
+        [],
+        [IDL.Vec(PackageDetails)],
+        ['query'],
+      ),
+    'getMostDownloadedPackagesIn7Days' : IDL.Func(
         [],
         [IDL.Vec(PackageDetails)],
         ['query'],

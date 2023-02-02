@@ -39,6 +39,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	}
 	// copy from cache
 	else if (isCached(`${pkg}@${version}`)) {
+		actor.notifyInstall(pkg, version);
 		await copyCache(`${pkg}@${version}`, dir);
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
 	}

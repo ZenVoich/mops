@@ -58,6 +58,7 @@ type PackageDetails =
  record {
    config: PackageConfigV2__1;
    downloadsInLast30Days: nat;
+   downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
    publication: PackagePublication;
@@ -118,6 +119,7 @@ service : {
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
   getMostDownloadedPackages: () -> (vec PackageDetails) query;
+  getMostDownloadedPackagesIn7Days: () -> (vec PackageDetails) query;
   getPackageDetails: (PackageName__1, Ver) -> (Result_3) query;
   getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
   getStoragesStats: () -> (vec record {
