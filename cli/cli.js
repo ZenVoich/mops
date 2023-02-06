@@ -159,19 +159,4 @@ program
 // 		upgrade();
 // 	});
 
-// upgrade
-program
-	.command('e <e>')
-	.action((e) => {
-		child_process.exec(e, {stdio: 'inherit'});
-		// child_process.execSync('node -v', {stdio: 'inherit'});
-	});
-
-program
-	.command('es <e>')
-	.action((e) => {
-		child_process.execSync(e, {stdio: 'inherit'});
-		// child_process.execSync('node -v', {stdio: 'inherit'});
-	});
-
 program.parse();
