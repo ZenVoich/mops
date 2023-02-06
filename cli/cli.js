@@ -113,6 +113,7 @@ program
 	.description('for dfx packtool')
 	.option('--verbose')
 	.action(async (options) => {
+		await installAll({silent: true});
 		await sources(options);
 	});
 
