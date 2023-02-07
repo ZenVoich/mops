@@ -5,7 +5,7 @@ import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeCon
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
-export async function add(name, {verbose, silent} = {}) {
+export async function add(name, {verbose} = {}) {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -16,7 +16,6 @@ export async function add(name, {verbose, silent} = {}) {
 	}
 
 	let pkgDetails;
-	let existingPkg = config.dependencies[name];
 
 	// local package
 	if (name.startsWith('./') || name.startsWith('../') || name.startsWith('/')) {
@@ -36,11 +35,9 @@ export async function add(name, {verbose, silent} = {}) {
 			repo: `https://github.com/${org}/${gitName}#${branch}`,
 			version: '',
 		};
-
-		existingPkg = config.dependencies[pkgDetails.name];
 	}
 	// mops package
-	else if (!existingPkg || !existingPkg.repo) {
+	else {
 		let ver;
 		if (name.includes('@')) {
 			[name, ver] = name.split('@');
@@ -59,25 +56,12 @@ export async function add(name, {verbose, silent} = {}) {
 			repo: '',
 			version: ver,
 		};
-
-	}
-	else {
-		silent || logUpdate(`Installing ${existingPkg.name}@${existingPkg.version} (cache) from Github`);
-		return;
 	}
 
-	if (pkgDetails.repo || pkgDetails.path) {
-		// pkg name conflict with an installed mops pkg
-		if (existingPkg && !existingPkg.repo) {
-			console.log(chalk.red('Error: ') + `Conflicting Package Name '${pkgDetails.name}`);
-			console.log('Consider entering the repo url and assigning a new name in the \'mops.toml\' file');
-			return;
-		}
-		if (pkgDetails.repo) {
-			await installFromGithub(pkgDetails.name, pkgDetails.repo, {verbose: verbose});
-		}
+	if (pkgDetails.repo) {
+		await installFromGithub(pkgDetails.name, pkgDetails.repo, {verbose: verbose});
 	}
-	else {
+	else if (!pkgDetails.path) {
 		let ok = await install(pkgDetails.name, pkgDetails.version, {verbose: verbose});
 		if (!ok) {
 			return;
