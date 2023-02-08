@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import {program} from 'commander';
 import chalk from 'chalk';
-import child_process from 'child_process';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
@@ -16,6 +15,7 @@ import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
+import {test} from './commands/test.js';
 // import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
@@ -149,6 +149,14 @@ program
 		else {
 			console.log('Unknown sub command. Available sub commands: clean, size');
 		}
+	});
+
+// test
+program
+	.command('test')
+	.description('Run tests')
+	.action(async () => {
+		await test();
 	});
 
 // // upgrade
