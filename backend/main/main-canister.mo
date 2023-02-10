@@ -12,6 +12,7 @@ import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
+import Char "mo:base/Char";
 
 import Utils "mo:_/utils";
 import Version "./version";
@@ -129,7 +130,7 @@ actor {
 
 		// validate config
 		switch (validateConfig(config)) {
-			case (#ok()) {};
+			case (#ok) {};
 			case (#err(err)) {
 				return #err(err);
 			};
@@ -137,7 +138,15 @@ actor {
 
 		// check permissions
 		switch (packageOwners.get(config.name)) {
-			case (null) {};
+			case (null) {
+				// deny '.' and '_' in name for new packages
+				for (char in config.name.chars()) {
+					let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in name '" # config.name # "'");
+					if (char == '.' or char == '_') {
+						return err;
+					};
+				};
+			};
 			case (?owner) {
 				if (owner != caller) {
 					return #err("You don't have permissions to publish this package");
