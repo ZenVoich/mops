@@ -11,6 +11,7 @@
 		"url": "https://github.com/ZenVoich/mops.git"
 	},
 	"author": "Zen Voich <zen.voich@gmail.com>",
+	"license": "MIT",
 	"dependencies": {
 		"@dfinity/agent": "^0.11.0",
 		"@dfinity/candid": "^0.11.0",
