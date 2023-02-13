@@ -117,7 +117,7 @@ export async function sources({verbose} = {}) {
 	}
 
 	// sources
-	for (let [name, pkg] of Object.entries(packages)) {
+	return Object.entries(packages).map(([name, pkg]) => {
 		let pkgDir;
 		if (pkg.path) {
 			pkgDir = path.relative(process.cwd(), path.resolve(pkg.path));
@@ -139,6 +139,6 @@ export async function sources({verbose} = {}) {
 			pkgBaseDir = path.join(pkgDir, 'src');
 		}
 
-		console.log(`--package ${name} ${pkgBaseDir}`);
-	}
+		return `--package ${name} ${pkgBaseDir}`;
+	});
 }

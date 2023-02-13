@@ -114,7 +114,8 @@ program
 	.option('--verbose')
 	.action(async (options) => {
 		await installAll({silent: true});
-		await sources(options);
+		let sourcesArr = await sources(options);
+		console.log(sourcesArr.join('\n'));
 	});
 
 // whoami

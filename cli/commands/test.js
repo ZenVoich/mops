@@ -1,6 +1,8 @@
-import {execSync} from 'child_process';
+import {spawn, execSync} from 'child_process';
 import chalk from 'chalk';
 import glob from 'glob';
+import {MMF1} from './mmf1.js';
+import {sources} from './sources.js';
 
 let globConfig = {
 	nocase: true,
@@ -8,10 +10,13 @@ let globConfig = {
 		'**/node_modules/**',
 		'**/.mops/**',
 		'**/.vessel/**',
+		'**/.git/**',
 	],
 };
 
 export async function test() {
+	let start = Date.now();
+
 	let files = [];
 	let libFiles = glob.sync('**/test?(s)/lib.mo', globConfig);
 	if (libFiles.length) {
@@ -22,6 +27,7 @@ export async function test() {
 	}
 	if (!files.length) {
 		console.log('No test files found');
+		console.log('Put your tests in \'test\' directory in *.test.mo files');
 		return;
 	}
 
@@ -31,33 +37,66 @@ export async function test() {
 	}
 	console.log('-'.repeat(50));
 
-	let start = Date.now();
 	let failed = 0;
 	let passed = 0;
+	let skipped = 0;
 	let dfxCache = execSync('dfx cache show').toString().trim();
-	let mopsSources = execSync('mops-local sources').toString().trim().replace(/\n/g, ' ');
+	let sourcesArr = await sources();
 
 	for (let file of files) {
-		try {
+		let mmf1 = new MMF1;
+
+		await new Promise((resolve) => {
 			console.log(`Running ${chalk.gray(file)}`);
-			let res = execSync(`${dfxCache}/moc -r -wasi-system-api --hide-warnings --error-detail 2 ${mopsSources} ${file}`, {stdio: 'pipe'});
-			console.log(res.toString())
-			console.log(' ', chalk.green('PASS'));
-			passed++;
-		}
-		catch (err) {
-			failed++;
-			if (err.status === 1) {
-				console.log(' ', chalk.red('FAIL'), err.stderr.toString().trim());
-				console.log(' ', chalk.red('FAIL'), err.stdout.toString().trim());
-			}
-			else {
-				console.log(chalk.red('Unknown status:'), err.status);
-				console.log(err.message);
-			}
-		}
+
+			let proc = spawn(`${dfxCache}/moc`, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
+
+			// stdout
+			proc.stdout.on('data', (data) => {
+				for (let line of data.toString().split('\n')) {
+					line = line.trim();
+					if (line) {
+						mmf1.parseLine(line);
+					}
+				}
+			});
+
+			// stderr
+			proc.stderr.on('data', (data) => {
+				mmf1.fail(data.toString().trim());
+			});
+
+			// exit
+			proc.on('exit', (code) => {
+				if (code === 0) {
+					mmf1.pass();
+				}
+				else if (code !== 1) {
+					console.log(chalk.red('unknown code:'), code);
+				}
+				resolve();
+			});
+		});
+
+		passed += mmf1.passed;
+		failed += mmf1.failed;
+		skipped += mmf1.skipped;
+	}
+	console.log('-'.repeat(50));
+	if (failed) {
+		console.log(chalk.redBright('Tests failed'));
+	}
+	else {
+		console.log(chalk.greenBright('Tests passed'));
 	}
 
-	console.log('-'.repeat(50));
-	console.log(`Done in ${chalk.gray(((Date.now() - start) / 1000).toFixed(2) + 's')}, failed ${chalk[failed ? 'redBright' : 'gray'](failed)}, passed ${chalk.greenBright(passed)}`);
+	console.log(`Done in ${chalk.gray(((Date.now() - start) / 1000).toFixed(2) + 's')}`
+		+ `, passed ${chalk.greenBright(passed)}`
+		+ (skipped ? `, skipped ${chalk[skipped ? 'yellowBright' : 'gray'](skipped)}` : '')
+		+ (failed ? `, failed ${chalk[failed ? 'redBright' : 'gray'](failed)}` : '')
+	);
+
+	if (failed) {
+		process.exit(1);
+	}
 }
