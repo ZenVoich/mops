@@ -24,6 +24,7 @@ export async function test({watch = false} = {}) {
 		// todo: run all for *.mo?
 		let run = debounce(async () => {
 			console.clear();
+			process.stdout.write('\x1Bc');
 			await runAll();
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
