@@ -156,8 +156,9 @@ program
 program
 	.command('test')
 	.description('Run tests')
-	.action(async () => {
-		await test();
+	.option('--watch', 'Enable watch mode')
+	.action(async (options) => {
+		await test(options);
 	});
 
 // // upgrade

@@ -1,20 +1,56 @@
 import {spawn, execSync} from 'child_process';
 import chalk from 'chalk';
 import glob from 'glob';
+import chokidar from 'chokidar';
+import debounce from 'debounce';
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
 
+let ignore = [
+	'**/node_modules/**',
+	'**/.mops/**',
+	'**/.vessel/**',
+	'**/.git/**',
+];
+
 let globConfig = {
 	nocase: true,
-	ignore: [
-		'**/node_modules/**',
-		'**/.mops/**',
-		'**/.vessel/**',
-		'**/.git/**',
-	],
+	ignore: ignore,
 };
 
-export async function test() {
+export async function test({watch = false} = {}) {
+	if (watch) {
+		// todo: run only changed for *.test.mo?
+		// todo: run all for *.mo?
+		let run = debounce(async () => {
+			console.clear();
+			await runAll();
+			console.log('-'.repeat(50));
+			console.log('Waiting for file changes...');
+			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
+		}, 200);
+
+		let watcher = chokidar.watch('**/*.mo', {
+			ignored: ignore,
+			ignoreInitial: true,
+		});
+
+		watcher.on('all', () => {
+			run();
+		});
+		run();
+	}
+	else {
+		let failed = await runAll();
+		if (failed) {
+			process.exit(1);
+		}
+	}
+}
+
+let dfxCache;
+
+export async function runAll() {
 	let start = Date.now();
 
 	let files = [];
@@ -40,8 +76,10 @@ export async function test() {
 	let failed = 0;
 	let passed = 0;
 	let skipped = 0;
-	let dfxCache = execSync('dfx cache show').toString().trim();
 	let sourcesArr = await sources();
+	if (!dfxCache) {
+		dfxCache = execSync('dfx cache show').toString().trim();
+	}
 
 	for (let file of files) {
 		let mmf1 = new MMF1;
@@ -63,7 +101,9 @@ export async function test() {
 
 			// stderr
 			proc.stderr.on('data', (data) => {
-				mmf1.fail(data.toString().trim());
+				let text = data.toString().trim();
+				text = text.replace(/:(\d+).(\d+)(-\d+.\d+)/, ':$1:$2');
+				mmf1.fail(text);
 			});
 
 			// exit
@@ -96,7 +136,5 @@ export async function test() {
 		+ (failed ? `, failed ${chalk[failed ? 'redBright' : 'gray'](failed)}` : '')
 	);
 
-	if (failed) {
-		process.exit(1);
-	}
+	return failed === 0;
 }
