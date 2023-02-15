@@ -110,7 +110,8 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 	// install dependencies
 	let ok = true;
 	let config = readConfig(path.join(dir, 'mops.toml'));
-	for (const {name, repo, version} of Object.values(config.dependencies || {})) {
+	let deps = Object.values(config.dependencies || {});
+	for (const {name, repo, version} of deps) {
 		if (repo) {
 			await installFromGithub(name, repo, {silent, verbose});
 		}

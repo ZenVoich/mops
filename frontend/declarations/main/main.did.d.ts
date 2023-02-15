@@ -103,12 +103,12 @@ export interface _SERVICE {
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'search' : ActorMethod<[Text], Array<PackageDetails>>,
   'startFileUpload' : ActorMethod<
-    [PublishingId, Text, bigint, Uint8Array | number[]],
+    [PublishingId, Text, bigint, Uint8Array],
     Result_2
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_1>,
   'uploadFileChunk' : ActorMethod<
-    [PublishingId, FileId, bigint, Uint8Array | number[]],
+    [PublishingId, FileId, bigint, Uint8Array],
     Result
   >,
 }

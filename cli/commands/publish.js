@@ -17,7 +17,7 @@ export async function publish() {
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'dependencies', 'scripts'].includes(key)) {
+		if (!['package', 'dependencies', 'dev-dependencies', 'scripts'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			return;
 		}
@@ -112,6 +112,21 @@ export async function publish() {
 		}
 	}
 
+	if (config['dev-dependencies']) {
+		if (Object.keys(config['dev-dependencies']).length > 100) {
+			console.log(chalk.red('Error: ') + 'max dev-dependencies is 100');
+			return;
+		}
+
+		for (let dep of Object.values(config['dev-dependencies'])) {
+			if (dep.path) {
+				console.log(chalk.red('Error: ') + 'you can\'t publish packages with local dev-dependencies');
+				return;
+			}
+			delete dep.path;
+		}
+	}
+
 	if (config.package.keywords) {
 		for (let keyword of config.package.keywords) {
 			if (keyword.length > 20) {
@@ -147,7 +162,7 @@ export async function publish() {
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
 		dependencies: Object.values(config.dependencies || {}),
-		devDependencies: [],
+		devDependencies: Object.values(config['dev-dependencies'] || {}),
 		scripts: [],
 	};
 

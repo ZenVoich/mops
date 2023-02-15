@@ -59,7 +59,11 @@ export async function sources({verbose} = {}) {
 	};
 
 	let collectDeps = async (config, isRoot = false) => {
-		for (const pkgDetails of Object.values(config.dependencies || {})) {
+		let allDeps = [...Object.values(config.dependencies || {})];
+		if (isRoot) {
+			allDeps = [...allDeps, ...Object.values(config['dev-dependencies'] || {})];
+		}
+		for (const pkgDetails of allDeps) {
 			const {name, repo, version} = pkgDetails;
 
 			// take root dep version or bigger one

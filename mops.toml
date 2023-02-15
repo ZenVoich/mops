@@ -1,5 +1,4 @@
 [dependencies]
 base = "0.8.1"
 time-consts = "1.0.0"
-_ = "./backend/"
 test = "../packages/test/"

@@ -1,5 +1,11 @@
 [package]
-name = 'ddd'
-version = '0.1.0'
-description = 'ddd'
-repository = 'repo'
+name = "ddd"
+version = "0.1.0"
+description = "ddd"
+repository = "repo ddd"
+
+[dependencies]
+aaa = "0.1.0"
+
+[dev-dependencies]
+ccc = "0.1.0"

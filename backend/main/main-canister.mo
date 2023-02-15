@@ -14,7 +14,7 @@ import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Char "mo:base/Char";
 
-import Utils "mo:_/utils";
+import Utils "../utils";
 import Version "./version";
 import Types "./types";
 import {validateConfig} "./validate-config";

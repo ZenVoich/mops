@@ -124,31 +124,38 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
-	const deps = toml.dependencies || {};
+	let processDeps = (deps) => {
+		Object.entries(deps).forEach(([name, data]) => {
+			if (!data || typeof data !== 'string') {
+				throw Error(`Invalid dependency value ${name} = "${data}"`);
+			}
+			if (data.startsWith('https://github.com/')) {
+				deps[name] = {name, repo: data, version: ''};
+			}
+			else if (data.match(/^(\.?\.)?\//)) {
+				deps[name] = {name, repo: '', path: data, version: ''};
+			}
+			else {
+				deps[name] = {name, repo: '', version: data};
+			}
+		});
+	};
 
-	Object.entries(deps).forEach(([name, data]) => {
-		if (!data || typeof data !== 'string') {
-			throw Error(`Invalid dependency value ${name} = "${data}"`);
-		}
-		if (data.startsWith('https://github.com/')) {
-			deps[name] = {name, repo: data, version: ''};
-		}
-		else if (data.match(/^(\.?\.)?\//)) {
-			deps[name] = {name, repo: '', path: data, version: ''};
-		}
-		else {
-			deps[name] = {name, repo: '', version: data};
-		}
-	});
+	processDeps(toml.dependencies || {});
+	processDeps(toml['dev-dependencies'] || {});
 
 	return toml;
 }
 
 export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
 	const deps = config.dependencies || {};
-
 	Object.entries(deps).forEach(([name, {repo, path, version}]) => {
 		deps[name] = repo || path || version;
+	});
+
+	const devDeps = config['dev-dependencies'] || {};
+	Object.entries(devDeps).forEach(([name, {repo, path, version}]) => {
+		devDeps[name] = repo || path || version;
 	});
 
 	fs.writeFileSync(configFile, TOML.stringify(config).trim());

@@ -39,6 +39,7 @@ program
 program
 	.command('add <pkg>')
 	.description('Install the package and save it to mops.toml')
+	.option('--dev')
 	.option('--verbose')
 	.action(async (pkg, options) => {
 		await add(pkg, options);

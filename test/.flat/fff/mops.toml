@@ -2,5 +2,8 @@
 name = 'fff'
 version = '0.1.0'
 description = 'fff'
-repository = 'repo'
+repository = 'repo fff'
 files = ['test.mo']
+
+[dependencies]
+ddd = "0.1.0"

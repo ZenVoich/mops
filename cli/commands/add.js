@@ -5,14 +5,21 @@ import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeCon
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
-export async function add(name, {verbose} = {}) {
+export async function add(name, {verbose, dev} = {}) {
 	if (!checkConfigFile()) {
 		return false;
 	}
 
 	let config = readConfig();
-	if (!config.dependencies) {
-		config.dependencies = {};
+	if (dev) {
+		if (!config['dev-dependencies']) {
+			config['dev-dependencies'] = {};
+		}
+	}
+	else {
+		if (!config.dependencies) {
+			config.dependencies = {};
+		}
 	}
 
 	let pkgDetails;
@@ -68,7 +75,7 @@ export async function add(name, {verbose} = {}) {
 		}
 	}
 
-	config.dependencies[pkgDetails.name] = pkgDetails;
+	config[dev ? 'dev-dependencies' : 'dependencies'][pkgDetails.name] = pkgDetails;
 	writeConfig(config);
 
 	logUpdate.clear();

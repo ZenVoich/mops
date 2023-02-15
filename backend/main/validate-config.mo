@@ -70,9 +70,6 @@ module {
 		if (config.documentation.size() > 0) {
 			return #err("invalid config: 'documentation' field is not supported yet");
 		};
-		if (config.devDependencies.size() > 0) {
-			return #err("invalid config: 'devDependencies' field is not supported yet");
-		};
 		if (config.scripts.size() > 0) {
 			return #err("invalid config: 'scripts' field is not supported yet");
 		};
@@ -191,13 +188,12 @@ module {
 				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
 			};
 
-			if (dep.repo.size() == 0){
+			if (dep.repo.size() == 0) {
 				let versionValid = Version.validate(dep.version);
 				if (Result.isErr(versionValid)) {
 					return versionValid;
 				};
 			};
-
 		};
 		for (dep in config.devDependencies.vals()) {
 			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
@@ -211,7 +207,7 @@ module {
 				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
 			};
 
-			if (dep.repo.size() == 0){
+			if (dep.repo.size() == 0) {
 				let versionValid = Version.validate(dep.version);
 				if (Result.isErr(versionValid)) {
 					return versionValid;

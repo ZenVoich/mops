@@ -2,5 +2,8 @@
 name = 'ccc'
 version = '0.1.0'
 description = 'ccc'
-repository = 'repo'
+repository = 'repo bbb'
 files = ['test.mo']
+
+[dependencies]
+bbb = "0.1.0"

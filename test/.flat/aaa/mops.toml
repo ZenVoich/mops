@@ -1,6 +1,6 @@
 [package]
-name = 'aaa'
-version = '0.1.0'
-description = 'asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd '
-repository = 'repo'
-files = ['test.mo']
+name = "aaa"
+version = "0.1.0"
+description = "asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd "
+repository = "repo aaa"
+files = [ "test.mo" ]
