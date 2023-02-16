@@ -103,7 +103,7 @@ export async function runAll() {
 			// stderr
 			proc.stderr.on('data', (data) => {
 				let text = data.toString().trim();
-				text = text.replace(/:(\d+).(\d+)(-\d+.\d+)/, ':$1:$2');
+				text = text.replace(/:(\d+).(\d+)(-\d+.\d+)/g, ':$1:$2');
 				mmf1.fail(text);
 			});
 
