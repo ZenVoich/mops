@@ -171,6 +171,8 @@ export async function publish() {
 		'README.md',
 		'LICENSE',
 		'!.mops/**',
+		'!test/**',
+		'!**/*.test.mo',
 	];
 	let files = config.package.files || ['**/*.mo'];
 	files = [...files, ...defaultFiles];
