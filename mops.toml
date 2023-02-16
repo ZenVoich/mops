@@ -1,4 +1,6 @@
 [dependencies]
 base = "0.8.1"
 time-consts = "1.0.0"
-test = "../packages/test/"
+
+[dev-dependencies]
+test = "1.0.0"
