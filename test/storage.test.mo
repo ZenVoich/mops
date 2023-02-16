@@ -1,7 +1,5 @@
-import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Blob "mo:base/Blob";
-import Prelude "mo:base/Prelude";
 import {test; suite; skip} "mo:test/async";
 
 import Storage "../backend/storage/storage-canister";
