@@ -42,8 +42,8 @@ export async function test({watch = false} = {}) {
 		run();
 	}
 	else {
-		let failed = await runAll();
-		if (failed) {
+		let passed = await runAll();
+		if (!passed) {
 			process.exit(1);
 		}
 	}
