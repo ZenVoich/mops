@@ -1,5 +1,5 @@
 import Debug "mo:base/Debug";
-import {test; suite} "mo:test";
+import {test; suite; skip} "mo:test";
 
 suite("main suite", func() {
 	test("check canister status", func() {
@@ -27,11 +27,11 @@ suite("main suite", func() {
 			assert true;
 		});
 
-		suite("test that should fail", func() {
+		skip("test that should fail", func() {
 			assert false;
 		});
 
-		suite("this test should never run", func() {
+		skip("this test should never run", func() {
 			assert true;
 		});
 	});
