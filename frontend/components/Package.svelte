@@ -42,6 +42,17 @@
 		if ('ok' in res) {
 			let readme = new TextDecoder().decode(new Uint8Array(res.ok));
 			readmeHtml = micromark(readme);
+			let div = document.createElement('div');
+			div.innerHTML = readmeHtml;
+			div.querySelectorAll('img').forEach((img) => {
+				let src = img.getAttribute('src');
+				if (!src.startsWith('http')) {
+					let sep = src.startsWith('/') ? '' : '/';
+					// todo: master branch?
+					img.src = packageDetails.config.repository + sep + 'raw/main/' + src;
+				}
+			});
+			readmeHtml = div.innerHTML;
 		}
 		else {
 			readmeHtml = '<i>Not found README.md</i>';
