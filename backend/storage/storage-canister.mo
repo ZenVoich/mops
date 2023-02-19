@@ -71,7 +71,7 @@ shared({caller = parent}) actor class Storage() {
 		activeUploadsMeta.put(fileMeta.id, fileMeta);
 		activeUploadsChunks.put(fileMeta.id, Array.init<Chunk>(fileMeta.chunkCount, Blob.fromArray([])));
 
-		#ok();
+		#ok;
 	};
 
 	public shared ({caller}) func uploadChunk(fileId: FileId, chunkIndex: Nat, chunk: Chunk): async Result.Result<(), Err> {
@@ -86,7 +86,7 @@ shared({caller = parent}) actor class Storage() {
 					return #err("Invalid chunk index '" # Nat.toText(chunkIndex) # "' for file '" # fileId # "'");
 				};
 				chunks[chunkIndex] := chunk;
-				#ok();
+				#ok;
 			};
 		};
 	};
@@ -114,7 +114,7 @@ shared({caller = parent}) actor class Storage() {
 			activeUploadsChunks.delete(fileId);
 		};
 
-		#ok();
+		#ok;
 	};
 
 	// update file owners
@@ -132,7 +132,7 @@ shared({caller = parent}) actor class Storage() {
 					chunkCount = fileMeta.chunkCount;
 					owners = owners;
 				});
-				#ok();
+				#ok;
 			};
 		};
 	};

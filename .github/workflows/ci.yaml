@@ -25,9 +25,8 @@ jobs:
         run: |
             npm i
             npm run replica
-            npm run const
-            npm run build
             npm run deploy
+            npm run build
 
   lint:
     runs-on: ubuntu-latest

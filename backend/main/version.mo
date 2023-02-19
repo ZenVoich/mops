@@ -121,6 +121,6 @@ module {
 			return #err("invalid version: last char cannot be '.' in '" # ver # "'");
 		};
 
-		#ok();
+		#ok;
 	};
 };

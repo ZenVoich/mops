@@ -254,6 +254,8 @@ actor {
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId: PublishingId, fileId: FileId, chunkIndex: Nat, chunk: Blob): async Result.Result<(), Err> {
+		assert(Utils.isAuthorized(caller));
+
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
 		assert(publishing.user == caller);
 
@@ -314,7 +316,7 @@ actor {
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
 
-		#ok();
+		#ok;
 	};
 
 

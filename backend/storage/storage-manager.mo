@@ -7,7 +7,6 @@ import Cycles "mo:base/ExperimentalCycles";
 import Result "mo:base/Result";
 import Principal "mo:base/Principal";
 
-import Constants "../constants";
 import Utils "../utils";
 import Types "./types";
 import Storage "./storage-canister";
@@ -30,8 +29,8 @@ module {
 		var storageByFileId: TrieMap.TrieMap<FileId, StorageId> = TrieMap.TrieMap(Text.equal, Text.hash);
 
 		let MIN_UPLOADABLE_STORAGES = 1;
-		let OWN_MIN_CYCLES = if (Constants.NETWORK == "ic") 5_000_000_000_000 else 500_000_000_000; // 5TC
-		let STORAGE_INITIAL_CYCLES = if (Constants.NETWORK == "ic") 5_000_000_000_000 else 500_000_000_000; // 5TC
+		let OWN_MIN_CYCLES = 5_000_000_000_000; // 5TC
+		let STORAGE_INITIAL_CYCLES = 5_000_000_000_000; // 5TC
 		let STORAGE_MIN_CYCLES = 2_000_000_000_000; // 2TC
 		let STORAGE_TOP_UP_CYCLES = 3_000_000_000_000; // 3TC
 
@@ -122,7 +121,7 @@ module {
 			};
 			counter += 1;
 
-			#ok();
+			#ok;
 		};
 
 		// QUERY

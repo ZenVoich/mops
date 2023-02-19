@@ -4,19 +4,17 @@
 		"start": "npm run dev",
 		"dev": "npm run replica && npm run deploy && npm run decl && cd frontend && npm run dev && cd ..",
 		"build": "cd frontend && npm run build",
-		"deploy": "npm run const && dfx deploy main --no-wallet --identity anonymous && npm run decl",
+		"deploy": "dfx deploy main --no-wallet --identity anonymous && npm run decl",
 		"replica": "dfx stop && dfx start --emulator --background --clean",
-		"const": "dfx canister create --all --no-wallet --identity anonymous && node constants.js",
-		"const:prod": "dfx canister --network ic create --all --no-wallet && node constants.js prod",
 		"decl": "npm run decl:frontend && npm run decl:cli",
 		"lint": "npm run lint:cli && npm run lint:frontend",
 		"lint:cli": "eslint cli --ext .js",
 		"lint:frontend": "eslint frontend --ext .svelte,.ts",
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
-		"build:prod": "NODE_ENV=production npm run const:prod && dfx build --network ic && npm run const",
-		"deploy:prod": "NODE_ENV=production npm run const:prod && dfx deploy --network ic --no-wallet && npm run const",
-        "postinstall": "(cd frontend && npm install) && (cd cli && npm install)"
+		"build:prod": "NODE_ENV=production dfx build --network ic",
+		"deploy:prod": "NODE_ENV=production dfx deploy --network ic --no-wallet",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)"
 	},
 	"devDependencies": {
 		"@typescript-eslint/parser": "^5.45.1",
