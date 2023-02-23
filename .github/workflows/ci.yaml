@@ -51,7 +51,8 @@ jobs:
       - name: Run Tests
         run: |
             npm i
-            node cli/cli.js install
+            npm i -g .
+            mops install
             dfx cache install
-            node cli/cli.js test
+            mops test
 
