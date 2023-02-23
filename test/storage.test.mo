@@ -9,12 +9,12 @@ let fileId = "test";
 
 // upload
 await suite("storage upload", func(): async () {
-	await test("try to upload chunk before upload start", func(): async () {
+	await test("try to finish upload before upload start", func(): async () {
 		let res = await storage.finishUploads([fileId]);
 		assert Result.isErr(res);
 	});
 
-	await test("try to finish upload before upload start", func(): async () {
+	await test("try to upload chunk before upload start", func(): async () {
 		assert Result.isErr(await storage.uploadChunk(fileId, 0, Blob.fromArray([])));
 	});
 
