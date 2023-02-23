@@ -20,7 +20,7 @@ function rootDir(cwd = process.cwd()) {
 export async function sources({verbose} = {}) {
 	let root = rootDir();
 	if (!root) {
-		return;
+		return [];
 	}
 
 	let packages = {};
