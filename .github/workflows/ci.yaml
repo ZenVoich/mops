@@ -19,7 +19,8 @@ jobs:
       - name: Build and Deploy Frontend
         run: |
             npm i
-            node cli/cli.js install
+            npm i -g ./cli
+            mops install
             npm run replica
             npm run deploy
             npm run build
@@ -50,8 +51,8 @@ jobs:
 
       - name: Run Tests
         run: |
-            npm i
-            node cli/cli.js install
+            npm i -g ./cli
+            mops install
             dfx cache install
-            node cli/cli.js test
+            mops test
 
