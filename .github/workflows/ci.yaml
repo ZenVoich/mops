@@ -16,14 +16,10 @@ jobs:
           vessel-version: 0.6.3
           dfx-version: 0.13.0
 
-      - name: install mops
-        run: |
-            npm --yes -g i ic-mops
-            mops i
-
       - name: Build and Deploy Frontend
         run: |
             npm i
+            node cli/cli.js install
             npm run replica
             npm run deploy
             npm run build
@@ -52,14 +48,10 @@ jobs:
           vessel-version: 0.6.3
           dfx-version: 0.13.0
 
-      - name: install mops
-        run: |
-            npm --yes -g i ic-mops
-            mops i
-
       - name: Run Tests
         run: |
             npm i
+            node cli/cli.js install
             dfx cache install
             node cli/cli.js test
 
