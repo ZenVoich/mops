@@ -72,7 +72,7 @@ export async function runAll() {
 	for (let file of files) {
 		console.log(chalk.gray(`• ${file}`));
 	}
-	console.log('-'.repeat(50));
+	console.log('='.repeat(50));
 
 	let failed = 0;
 	let passed = 0;
@@ -86,6 +86,7 @@ export async function runAll() {
 		let mmf1 = new MMF1;
 
 		await new Promise((resolve) => {
+			file !== files[0] && console.log('-'.repeat(50));
 			console.log(`Running ${chalk.gray(file)}`);
 
 			let proc = spawn(`${dfxCache}/moc`, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
@@ -123,7 +124,8 @@ export async function runAll() {
 		failed += mmf1.failed;
 		skipped += mmf1.skipped;
 	}
-	console.log('-'.repeat(50));
+
+	console.log('='.repeat(50));
 	if (failed) {
 		console.log(chalk.redBright('Tests failed'));
 	}
