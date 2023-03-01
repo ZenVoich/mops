@@ -1,6 +1,8 @@
 [dependencies]
 base = "0.8.1"
 time-consts = "1.0.0"
+itertools = "0.1.1"
+chronosphere = "https://github.com/enzoh/chronosphere#master"
 
 [dev-dependencies]
 test = "1.0.0"
