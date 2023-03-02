@@ -156,11 +156,11 @@ program
 
 // test
 program
-	.command('test')
+	.command('test [filter]')
 	.description('Run tests')
 	.option('--watch', 'Enable watch mode')
-	.action(async (options) => {
-		await test(options);
+	.action(async (filter, options) => {
+		await test(filter, options);
 	});
 
 // template

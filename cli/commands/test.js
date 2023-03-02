@@ -18,14 +18,14 @@ let globConfig = {
 	ignore: ignore,
 };
 
-export async function test({watch = false} = {}) {
+export async function test(filter = '', {watch = false} = {}) {
 	if (watch) {
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll();
+			await runAll(filter);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -42,7 +42,7 @@ export async function test({watch = false} = {}) {
 		run();
 	}
 	else {
-		let passed = await runAll();
+		let passed = await runAll(filter);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -51,7 +51,7 @@ export async function test({watch = false} = {}) {
 
 let dfxCache;
 
-export async function runAll() {
+export async function runAll(filter = '') {
 	let start = Date.now();
 
 	let files = [];
@@ -60,7 +60,11 @@ export async function runAll() {
 		files = [libFiles[0]];
 	}
 	else {
-		files = glob.sync('**/test?(s)/**/*.test.mo', globConfig);
+		let globStr = '**/test?(s)/**/*.test.mo';
+		if (filter) {
+			globStr = `**/test?(s)/**/*${filter}*`;
+		}
+		files = glob.sync(globStr, globConfig);
 	}
 	if (!files.length) {
 		console.log('No test files found');
