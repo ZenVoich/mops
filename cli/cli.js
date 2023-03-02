@@ -16,6 +16,7 @@ import {search} from './commands/search.js';
 import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test.js';
+import {template} from './commands/template.js';
 // import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
@@ -160,6 +161,14 @@ program
 	.option('--watch', 'Enable watch mode')
 	.action(async (options) => {
 		await test(options);
+	});
+
+// template
+program
+	.command('template')
+	.description('Apply template')
+	.action(async (options) => {
+		await template(options);
 	});
 
 // // upgrade
