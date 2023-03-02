@@ -62,7 +62,7 @@ module {
 		var weeklySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
 
 		var tempRecords = Buffer.Buffer<Record>(1000); // records not yet added to snapshots
-		var curSnapshotDay = 1;
+		var curSnapshotDay = 0;
 		var curSnapshotWeekDay: DateBase.DayOfWeek = #Monday;
 		var timerId = 0;
 
@@ -109,12 +109,12 @@ module {
 			_getTrend(dailySnapshotsByPackageId.get(packageId), 14);
 		};
 
-		func takeSnapshotsIfNeeded() {
+		public func takeSnapshotsIfNeeded() {
 			let dateParts = Date.unpack(Date.now());
 			let (#Day day) = dateParts.day;
 
 			// daily snapshots
-			if (curSnapshotDay != day) {
+			if (curSnapshotDay != Int.abs(day)) {
 				let dayAgo = Time.now() - 1 * DAY;
 				let #Date date = Date.now();
 				let startOfDay = Int32.toInt(date) * 86400000000000 - 1 * DAY;
@@ -123,7 +123,7 @@ module {
 				// daily by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in tempRecords.vals()) {
-					if (record.time > dayAgo) {
+					if (record.time >= dayAgo) {
 						byPackageName.put(record.name, Option.get(byPackageName.get(record.name), 0) + 1);
 					};
 				};
@@ -131,7 +131,11 @@ module {
 				for ((name, downloads) in byPackageName.entries()) {
 					let snapshots = switch (dailySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
-						case (null) Buffer.Buffer<Snapshot>(1);
+						case (null) {
+							let snapshots = Buffer.Buffer<Snapshot>(1);
+							dailySnapshotsByPackageName.put(name, snapshots);
+							snapshots;
+						};
 					};
 					snapshots.add({
 						startTime = startOfDay;
@@ -143,7 +147,7 @@ module {
 				// daily by id
 				let byPackageId = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in tempRecords.vals()) {
-					if (record.time > dayAgo) {
+					if (record.time >= dayAgo) {
 						let packageId = record.name # "@" # record.version;
 						byPackageId.put(packageId, Option.get(byPackageId.get(packageId), 0) + 1);
 					};
@@ -152,7 +156,11 @@ module {
 				for ((packageId, downloads) in byPackageId.entries()) {
 					let snapshots = switch (dailySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
-						case (null) Buffer.Buffer<Snapshot>(1);
+						case (null) {
+							let snapshots = Buffer.Buffer<Snapshot>(1);
+							dailySnapshotsByPackageId.put(packageId, snapshots);
+							snapshots;
+						}
 					};
 					snapshots.add({
 						startTime = startOfDay;
@@ -174,7 +182,7 @@ module {
 				// weekly by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in tempRecords.vals()) {
-					if (record.time > weekAgo) {
+					if (record.time >= weekAgo) {
 						byPackageName.put(record.name, Option.get(byPackageName.get(record.name), 0) + 1);
 					};
 				};
@@ -182,7 +190,11 @@ module {
 				for ((name, downloads) in byPackageName.entries()) {
 					let snapshots = switch (weeklySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
-						case (null) Buffer.Buffer<Snapshot>(1);
+						case (null) {
+							let snapshots = Buffer.Buffer<Snapshot>(1);
+							weeklySnapshotsByPackageName.put(name, snapshots);
+							snapshots;
+						}
 					};
 					snapshots.add({
 						startTime = startOfWeek;
@@ -194,7 +206,7 @@ module {
 				// weekly by id
 				let byPackageId = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in tempRecords.vals()) {
-					if (record.time > weekAgo) {
+					if (record.time >= weekAgo) {
 						let packageId = record.name # "@" # record.version;
 						byPackageId.put(packageId, Option.get(byPackageId.get(packageId), 0) + 1);
 					};
@@ -203,7 +215,11 @@ module {
 				for ((packageId, downloads) in byPackageId.entries()) {
 					let snapshots = switch (weeklySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
-						case (null) Buffer.Buffer<Snapshot>(1);
+						case (null) {
+							let snapshots = Buffer.Buffer<Snapshot>(1);
+							weeklySnapshotsByPackageId.put(packageId, snapshots);
+							snapshots;
+						}
 					};
 					snapshots.add({
 						startTime = startOfWeek;
@@ -223,14 +239,15 @@ module {
 			let from = Time.now() - duration;
 			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<Snapshot>(0));
 
-			for (snapshot in snapshots.vals()) {
-				if (snapshot.startTime > from) {
+			label l for (snapshot in snapshots.vals()) {
+				if (snapshot.startTime >= from) {
 					total += 1;
-				};
+				}
+				else break l;
 			};
 
 			for (record in tempRecords.vals()) {
-				if (record.name == name and record.time > from) {
+				if (record.name == name and record.time >= from) {
 					total += 1;
 				};
 			};
@@ -238,7 +255,7 @@ module {
 			total;
 		};
 
-		public func getMostDownloadedPackageNames(max: Nat): [PackageName] {
+		public func getMostDownloadedPackageNames(): [PackageName] {
 			var arr = Iter.toArray(downloadsByPackageName.entries());
 			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
 				(item.0, item.1);
@@ -253,7 +270,7 @@ module {
 			});
 		};
 
-		public func getMostDownloadedPackageNamesIn(max: Nat, duration: Time.Time): [PackageName] {
+		public func getMostDownloadedPackageNamesIn(duration: Time.Time): [PackageName] {
 			var arr = Iter.toArray(downloadsByPackageName.entries());
 			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
 				(item.0, getDownloadsByPackageNameIn(item.0, duration));
@@ -302,7 +319,5 @@ module {
 			};
 			setTimers();
 		};
-
-		setTimers();
 	};
 };

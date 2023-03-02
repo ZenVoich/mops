@@ -51,6 +51,8 @@ actor {
 	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
+	downloadLog.setTimers();
+
 	let storageManager = StorageManager.StorageManager();
 
 	// publish
@@ -455,7 +457,7 @@ actor {
 		let max = 5;
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		let packageNames = downloadLog.getMostDownloadedPackageNames(5);
+		let packageNames = downloadLog.getMostDownloadedPackageNames();
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
@@ -477,7 +479,7 @@ actor {
 		let max = 5;
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(5, 7 * DAY);
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
@@ -554,6 +556,7 @@ actor {
 		fileIdsByPackageStable := [];
 
 		downloadLog.loadStable(downloadLogStable);
+		downloadLog.setTimers();
 		downloadLogStable := null;
 
 		storageManager.loadStable(storageManagerStable);
