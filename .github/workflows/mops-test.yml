@@ -1,0 +1,29 @@
+name: mops test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: aviate-labs/setup-dfx@v0.2.3
+        with:
+          vessel-version: 0.6.3
+          dfx-version: 0.13.0
+
+      - name: install dfx
+        run: dfx cache install
+
+      - name: install mops
+        run: npm i ic-mops -g --yes
+
+      - name: install mops packages
+        run: mops install
+
+      - name: run tests
+        run: mops test
