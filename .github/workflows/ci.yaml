@@ -49,6 +49,11 @@ jobs:
           vessel-version: 0.6.3
           dfx-version: 0.13.0
 
+      - name: Install npm packages
+        run: |
+            cd cli
+            npm install
+
       - name: Run Tests
         run: |
             npm i -g ./cli
