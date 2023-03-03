@@ -67,7 +67,7 @@ Now you can import installed packages in your Motoko code
 import PackageName "mo:<package_name>";
 ```
 for example
-```
+```motoko
 import Itertools "mo:itertools/Iter";
 ```
 
