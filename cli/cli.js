@@ -17,7 +17,7 @@ import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test.js';
 import {template} from './commands/template.js';
-// import {upgrade} from './commands/upgrade.js';
+import {upgrade} from './commands/upgrade.js';
 
 let cwd = process.cwd();
 let configFile = path.join(cwd, 'mops.toml');
@@ -171,12 +171,13 @@ program
 		await template(options);
 	});
 
-// // upgrade
-// program
-// 	.command('upgrade')
-// 	.description('Upgrade mops CLI to the latest version')
-// 	.action(async () => {
-// 		upgrade();
-// 	});
+// upgrade
+program
+	.command('self-update')
+	.description('Upgrade mops CLI to the latest version')
+	.option('--detached')
+	.action(async (options) => {
+		upgrade(options);
+	});
 
 program.parse();
