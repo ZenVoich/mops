@@ -1,11 +1,14 @@
 {
 	"name": "ic-mops",
-	"version": "0.8.0",
+	"version": "0.8.1",
 	"type": "module",
 	"bin": {
 		"mops": "cli.js"
 	},
-	"files": ["*", "/templates"],
+	"files": [
+		"*",
+		"/templates"
+	],
 	"homepage": "https://mops.one",
 	"repository": {
 		"type": "git",
