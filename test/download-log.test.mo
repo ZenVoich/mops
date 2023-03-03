@@ -8,10 +8,9 @@ import Prim "mo:prim";
 import DownloadLog "../backend/main/download-log";
 
 let fuzz = Fuzz.Fuzz();
+let downloadLog = DownloadLog.DownloadLog();
 
-suite("download log", func() {
-	let downloadLog = DownloadLog.DownloadLog();
-
+suite("populate", func() {
 	test("add 22 hours old record for 'pkg1'", func() {
 		downloadLog.add({
 			time = Time.now() - 22 * HOUR;
@@ -47,10 +46,18 @@ suite("download log", func() {
 			downloader = fuzz.principal.randomPrincipal(1);
 		});
 	});
+});
 
+func check(name: Text) = suite(name, func() {
 	test("take snapshots", func() {
 		// first snapshot is always taken
 		downloadLog.takeSnapshotsIfNeeded();
+	});
+
+	test("check daily snapshots", func() {
+		let snapshots = downloadLog.getDownloadTrend();
+		assert snapshots.size() == 1;
+		assert snapshots[0].downloads == 4;
 	});
 
 	test("check daily snapshots by package name", func() {
@@ -96,3 +103,11 @@ suite("download log", func() {
 		assert downloadLog.getMostDownloadedPackageNamesIn(2 * HOUR) == ["pkg2", "pkg1"];
 	});
 });
+
+check("check before upgrade");
+
+test("upgrade", func() {
+	downloadLog.loadStable(downloadLog.toStable());
+});
+
+check("check after upgrade");

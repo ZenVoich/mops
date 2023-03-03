@@ -20,10 +20,7 @@ import Deiter "mo:itertools/Deiter";
 import Version "./version";
 import Utils "../utils";
 
-// todo add tests
-// todo history?
-// todo migration v1 -> v2
-// todo stable
+// todo migration v1 records -> v2 snapshots
 module {
 	public type PackageName = Text.Text;
 	public type PackageId = Text.Text;
@@ -46,15 +43,27 @@ module {
 	public type Stable = ?{
 		#v1: ([Record], ByPackageNameStable, ByPackageIdStable);
 		#v2: {
-			records: [Record];
-			downloadsByPackageName:  [(Text.Text, Nat)];
+			downloadsByPackageName: [(Text.Text, Nat)];
 			downloadsByPackageId: [(Text.Text, Nat)];
+			dailySnapshots: [Snapshot];
+			weeklySnapshots: [Snapshot];
+			dailySnapshotsByPackageName: [(Text.Text, [Snapshot])];
+			dailySnapshotsByPackageId: [(Text.Text, [Snapshot])];
+			weeklySnapshotsByPackageName: [(Text.Text, [Snapshot])];
+			weeklySnapshotsByPackageId: [(Text.Text, [Snapshot])];
+			tempRecords: [Record];
+			curSnapshotDay: Nat;
+			curSnapshotWeekDay: DateBase.DayOfWeek;
+			timerId: Nat;
 		};
 	};
 
 	public class DownloadLog() = {
 		var downloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 		var downloadsByPackageId = TrieMap.TrieMap<PackageId, Nat>(Text.equal, Text.hash);
+
+		var dailySnapshots = Buffer.Buffer<Snapshot>(1000);
+		var weeklySnapshots = Buffer.Buffer<Snapshot>(1000);
 
 		var dailySnapshotsByPackageName = TrieMap.TrieMap<PackageName, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
 		var dailySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
@@ -101,6 +110,10 @@ module {
 			};
 		};
 
+		public func getDownloadTrend(): [Snapshot] {
+			_getTrend(?dailySnapshots, 14);
+		};
+
 		public func getDownloadTrendByPackageName(name: PackageName): [Snapshot] {
 			_getTrend(dailySnapshotsByPackageName.get(name), 14);
 		};
@@ -119,6 +132,13 @@ module {
 				let #Date date = Date.now();
 				let startOfDay = Int32.toInt(date) * 86400000000000 - 1 * DAY;
 				let endOfDay = Int32.toInt(date) * 86400000000000 - 1;
+
+				// daily total
+				dailySnapshots.add({
+					startTime = startOfDay;
+					endTime = endOfDay;
+					downloads = getTotalDownloads();
+				});
 
 				// daily by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
@@ -178,6 +198,13 @@ module {
 				let #Date date = Date.now();
 				let startOfWeek = Int32.toInt(date) * 86400000000000 - 7 * DAY;
 				let endOfWeek = Int32.toInt(date) * 86400000000000 - 1;
+
+				// weekly total
+				weeklySnapshots.add({
+					startTime = startOfWeek;
+					endTime = endOfWeek;
+					downloads = getTotalDownloads();
+				});
 
 				// weekly by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
@@ -293,31 +320,69 @@ module {
 		};
 
 		public func toStable(): Stable {
-			// ?#v1(
-			// 	Buffer.toArray(log),
-			// 	Iter.toArray(downloadsByPackageName.entries()),
-			// 	Iter.toArray(downloadsByPackageId.entries()),
-			// );
-			// ?#v2(
-			// 	Buffer.toArray(tempRecords),
-			// 	Iter.toArray(downloadsByPackageName.entries()),
-			// 	Iter.toArray(downloadsByPackageId.entries()),
-			// );
-			null;
+			func snapshotsToStable(snapshotsMap: TrieMap.TrieMap<Text.Text, Buffer.Buffer<Snapshot>>): [(Text.Text, [Snapshot])] {
+				Iter.toArray(
+					Iter.map<(Text.Text, Buffer.Buffer<Snapshot>), (Text.Text, [Snapshot])>(
+						snapshotsMap.entries(),
+						func((key, buf)) {
+							(key, Buffer.toArray(buf));
+						}
+					)
+				);
+			};
+
+			?#v2({
+				downloadsByPackageName = Iter.toArray(downloadsByPackageName.entries());
+				downloadsByPackageId = Iter.toArray(downloadsByPackageId.entries());
+				dailySnapshots = Buffer.toArray(dailySnapshots);
+				weeklySnapshots = Buffer.toArray(weeklySnapshots);
+				dailySnapshotsByPackageName = snapshotsToStable(dailySnapshotsByPackageName);
+				dailySnapshotsByPackageId = snapshotsToStable(dailySnapshotsByPackageId);
+				weeklySnapshotsByPackageName = snapshotsToStable(weeklySnapshotsByPackageName);
+				weeklySnapshotsByPackageId = snapshotsToStable(weeklySnapshotsByPackageId);
+				tempRecords = Buffer.toArray(tempRecords);
+				curSnapshotDay;
+				curSnapshotWeekDay;
+				timerId;
+			});
 		};
 
 		public func loadStable(stab: Stable) {
 			switch (stab) {
-				case (null) {};
 				case (?#v1(records, byName, byId)) {
 					tempRecords := Buffer.fromArray<Record>(records);
 					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(byName.vals(), Text.equal, Text.hash);
 					downloadsByPackageId := TrieMap.fromEntries<PackageId, Nat>(byId.vals(), Text.equal, Text.hash);
 				};
 				case (?#v2(data)) {
+					func snapshotsFromStable(snapshotsMapStable: [(Text.Text, [Snapshot])]): TrieMap.TrieMap<Text.Text, Buffer.Buffer<Snapshot>> {
+						let iter = Iter.map<(Text.Text, [Snapshot]), (Text.Text, Buffer.Buffer<Snapshot>)>(
+							snapshotsMapStable.vals(),
+							func((key, buf)) {
+								(key, Buffer.fromArray(buf));
+							}
+						);
+						TrieMap.fromEntries(iter, Text.equal, Text.hash);
+					};
+
+					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageName.vals(), Text.equal, Text.hash);
+					downloadsByPackageId := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageId.vals(), Text.equal, Text.hash);
+
+					dailySnapshots := Buffer.fromArray<Snapshot>(data.dailySnapshots);
+					weeklySnapshots := Buffer.fromArray<Snapshot>(data.weeklySnapshots);
+
+					dailySnapshotsByPackageName := snapshotsFromStable(data.dailySnapshotsByPackageName);
+					dailySnapshotsByPackageId := snapshotsFromStable(data.dailySnapshotsByPackageId);
+					weeklySnapshotsByPackageName := snapshotsFromStable(data.weeklySnapshotsByPackageName);
+					weeklySnapshotsByPackageId := snapshotsFromStable(data.weeklySnapshotsByPackageId);
+
+					tempRecords := Buffer.fromArray<Record>(data.tempRecords);
+					curSnapshotDay := data.curSnapshotDay;
+					curSnapshotWeekDay := data.curSnapshotWeekDay;
+					timerId := data.timerId;
 				};
+				case (null) {};
 			};
-			setTimers();
 		};
 	};
 };
