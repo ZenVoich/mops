@@ -5,6 +5,7 @@
 	"bin": {
 		"mops": "cli.js"
 	},
+	"files": ["*", "/templates"],
 	"homepage": "https://mops.one",
 	"repository": {
 		"type": "git",
