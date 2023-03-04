@@ -22,6 +22,7 @@ export async function template() {
 			return;
 		}
 		let mopsTestYml = new URL('../templates/mops-test.yml', import.meta.url);
+		fs.mkdirSync(path.resolve(process.cwd(), '.github/workflows'), {recursive: true});
 		fs.copyFileSync(mopsTestYml, dest);
 		console.log(chalk.green('Workflow created:'), dest);
 	}
