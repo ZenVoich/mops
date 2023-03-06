@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>MOPS &nbsp;&bull;&nbsp; Motoko Package Manager</title>
+	<title>Mops &nbsp;&bull;&nbsp; Motoko Package Manager</title>
 </svelte:head>
 
 <div class="main">
@@ -18,7 +18,7 @@
 		<div class="section">
 			<img src="/img/mops.svg" alt="mops logo" style="width: 100px;">
 			<div class="text">
-				<div class="description"><b>MOPS</b> is a package manager for Motoko with fully on-chain package registry.</div>
+				<div class="description"><b>Mops</b> is a package manager for Motoko with fully on-chain package registry.</div>
 			</div>
 		</div>
 

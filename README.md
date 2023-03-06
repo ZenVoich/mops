@@ -1,6 +1,6 @@
-# MOPS
+# Mops
 
-MOPS is a package manager for the Motoko programming language.
+Mops is a package manager for the Motoko programming language.
 
 See https://mops.one
 
