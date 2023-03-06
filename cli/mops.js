@@ -88,10 +88,29 @@ export let storageActor = async (storageId) => {
 	});
 };
 
+export function getClosestConfigFile(dir = process.cwd()) {
+	if (!path.basename(dir)) {
+		return null;
+	}
+	let configFile = path.join(dir, 'mops.toml');
+	if (fs.existsSync(configFile)) {
+		return configFile;
+	}
+	return getClosestConfigFile(path.resolve(dir, '..'));
+}
+
+export function getRootDir() {
+	let configFile = getClosestConfigFile();
+	if (!configFile) {
+		return null;
+	}
+	return path.dirname(configFile);
+}
+
 export function checkConfigFile() {
-	let configFile = path.join(process.cwd(), 'mops.toml');
-	if (!fs.existsSync(configFile)) {
-		console.log(chalk.red('Error: ') + `Config file not found ${configFile}`);
+	let configFile = getClosestConfigFile();
+	if (!configFile) {
+		console.log(chalk.red('Error: ') + `Config file 'mops.toml' not found. Please run ${chalk.green('mops init')} first`);
 		return false;
 	}
 	return true;
@@ -120,7 +139,7 @@ export function parseGithubURL(href) {
 	return {org, gitName, branch};
 }
 
-export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
+export function readConfig(configFile = getClosestConfigFile()) {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
@@ -147,7 +166,7 @@ export function readConfig(configFile = path.join(process.cwd(), 'mops.toml')) {
 	return toml;
 }
 
-export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.toml')) {
+export function writeConfig(config, configFile = getClosestConfigFile()) {
 	const deps = config.dependencies || {};
 	Object.entries(deps).forEach(([name, {repo, path, version}]) => {
 		deps[name] = repo || path || version;
@@ -162,12 +181,12 @@ export function writeConfig(config, configFile = path.join(process.cwd(), 'mops.
 }
 
 export function formatDir(name, version) {
-	return path.join(process.cwd(), '.mops', `${name}@${version}`);
+	return path.join(getRootDir(), '.mops', `${name}@${version}`);
 }
 
 export function formatGithubDir(name, repo) {
 	const {branch} = parseGithubURL(repo);
-	return path.join(process.cwd(), '.mops/_github', `${name}@${branch}`);
+	return path.join(getRootDir(), '.mops/_github', `${name}@${branch}`);
 }
 
 export function readDfxJson() {

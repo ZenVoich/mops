@@ -49,7 +49,7 @@ export async function init(name = '') {
 			config.dependencies = vesselDeps;
 		}
 
-		writeConfig(config);
+		writeConfig(config, configFile);
 
 		if (Object.keys(config.dependencies || {}).length) {
 			await installAll({verbose: true});
@@ -91,7 +91,7 @@ export async function init(name = '') {
 			config.dependencies[name] = {version};
 		});
 
-		writeConfig(config);
+		writeConfig(config, configFile);
 
 		await installAll({verbose: true});
 	}

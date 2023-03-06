@@ -3,8 +3,10 @@ import chalk from 'chalk';
 import glob from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
+import path from 'path';
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
+import {getRootDir} from '../mops.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -31,7 +33,7 @@ export async function test(filter = '', {watch = false} = {}) {
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
 		}, 200);
 
-		let watcher = chokidar.watch('**/*.mo', {
+		let watcher = chokidar.watch(path.join(getRootDir(), '**/*.mo'), {
 			ignored: ignore,
 			ignoreInitial: true,
 		});
@@ -64,9 +66,13 @@ export async function runAll(filter = '') {
 		if (filter) {
 			globStr = `**/test?(s)/**/*${filter}*`;
 		}
-		files = glob.sync(globStr, globConfig);
+		files = glob.sync(path.join(getRootDir(), globStr), globConfig);
 	}
 	if (!files.length) {
+		if (filter) {
+			console.log(`No test files found for filter '${filter}'`);
+			return;
+		}
 		console.log('No test files found');
 		console.log('Put your tests in \'test\' directory in *.test.mo files');
 		return;

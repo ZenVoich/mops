@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import path from 'path';
 import {program} from 'commander';
 import chalk from 'chalk';
 
@@ -9,7 +8,7 @@ import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getNetwork, setNetwork, apiVersion} from './mops.js';
+import {checkApiCompatibility, getNetwork, setNetwork, apiVersion, checkConfigFile} from './mops.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
@@ -18,9 +17,6 @@ import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {upgrade} from './commands/upgrade.js';
-
-let cwd = process.cwd();
-let configFile = path.join(cwd, 'mops.toml');
 
 program.name('mops');
 
@@ -43,6 +39,9 @@ program
 	.option('--dev')
 	.option('--verbose')
 	.action(async (pkg, options) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
 		await add(pkg, options);
 	});
 
@@ -53,9 +52,8 @@ program
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
 	.action(async (pkg, options) => {
-		if (!fs.existsSync(configFile)) {
-			console.log(chalk.red('Error: ') + `mops.toml not found. Please run ${chalk.green('mops init')} first`);
-			return;
+		if (!checkConfigFile()) {
+			process.exit(1);
 		}
 
 		let compatible = await checkApiCompatibility();
@@ -77,6 +75,9 @@ program
 	.command('publish')
 	.description('Publish package to the mops registry')
 	.action(async () => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
 		let compatible = await checkApiCompatibility();
 		if (compatible) {
 			await publish();
@@ -115,6 +116,9 @@ program
 	.description('for dfx packtool')
 	.option('--verbose')
 	.action(async (options) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
 		await installAll({silent: true});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
@@ -168,6 +172,9 @@ program
 	.command('template')
 	.description('Apply template')
 	.action(async (options) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
 		await template(options);
 	});
 

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import prompts from 'prompts';
+import {getRootDir} from '../mops.js';
 
 export async function template() {
 	let res = await prompts({
@@ -16,13 +17,13 @@ export async function template() {
 	});
 
 	if (res.value === 'github-workflow:mops-test') {
-		let dest = path.resolve(process.cwd(), '.github/workflows/mops-test.yml');
+		let dest = path.resolve(getRootDir(), '.github/workflows/mops-test.yml');
 		if (fs.existsSync(dest)) {
 			console.log(chalk.yellow('Workflow already exists:'), dest);
 			return;
 		}
 		let mopsTestYml = new URL('../templates/mops-test.yml', import.meta.url);
-		fs.mkdirSync(path.resolve(process.cwd(), '.github/workflows'), {recursive: true});
+		fs.mkdirSync(path.resolve(getRootDir(), '.github/workflows'), {recursive: true});
 		fs.copyFileSync(mopsTestYml, dest);
 		console.log(chalk.green('Workflow created:'), dest);
 	}

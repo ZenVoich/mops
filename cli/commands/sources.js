@@ -1,25 +1,12 @@
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
-import {formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
+import {checkConfigFile, formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
 import {readVesselConfig} from '../vessel.js';
-
-function rootDir(cwd = process.cwd()) {
-	let configFile = path.join(cwd, 'mops.toml');
-	if (fs.existsSync(configFile)) {
-		return cwd;
-	}
-	if (!path.basename(cwd)) {
-		console.log(chalk.red('Error: ') + 'Cannot find mops.toml');
-		return;
-	}
-	return rootDir(path.join(cwd, '..'));
-}
 
 // TODO: resolve conflicts
 export async function sources({verbose} = {}) {
-	let root = rootDir();
-	if (!root) {
+	if (!checkConfigFile()) {
 		return [];
 	}
 
@@ -108,7 +95,7 @@ export async function sources({verbose} = {}) {
 		}
 	};
 
-	let config = readConfig(path.join(root, 'mops.toml'));
+	let config = readConfig();
 	await collectDeps(config, true);
 
 	// show conflicts
