@@ -10,6 +10,7 @@ import Order "mo:base/Order";
 import Timer "mo:base/Timer";
 import Int "mo:base/Int";
 import Int32 "mo:base/Int32";
+import Nat32 "mo:base/Nat32";
 
 import {MINUTE; DAY} "mo:time-consts";
 import Date "mo:chronosphere/Date";
@@ -20,7 +21,6 @@ import Deiter "mo:itertools/Deiter";
 import Version "./version";
 import Utils "../utils";
 
-// todo migration v1 records -> v2 snapshots
 module {
 	public type PackageName = Text.Text;
 	public type PackageId = Text.Text;
@@ -43,6 +43,7 @@ module {
 	public type Stable = ?{
 		#v1: ([Record], ByPackageNameStable, ByPackageIdStable);
 		#v2: {
+			totalDownloads: Nat;
 			downloadsByPackageName: [(Text.Text, Nat)];
 			downloadsByPackageId: [(Text.Text, Nat)];
 			dailySnapshots: [Snapshot];
@@ -59,6 +60,8 @@ module {
 	};
 
 	public class DownloadLog() = {
+		var totalDownloads = 0;
+
 		var downloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 		var downloadsByPackageId = TrieMap.TrieMap<PackageId, Nat>(Text.equal, Text.hash);
 
@@ -80,14 +83,19 @@ module {
 			tempRecords.add(record);
 			downloadsByPackageName.put(record.name, Option.get(downloadsByPackageName.get(record.name), 0) + 1);
 			downloadsByPackageId.put(packageId, Option.get(downloadsByPackageId.get(packageId), 0) + 1);
+			totalDownloads += 1;
 		};
 
 		public func getTotalDownloads(): Nat {
+			totalDownloads;
+		};
+
+		public func recalcTotalDownloads() {
 			var total = 0;
 			for (count in downloadsByPackageName.vals()) {
 				total += count;
 			};
-			total;
+			totalDownloads := total
 		};
 
 		public func getTotalDownloadsByPackageName(name: PackageName): Nat {
@@ -123,21 +131,23 @@ module {
 		};
 
 		public func takeSnapshotsIfNeeded() {
-			let dateParts = Date.unpack(Date.now());
+			let timeNow = Time.now();
+			let dateNow = timeNow / 86400000000000;
+
+			let dateParts = Date.unpack(#Date(Int32.fromInt(dateNow)));
 			let (#Day day) = dateParts.day;
 
 			// daily snapshots
 			if (curSnapshotDay != Int.abs(day)) {
-				let dayAgo = Time.now() - 1 * DAY;
-				let #Date date = Date.now();
-				let startOfDay = Int32.toInt(date) * 86400000000000 - 1 * DAY;
-				let endOfDay = Int32.toInt(date) * 86400000000000 - 1;
+				let dayAgo = timeNow - 1 * DAY;
+				let startOfPrevDay = dateNow * 86400000000000 - 1 * DAY;
+				let endOfPrevDay = dateNow * 86400000000000 - 1;
 
 				// daily total
 				dailySnapshots.add({
-					startTime = startOfDay;
-					endTime = endOfDay;
-					downloads = getTotalDownloads();
+					startTime = startOfPrevDay;
+					endTime = endOfPrevDay;
+					downloads = totalDownloads;
 				});
 
 				// daily by name
@@ -158,8 +168,8 @@ module {
 						};
 					};
 					snapshots.add({
-						startTime = startOfDay;
-						endTime = endOfDay;
+						startTime = startOfPrevDay;
+						endTime = endOfPrevDay;
 						downloads = downloads;
 					});
 				};
@@ -183,27 +193,24 @@ module {
 						}
 					};
 					snapshots.add({
-						startTime = startOfDay;
-						endTime = endOfDay;
+						startTime = startOfPrevDay;
+						endTime = endOfPrevDay;
 						downloads = downloads;
 					});
 				};
-
-				curSnapshotDay := Int.abs(day);
 			};
 
 			// weekly snapshots
 			if (curSnapshotWeekDay != dateParts.wday and dateParts.wday == #Monday) {
-				let weekAgo = Time.now() - 7 * DAY;
-				let #Date date = Date.now();
-				let startOfWeek = Int32.toInt(date) * 86400000000000 - 7 * DAY;
-				let endOfWeek = Int32.toInt(date) * 86400000000000 - 1;
+				let weekAgo = timeNow - 7 * DAY;
+				let startOfPrevWeek = dateNow * 86400000000000 - 7 * DAY;
+				let endOfPrevWeek = dateNow * 86400000000000 - 1;
 
 				// weekly total
 				weeklySnapshots.add({
-					startTime = startOfWeek;
-					endTime = endOfWeek;
-					downloads = getTotalDownloads();
+					startTime = startOfPrevWeek;
+					endTime = endOfPrevWeek;
+					downloads = totalDownloads;
 				});
 
 				// weekly by name
@@ -224,8 +231,8 @@ module {
 						}
 					};
 					snapshots.add({
-						startTime = startOfWeek;
-						endTime = endOfWeek;
+						startTime = startOfPrevWeek;
+						endTime = endOfPrevWeek;
 						downloads = downloads;
 					});
 				};
@@ -249,16 +256,17 @@ module {
 						}
 					};
 					snapshots.add({
-						startTime = startOfWeek;
-						endTime = endOfWeek;
+						startTime = startOfPrevWeek;
+						endTime = endOfPrevWeek;
 						downloads = downloads;
 					});
 				};
 
-
-				curSnapshotWeekDay := dateParts.wday;
 				tempRecords.clear();
 			};
+
+			curSnapshotDay := Int.abs(day);
+			curSnapshotWeekDay := dateParts.wday;
 		};
 
 		public func getDownloadsByPackageNameIn(name: PackageName, duration: Time.Time): Nat {
@@ -332,6 +340,7 @@ module {
 			};
 
 			?#v2({
+				totalDownloads;
 				downloadsByPackageName = Iter.toArray(downloadsByPackageName.entries());
 				downloadsByPackageId = Iter.toArray(downloadsByPackageId.entries());
 				dailySnapshots = Buffer.toArray(dailySnapshots);
@@ -353,6 +362,7 @@ module {
 					tempRecords := Buffer.fromArray<Record>(records);
 					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(byName.vals(), Text.equal, Text.hash);
 					downloadsByPackageId := TrieMap.fromEntries<PackageId, Nat>(byId.vals(), Text.equal, Text.hash);
+					recalcTotalDownloads();
 				};
 				case (?#v2(data)) {
 					func snapshotsFromStable(snapshotsMapStable: [(Text.Text, [Snapshot])]): TrieMap.TrieMap<Text.Text, Buffer.Buffer<Snapshot>> {
