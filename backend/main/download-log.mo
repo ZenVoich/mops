@@ -276,15 +276,17 @@ module {
 			var total = 0;
 			let from = Time.now() - duration;
 			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<Snapshot>(0));
+			let snapshotsRev = Array.reverse(Buffer.toArray(snapshots));
 
-			label l for (snapshot in snapshots.vals()) {
+			label l for (snapshot in snapshotsRev.vals()) {
 				if (snapshot.startTime >= from) {
 					total += 1;
 				}
 				else break l;
 			};
 
-			for (record in dailyTempRecords.vals()) {
+			let weeklyTempRecordsRev = Array.reverse(Buffer.toArray(weeklyTempRecords));
+			for (record in weeklyTempRecordsRev.vals()) {
 				if (record.name == name and record.time >= from) {
 					total += 1;
 				};
@@ -324,10 +326,14 @@ module {
 		};
 
 		public func setTimers() {
-			Timer.cancelTimer(timerId);
+			cancelTimers();
 			timerId := Timer.recurringTimer(#nanoseconds(5 * MINUTE), func(): async () {
 				takeSnapshotsIfNeeded();
 			});
+		};
+
+		public func cancelTimers() {
+			Timer.cancelTimer(timerId);
 		};
 
 		public func toStable(): Stable {

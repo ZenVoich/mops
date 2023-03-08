@@ -11,6 +11,24 @@ let fuzz = Fuzz.Fuzz();
 let downloadLog = DownloadLog.DownloadLog();
 
 suite("populate", func() {
+	test("add 10 days old record for 'pkg1'", func() {
+		downloadLog.add({
+			time = Time.now() - 10 * DAY;
+			name = "pkg1";
+			version = "1.0.0";
+			downloader = fuzz.principal.randomPrincipal(1);
+		});
+	});
+
+	test("add more than 1 day old record for 'pkg1", func() {
+		downloadLog.add({
+			time = Time.now() - 45 * HOUR;
+			name = "pkg1";
+			version = "1.0.0";
+			downloader = fuzz.principal.randomPrincipal(1);
+		});
+	});
+
 	test("add 22 hours old record for 'pkg1'", func() {
 		downloadLog.add({
 			time = Time.now() - 22 * HOUR;
@@ -25,15 +43,6 @@ suite("populate", func() {
 			time = Time.now() - 4 * HOUR;
 			name = "pkg1";
 			version = "2.0.0";
-			downloader = fuzz.principal.randomPrincipal(1);
-		});
-	});
-
-	test("add more than 1 day old record for 'pkg1", func() {
-		downloadLog.add({
-			time = Time.now() - 45 * HOUR;
-			name = "pkg1";
-			version = "1.0.0";
 			downloader = fuzz.principal.randomPrincipal(1);
 		});
 	});
@@ -57,7 +66,7 @@ func check(name: Text) = suite(name, func() {
 	test("check daily snapshots", func() {
 		let snapshots = downloadLog.getDownloadTrend();
 		assert snapshots.size() == 1;
-		assert snapshots[0].downloads == 4;
+		assert snapshots[0].downloads == 5;
 	});
 
 	test("check daily snapshots by package name", func() {
@@ -73,8 +82,8 @@ func check(name: Text) = suite(name, func() {
 	});
 
 	test("check total downloads", func() {
-		assert downloadLog.getTotalDownloadsByPackageName("pkg1") == 3;
-		assert downloadLog.getTotalDownloadsByPackageId("pkg1@1.0.0") == 2;
+		assert downloadLog.getTotalDownloadsByPackageName("pkg1") == 4;
+		assert downloadLog.getTotalDownloadsByPackageId("pkg1@1.0.0") == 3;
 		assert downloadLog.getTotalDownloadsByPackageId("pkg1@2.0.0") == 1;
 
 		assert downloadLog.getTotalDownloadsByPackageName("lib") == 0;

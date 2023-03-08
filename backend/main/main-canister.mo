@@ -555,6 +555,7 @@ actor {
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
 
+		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
 		downloadLog.setTimers();
 		downloadLogStable := null;
