@@ -4,7 +4,7 @@
 		"start": "npm run dev",
 		"dev": "npm run replica && npm run deploy && npm run decl && cd frontend && npm run dev && cd ..",
 		"build": "cd frontend && npm run build",
-		"deploy": "dfx deploy main --no-wallet --identity anonymous && npm run decl",
+		"deploy": "dfx canister stop main --identity anonymous && dfx deploy main --no-wallet --identity anonymous && dfx canister start main --identity anonymous && npm run decl",
 		"replica": "dfx stop && dfx start --emulator --background --clean",
 		"decl": "npm run decl:frontend && npm run decl:cli",
 		"lint": "npm run lint:cli && npm run lint:frontend",
