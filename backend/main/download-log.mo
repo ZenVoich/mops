@@ -11,6 +11,7 @@ import Timer "mo:base/Timer";
 import Int "mo:base/Int";
 import Int32 "mo:base/Int32";
 import Nat32 "mo:base/Nat32";
+import Debug "mo:base/Debug";
 
 import {MINUTE; DAY} "mo:time-consts";
 import Date "mo:chronosphere/Date";
@@ -273,19 +274,24 @@ module {
 		};
 
 		public func getDownloadsByPackageNameIn(name: PackageName, duration: Time.Time): Nat {
+			if (duration < 1 * DAY - 100) {
+				Debug.trap("duration cannot be less than 1 day");
+			};
+
 			var total = 0;
 			let from = Time.now() - duration;
 			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<Snapshot>(0));
 			let snapshotsRev = Array.reverse(Buffer.toArray(snapshots));
 
+
 			label l for (snapshot in snapshotsRev.vals()) {
 				if (snapshot.startTime >= from) {
-					total += 1;
+					total += snapshot.downloads;
 				}
 				else break l;
 			};
 
-			let weeklyTempRecordsRev = Array.reverse(Buffer.toArray(weeklyTempRecords));
+			let weeklyTempRecordsRev = Array.reverse(Buffer.toArray(dailyTempRecords));
 			for (record in weeklyTempRecordsRev.vals()) {
 				if (record.name == name and record.time >= from) {
 					total += 1;
@@ -404,6 +410,8 @@ module {
 					curSnapshotDay := data.curSnapshotDay;
 					curSnapshotWeekDay := data.curSnapshotWeekDay;
 					timerId := data.timerId;
+
+					takeSnapshotsIfNeeded();
 				};
 				case (null) {};
 			};
