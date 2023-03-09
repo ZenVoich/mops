@@ -1,6 +1,6 @@
-# MOPS
+# Mops
 
-MOPS is a package manager for the Motoko programming language.
+Mops is a package manager for the Motoko programming language.
 
 See https://mops.one
 
@@ -67,7 +67,7 @@ Now you can import installed packages in your Motoko code
 import PackageName "mo:<package_name>";
 ```
 for example
-```
+```motoko
 import Itertools "mo:itertools/Iter";
 ```
 

@@ -3,8 +3,10 @@ import chalk from 'chalk';
 import glob from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
+import path from 'path';
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
+import {getRootDir} from '../mops.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -18,20 +20,20 @@ let globConfig = {
 	ignore: ignore,
 };
 
-export async function test({watch = false} = {}) {
+export async function test(filter = '', {watch = false} = {}) {
 	if (watch) {
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll();
+			await runAll(filter);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
 		}, 200);
 
-		let watcher = chokidar.watch('**/*.mo', {
+		let watcher = chokidar.watch(path.join(getRootDir(), '**/*.mo'), {
 			ignored: ignore,
 			ignoreInitial: true,
 		});
@@ -42,7 +44,7 @@ export async function test({watch = false} = {}) {
 		run();
 	}
 	else {
-		let passed = await runAll();
+		let passed = await runAll(filter);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -51,7 +53,7 @@ export async function test({watch = false} = {}) {
 
 let dfxCache;
 
-export async function runAll() {
+export async function runAll(filter = '') {
 	let start = Date.now();
 
 	let files = [];
@@ -60,9 +62,17 @@ export async function runAll() {
 		files = [libFiles[0]];
 	}
 	else {
-		files = glob.sync('**/test?(s)/**/*.test.mo', globConfig);
+		let globStr = '**/test?(s)/**/*.test.mo';
+		if (filter) {
+			globStr = `**/test?(s)/**/*${filter}*`;
+		}
+		files = glob.sync(path.join(getRootDir(), globStr), globConfig);
 	}
 	if (!files.length) {
+		if (filter) {
+			console.log(`No test files found for filter '${filter}'`);
+			return;
+		}
 		console.log('No test files found');
 		console.log('Put your tests in \'test\' directory in *.test.mo files');
 		return;
