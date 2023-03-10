@@ -40,7 +40,7 @@ export function getNetwork() {
 	else if (network === 'ic') {
 		return {
 			network,
-			host: 'https://mainnet.dfinity.network',
+			host: 'https://ic0.app',
 			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
 		};
 	}
