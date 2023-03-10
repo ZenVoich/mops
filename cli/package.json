@@ -7,6 +7,7 @@
 	},
 	"files": [
 		"*",
+		"!.mops",
 		"/templates"
 	],
 	"homepage": "https://mops.one",
