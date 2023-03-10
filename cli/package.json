@@ -39,7 +39,7 @@
 		"log-update": "^5.0.1",
 		"minimatch": "^5.0.1",
 		"ncp": "^2.0.0",
-		"node-fetch": "^2.6.7",
+		"node-fetch": "^3.3.0",
 		"pem-file": "^1.0.1",
 		"prompts": "^2.4.2"
 	}
