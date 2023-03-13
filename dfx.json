@@ -23,13 +23,13 @@
 			"type": "ephemeral",
 			"bind": "127.0.0.1:8000"
 		},
-		"dev": {
+		"staging": {
 			"type": "persistent",
-			"providers": ["https://mainnet.dfinity.network"]
+			"providers": ["https://ic0.app"]
 		},
 		"ic": {
 			"type": "persistent",
-			"providers": ["https://mainnet.dfinity.network"]
+			"providers": ["https://ic0.app"]
 		}
 	}
 }
