@@ -6,7 +6,7 @@ import dfxJson from '../dfx.json';
 import fs from 'fs';
 
 type Network = 'ic' | 'local' | 'staging';
-let network = process.env['DFX_NETWORK'] as Network;
+let network = process.env['DFX_NETWORK'] as Network || 'local';
 
 interface CanisterIds {
 	/* eslint-disable-next-line no-unused-vars */
