@@ -16,7 +16,7 @@ import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test.js';
 import {template} from './commands/template.js';
-import {upgrade} from './commands/upgrade.js';
+import {selfUpdate} from './commands/self-update.js';
 
 program.name('mops');
 
@@ -178,13 +178,13 @@ program
 		await template(options);
 	});
 
-// upgrade
+// self update
 program
 	.command('self-update')
-	.description('Upgrade mops CLI to the latest version')
+	.description('Update mops CLI to the latest version')
 	.option('--detached')
 	.action(async (options) => {
-		upgrade(options);
+		selfUpdate(options);
 	});
 
 program.parse();
