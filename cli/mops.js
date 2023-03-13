@@ -33,14 +33,21 @@ export function getNetwork() {
 		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
 		return {
 			network,
-			host: 'http://127.0.0.1:8000',
+			host: 'http://127.0.0.1:4943',
 			canisterId: ids.main.local,
+		};
+	}
+	else if (network === 'staging') {
+		return {
+			network,
+			host: 'https://ic0.app',
+			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
 		};
 	}
 	else if (network === 'ic') {
 		return {
 			network,
-			host: 'https://mainnet.dfinity.network',
+			host: 'https://ic0.app',
 			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
 		};
 	}

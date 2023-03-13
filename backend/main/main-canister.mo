@@ -332,16 +332,23 @@ actor {
 
 	public shared query ({caller}) func getDefaultPackages(dfxVersion: Text): async [(PackageName, Version.Version)] {
 		switch (dfxVersion) {
-			case ("0.12.1") [("base", "0.7.3")];
-			case ("0.12.0") [("base", "0.7.3")];
-			case ("0.11.2") [("base", "0.6.29")];
-			case ("0.11.1") [("base", "0.6.29")];
-			case ("0.10.1") [("base", "0.6.28")];
-			case ("0.10.0") [("base", "0.6.26")];
-			case ("0.9.3") [("base", "0.6.25")];
-			case ("0.9.2") [("base", "0.6.21")];
 			case ("0.9.0") [("base", "0.6.20")];
-			case (_) [("base", "0.7.4")];
+			case ("0.9.2") [("base", "0.6.21")];
+			case ("0.9.3") [("base", "0.6.25")];
+			case ("0.10.0") [("base", "0.6.26")];
+			case ("0.10.1") [("base", "0.6.28")];
+			case ("0.11.1") [("base", "0.6.29")];
+			case ("0.11.2") [("base", "0.6.29")];
+			case ("0.12.0") [("base", "0.7.3")];
+			case ("0.12.1") [("base", "0.7.3")];
+			case ("0.13.0") [("base", "0.7.6")];
+			case ("0.13.1") [("base", "0.7.6")];
+			case (_) {
+				switch (_getHighestVersion("base")) {
+					case (?ver) [("base", ver)];
+					case (null) [];
+				};
+			};
 		};
 	};
 
