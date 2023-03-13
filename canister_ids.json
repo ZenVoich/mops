@@ -1,10 +1,10 @@
 {
   "assets": {
-    "ic": "j4mwm-bqaaa-aaaam-qajbq-cai",
-		"staging": "ogp6e-diaaa-aaaam-qajta-cai"
+		"staging": "ogp6e-diaaa-aaaam-qajta-cai",
+    "ic": "j4mwm-bqaaa-aaaam-qajbq-cai"
   },
   "main": {
-    "ic": "oknww-riaaa-aaaam-qaf6a-cai",
-    "staging": "2d2zu-vaaaa-aaaak-qb6pq-cai"
+    "staging": "2d2zu-vaaaa-aaaak-qb6pq-cai",
+    "ic": "oknww-riaaa-aaaam-qaf6a-cai"
   }
 }
