@@ -46,11 +46,11 @@
 				<td>[Text]</td>
 				<td>Array of keywords (max 5 items, max 20 chars)</td>
 			</tr>
-			<tr>
+			<!-- <tr>
 				<td>documentation</td>
 				<td>Text</td>
 				<td>Documentation url</td>
-			</tr>
+			</tr> -->
 			<!-- <tr>
 				<td>homepage</td>
 				<td>Text</td>

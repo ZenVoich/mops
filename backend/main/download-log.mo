@@ -76,7 +76,7 @@ module {
 		var weeklySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
 
 		var dailyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to daily snapshots
-		var weeklyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to snapshots
+		var weeklyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to weekly snapshots
 		var curSnapshotDay = 0;
 		var curSnapshotWeekDay: DateBase.DayOfWeek = #Monday;
 		var timerId = 0;
@@ -139,6 +139,7 @@ module {
 			let dateNow = Time.now() / 86400000000000;
 
 			let dateParts = Date.unpack(#Date(Int32.fromInt(dateNow)));
+			let weekDay = dateParts.wday;
 			let (#Day day) = dateParts.day;
 
 			// daily snapshots
@@ -206,7 +207,7 @@ module {
 			};
 
 			// weekly snapshots
-			if (curSnapshotWeekDay != dateParts.wday and dateParts.wday == #Monday) {
+			if (curSnapshotWeekDay != weekDay and weekDay == #Monday) {
 				let startOfPrevWeek = dateNow * 86400000000000 - 7 * DAY;
 				let endOfPrevWeek = dateNow * 86400000000000 - 1;
 
@@ -270,7 +271,7 @@ module {
 			};
 
 			curSnapshotDay := Int.abs(day);
-			curSnapshotWeekDay := dateParts.wday;
+			curSnapshotWeekDay := weekDay;
 		};
 
 		public func getDownloadsByPackageNameIn(name: PackageName, duration: Time.Time): Nat {
@@ -291,8 +292,8 @@ module {
 				else break l;
 			};
 
-			let weeklyTempRecordsRev = Array.reverse(Buffer.toArray(dailyTempRecords));
-			for (record in weeklyTempRecordsRev.vals()) {
+			let dailyTempRecordsRev = Array.reverse(Buffer.toArray(dailyTempRecords));
+			for (record in dailyTempRecordsRev.vals()) {
 				if (record.name == name and record.time >= from) {
 					total += 1;
 				};
