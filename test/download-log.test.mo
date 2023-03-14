@@ -1,4 +1,4 @@
-import {test; suite} "mo:test";
+import {test; suite; skip} "mo:test";
 import Fuzz "mo:fuzz";
 import {MINUTE; HOUR; DAY} "mo:time-consts";
 import Time "mo:base/Time";
@@ -108,10 +108,16 @@ suite("populate", func() {
 });
 
 func check(name: Text) = suite(name, func() {
-	test("check total downloads snapshots", func() {
+	skip("check total download snapshots", func() {
 		let snapshots = downloadLog.getDownloadTrend();
 		assert snapshots.size() == 1;
 		assert snapshots[0].downloads == 9;
+	});
+
+	test("check download snapshots of all packages", func() {
+		let snapshots = downloadLog.getDownloadTrend();
+		assert snapshots.size() == 1;
+		assert snapshots[0].downloads == 5;
 	});
 
 	test("check daily snapshots by package name for pkg1", func() {

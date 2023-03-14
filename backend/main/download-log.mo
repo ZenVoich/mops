@@ -147,17 +147,13 @@ module {
 				let startOfPrevDay = dateNow * 86400000000000 - 1 * DAY;
 				let endOfPrevDay = dateNow * 86400000000000 - 1;
 
-				// daily total
-				dailySnapshots.add({
-					startTime = startOfPrevDay;
-					endTime = endOfPrevDay;
-					downloads = totalDownloads;
-				});
+				var dailyDownloads = 0;
 
 				// daily by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in dailyTempRecords.vals()) {
 					if (record.time >= startOfPrevDay) {
+						dailyDownloads += 1;
 						byPackageName.put(record.name, Option.get(byPackageName.get(record.name), 0) + 1);
 					};
 				};
@@ -203,6 +199,13 @@ module {
 					});
 				};
 
+				// daily of all packages
+				dailySnapshots.add({
+					startTime = startOfPrevDay;
+					endTime = endOfPrevDay;
+					downloads = dailyDownloads;
+				});
+
 				dailyTempRecords.clear();
 			};
 
@@ -211,17 +214,13 @@ module {
 				let startOfPrevWeek = dateNow * 86400000000000 - 7 * DAY;
 				let endOfPrevWeek = dateNow * 86400000000000 - 1;
 
-				// weekly total
-				weeklySnapshots.add({
-					startTime = startOfPrevWeek;
-					endTime = endOfPrevWeek;
-					downloads = totalDownloads;
-				});
+				var weeklyDownloads = 0;
 
 				// weekly by name
 				let byPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in weeklyTempRecords.vals()) {
 					if (record.time >= startOfPrevWeek) {
+						weeklyDownloads += 1;
 						byPackageName.put(record.name, Option.get(byPackageName.get(record.name), 0) + 1);
 					};
 				};
@@ -266,6 +265,13 @@ module {
 						downloads = downloads;
 					});
 				};
+
+				// weekly of all packages
+				weeklySnapshots.add({
+					startTime = startOfPrevWeek;
+					endTime = endOfPrevWeek;
+					downloads = totalDownloads;
+				});
 
 				weeklyTempRecords.clear();
 			};
