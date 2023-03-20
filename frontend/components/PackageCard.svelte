@@ -2,9 +2,10 @@
 	import {link} from 'svelte-spa-history-router';
 	import Date from './Date.svelte';
 
-	import {PackageDetails} from '/declarations/main/main.did.js';
+	import {PackageSummary} from '/declarations/main/main.did.js';
 
-	export let pkg: PackageDetails;
+	export let pkg: PackageSummary;
+	export let showVersion = false;
 	export let showUpdated = false;
 	export let showDownloads = false;
 	export let show7DayDownloads = false;
@@ -19,6 +20,9 @@
 			</div>
 		</div>
 		<div class="right">
+			{#if showVersion}
+				<div>Version {pkg.config.version}</div>
+			{/if}
 			{#if showUpdated}
 				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
 			{/if}
@@ -34,9 +38,9 @@
 </div>
 
 <style>
-	.package:hover {
+	/* .package:hover {
 		box-shadow: -0 1px 5px #c1c1c1;
-	}
+	} */
 
 	.package {
 		display: flex;

@@ -46,6 +46,26 @@ type Result =
  };
 type PublishingId = text;
 type PublishingErr = text;
+type PackageSummary__1 = 
+ record {
+   config: PackageConfigV2__1;
+   downloadsInLast30Days: nat;
+   downloadsInLast7Days: nat;
+   downloadsTotal: nat;
+   owner: principal;
+   publication: PackagePublication;
+   versions: vec text;
+ };
+type PackageSummary = 
+ record {
+   config: PackageConfigV2__1;
+   downloadsInLast30Days: nat;
+   downloadsInLast7Days: nat;
+   downloadsTotal: nat;
+   owner: principal;
+   publication: PackagePublication;
+   versions: vec text;
+ };
 type PackagePublication = 
  record {
    storage: principal;
@@ -57,11 +77,15 @@ type PackageName = text;
 type PackageDetails = 
  record {
    config: PackageConfigV2__1;
+   dependents: vec PackageSummary__1;
+   deps: vec PackageSummary__1;
+   devDeps: vec PackageSummary__1;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
    publication: PackagePublication;
+   versions: vec text;
  };
 type PackageConfigV2__1 = 
  record {
@@ -118,10 +142,10 @@ service : {
                                      }) query;
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
-  getMostDownloadedPackages: () -> (vec PackageDetails) query;
-  getMostDownloadedPackagesIn7Days: () -> (vec PackageDetails) query;
+  getMostDownloadedPackages: () -> (vec PackageSummary) query;
+  getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
   getPackageDetails: (PackageName__1, Ver) -> (Result_3) query;
-  getRecentlyUpdatedPackages: () -> (vec PackageDetails) query;
+  getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
                                  StorageStats;
@@ -129,7 +153,7 @@ service : {
   getTotalDownloads: () -> (nat) query;
   getTotalPackages: () -> (nat) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
-  search: (Text) -> (vec PackageDetails) query;
+  search: (Text) -> (vec PackageSummary) query;
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfigV2) -> (Result_1);
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);

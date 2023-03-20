@@ -46,10 +46,14 @@ export interface PackageConfigV2__1 {
 }
 export interface PackageDetails {
   'owner' : Principal,
+  'deps' : Array<PackageSummary__1>,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
+  'dependents' : Array<PackageSummary__1>,
+  'devDeps' : Array<PackageSummary__1>,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
+  'versions' : Array<string>,
   'publication' : PackagePublication,
 }
 export type PackageName = string;
@@ -58,6 +62,24 @@ export interface PackagePublication {
   'storage' : Principal,
   'time' : Time,
   'user' : Principal,
+}
+export interface PackageSummary {
+  'owner' : Principal,
+  'downloadsTotal' : bigint,
+  'downloadsInLast30Days' : bigint,
+  'downloadsInLast7Days' : bigint,
+  'config' : PackageConfigV2__1,
+  'versions' : Array<string>,
+  'publication' : PackagePublication,
+}
+export interface PackageSummary__1 {
+  'owner' : Principal,
+  'downloadsTotal' : bigint,
+  'downloadsInLast30Days' : bigint,
+  'downloadsInLast7Days' : bigint,
+  'config' : PackageConfigV2__1,
+  'versions' : Array<string>,
+  'publication' : PackagePublication,
 }
 export type PublishingErr = string;
 export type PublishingId = string;
@@ -93,15 +115,15 @@ export interface _SERVICE {
   >,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
-  'getMostDownloadedPackages' : ActorMethod<[], Array<PackageDetails>>,
-  'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageDetails>>,
+  'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
+  'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_3>,
-  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageDetails>>,
+  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
-  'search' : ActorMethod<[Text], Array<PackageDetails>>,
+  'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array | number[]],
     Result_2

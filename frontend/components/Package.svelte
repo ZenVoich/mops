@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
-	import {currentURL} from 'svelte-spa-history-router';
+	import {currentURL, routeParams, push} from 'svelte-spa-history-router';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
@@ -12,6 +12,7 @@
 	import Date from './Date.svelte';
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
+	import PackageCard from './PackageCard.svelte';
 
 	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]) : '';
 	$: $currentURL && load();
@@ -23,7 +24,7 @@
 	let copiedToClipboard = false;
 
 	let load = debounce(10, async () => {
-		if (!pkgName) {
+		if (!pkgName || loaded && pkgName === packageDetails?.config.name) {
 			return;
 		}
 		loaded = false;
@@ -89,6 +90,21 @@
 		}, 3000);
 	}
 
+	$: selectedTab = $routeParams.tab || '';
+	function selectTab(tab: string) {
+		selectedTab = tab;
+		if (tab) {
+			push(`/${$routeParams.package}/${tab}`);
+		}
+		else {
+			push(`/${$routeParams.package}`);
+		}
+	}
+
+	function isTabSelected(tab: string, selectedTab: string): boolean {
+		return selectedTab == tab;
+	}
+
 	onMount(load);
 </script>
 
@@ -119,9 +135,39 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- tabs -->
+			<div class="tabs">
+				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')}>Readme</div>
+				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + packageDetails.devDeps.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')}>Dependents ({packageDetails.dependents.length})</div>
+			</div>
+
 			<div class="body">
-				<div class="readme">
-					{@html readmeHtml}
+
+				<div class="content">
+					{#if selectedTab == ''}
+						{@html readmeHtml}
+					{:else if selectedTab == 'dependencies'}
+						<h3>Dependencies</h3>
+							<div class="packages">
+							{#each packageDetails.deps as pkg}
+								<PackageCard {pkg} showVersion={true} />
+							{/each}
+						</div>
+						<h3>Dev Dependencies</h3>
+							<div class="packages">
+							{#each packageDetails.devDeps as pkg}
+								<PackageCard {pkg} showVersion={true} />
+							{/each}
+						</div>
+					{:else if selectedTab == 'dependents'}
+						<div class="packages">
+							{#each packageDetails.dependents as pkg}
+								<PackageCard {pkg} showDownloads={true} />
+							{/each}
+						</div>
+					{/if}
 				</div>
 
 				<div class="right-panel">
@@ -185,7 +231,7 @@
 		display: flex;
 		justify-content: center;
 		width: 100%;
-		background: rgb(213 217 208);
+		background: var(--color-secondary);
 	}
 
 	.header .name {
@@ -251,6 +297,32 @@
 		user-select: none;
 	}
 
+	.tabs {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+		max-width: 900px;
+	}
+
+	.tab {
+		padding: 10px 60px;
+		border-bottom: 1px solid var(--color-primary);
+		background: white;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.tab.selected {
+		background: var(--color-secondary);
+	}
+
+	.packages {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
 	.body {
 		display: flex;
 		margin-top: 20px;
@@ -258,7 +330,7 @@
 		max-width: 900px;
 	}
 
-	.readme {
+	.content {
 		flex-grow: 1;
 		background: white;
 		padding: 20px;

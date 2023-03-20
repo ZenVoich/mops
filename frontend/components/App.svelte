@@ -15,6 +15,7 @@
 		{path: '/docs/publish', component: PublishDoc},
 		{path: '/docs/config', component: ConfigDoc},
 		{path: '/search/(?<search>.*)', component: SearchResults},
+		{path: '/(?<package>.*)/(?<tab>.*)', component: Package},
 		{path: '/(?<package>.*)', component: Package},
 	];
 
@@ -51,6 +52,7 @@
 	:root {
 		--color-primary: hsl(73deg 20% 44%);
 		--color-primary-light: hsl(72deg 24% 55%);
+		--color-secondary: rgb(213 217 208);
 	}
 
 	body {
