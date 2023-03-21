@@ -114,13 +114,11 @@ actor {
 		do ? {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
-			let versions = packageVersions.get(name)!;
 
 			return ?{
 				owner = Option.get(packageOwners.get(name), Utils.anonymousPrincipal());
 				config = config;
 				publication = publication;
-				versions = versions;
 				downloadsInLast7Days = downloadLog.get7DayDownloadsByPackageName(name);
 				downloadsInLast30Days = downloadLog.get30DayDownloadsByPackageName(name);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(name);
@@ -136,6 +134,7 @@ actor {
 
 			return ?{
 				summary with
+				versionHistory = _getPackageVersionHistory(name);
 				deps = _getPackageDependencies(name, version);
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
@@ -143,20 +142,32 @@ actor {
 		};
 	};
 
+	func _getPackageVersionHistory(name: PackageName): [PackageSummary] {
+		let versions = Utils.unwrap(packageVersions.get(name));
+		Array.reverse(Array.map<Ver, PackageSummary>(versions, func(version) {
+			Utils.unwrap(_getPackageSummary(name, version));
+		}));
+	};
+
+	func _getDepsSummaries(deps: [DependencyV2]): [PackageSummary] {
+		let filtered = Array.filter<DependencyV2>(deps, func(dep) {
+			dep.repo == "";
+		});
+		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
+			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
+		});
+	};
+
 	func _getPackageDependencies(name: PackageName, version: Ver): [PackageSummary] {
 		let packageId = name # "@" # version;
 		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		Array.map<DependencyV2, PackageSummary>(config.dependencies, func(dep) {
-			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
-		});
+		_getDepsSummaries(config.dependencies);
 	};
 
 	func _getPackageDevDependencies(name: PackageName, version: Ver): [PackageSummary] {
 		let packageId = name # "@" # version;
 		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		Array.map<DependencyV2, PackageSummary>(config.devDependencies, func(dep) {
-			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
-		});
+		_getDepsSummaries(config.devDependencies);
 	};
 
 	func _getPackageDependents(name: PackageName): [PackageSummary] {

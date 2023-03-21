@@ -98,6 +98,7 @@
 		gap: 4px;
 		font-size: 14px;
 		color: rgb(170, 170, 170);
+		text-align: right;
 		white-space: nowrap;
 	}
 </style>

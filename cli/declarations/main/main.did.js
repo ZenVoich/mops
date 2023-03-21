@@ -46,7 +46,6 @@ export const idlFactory = ({ IDL }) => {
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
-    'versions' : IDL.Vec(IDL.Text),
     'publication' : PackagePublication,
   });
   const PackageSummary__1 = IDL.Record({
@@ -55,7 +54,6 @@ export const idlFactory = ({ IDL }) => {
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
-    'versions' : IDL.Vec(IDL.Text),
     'publication' : PackagePublication,
   });
   const PackageDetails = IDL.Record({
@@ -63,11 +61,11 @@ export const idlFactory = ({ IDL }) => {
     'deps' : IDL.Vec(PackageSummary__1),
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
+    'versionHistory' : IDL.Vec(PackageSummary__1),
     'dependents' : IDL.Vec(PackageSummary__1),
     'devDeps' : IDL.Vec(PackageSummary__1),
     'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
-    'versions' : IDL.Vec(IDL.Text),
     'publication' : PackagePublication,
   });
   const Result_3 = IDL.Variant({ 'ok' : PackageDetails, 'err' : Err });

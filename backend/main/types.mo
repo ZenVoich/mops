@@ -55,13 +55,13 @@ module {
 		owner: Principal;
 		config: PackageConfigV2;
 		publication: PackagePublication;
-		versions: [Text];
 		downloadsTotal: Nat;
 		downloadsInLast30Days: Nat;
 		downloadsInLast7Days: Nat;
 	};
 
 	public type PackageDetails = PackageSummary and {
+		versionHistory: [PackageSummary];
 		deps: [PackageSummary];
 		devDeps: [PackageSummary];
 		dependents: [PackageSummary];

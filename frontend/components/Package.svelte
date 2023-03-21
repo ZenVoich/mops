@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
-	import {currentURL, routeParams, push} from 'svelte-spa-history-router';
+	import {currentURL, routeParams, push, link} from 'svelte-spa-history-router';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
@@ -14,7 +14,8 @@
 	import Footer from './Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
 
-	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]) : '';
+	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
+	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
 	$: $currentURL && load();
 
 	let readmeHtml: string;
@@ -24,12 +25,13 @@
 	let copiedToClipboard = false;
 
 	let load = debounce(10, async () => {
-		if (!pkgName || loaded && pkgName === packageDetails?.config.name) {
+		if (!pkgName || loaded && pkgName === packageDetails?.config.name && (!pkgVersion || pkgVersion === packageDetails?.config.version)) {
 			return;
 		}
 		loaded = false;
 
-		let packageDetailsRes = await mainActor().getPackageDetails(pkgName, 'highest');
+		let ver = pkgVersion || 'highest';
+		let packageDetailsRes = await mainActor().getPackageDetails(pkgName, ver);
 		if ('ok' in packageDetailsRes) {
 			packageDetails = packageDetailsRes.ok;
 		}
@@ -139,6 +141,7 @@
 			<!-- tabs -->
 			<div class="tabs">
 				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')}>Readme</div>
+				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')}>Versions ({packageDetails.versionHistory.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + packageDetails.devDeps.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')}>Dependents ({packageDetails.dependents.length})</div>
 			</div>
@@ -148,6 +151,15 @@
 				<div class="content">
 					{#if selectedTab == ''}
 						{@html readmeHtml}
+					{:else if selectedTab == 'versions'}
+						<div class="packages">
+							{#each packageDetails.versionHistory as versionSummary}
+								<div class="version-summary">
+									<a href="/{pkgName}@{versionSummary.config.version}" use:link>{versionSummary.config.version}</a>
+									<div class="version-published"><Date date="{Number(versionSummary.publication.time / 1000000n)}"></Date></div>
+								</div>
+							{/each}
+						</div>
 					{:else if selectedTab == 'dependencies'}
 						<h3>Dependencies</h3>
 							<div class="packages">
@@ -302,6 +314,7 @@
 		flex-wrap: wrap;
 		width: 100%;
 		max-width: 900px;
+		margin-top: 25px;
 	}
 
 	.tab {
@@ -315,6 +328,13 @@
 
 	.tab.selected {
 		background: var(--color-secondary);
+	}
+
+	.version-summary {
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: 3px;
+		border-bottom: 1.5px dashed lightgray;
 	}
 
 	.packages {

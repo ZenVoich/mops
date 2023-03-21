@@ -49,11 +49,11 @@ export interface PackageDetails {
   'deps' : Array<PackageSummary__1>,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
+  'versionHistory' : Array<PackageSummary__1>,
   'dependents' : Array<PackageSummary__1>,
   'devDeps' : Array<PackageSummary__1>,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
-  'versions' : Array<string>,
   'publication' : PackagePublication,
 }
 export type PackageName = string;
@@ -69,7 +69,6 @@ export interface PackageSummary {
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
-  'versions' : Array<string>,
   'publication' : PackagePublication,
 }
 export interface PackageSummary__1 {
@@ -78,7 +77,6 @@ export interface PackageSummary__1 {
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
-  'versions' : Array<string>,
   'publication' : PackagePublication,
 }
 export type PublishingErr = string;

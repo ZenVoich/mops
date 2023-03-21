@@ -15,8 +15,7 @@
 		{path: '/docs/publish', component: PublishDoc},
 		{path: '/docs/config', component: ConfigDoc},
 		{path: '/search/(?<search>.*)', component: SearchResults},
-		{path: '/(?<package>.*)/(?<tab>.*)', component: Package},
-		{path: '/(?<package>.*)', component: Package},
+		{path: '/(?<package>.*?)(@(?<version>.*?))?(/(?<tab>.*?))?', component: Package},
 	];
 
 	// redirect legacy paths

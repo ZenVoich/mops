@@ -1,8 +1,7 @@
 {
 	"type": "module",
 	"scripts": {
-		"start": "npm run dev",
-		"dev": "npm run replica && npm run deploy && npm run decl && cd frontend && npm run dev && cd ..",
+		"start": "npm run replica && npm run deploy && npm run decl && cd frontend && npm run start && cd ..",
 		"build": "cd frontend && npm run build",
 		"deploy": "dfx deploy main --no-wallet --identity anonymous && npm run decl",
 		"replica": "dfx stop && dfx start --emulator --background --clean",

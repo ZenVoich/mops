@@ -107,7 +107,7 @@ mops publish
 ```
 
 ## Local Development
-`npm run dev` - starts local replica and dev server
+`npm start` - starts local replica and dev server
 
 To be able to install/publish packages locally:
 
