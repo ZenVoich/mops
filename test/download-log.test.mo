@@ -126,14 +126,24 @@ func check(name: Text) = suite(name, func() {
 		assert snapshots[0].downloads == 1;
 	});
 
-	test("check daily snapshots by package name for pk2", func() {
+	test("check daily snapshots by package name for pkg2", func() {
 		let snapshots = downloadLog.getDownloadTrendByPackageName("pkg2");
 		assert snapshots.size() == 1;
 		assert snapshots[0].downloads == 4;
 	});
 
-	test("check daily snapshots by package id", func() {
-		let snapshots = downloadLog.getDownloadTrendByPackageId("pkg1@2.0.0");
+	test("check daily snapshots by package name for pkg2 with 0 downloads", func() {
+		let snapshots = downloadLog.getDownloadTrendByPackageId("lib@2.0.0");
+		assert snapshots.size() == 0;
+	});
+
+	test("check daily snapshots by name for unknown package", func() {
+		let snapshots = downloadLog.getDownloadTrendByPackageName("lib");
+		assert snapshots.size() == 0;
+	});
+
+	test("check daily snapshots by id for unknown package", func() {
+		let snapshots = downloadLog.getDownloadTrendByPackageId("lib@2.0.0");
 		assert snapshots.size() == 0;
 	});
 
