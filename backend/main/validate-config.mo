@@ -106,7 +106,7 @@ module {
 		};
 		// deny lib., lib_, lib-
 		if (prevChar == '.' or prevChar == '-' or prevChar == '_') {
-			return  #err("invalid config: name cannot end with '.', '-', '_' in name '" # config.name # "'");
+			return #err("invalid config: name cannot end with '.', '-', '_' in name '" # config.name # "'");
 		};
 
 		if (config.version.size() > CONFIG_MAX_SIZES.version) {

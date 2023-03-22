@@ -14,6 +14,8 @@ import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Char "mo:base/Char";
 
+import {DAY} "mo:time-consts";
+
 import Utils "../utils";
 import Version "./version";
 import Types "./types";
@@ -49,6 +51,8 @@ actor {
 	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
+	downloadLog.setTimers();
+
 	let storageManager = StorageManager.StorageManager();
 
 	// publish
@@ -116,10 +120,11 @@ actor {
 				owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
 				config = config;
 				publication = publication;
-				downloadsInLast7Days = downloadLog.get7DayDownloadsByPackageName(config.name);
-				downloadsInLast30Days = downloadLog.get30DayDownloadsByPackageName(config.name);
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
-			}
+				versionDownloadsTotal = downloadLog.getTotalDownloadsByPackageId(packageId);
+			};
 		};
 	};
 
@@ -459,12 +464,9 @@ actor {
 		let max = 5;
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		let arr = Iter.toArray(downloadLog.downloadsByPackageName.entries());
-		let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
-			Nat.compare(b.1, a.1);
-		});
+		let packageNames = downloadLog.getMostDownloadedPackageNames();
 
-		label l for ((packageName, _) in sorted.vals()) {
+		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
 				let version = _getHighestVersion(packageName)!;
 				let packageDetails = _getPackageDetails(packageName, version)!;
@@ -484,16 +486,9 @@ actor {
 		let max = 5;
 		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
 
-		var arr = Iter.toArray(downloadLog.downloadsByPackageName.entries());
-		arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
-			(item.0, downloadLog.get7DayDownloadsByPackageName(item.0));
-		});
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
 
-		let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
-			Nat.compare(b.1, a.1);
-		});
-
-		label l for ((packageName, _) in sorted.vals()) {
+		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
 				let version = _getHighestVersion(packageName)!;
 				let packageDetails = _getPackageDetails(packageName, version)!;
@@ -507,6 +502,14 @@ actor {
 		};
 
 		Buffer.toArray(packagesDetails);
+	};
+
+	public query func getDownloadTrendByPackageName(name: PackageName): async [DownloadLog.Snapshot] {
+		downloadLog.getDownloadTrendByPackageName(name);
+	};
+
+	public query func getDownloadTrendByPackageId(packageId: PackageId): async [DownloadLog.Snapshot] {
+		downloadLog.getDownloadTrendByPackageId(packageId);
 	};
 
 	public query func getTotalDownloads(): async Nat {
@@ -559,7 +562,9 @@ actor {
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
 
+		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
+		downloadLog.setTimers();
 		downloadLogStable := null;
 
 		storageManager.loadStable(storageManagerStable);
