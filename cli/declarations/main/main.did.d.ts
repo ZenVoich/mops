@@ -56,6 +56,7 @@ export interface PackageDetails {
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
+export type PackageId = string;
 export type PackageName = string;
 export type PackageName__1 = string;
 export interface PackagePublication {
@@ -94,6 +95,11 @@ export type Result_4 = { 'ok' : Ver } |
 export type Result_5 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
+export interface Snapshot {
+  'startTime' : Time,
+  'endTime' : Time,
+  'downloads' : bigint,
+}
 export type StorageId = Principal;
 export interface StorageStats {
   'fileCount' : bigint,
@@ -110,6 +116,11 @@ export interface _SERVICE {
   'getDefaultPackages' : ActorMethod<
     [string],
     Array<[PackageName__1, Version]>
+  >,
+  'getDownloadTrendByPackageId' : ActorMethod<[PackageId], Array<Snapshot>>,
+  'getDownloadTrendByPackageName' : ActorMethod<
+    [PackageName__1],
+    Array<Snapshot>
   >,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,

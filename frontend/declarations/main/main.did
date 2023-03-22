@@ -9,6 +9,12 @@ type StorageStats =
    memorySize: nat;
  };
 type StorageId = principal;
+type Snapshot = 
+ record {
+   downloads: nat;
+   endTime: Time;
+   startTime: Time;
+ };
 type Script = 
  record {
    name: text;
@@ -72,6 +78,7 @@ type PackagePublication =
  };
 type PackageName__1 = text;
 type PackageName = text;
+type PackageId = text;
 type PackageDetails = 
  record {
    config: PackageConfigV2__1;
@@ -138,6 +145,8 @@ service : {
                                        PackageName__1;
                                        Version;
                                      }) query;
+  getDownloadTrendByPackageId: (PackageId) -> (vec Snapshot) query;
+  getDownloadTrendByPackageName: (PackageName__1) -> (vec Snapshot) query;
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;

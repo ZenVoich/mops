@@ -5,6 +5,13 @@ export const idlFactory = ({ IDL }) => {
   const Text = IDL.Text;
   const PackageName__1 = IDL.Text;
   const Version = IDL.Text;
+  const PackageId = IDL.Text;
+  const Time = IDL.Int;
+  const Snapshot = IDL.Record({
+    'startTime' : Time,
+    'endTime' : Time,
+    'downloads' : IDL.Nat,
+  });
   const Ver = IDL.Text;
   const FileId = IDL.Text;
   const Result_5 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
@@ -34,7 +41,6 @@ export const idlFactory = ({ IDL }) => {
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
-  const Time = IDL.Int;
   const PackagePublication = IDL.Record({
     'storage' : IDL.Principal,
     'time' : Time,
@@ -102,6 +108,16 @@ export const idlFactory = ({ IDL }) => {
     'getDefaultPackages' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(IDL.Tuple(PackageName__1, Version))],
+        ['query'],
+      ),
+    'getDownloadTrendByPackageId' : IDL.Func(
+        [PackageId],
+        [IDL.Vec(Snapshot)],
+        ['query'],
+      ),
+    'getDownloadTrendByPackageName' : IDL.Func(
+        [PackageName__1],
+        [IDL.Vec(Snapshot)],
         ['query'],
       ),
     'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),
