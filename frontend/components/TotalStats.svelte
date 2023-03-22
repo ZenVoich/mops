@@ -23,6 +23,6 @@
 
 	.count {
 		font-size: 30px;
-		font-family: monospace;
+		font-family: sans-serif;
 	}
 </style>
