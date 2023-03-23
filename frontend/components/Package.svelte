@@ -24,6 +24,8 @@
 	let installHovered = false;
 	let copiedToClipboard = false;
 
+	$: githubDeps = packageDetails?.config.dependencies.filter(dep => dep.repo);
+
 	let load = debounce(10, async () => {
 		if (!pkgName || loaded && pkgName === packageDetails?.config.name && (!pkgVersion || pkgVersion === packageDetails?.config.version)) {
 			return;
@@ -162,17 +164,33 @@
 						</div>
 					{:else if selectedTab == 'dependencies'}
 						<h3>Dependencies</h3>
-							<div class="packages">
+						<div class="packages">
 							{#each packageDetails.deps as pkg}
 								<PackageCard {pkg} showVersion={true} />
 							{/each}
 						</div>
-						<h3>Dev Dependencies</h3>
+						{#if packageDetails.devDeps.length}
+							<h3>Dev Dependencies</h3>
 							<div class="packages">
-							{#each packageDetails.devDeps as pkg}
-								<PackageCard {pkg} showVersion={true} />
-							{/each}
-						</div>
+								{#each packageDetails.devDeps as pkg}
+									<PackageCard {pkg} showVersion={true} />
+								{/each}
+							</div>
+						{/if}
+						{#if githubDeps.length}
+							<h3>GitHub Dependencies</h3>
+							<div class="packages">
+								{#each githubDeps as dep}
+									<div class="github-dep">
+										<a class="github-dep-repo" href="{dep.repo}" target="_blank">
+											<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+											<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
+										</a>
+										<div class="github-dep-tag">{dep.repo.split('#')[1] || ''}</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
 					{:else if selectedTab == 'dependents'}
 						<div class="packages">
 							{#each packageDetails.dependents as pkg}
@@ -341,6 +359,17 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
+	}
+
+	.github-dep {
+		display: flex;
+		justify-content: space-between;
+		margin-right: 30px;
+	}
+
+	.github-dep-repo {
+		display: flex;
+		gap: 5px;
 	}
 
 	.body {
