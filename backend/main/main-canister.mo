@@ -13,6 +13,8 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Char "mo:base/Char";
+import Hash "mo:base/Hash";
+import TrieSet "mo:base/TrieSet";
 
 import {DAY} "mo:time-consts";
 
@@ -24,8 +26,6 @@ import DownloadLog "./download-log";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
 import {generateId} "../generate-id";
-import Func "mo:base/Func";
-import IterType "mo:base/IterType";
 
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
@@ -188,7 +188,15 @@ actor {
 
 		let dependentConfigs = Iter.filter<PackageConfigV2>(packageConfigs.vals(), isDependent);
 
-		let summaries = Iter.map<PackageConfigV2, PackageSummary>(dependentConfigs, func(config) {
+		let pkgHash = func(a: PackageConfigV2): Hash.Hash {
+			Text.hash(a.name);
+		};
+		let pkgEqual = func(a: PackageConfigV2, b: PackageConfigV2): Bool {
+			a.name == b.name;
+		};
+		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
+
+		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
 			Utils.unwrap(_getPackageSummary(config.name, config.version));
 		});
 
