@@ -21,6 +21,11 @@ jobs:
           vessel-version: 0.6.3
           dfx-version: 0.13.0
 
+      - name: Select moc version
+        run: |
+          npm i -g mocv
+          mocv use 0.8.5
+
       - name: Build and Deploy Frontend
         run: |
             npm i
