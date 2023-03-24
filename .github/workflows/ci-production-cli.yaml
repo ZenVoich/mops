@@ -25,11 +25,15 @@ jobs:
         run: |
           npm i -g mocv
           mocv init
+          echo $DFX_MOC_PATH
           source ~/.bashrc
+          echo $DFX_MOC_PATH
+          cat ~/.bashrc
           mocv use 0.8.5
 
       - name: Build and Deploy Frontend
         run: |
+            echo $DFX_MOC_PATH
             npm i
             npm i -g ic-mops
             mops install
