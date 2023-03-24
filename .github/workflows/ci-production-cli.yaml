@@ -26,13 +26,10 @@ jobs:
 
       - name: Select moc version
         run: |
-          npm i -g mocv
-          mocv use 0.8.5
-          ls /home/runner/.cache/mocv/versions/current
+          npx mocv use 0.8.5
 
       - name: Build and Deploy Frontend
         run: |
-            echo $DFX_MOC_PATH
             npm i
             npm i -g ic-mops
             mops install

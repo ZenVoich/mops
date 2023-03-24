@@ -7,6 +7,9 @@ on:
       - master
   pull_request:
 
+env:
+  DFX_MOC_PATH: /home/runner/.cache/mocv/versions/current/moc
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +23,10 @@ jobs:
         with:
           vessel-version: 0.6.3
           dfx-version: 0.13.0
+
+      - name: Select moc version
+        run: |
+          npx mocv use 0.8.5
 
       - name: Build and Deploy Frontend
         run: |
