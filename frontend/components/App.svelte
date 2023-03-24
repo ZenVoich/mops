@@ -15,7 +15,7 @@
 		{path: '/docs/publish', component: PublishDoc},
 		{path: '/docs/config', component: ConfigDoc},
 		{path: '/search/(?<search>.*)', component: SearchResults},
-		{path: '/(?<package>.*)', component: Package},
+		{path: '/(?<package>.*?)(@(?<version>.*?))?(/(?<tab>.*?))?', component: Package},
 	];
 
 	// redirect legacy paths
@@ -51,6 +51,7 @@
 	:root {
 		--color-primary: hsl(73deg 20% 44%);
 		--color-primary-light: hsl(72deg 24% 55%);
+		--color-secondary: rgb(213 217 208);
 	}
 
 	body {

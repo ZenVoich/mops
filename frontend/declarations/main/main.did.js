@@ -46,10 +46,30 @@ export const idlFactory = ({ IDL }) => {
     'time' : Time,
     'user' : IDL.Principal,
   });
-  const PackageDetails = IDL.Record({
+  const PackageSummary = IDL.Record({
     'owner' : IDL.Principal,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
+    'downloadsInLast7Days' : IDL.Nat,
+    'config' : PackageConfigV2__1,
+    'publication' : PackagePublication,
+  });
+  const PackageSummary__1 = IDL.Record({
+    'owner' : IDL.Principal,
+    'downloadsTotal' : IDL.Nat,
+    'downloadsInLast30Days' : IDL.Nat,
+    'downloadsInLast7Days' : IDL.Nat,
+    'config' : PackageConfigV2__1,
+    'publication' : PackagePublication,
+  });
+  const PackageDetails = IDL.Record({
+    'owner' : IDL.Principal,
+    'deps' : IDL.Vec(PackageSummary__1),
+    'downloadsTotal' : IDL.Nat,
+    'downloadsInLast30Days' : IDL.Nat,
+    'versionHistory' : IDL.Vec(PackageSummary__1),
+    'dependents' : IDL.Vec(PackageSummary__1),
+    'devDeps' : IDL.Vec(PackageSummary__1),
     'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
@@ -104,12 +124,12 @@ export const idlFactory = ({ IDL }) => {
     'getHighestVersion' : IDL.Func([PackageName__1], [Result_4], ['query']),
     'getMostDownloadedPackages' : IDL.Func(
         [],
-        [IDL.Vec(PackageDetails)],
+        [IDL.Vec(PackageSummary)],
         ['query'],
       ),
     'getMostDownloadedPackagesIn7Days' : IDL.Func(
         [],
-        [IDL.Vec(PackageDetails)],
+        [IDL.Vec(PackageSummary)],
         ['query'],
       ),
     'getPackageDetails' : IDL.Func(
@@ -119,7 +139,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
-        [IDL.Vec(PackageDetails)],
+        [IDL.Vec(PackageSummary)],
         ['query'],
       ),
     'getStoragesStats' : IDL.Func(
@@ -130,7 +150,7 @@ export const idlFactory = ({ IDL }) => {
     'getTotalDownloads' : IDL.Func([], [IDL.Nat], ['query']),
     'getTotalPackages' : IDL.Func([], [IDL.Nat], ['query']),
     'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
-    'search' : IDL.Func([Text], [IDL.Vec(PackageDetails)], ['query']),
+    'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
     'startFileUpload' : IDL.Func(
         [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result_2],

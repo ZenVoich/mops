@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
-	import {currentURL} from 'svelte-spa-history-router';
+	import {currentURL, routeParams, push, link} from 'svelte-spa-history-router';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
@@ -12,8 +12,10 @@
 	import Date from './Date.svelte';
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
+	import PackageCard from './PackageCard.svelte';
 
-	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]) : '';
+	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
+	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
 	$: $currentURL && load();
 
 	let readmeHtml: string;
@@ -22,13 +24,16 @@
 	let installHovered = false;
 	let copiedToClipboard = false;
 
+	$: githubDeps = packageDetails?.config.dependencies.filter(dep => dep.repo);
+
 	let load = debounce(10, async () => {
-		if (!pkgName) {
+		if (!pkgName || loaded && pkgName === packageDetails?.config.name && (!pkgVersion || pkgVersion === packageDetails?.config.version)) {
 			return;
 		}
 		loaded = false;
 
-		let packageDetailsRes = await mainActor().getPackageDetails(pkgName, 'highest');
+		let ver = pkgVersion || 'highest';
+		let packageDetailsRes = await mainActor().getPackageDetails(pkgName, ver);
 		if ('ok' in packageDetailsRes) {
 			packageDetails = packageDetailsRes.ok;
 		}
@@ -89,6 +94,22 @@
 		}, 3000);
 	}
 
+	$: selectedTab = $routeParams.tab || '';
+	function selectTab(tab: string) {
+		let path = `/${$routeParams.package}`;
+		if ($routeParams.version) {
+			path += `@${$routeParams.version}`;
+		}
+		if (tab) {
+			path += `/${tab}`;
+		}
+		push(path);
+	}
+
+	function isTabSelected(tab: string, selectedTab: string): boolean {
+		return selectedTab == tab;
+	}
+
 	onMount(load);
 </script>
 
@@ -119,9 +140,65 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- tabs -->
+			<div class="tabs">
+				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')}>Readme</div>
+				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')}>Versions ({packageDetails.versionHistory.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + packageDetails.devDeps.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')}>Dependents ({packageDetails.dependents.length})</div>
+			</div>
+
 			<div class="body">
-				<div class="readme">
-					{@html readmeHtml}
+
+				<div class="content">
+					{#if selectedTab == ''}
+						{@html readmeHtml}
+					{:else if selectedTab == 'versions'}
+						<div class="packages">
+							{#each packageDetails.versionHistory as versionSummary}
+								<div class="version-summary">
+									<a href="/{pkgName}@{versionSummary.config.version}" use:link>{versionSummary.config.version}</a>
+									<div class="version-published"><Date date="{Number(versionSummary.publication.time / 1000000n)}"></Date></div>
+								</div>
+							{/each}
+						</div>
+					{:else if selectedTab == 'dependencies'}
+						<h3>Dependencies</h3>
+						<div class="packages">
+							{#each packageDetails.deps as pkg}
+								<PackageCard {pkg} showVersion={true} />
+							{/each}
+						</div>
+						{#if packageDetails.devDeps.length}
+							<h3>Dev Dependencies</h3>
+							<div class="packages">
+								{#each packageDetails.devDeps as pkg}
+									<PackageCard {pkg} showVersion={true} />
+								{/each}
+							</div>
+						{/if}
+						{#if githubDeps.length}
+							<h3>GitHub Dependencies</h3>
+							<div class="packages">
+								{#each githubDeps as dep}
+									<div class="github-dep">
+										<a class="github-dep-repo" href="{dep.repo}" target="_blank">
+											<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+											<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
+										</a>
+										<div class="github-dep-tag">{dep.repo.split('#')[1] || ''}</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					{:else if selectedTab == 'dependents'}
+						<div class="packages">
+							{#each packageDetails.dependents as pkg}
+								<PackageCard {pkg} showDownloads={true} />
+							{/each}
+						</div>
+					{/if}
 				</div>
 
 				<div class="right-panel">
@@ -185,7 +262,7 @@
 		display: flex;
 		justify-content: center;
 		width: 100%;
-		background: rgb(213 217 208);
+		background: var(--color-secondary);
 	}
 
 	.header .name {
@@ -251,6 +328,51 @@
 		user-select: none;
 	}
 
+	.tabs {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+		max-width: 900px;
+		margin-top: 25px;
+	}
+
+	.tab {
+		padding: 10px 60px;
+		border-bottom: 1px solid var(--color-primary);
+		background: white;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.tab.selected {
+		background: var(--color-secondary);
+	}
+
+	.version-summary {
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: 3px;
+		border-bottom: 1.5px dashed lightgray;
+	}
+
+	.packages {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.github-dep {
+		display: flex;
+		justify-content: space-between;
+		margin-right: 30px;
+	}
+
+	.github-dep-repo {
+		display: flex;
+		gap: 5px;
+	}
+
 	.body {
 		display: flex;
 		margin-top: 20px;
@@ -258,7 +380,7 @@
 		max-width: 900px;
 	}
 
-	.readme {
+	.content {
 		flex-grow: 1;
 		background: white;
 		padding: 20px;

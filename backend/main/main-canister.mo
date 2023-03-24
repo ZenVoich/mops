@@ -13,6 +13,8 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Char "mo:base/Char";
+import Hash "mo:base/Hash";
+import TrieSet "mo:base/TrieSet";
 
 import {DAY} "mo:time-consts";
 
@@ -36,6 +38,7 @@ actor {
 	public type PackageConfigV2 = Types.PackageConfigV2;
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
+	public type PackageSummary = Types.PackageSummary;
 	public type Ver = Version.Version;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
@@ -109,7 +112,7 @@ actor {
 		}
 	};
 
-	func _getPackageDetails(name: PackageName, version: Ver): ?PackageDetails {
+	func _getPackageSummary(name: PackageName, version: Ver): ?PackageSummary {
 		let packageId = name # "@" # version;
 
 		do ? {
@@ -117,7 +120,7 @@ actor {
 			let publication = packagePublications.get(packageId)!;
 
 			return ?{
-				owner = Option.get(packageOwners.get(config.name), Utils.anonymousPrincipal());
+				owner = Option.get(packageOwners.get(name), Utils.anonymousPrincipal());
 				config = config;
 				publication = publication;
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
@@ -126,6 +129,82 @@ actor {
 				versionDownloadsTotal = downloadLog.getTotalDownloadsByPackageId(packageId);
 			};
 		};
+	};
+
+	func _getPackageDetails(name: PackageName, version: Ver): ?PackageDetails {
+		let packageId = name # "@" # version;
+
+		do ? {
+			let summary = _getPackageSummary(name, version)!;
+
+			return ?{
+				summary with
+				versionHistory = _getPackageVersionHistory(name);
+				deps = _getPackageDependencies(name, version);
+				devDeps = _getPackageDevDependencies(name, version);
+				dependents = _getPackageDependents(name);
+			};
+		};
+	};
+
+	func _getPackageVersionHistory(name: PackageName): [PackageSummary] {
+		let versions = Utils.unwrap(packageVersions.get(name));
+		Array.reverse(Array.map<Ver, PackageSummary>(versions, func(version) {
+			Utils.unwrap(_getPackageSummary(name, version));
+		}));
+	};
+
+	func _getDepsSummaries(deps: [DependencyV2]): [PackageSummary] {
+		let filtered = Array.filter<DependencyV2>(deps, func(dep) {
+			dep.repo == "";
+		});
+		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
+			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
+		});
+	};
+
+	func _getPackageDependencies(name: PackageName, version: Ver): [PackageSummary] {
+		let packageId = name # "@" # version;
+		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+		_getDepsSummaries(config.dependencies);
+	};
+
+	func _getPackageDevDependencies(name: PackageName, version: Ver): [PackageSummary] {
+		let packageId = name # "@" # version;
+		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+		_getDepsSummaries(config.devDependencies);
+	};
+
+	func _getPackageDependents(name: PackageName): [PackageSummary] {
+		func isDependent(config: PackageConfigV2): Bool {
+			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep: DependencyV2) {
+				dep.name == name;
+			}));
+			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep: DependencyV2) {
+				dep.name == name;
+			}));
+			dependent or devDependent;
+		};
+
+		let dependentConfigs = Iter.filter<PackageConfigV2>(packageConfigs.vals(), isDependent);
+
+		let pkgHash = func(a: PackageConfigV2): Hash.Hash {
+			Text.hash(a.name);
+		};
+		let pkgEqual = func(a: PackageConfigV2, b: PackageConfigV2): Bool {
+			a.name == b.name;
+		};
+		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
+
+		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
+			Utils.unwrap(_getPackageSummary(config.name, config.version));
+		});
+
+		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
+			Nat.compare(b.downloadsTotal, a.downloadsTotal);
+		});
+
+		Iter.toArray(sorted);
 	};
 
 
@@ -382,7 +461,7 @@ actor {
 		});
 	};
 
-	public query func search(searchText: Text.Text): async [PackageDetails] {
+	public query func search(searchText: Text.Text): async [PackageSummary] {
 		let max = 20;
 		type ConfigWithPoints = {
 			config: PackageConfigV2;
@@ -421,14 +500,14 @@ actor {
 		});
 
 		// limit results
-		Array.tabulate<PackageDetails>(Nat.min(configs.size(), max), func(i: Nat) {
-			Utils.unwrap(_getPackageDetails(configs[i].config.name, configs[i].config.version));
+		Array.tabulate<PackageSummary>(Nat.min(configs.size(), max), func(i: Nat) {
+			Utils.unwrap(_getPackageSummary(configs[i].config.name, configs[i].config.version));
 		});
 	};
 
-	public query func getRecentlyUpdatedPackages(): async [PackageDetails] {
+	public query func getRecentlyUpdatedPackages(): async [PackageSummary] {
 		let max = 5;
-		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
+		let packages = Buffer.Buffer<PackageSummary>(max);
 
 		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a: (PackageId, PackagePublication), b: (PackageId, PackagePublication)): Order.Order {
 			Int.compare(b.1.time, a.1.time);
@@ -437,10 +516,10 @@ actor {
 		label l for ((packageId, _) in pubsSorted.vals()) {
 			ignore do ? {
 				let config = packageConfigs.get(packageId)!;
-				let packageDetails = _getPackageDetails(config.name, config.version)!;
+				let packageSummary = _getPackageSummary(config.name, config.version)!;
 
 				var has = false;
-				label find for (details in packagesDetails.vals()) {
+				label find for (details in packages.vals()) {
 					if (details.config.name == config.name) {
 						has := true;
 						break find;
@@ -448,60 +527,60 @@ actor {
 				};
 
 				if (not has) {
-					packagesDetails.add(packageDetails);
+					packages.add(packageSummary);
 				};
 
-				if (packagesDetails.size() >= max) {
+				if (packages.size() >= max) {
 					break l;
 				};
 			};
 		};
 
-		Buffer.toArray(packagesDetails)
+		Buffer.toArray(packages)
 	};
 
-	public query func getMostDownloadedPackages(): async [PackageDetails] {
+	public query func getMostDownloadedPackages(): async [PackageSummary] {
 		let max = 5;
-		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
+		let packages = Buffer.Buffer<PackageSummary>(max);
 
 		let packageNames = downloadLog.getMostDownloadedPackageNames();
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
 				let version = _getHighestVersion(packageName)!;
-				let packageDetails = _getPackageDetails(packageName, version)!;
+				let packageSummary = _getPackageSummary(packageName, version)!;
 
-				packagesDetails.add(packageDetails);
+				packages.add(packageSummary);
 
-				if (packagesDetails.size() >= max) {
+				if (packages.size() >= max) {
 					break l;
 				};
 			};
 		};
 
-		Buffer.toArray(packagesDetails);
+		Buffer.toArray(packages);
 	};
 
-	public query func getMostDownloadedPackagesIn7Days(): async [PackageDetails] {
+	public query func getMostDownloadedPackagesIn7Days(): async [PackageSummary] {
 		let max = 5;
-		let packagesDetails = Buffer.Buffer<PackageDetails>(max);
+		let packages = Buffer.Buffer<PackageSummary>(max);
 
 		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
 				let version = _getHighestVersion(packageName)!;
-				let packageDetails = _getPackageDetails(packageName, version)!;
+				let packageSummary = _getPackageSummary(packageName, version)!;
 
-				packagesDetails.add(packageDetails);
+				packages.add(packageSummary);
 
-				if (packagesDetails.size() >= max) {
+				if (packages.size() >= max) {
 					break l;
 				};
 			};
 		};
 
-		Buffer.toArray(packagesDetails);
+		Buffer.toArray(packages);
 	};
 
 	public query func getDownloadTrendByPackageName(name: PackageName): async [DownloadLog.Snapshot] {
@@ -523,7 +602,6 @@ actor {
 	public query func getStoragesStats(): async [(StorageManager.StorageId, StorageManager.StorageStats)] {
 		storageManager.getStoragesStats();
 	};
-
 
 	// SYSTEM
 	stable var packagePublicationsStable: [(PackageId, PackagePublication)] = [];

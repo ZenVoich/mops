@@ -2,12 +2,12 @@
 	import {onMount} from 'svelte';
 	import Loader from './Loader.svelte';
 	import PackageCard from './PackageCard.svelte';
-	import {PackageDetails} from '/declarations/main/main.did.js';
+	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
 	export let type: 'recently-updated' | 'most-downloaded' = 'recently-updated';
 	let loaded = false;
-	let packages: PackageDetails[] = [];
+	let packages: PackageSummary[] = [];
 
 	onMount(async () => {
 		if (type === 'recently-updated') {
@@ -25,7 +25,12 @@
 
 	{#if loaded}
 		{#each packages as pkg}
-			<PackageCard {pkg} showUpdated={type === 'recently-updated'} show7DayDownloads={type === 'most-downloaded'}></PackageCard>
+			<PackageCard
+				{pkg}
+				showUpdated={type === 'recently-updated'}
+				showVersion={type === 'recently-updated'}
+				show7DayDownloads={type === 'most-downloaded'}
+			></PackageCard>
 		{:else}
 			{#if loaded}
 				<div class="not-found">Packages not found</div>

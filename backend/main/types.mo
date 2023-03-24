@@ -51,12 +51,19 @@ module {
 		moc: Text; // max 10
 	};
 
-	public type PackageDetails = {
+	public type PackageSummary = {
 		owner: Principal;
 		config: PackageConfigV2;
 		publication: PackagePublication;
 		downloadsTotal: Nat;
 		downloadsInLast30Days: Nat;
 		downloadsInLast7Days: Nat;
+	};
+
+	public type PackageDetails = PackageSummary and {
+		versionHistory: [PackageSummary];
+		deps: [PackageSummary];
+		devDeps: [PackageSummary];
+		dependents: [PackageSummary];
 	};
 };
