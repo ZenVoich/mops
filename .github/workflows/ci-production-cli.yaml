@@ -1,0 +1,56 @@
+name: CI with production version of mops CLI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: aviate-labs/setup-dfx@v0.2.3
+        with:
+          vessel-version: 0.6.3
+          dfx-version: 0.13.0
+
+      - name: Build and Deploy Frontend
+        run: |
+            npm i
+            npm i -g ic-mops
+            mops install
+            npm run replica
+            npm run deploy
+            npm run build
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: aviate-labs/setup-dfx@v0.2.3
+        with:
+          vessel-version: 0.6.3
+          dfx-version: 0.13.0
+
+      - name: Install npm packages
+        run: |
+            cd cli
+            npm install
+
+      - name: Run Tests
+        run: |
+            npm i -g ic-mops
+            mops install
+            dfx cache install
+            mops test
+
