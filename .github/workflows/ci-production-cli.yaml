@@ -24,6 +24,7 @@ jobs:
       - name: Select moc version
         run: |
           npm i -g mocv
+          mocv init
           mocv use 0.8.5
 
       - name: Build and Deploy Frontend
