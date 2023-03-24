@@ -96,13 +96,14 @@
 
 	$: selectedTab = $routeParams.tab || '';
 	function selectTab(tab: string) {
-		selectedTab = tab;
+		let path = `/${$routeParams.package}`;
+		if ($routeParams.version) {
+			path += `@${$routeParams.version}`;
+		}
 		if (tab) {
-			push(`/${$routeParams.package}/${tab}`);
+			path += `/${tab}`;
 		}
-		else {
-			push(`/${$routeParams.package}`);
-		}
+		push(path);
 	}
 
 	function isTabSelected(tab: string, selectedTab: string): boolean {
