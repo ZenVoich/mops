@@ -7,7 +7,7 @@ export const idlFactory = ({ IDL }) => {
   const Version = IDL.Text;
   const PackageId = IDL.Text;
   const Time = IDL.Int;
-  const Snapshot = IDL.Record({
+  const DownloadsSnapshot__1 = IDL.Record({
     'startTime' : Time,
     'endTime' : Time,
     'downloads' : IDL.Nat,
@@ -62,11 +62,17 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
+  const DownloadsSnapshot = IDL.Record({
+    'startTime' : Time,
+    'endTime' : Time,
+    'downloads' : IDL.Nat,
+  });
   const PackageDetails = IDL.Record({
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
+    'downloadTrend' : IDL.Vec(DownloadsSnapshot),
     'versionHistory' : IDL.Vec(PackageSummary__1),
     'dependents' : IDL.Vec(PackageSummary__1),
     'devDeps' : IDL.Vec(PackageSummary__1),
@@ -112,12 +118,12 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getDownloadTrendByPackageId' : IDL.Func(
         [PackageId],
-        [IDL.Vec(Snapshot)],
+        [IDL.Vec(DownloadsSnapshot__1)],
         ['query'],
       ),
     'getDownloadTrendByPackageName' : IDL.Func(
         [PackageName__1],
-        [IDL.Vec(Snapshot)],
+        [IDL.Vec(DownloadsSnapshot__1)],
         ['query'],
       ),
     'getFileIds' : IDL.Func([PackageName__1, Ver], [Result_5], ['query']),

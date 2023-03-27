@@ -6,6 +6,16 @@ export interface DependencyV2 {
   'repo' : string,
   'version' : string,
 }
+export interface DownloadsSnapshot {
+  'startTime' : Time,
+  'endTime' : Time,
+  'downloads' : bigint,
+}
+export interface DownloadsSnapshot__1 {
+  'startTime' : Time,
+  'endTime' : Time,
+  'downloads' : bigint,
+}
 export type Err = string;
 export type FileId = string;
 export interface PackageConfigV2 {
@@ -49,6 +59,7 @@ export interface PackageDetails {
   'deps' : Array<PackageSummary__1>,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
+  'downloadTrend' : Array<DownloadsSnapshot>,
   'versionHistory' : Array<PackageSummary__1>,
   'dependents' : Array<PackageSummary__1>,
   'devDeps' : Array<PackageSummary__1>,
@@ -95,11 +106,6 @@ export type Result_4 = { 'ok' : Ver } |
 export type Result_5 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
-export interface Snapshot {
-  'startTime' : Time,
-  'endTime' : Time,
-  'downloads' : bigint,
-}
 export type StorageId = Principal;
 export interface StorageStats {
   'fileCount' : bigint,
@@ -117,10 +123,13 @@ export interface _SERVICE {
     [string],
     Array<[PackageName__1, Version]>
   >,
-  'getDownloadTrendByPackageId' : ActorMethod<[PackageId], Array<Snapshot>>,
+  'getDownloadTrendByPackageId' : ActorMethod<
+    [PackageId],
+    Array<DownloadsSnapshot__1>
+  >,
   'getDownloadTrendByPackageName' : ActorMethod<
     [PackageName__1],
-    Array<Snapshot>
+    Array<DownloadsSnapshot__1>
   >,
   'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,

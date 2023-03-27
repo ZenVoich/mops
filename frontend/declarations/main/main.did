@@ -9,12 +9,6 @@ type StorageStats =
    memorySize: nat;
  };
 type StorageId = principal;
-type Snapshot = 
- record {
-   downloads: nat;
-   endTime: Time;
-   startTime: Time;
- };
 type Script = 
  record {
    name: text;
@@ -85,6 +79,7 @@ type PackageDetails =
    dependents: vec PackageSummary__1;
    deps: vec PackageSummary__1;
    devDeps: vec PackageSummary__1;
+   downloadTrend: vec DownloadsSnapshot;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -132,6 +127,18 @@ type PackageConfigV2 =
  };
 type FileId = text;
 type Err = text;
+type DownloadsSnapshot__1 = 
+ record {
+   downloads: nat;
+   endTime: Time;
+   startTime: Time;
+ };
+type DownloadsSnapshot = 
+ record {
+   downloads: nat;
+   endTime: Time;
+   startTime: Time;
+ };
 type DependencyV2 = 
  record {
    name: PackageName;
@@ -145,8 +152,10 @@ service : {
                                        PackageName__1;
                                        Version;
                                      }) query;
-  getDownloadTrendByPackageId: (PackageId) -> (vec Snapshot) query;
-  getDownloadTrendByPackageName: (PackageName__1) -> (vec Snapshot) query;
+  getDownloadTrendByPackageId: (PackageId) ->
+   (vec DownloadsSnapshot__1) query;
+  getDownloadTrendByPackageName: (PackageName__1) ->
+   (vec DownloadsSnapshot__1) query;
   getFileIds: (PackageName__1, Ver) -> (Result_5) query;
   getHighestVersion: (PackageName__1) -> (Result_4) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;

@@ -21,8 +21,10 @@ import Deiter "mo:itertools/Deiter";
 
 import Version "./version";
 import Utils "../utils";
+import Types "./types";
 
 module {
+	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type PackageName = Text.Text;
 	public type PackageId = Text.Text;
 
@@ -33,12 +35,6 @@ module {
 		downloader: Principal;
 	};
 
-	public type Snapshot = {
-		startTime: Time.Time;
-		endTime: Time.Time;
-		downloads: Nat;
-	};
-
 	public type ByPackageNameStable = [(Text.Text, Nat)];
 	public type ByPackageIdStable = [(Text.Text, Nat)];
 	public type Stable = ?{
@@ -47,12 +43,12 @@ module {
 			totalDownloads: Nat;
 			downloadsByPackageName: [(Text.Text, Nat)];
 			downloadsByPackageId: [(Text.Text, Nat)];
-			dailySnapshots: [Snapshot];
-			weeklySnapshots: [Snapshot];
-			dailySnapshotsByPackageName: [(Text.Text, [Snapshot])];
-			dailySnapshotsByPackageId: [(Text.Text, [Snapshot])];
-			weeklySnapshotsByPackageName: [(Text.Text, [Snapshot])];
-			weeklySnapshotsByPackageId: [(Text.Text, [Snapshot])];
+			dailySnapshots: [DownloadsSnapshot];
+			weeklySnapshots: [DownloadsSnapshot];
+			dailySnapshotsByPackageName: [(Text.Text, [DownloadsSnapshot])];
+			dailySnapshotsByPackageId: [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageName: [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageId: [(Text.Text, [DownloadsSnapshot])];
 			dailyTempRecords: [Record];
 			weeklyTempRecords: [Record];
 			curSnapshotDay: Nat;
@@ -67,13 +63,13 @@ module {
 		var downloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 		var downloadsByPackageId = TrieMap.TrieMap<PackageId, Nat>(Text.equal, Text.hash);
 
-		var dailySnapshots = Buffer.Buffer<Snapshot>(1000);
-		var weeklySnapshots = Buffer.Buffer<Snapshot>(1000);
+		var dailySnapshots = Buffer.Buffer<DownloadsSnapshot>(1000);
+		var weeklySnapshots = Buffer.Buffer<DownloadsSnapshot>(1000);
 
-		var dailySnapshotsByPackageName = TrieMap.TrieMap<PackageName, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
-		var dailySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
-		var weeklySnapshotsByPackageName = TrieMap.TrieMap<PackageName, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
-		var weeklySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<Snapshot>>(Text.equal, Text.hash);
+		var dailySnapshotsByPackageName = TrieMap.TrieMap<PackageName, Buffer.Buffer<DownloadsSnapshot>>(Text.equal, Text.hash);
+		var dailySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<DownloadsSnapshot>>(Text.equal, Text.hash);
+		var weeklySnapshotsByPackageName = TrieMap.TrieMap<PackageName, Buffer.Buffer<DownloadsSnapshot>>(Text.equal, Text.hash);
+		var weeklySnapshotsByPackageId = TrieMap.TrieMap<PackageId, Buffer.Buffer<DownloadsSnapshot>>(Text.equal, Text.hash);
 
 		var dailyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to daily snapshots
 		var weeklyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to weekly snapshots
@@ -110,11 +106,11 @@ module {
 			Option.get(downloadsByPackageId.get(id), 0);
 		};
 
-		func _getTrend(snapshotsOpt: ?Buffer.Buffer<Snapshot>, max: Nat): [Snapshot] {
+		func _getTrend(snapshotsOpt: ?Buffer.Buffer<DownloadsSnapshot>, max: Nat): [DownloadsSnapshot] {
 			switch (snapshotsOpt) {
 				case (?snapshots) {
 					let deiter = Deiter.fromArray(Buffer.toArray(snapshots));
-					Iter.toArray(Itertools.take(Deiter.reverse(deiter), max));
+					Array.reverse(Iter.toArray(Itertools.take(Deiter.reverse(deiter), max)));
 				};
 				case (null) {
 					[];
@@ -122,15 +118,15 @@ module {
 			};
 		};
 
-		public func getDownloadTrend(): [Snapshot] {
+		public func getDownloadTrend(): [DownloadsSnapshot] {
 			_getTrend(?dailySnapshots, 14);
 		};
 
-		public func getDownloadTrendByPackageName(name: PackageName): [Snapshot] {
+		public func getDownloadTrendByPackageName(name: PackageName): [DownloadsSnapshot] {
 			_getTrend(dailySnapshotsByPackageName.get(name), 14);
 		};
 
-		public func getDownloadTrendByPackageId(packageId: PackageId): [Snapshot] {
+		public func getDownloadTrendByPackageId(packageId: PackageId): [DownloadsSnapshot] {
 			_getTrend(dailySnapshotsByPackageId.get(packageId), 14);
 		};
 
@@ -162,7 +158,7 @@ module {
 					let snapshots = switch (dailySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
 						case (null) {
-							let snapshots = Buffer.Buffer<Snapshot>(1);
+							let snapshots = Buffer.Buffer<DownloadsSnapshot>(1);
 							dailySnapshotsByPackageName.put(name, snapshots);
 							snapshots;
 						};
@@ -187,7 +183,7 @@ module {
 					let snapshots = switch (dailySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
 						case (null) {
-							let snapshots = Buffer.Buffer<Snapshot>(1);
+							let snapshots = Buffer.Buffer<DownloadsSnapshot>(1);
 							dailySnapshotsByPackageId.put(packageId, snapshots);
 							snapshots;
 						}
@@ -229,7 +225,7 @@ module {
 					let snapshots = switch (weeklySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
 						case (null) {
-							let snapshots = Buffer.Buffer<Snapshot>(1);
+							let snapshots = Buffer.Buffer<DownloadsSnapshot>(1);
 							weeklySnapshotsByPackageName.put(name, snapshots);
 							snapshots;
 						}
@@ -254,7 +250,7 @@ module {
 					let snapshots = switch (weeklySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
 						case (null) {
-							let snapshots = Buffer.Buffer<Snapshot>(1);
+							let snapshots = Buffer.Buffer<DownloadsSnapshot>(1);
 							weeklySnapshotsByPackageId.put(packageId, snapshots);
 							snapshots;
 						}
@@ -287,7 +283,7 @@ module {
 
 			var total = 0;
 			let from = Time.now() - duration;
-			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<Snapshot>(0));
+			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<DownloadsSnapshot>(0));
 			let snapshotsRev = Array.reverse(Buffer.toArray(snapshots));
 
 
@@ -350,9 +346,9 @@ module {
 		};
 
 		public func toStable(): Stable {
-			func snapshotsToStable(snapshotsMap: TrieMap.TrieMap<Text.Text, Buffer.Buffer<Snapshot>>): [(Text.Text, [Snapshot])] {
+			func snapshotsToStable(snapshotsMap: TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>>): [(Text.Text, [DownloadsSnapshot])] {
 				Iter.toArray(
-					Iter.map<(Text.Text, Buffer.Buffer<Snapshot>), (Text.Text, [Snapshot])>(
+					Iter.map<(Text.Text, Buffer.Buffer<DownloadsSnapshot>), (Text.Text, [DownloadsSnapshot])>(
 						snapshotsMap.entries(),
 						func((key, buf)) {
 							(key, Buffer.toArray(buf));
@@ -389,8 +385,8 @@ module {
 					recalcTotalDownloads();
 				};
 				case (?#v2(data)) {
-					func snapshotsFromStable(snapshotsMapStable: [(Text.Text, [Snapshot])]): TrieMap.TrieMap<Text.Text, Buffer.Buffer<Snapshot>> {
-						let iter = Iter.map<(Text.Text, [Snapshot]), (Text.Text, Buffer.Buffer<Snapshot>)>(
+					func snapshotsFromStable(snapshotsMapStable: [(Text.Text, [DownloadsSnapshot])]): TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>> {
+						let iter = Iter.map<(Text.Text, [DownloadsSnapshot]), (Text.Text, Buffer.Buffer<DownloadsSnapshot>)>(
 							snapshotsMapStable.vals(),
 							func((key, buf)) {
 								(key, Buffer.fromArray(buf));
@@ -404,8 +400,8 @@ module {
 					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageName.vals(), Text.equal, Text.hash);
 					downloadsByPackageId := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageId.vals(), Text.equal, Text.hash);
 
-					dailySnapshots := Buffer.fromArray<Snapshot>(data.dailySnapshots);
-					weeklySnapshots := Buffer.fromArray<Snapshot>(data.weeklySnapshots);
+					dailySnapshots := Buffer.fromArray<DownloadsSnapshot>(data.dailySnapshots);
+					weeklySnapshots := Buffer.fromArray<DownloadsSnapshot>(data.weeklySnapshots);
 
 					dailySnapshotsByPackageName := snapshotsFromStable(data.dailySnapshotsByPackageName);
 					dailySnapshotsByPackageId := snapshotsFromStable(data.dailySnapshotsByPackageId);

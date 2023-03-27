@@ -65,5 +65,12 @@ module {
 		deps: [PackageSummary];
 		devDeps: [PackageSummary];
 		dependents: [PackageSummary];
+		downloadTrend: [DownloadsSnapshot];
+	};
+
+	public type DownloadsSnapshot = {
+		startTime: Time.Time;
+		endTime: Time.Time;
+		downloads: Nat;
 	};
 };

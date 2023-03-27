@@ -40,6 +40,7 @@ actor {
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummary = Types.PackageSummary;
 	public type Ver = Version.Version;
+	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -143,6 +144,7 @@ actor {
 				deps = _getPackageDependencies(name, version);
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
+				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
 			};
 		};
 	};
@@ -583,11 +585,11 @@ actor {
 		Buffer.toArray(packages);
 	};
 
-	public query func getDownloadTrendByPackageName(name: PackageName): async [DownloadLog.Snapshot] {
+	public query func getDownloadTrendByPackageName(name: PackageName): async [DownloadsSnapshot] {
 		downloadLog.getDownloadTrendByPackageName(name);
 	};
 
-	public query func getDownloadTrendByPackageId(packageId: PackageId): async [DownloadLog.Snapshot] {
+	public query func getDownloadTrendByPackageId(packageId: PackageId): async [DownloadsSnapshot] {
 		downloadLog.getDownloadTrendByPackageId(packageId);
 	};
 
