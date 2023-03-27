@@ -13,6 +13,7 @@
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
+	import DownloadTrend from './DownloadTrend.svelte';
 
 	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
 	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
@@ -202,9 +203,12 @@
 				</div>
 
 				<div class="right-panel">
-					<div class="detail">
-						<div class="label">Downloads</div>
-						<div class="value">{packageDetails.downloadsTotal}</div>
+					<div class="downloads">
+						<div class="detail">
+							<div class="label">Downloads</div>
+							<div class="value">{packageDetails.downloadsTotal}</div>
+						</div>
+						<DownloadTrend snapshots={packageDetails.downloadTrend}></DownloadTrend>
 					</div>
 					{#if packageDetails.config.repository}
 						<div class="detail">
@@ -252,6 +256,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		margin-bottom: 20px;
 	}
 
 	.not-found {
@@ -330,19 +335,22 @@
 
 	.tabs {
 		display: flex;
-		flex-wrap: wrap;
+		overflow: auto;
 		width: 100%;
 		max-width: 900px;
 		margin-top: 25px;
 	}
 
 	.tab {
-		padding: 10px 60px;
+		padding: 10px 20px;
 		border-bottom: 1px solid var(--color-primary);
 		background: white;
 		font-weight: 600;
 		cursor: pointer;
 		white-space: nowrap;
+		flex-grow: 1;
+		flex-basis: 0;
+		text-align: center;
 	}
 
 	.tab.selected {
@@ -394,6 +402,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 15px;
+	}
+
+	.downloads {
+		display: flex;
+		align-items: flex-end;
+		gap: 5px;
+		justify-content: space-between;
 	}
 
 	.detail {
