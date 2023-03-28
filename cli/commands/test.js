@@ -114,7 +114,9 @@ export async function runAll(filter = '') {
 			// stderr
 			proc.stderr.on('data', (data) => {
 				let text = data.toString().trim();
-				text = text.replace(/:(\d+).(\d+)(-\d+.\d+)/g, ':$1:$2');
+				// change absolute file path to relative
+				// change :line:col-line:col to :line:col to work in vscode
+				text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${path.relative(getRootDir(), path.resolve(m1))}:${m2}:${m3}`);
 				mmf1.fail(text);
 			});
 
