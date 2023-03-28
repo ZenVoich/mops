@@ -183,8 +183,14 @@ program
 	.command('self-update')
 	.description('Update mops CLI to the latest version')
 	.option('--detached')
+	.option('--force')
 	.action(async (options) => {
-		selfUpdate(options);
+		if (options.force) {
+			selfUpdate(options);
+		}
+		else {
+			console.log('Please run \'npm i -g ic-mops\'');
+		}
 	});
 
 program.parse();
