@@ -59,3 +59,9 @@
 		></Bar>
 	{/if}
 </div>
+
+<style>
+	.download-trend {
+		border-bottom: 1px solid var(--color-primary-light);
+	}
+</style>
