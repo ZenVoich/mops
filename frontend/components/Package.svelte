@@ -5,7 +5,6 @@
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
-	import {micromark} from 'micromark';
 
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
@@ -14,12 +13,13 @@
 	import Footer from './Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
 	import DownloadTrend from './DownloadTrend.svelte';
+	import PackageReadme from './PackageReadme.svelte';
 
 	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
 	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
 	$: $currentURL && load();
 
-	let readmeHtml: string;
+	let readme: string;
 	let packageDetails: PackageDetails;
 	let loaded = false;
 	let installHovered = false;
@@ -46,22 +46,10 @@
 
 		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 		if ('ok' in res) {
-			let readme = new TextDecoder().decode(new Uint8Array(res.ok));
-			readmeHtml = micromark(readme);
-			let div = document.createElement('div');
-			div.innerHTML = readmeHtml;
-			div.querySelectorAll('img').forEach((img) => {
-				let src = img.getAttribute('src');
-				if (!src.startsWith('http')) {
-					let sep = src.startsWith('/') ? '' : '/';
-					// todo: master branch?
-					img.src = packageDetails.config.repository + sep + 'raw/main/' + src;
-				}
-			});
-			readmeHtml = div.innerHTML;
+			readme = new TextDecoder().decode(new Uint8Array(res.ok));
 		}
 		else {
-			readmeHtml = '<i>Not found README.md</i>';
+			readme = '*Not found README.md*';
 		}
 		loaded = true;
 	});
@@ -154,7 +142,7 @@
 
 				<div class="content">
 					{#if selectedTab == ''}
-						{@html readmeHtml}
+						<PackageReadme readme={readme} repository={packageDetails.config.repository}></PackageReadme>
 					{:else if selectedTab == 'versions'}
 						<div class="packages">
 							{#each packageDetails.versionHistory as versionSummary}
@@ -440,25 +428,6 @@
 		width: 20px;
 		height: 20px;
 		filter: hue-rotate(45deg) contrast(0.6);
-	}
-
-	:global(h1, h2) {
-		border-bottom: 1px solid rgb(177, 177, 177);
-		padding-bottom: 4px;
-		margin-top: 0;
-	}
-
-	:global(code) {
-		background: rgb(233, 233, 233);
-		padding: 3px;
-		border-radius: 3px;
-		overflow-x: auto;
-	}
-
-	:global(pre > code) {
-		display: block;
-		padding: 10px;
-		tab-size: 4;
 	}
 
 	@media (max-width: 750px) {
