@@ -50,15 +50,16 @@
 	}
 
 	:global(code) {
-		background: rgb(246 248 248);
 		padding: 3px;
 		border-radius: 3px;
 		overflow-x: auto;
+		background: rgb(236 238 238);
 	}
 
 	:global(pre > code) {
 		display: block;
 		padding: 10px;
 		tab-size: 4;
+		background: rgb(246 248 248);
 	}
 </style>
