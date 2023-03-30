@@ -21,6 +21,8 @@ let globConfig = {
 };
 
 export async function test(filter = '', {watch = false} = {}) {
+	let rootDir = getRootDir();
+
 	if (watch) {
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
@@ -33,7 +35,7 @@ export async function test(filter = '', {watch = false} = {}) {
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
 		}, 200);
 
-		let watcher = chokidar.watch(path.join(getRootDir(), '**/*.mo'), {
+		let watcher = chokidar.watch(path.join(rootDir, '**/*.mo'), {
 			ignored: ignore,
 			ignoreInitial: true,
 		});
@@ -55,6 +57,7 @@ let dfxCache;
 
 export async function runAll(filter = '') {
 	let start = Date.now();
+	let rootDir = getRootDir();
 
 	let files = [];
 	let libFiles = glob.sync('**/test?(s)/lib.mo', globConfig);
@@ -66,7 +69,7 @@ export async function runAll(filter = '') {
 		if (filter) {
 			globStr = `**/test?(s)/**/*${filter}*`;
 		}
-		files = glob.sync(path.join(getRootDir(), globStr), globConfig);
+		files = glob.sync(path.join(rootDir, globStr), globConfig);
 	}
 	if (!files.length) {
 		if (filter) {
@@ -78,9 +81,11 @@ export async function runAll(filter = '') {
 		return;
 	}
 
+	let absToRel = (p) => path.relative(rootDir, path.resolve(p));
+
 	console.log('Test files:');
 	for (let file of files) {
-		console.log(chalk.gray(`• ${file}`));
+		console.log(chalk.gray(`• ${absToRel(file)}`));
 	}
 	console.log('='.repeat(50));
 
@@ -97,7 +102,7 @@ export async function runAll(filter = '') {
 
 		await new Promise((resolve) => {
 			file !== files[0] && console.log('-'.repeat(50));
-			console.log(`Running ${chalk.gray(file)}`);
+			console.log(`Running ${chalk.gray(absToRel(file))}`);
 
 			let proc = spawn(`${dfxCache}/moc`, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
 
@@ -116,7 +121,7 @@ export async function runAll(filter = '') {
 				let text = data.toString().trim();
 				// change absolute file path to relative
 				// change :line:col-line:col to :line:col to work in vscode
-				text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${path.relative(getRootDir(), path.resolve(m1))}:${m2}:${m3}`);
+				text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${absToRel(m1)}:${m2}:${m3}`);
 				mmf1.fail(text);
 			});
 
