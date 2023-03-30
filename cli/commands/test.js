@@ -67,7 +67,7 @@ export async function runAll(filter = '') {
 	else {
 		let globStr = '**/test?(s)/**/*.test.mo';
 		if (filter) {
-			globStr = `**/test?(s)/**/*${filter}*`;
+			globStr = `**/test?(s)/**/*${filter}*.mo`;
 		}
 		files = glob.sync(path.join(rootDir, globStr), globConfig);
 	}
