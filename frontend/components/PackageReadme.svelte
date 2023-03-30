@@ -5,9 +5,9 @@
 	import {toHtml} from 'hast-util-to-html';
 	import '@wooorm/starry-night/style/light.css';
 
-	export let readme: string = '';
-	export let repository: string = '';
-	export let readmeHtml: string = '';
+	export let readme = '';
+	export let repository = '';
+	let readmeHtml = 'Loading...';
 
 	let render = async (readme: string) => {
 		let div = document.createElement('div');
