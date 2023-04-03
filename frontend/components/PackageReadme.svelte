@@ -31,7 +31,7 @@
 
 		// syntax highlight
 		let starryNight = await createStarryNight([moGrammar]);
-		div.querySelectorAll('pre code.language-motoko').forEach((el) => {
+		div.querySelectorAll('pre code.language-motoko, pre code.language-mo').forEach((el) => {
 			el.innerHTML = toHtml(starryNight.highlight(el.textContent, 'source.mo'));
 		});
 		readmeHtml = div.innerHTML;
