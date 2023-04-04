@@ -17,6 +17,7 @@ import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
+import {remove} from './commands/remove.js';
 
 program.name('mops');
 
@@ -43,6 +44,21 @@ program
 			process.exit(1);
 		}
 		await add(pkg, options);
+	});
+
+// remove
+program
+	.command('remove <pkg>')
+	.alias('rm')
+	.description('Remove package and update mops.toml')
+	.option('--dev', 'Remove from dev-dependencies instead of dependencies')
+	.option('--verbose', 'Show more information')
+	.option('--dry-run', 'Do not actually remove anything')
+	.action(async (pkg, options) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await remove(pkg, options);
 	});
 
 // install
@@ -87,6 +103,7 @@ program
 // set-network
 program
 	.command('set-network <network>')
+	.alias('sn')
 	.description('Set network local|dev|ic')
 	.action(async (network) => {
 		await setNetwork(network);
@@ -96,6 +113,7 @@ program
 // get-network
 program
 	.command('get-network')
+	.alias('gn')
 	.description('Get network')
 	.action(async () => {
 		console.log(getNetwork().network);
