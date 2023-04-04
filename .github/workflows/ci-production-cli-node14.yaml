@@ -27,14 +27,13 @@ jobs:
         run: |
           npx mocv use 0.8.5
 
-      - name: Build and Deploy Frontend
+      - name: Build and Deploy
         run: |
             npm i
             npm i -g ic-mops
             mops install
             npm run replica
             npm run deploy
-            npm run build
 
   test:
     runs-on: ubuntu-latest
