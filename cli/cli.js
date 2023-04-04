@@ -18,6 +18,7 @@ import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
+import {docs} from './commands/docs.js';
 
 program.name('mops');
 
@@ -194,6 +195,17 @@ program
 			process.exit(1);
 		}
 		await template(options);
+	});
+
+// docs
+program
+	.command('docs')
+	.description('Generate documentation (experimental)')
+	.action(async () => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await docs();
 	});
 
 // self update
