@@ -28,10 +28,10 @@ export class MMF1 {
 
 	_testStart(name) {
 		if (this.stack.length) {
-			let suite = this.stack.at(-1);
+			let suite = this.stack[this.stack.length - 1];
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
-				console.log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', this.stack.at(-1));
+				console.log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
 			}
 		}
 		this.stack.push(name);
