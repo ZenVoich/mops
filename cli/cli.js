@@ -91,13 +91,14 @@ program
 program
 	.command('publish')
 	.description('Publish package to the mops registry')
-	.action(async () => {
+	.option('--no-docs', 'Do not generate docs')
+	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
 		let compatible = await checkApiCompatibility();
 		if (compatible) {
-			await publish();
+			await publish(options);
 		}
 	});
 

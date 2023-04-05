@@ -73,8 +73,14 @@ module {
 		if (config.scripts.size() > 0) {
 			return #err("invalid config: 'scripts' field is not supported yet");
 		};
+		if (config.donation.size() > 0) {
+			return #err("invalid config: 'donation' field is not supported yet");
+		};
 		if (config.baseDir != "src") {
 			return #err("invalid config: 'baseDir' field must be equal to 'src'");
+		};
+		if (config.readme != "README.md") {
+			return #err("invalid config: 'readme' field must be equal to 'README.md'");
 		};
 
 		if (config.name.size() == 0) {

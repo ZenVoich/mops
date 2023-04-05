@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import glob from 'glob';
 import del from 'del';
 import tar from 'tar';
+import streamToPromise from 'stream-to-promise';
 
 import {getRootDir} from '../mops.js';
 
@@ -25,8 +26,9 @@ export async function docs({silent} = {}) {
 		moDoc = execSync('dfx cache show').toString().trim() + '/mo-doc';
 	}
 
+	// generate docs
 	await new Promise((resolve) => {
-		let proc = spawn(moDoc, [`--source=${path.join(rootDir, 'backend')}`, `--output=${docsDirRelative}`, '--format=adoc']);
+		let proc = spawn(moDoc, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
 
 		// stdout
 		proc.stdout.on('data', (data) => {
@@ -39,30 +41,42 @@ export async function docs({silent} = {}) {
 		proc.stderr.on('data', (data) => {
 			let text = data.toString().trim();
 			if (text.includes('syntax error')) {
-				silent || console.log(chalk.red('Error:'), text);
+				console.log(chalk.red('Error:'), text);
 				process.exit(1);
+			}
+			if (text.includes('No such file or directory') || text.includes('Couldn\'t find a module expression')) {
+				return;
 			}
 			stderr += text;
 		});
 
 		// exit
 		proc.on('exit', (code) => {
+			// if no source files found
+			if (code === 2 && !stderr) {
+				resolve();
+				return;
+			}
 			if (code !== 0) {
-				silent || console.log(chalk.red('Error:'), stderr);
+				console.log(chalk.red('Error:'), code, stderr);
 				process.exit(1);
 			}
 			resolve();
 		});
 	});
 
+	// create archive
 	let files = glob.sync(`${docsDir}/**/*.adoc`).map(f => path.relative(docsDir, f));
-	tar.c(
-		{
-			gzip: true,
-			cwd: docsDir,
-		},
-		files
-	).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tgz')));
+	if (files.length) {
+		let stream = tar.create(
+			{
+				gzip: true,
+				cwd: docsDir,
+			},
+			files
+		).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tar.gz')));
+		await streamToPromise(stream);
+	}
 
 	silent || console.log(`${chalk.green('Documentation generated')} at ${docsDirRelative}`);
 }

@@ -301,7 +301,8 @@ actor {
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
 		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
 		let license = Text.endsWith(path, #text("LICENSE")) or Text.endsWith(path, #text("LICENSE.md")) or Text.endsWith(path, #text("license"));
-		if (not (moMd or didToml or license)) {
+		let docsTarGz = path == "docs.tar.gz";
+		if (not (moMd or didToml or license or docsTarGz)) {
 			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
 
