@@ -70,11 +70,12 @@ export async function docs({silent} = {}) {
 	if (files.length) {
 		let stream = tar.create(
 			{
-				gzip: true,
 				cwd: docsDir,
+				gzip: true,
+				portable: true,
 			},
 			files
-		).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tar.gz')));
+		).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tgz')));
 		await streamToPromise(stream);
 	}
 

@@ -14,12 +14,14 @@
 	import PackageCard from './PackageCard.svelte';
 	import DownloadTrend from './DownloadTrend.svelte';
 	import PackageReadme from './PackageReadme.svelte';
+	import PackageDocs from './PackageDocs.svelte';
 
 	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
 	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
 	$: $currentURL && load();
 
 	let readme: string;
+	let docsData: Uint8Array;
 	let packageDetails: PackageDetails;
 	let loaded = false;
 	let installHovered = false;
@@ -44,6 +46,7 @@
 			return;
 		}
 
+		// download readme
 		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 		if ('ok' in res) {
 			readme = new TextDecoder().decode(new Uint8Array(res.ok));
@@ -51,6 +54,13 @@
 		else {
 			readme = '*Not found README.md*';
 		}
+
+		// download docs
+		let docsRes = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/docs.tgz`, 0n);
+		if ('ok' in docsRes) {
+			docsData = new Uint8Array(docsRes.ok);
+		}
+
 		loaded = true;
 	});
 
@@ -132,6 +142,7 @@
 
 			<!-- tabs -->
 			<div class="tabs">
+				<div class="tab" class:selected={isTabSelected('docs', selectedTab)} on:click={() => selectTab('docs')}>Docs</div>
 				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')}>Readme</div>
 				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')}>Versions ({packageDetails.versionHistory.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
@@ -143,6 +154,12 @@
 				<div class="content">
 					{#if selectedTab == ''}
 						<PackageReadme readme={readme} repository={packageDetails.config.repository}></PackageReadme>
+					{:else if selectedTab == 'docs'}
+						{#if docsData}
+							<PackageDocs docsData={docsData}></PackageDocs>
+						{:else}
+							<div class="no-docs">No documentation found</div>
+						{/if}
 					{:else if selectedTab == 'versions'}
 						<div class="packages">
 							{#each packageDetails.versionHistory as versionSummary}
@@ -325,7 +342,8 @@
 		display: flex;
 		overflow: auto;
 		width: 100%;
-		max-width: 900px;
+		max-width: 1100px;
+		margin-left: -180px;
 		margin-top: 25px;
 	}
 

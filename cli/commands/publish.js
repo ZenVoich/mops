@@ -182,7 +182,7 @@ export async function publish({noDocs} = {}) {
 	files = globbySync([...files, ...defaultFiles]);
 
 	// generate docs
-	let docsFile = path.join(rootDir, '.mops/_docs/docs.tar.gz');
+	let docsFile = path.join(rootDir, '.mops/_docs/docs.tgz');
 	if (!noDocs) {
 		await docs({silent: true});
 		if (fs.existsSync(docsFile)) {
