@@ -41,25 +41,3 @@
 </script>
 
 {@html readmeHtml}
-
-<style>
-	:global(h1, h2) {
-		border-bottom: 1px solid rgb(177, 177, 177);
-		padding-bottom: 4px;
-		margin-top: 0;
-	}
-
-	:global(code) {
-		padding: 3px;
-		border-radius: 3px;
-		overflow-x: auto;
-		background: rgb(236 238 238);
-	}
-
-	:global(pre > code) {
-		display: block;
-		padding: 10px;
-		tab-size: 4;
-		background: rgb(246 248 248);
-	}
-</style>

@@ -22,7 +22,7 @@ export async function docs({silent} = {}) {
 	if (process.env.DFX_MOC_PATH && process.env.DFX_MOC_PATH.includes('mocv/versions')) {
 		moDoc = process.env.DFX_MOC_PATH.replace(/\/moc$/, '/mo-doc');
 	}
-	if (!moDoc) {
+	else {
 		moDoc = execSync('dfx cache show').toString().trim() + '/mo-doc';
 	}
 

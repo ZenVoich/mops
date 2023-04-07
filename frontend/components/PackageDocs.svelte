@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {link, routeParams} from 'svelte-spa-history-router';
 	import pako from 'pako';
 	import untar from 'js-untar';
 	import {createStarryNight} from '@wooorm/starry-night';
@@ -7,22 +8,36 @@
 
 	export let docsData: Uint8Array;
 	let docsHtml = 'Loading...';
+	let files: any[] = [];
+	// let selectedFileName: string;
+	let definitions: any[] = [];
 
-	let render = async (docsData: Uint8Array) => {
+	function getDefaultFileName(files: any[]): string {
+		return files[0]?.name.replace('.adoc', '');
+	}
+
+	function isFileSelected(file: any, selectedFileName = getDefaultFileName(files)) {
+		return file.name.replace('.adoc', '') == selectedFileName;
+	}
+
+	let unpack = async (docsData: Uint8Array) => {
+		let decompressed = pako.inflate(docsData);
+		files = await untar(decompressed.buffer);
+		// selectedFileName = files[0]?.name.replace('.adoc', '');
+	};
+
+	let render = async (files: any[], fileName = getDefaultFileName(files)) => {
+		let file = files.find((file) => file.name.replace('.adoc', '') == fileName);
+		if (!file) {
+			return;
+		}
+
 		let div = document.createElement('div');
 
+		// @ts-ignore
 		let asciidoctor = window.Asciidoctor();
-		let decompressed = pako.inflate(docsData);
-		let files = await untar(decompressed.buffer);
-
-		for (const file of files) {
-			// console.log(file);
-
-			if (file.name === 'Array.adoc') {
-				let text = new TextDecoder().decode(file.buffer);
-				div.innerHTML = asciidoctor.convert(text);
-			}
-		}
+		let text = new TextDecoder().decode(file.buffer);
+		div.innerHTML = asciidoctor.convert(text);
 
 		// syntax highlight
 		let starryNight = await createStarryNight([moGrammar]);
@@ -33,16 +48,69 @@
 		docsHtml = div.innerHTML;
 	};
 
-	$: render(docsData);
+	$: unpack(docsData);
+	// $: selectedFileName = $routeParams.file;
+	// $: if ($routeParams.file) {
+	// }
+	$: render(files, $routeParams.file);
 </script>
 
-{@html docsHtml}
+<div class="package-docs">
+	<div class="files">
+		{#each files as file}
+			<a
+				class="file"
+				class:selected={isFileSelected(file, $routeParams.file)}
+				href="/{$routeParams.packageId}/{$routeParams.tab}/{file.name.replace('.adoc', '')}"
+				use:link
+			>
+				{file.name.replace('.adoc', '')}
+			</a>
+		{/each}
+	</div>
+
+	<div class="content">
+		{@html docsHtml}
+	</div>
+
+	<div class="definitions">
+		{#each definitions as definition}
+			<div class="definition">
+				{definition.name}
+			</div>
+		{/each}
+	</div>
+</div>
 
 <style>
-	:global(h1, h2) {
-		border-bottom: 1px solid rgb(177, 177, 177);
-		padding-bottom: 4px;
-		margin-top: 0;
+	.package-docs {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.files {
+		width: 450px;
+		background: hsl(34.35deg 100% 50% / 5.1%);
+	}
+
+	.file {
+		display: block;
+		padding: 6px 12px;
+	}
+
+	.file.selected {
+		background: antiquewhite;
+	}
+
+	.content {
+		flex-basis: 100%;
+		padding: 20px;
+		padding-top: 0;
+	}
+
+	.definitions {
+		width: 450px;
+		background: aliceblue;
 	}
 
 	:global(code) {

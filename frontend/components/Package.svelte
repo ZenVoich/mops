@@ -12,13 +12,15 @@
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
-	import DownloadTrend from './DownloadTrend.svelte';
 	import PackageReadme from './PackageReadme.svelte';
 	import PackageDocs from './PackageDocs.svelte';
+	import PackageRightPanel from './PackageRightPanel.svelte';
 
-	$: pkgName = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[0] : '';
-	$: pkgVersion = $currentURL.pathname.split('/')[1] ? decodeURI($currentURL.pathname.split('/')[1]).split('@')[1] : '';
+	let pkgName: string;
+	$: pkgName = $routeParams.packageName;
+	$: pkgVersion = $routeParams.version;
 	$: $currentURL && load();
+
 
 	let readme: string;
 	let docsData: Uint8Array;
@@ -95,10 +97,7 @@
 
 	$: selectedTab = $routeParams.tab || '';
 	function selectTab(tab: string) {
-		let path = `/${$routeParams.package}`;
-		if ($routeParams.version) {
-			path += `@${$routeParams.version}`;
-		}
+		let path = `/${$routeParams.packageId}`;
 		if (tab) {
 			path += `/${tab}`;
 		}
@@ -150,99 +149,70 @@
 			</div>
 
 			<div class="body">
-
-				<div class="content">
-					{#if selectedTab == ''}
-						<PackageReadme readme={readme} repository={packageDetails.config.repository}></PackageReadme>
-					{:else if selectedTab == 'docs'}
+				{#if selectedTab == 'docs'}
+					<div class="layout-wide">
 						{#if docsData}
 							<PackageDocs docsData={docsData}></PackageDocs>
 						{:else}
 							<div class="no-docs">No documentation found</div>
 						{/if}
-					{:else if selectedTab == 'versions'}
-						<div class="packages">
-							{#each packageDetails.versionHistory as versionSummary}
-								<div class="version-summary">
-									<a href="/{pkgName}@{versionSummary.config.version}" use:link>{versionSummary.config.version}</a>
-									<div class="version-published"><Date date="{Number(versionSummary.publication.time / 1000000n)}"></Date></div>
-								</div>
-							{/each}
-						</div>
-					{:else if selectedTab == 'dependencies'}
-						<h3>Dependencies</h3>
-						<div class="packages">
-							{#each packageDetails.deps as pkg}
-								<PackageCard {pkg} showVersion={true} />
-							{/each}
-						</div>
-						{#if packageDetails.devDeps.length}
-							<h3>Dev Dependencies</h3>
-							<div class="packages">
-								{#each packageDetails.devDeps as pkg}
-									<PackageCard {pkg} showVersion={true} />
-								{/each}
-							</div>
-						{/if}
-						{#if githubDeps.length}
-							<h3>GitHub Dependencies</h3>
-							<div class="packages">
-								{#each githubDeps as dep}
-									<div class="github-dep">
-										<a class="github-dep-repo" href="{dep.repo}" target="_blank">
-											<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
-											<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
-										</a>
-										<div class="github-dep-tag">{dep.repo.split('#')[1] || ''}</div>
-									</div>
-								{/each}
-							</div>
-						{/if}
-					{:else if selectedTab == 'dependents'}
-						<div class="packages">
-							{#each packageDetails.dependents as pkg}
-								<PackageCard {pkg} showDownloads={true} />
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<div class="right-panel">
-					<div class="downloads">
-						<div class="detail">
-							<div class="label">Downloads</div>
-							<div class="value">{packageDetails.downloadsTotal}</div>
-						</div>
-						<DownloadTrend snapshots={packageDetails.downloadTrend}></DownloadTrend>
 					</div>
-					{#if packageDetails.config.repository}
-						<div class="detail">
-							<div class="label">Repository</div>
-							<a class="value repository" href="{packageDetails.config.repository}" target="_blank">
-								<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
-								{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
-							</a>
+				{:else}
+					<div class="layout-compact">
+						<div class="middle">
+							{#if selectedTab == ''}
+								<PackageReadme readme={readme} repository={packageDetails.config.repository}></PackageReadme>
+							{:else if selectedTab == 'versions'}
+								<div class="packages">
+									{#each packageDetails.versionHistory as versionSummary}
+										<div class="version-summary">
+											<a href="/{pkgName}@{versionSummary.config.version}" use:link>{versionSummary.config.version}</a>
+											<div class="version-published"><Date date="{Number(versionSummary.publication.time / 1000000n)}"></Date></div>
+										</div>
+									{/each}
+								</div>
+							{:else if selectedTab == 'dependencies'}
+								<h3>Dependencies</h3>
+								<div class="packages">
+									{#each packageDetails.deps as pkg}
+										<PackageCard {pkg} showVersion={true} />
+									{/each}
+								</div>
+								{#if packageDetails.devDeps.length}
+									<h3>Dev Dependencies</h3>
+									<div class="packages">
+										{#each packageDetails.devDeps as pkg}
+											<PackageCard {pkg} showVersion={true} />
+										{/each}
+									</div>
+								{/if}
+								{#if githubDeps.length}
+									<h3>GitHub Dependencies</h3>
+									<div class="packages">
+										{#each githubDeps as dep}
+											<div class="github-dep">
+												<a class="github-dep-repo" href="{dep.repo}" target="_blank">
+													<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+													<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
+												</a>
+												<div class="github-dep-tag">{dep.repo.split('#')[1] || ''}</div>
+											</div>
+										{/each}
+									</div>
+								{/if}
+							{:else if selectedTab == 'dependents'}
+								<div class="packages">
+									{#each packageDetails.dependents as pkg}
+										<PackageCard {pkg} showDownloads={true} />
+									{/each}
+								</div>
+							{/if}
 						</div>
-					{/if}
-					{#if packageDetails.config.documentation}
-						<div class="detail">
-							<div class="label">Documentation</div>
-							<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
+						<div class="right">
+							<PackageRightPanel {packageDetails}></PackageRightPanel>
 						</div>
-					{/if}
-					{#if packageDetails.config.license}
-						<div class="detail">
-							<div class="label">License</div>
-							<a class="value" href="https://spdx.org/licenses/{packageDetails.config.license}.html" target="_blank">{packageDetails.config.license}</a>
-						</div>
-					{/if}
-					{#if packageDetails.owner}
-						<div class="detail">
-							<div class="label">Owner</div>
-							<div class="value">{packageDetails.owner}</div>
-						</div>
-					{/if}
-				</div>
+					</div>
+				{/if}
 			</div>
 		{:else}
 			<div class="not-found">
@@ -342,8 +312,8 @@
 		display: flex;
 		overflow: auto;
 		width: 100%;
-		max-width: 1100px;
-		margin-left: -180px;
+		flex-shrink: 0;
+		max-width: 1280px;
 		margin-top: 25px;
 	}
 
@@ -389,12 +359,18 @@
 
 	.body {
 		display: flex;
+		justify-content: center;
 		margin-top: 20px;
 		width: 100%;
-		max-width: 900px;
 	}
 
-	.content {
+	.layout-compact {
+		display: flex;
+		max-width: 900px;
+		flex-grow: 1;
+	}
+
+	.layout-compact .middle {
 		flex-grow: 1;
 		background: white;
 		padding: 20px;
@@ -403,43 +379,10 @@
 		word-break: break-word;
 	}
 
-	.right-panel {
-		width: 240px;
+	.layout-wide {
 		display: flex;
-		flex-direction: column;
-		gap: 15px;
-	}
-
-	.downloads {
-		display: flex;
-		align-items: flex-end;
-		gap: 5px;
-		justify-content: space-between;
-	}
-
-	.detail {
-		display: flex;
-		flex-direction: column;
-		gap: 3px;
-	}
-
-	.label {
-		font-weight: bold;
-		color: #303030;
-	}
-
-	.value {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.repository {
-		display: flex;
-		align-items: center;
-		line-height: 1;
-		gap: 5px;
-		white-space: normal;
+		max-width: 1280px;
+		flex-grow: 1;
 	}
 
 	.github-icon {
@@ -449,13 +392,8 @@
 	}
 
 	@media (max-width: 750px) {
-		.body {
+		.layout-compact {
 			flex-wrap: wrap;
-		}
-
-		.right-panel {
-			margin-left: 20px;
-			margin-bottom: 20px;
 		}
 	}
 </style>
