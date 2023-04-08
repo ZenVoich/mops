@@ -57,10 +57,14 @@
 	};
 
 	let sidePanelHeight = '';
+	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
+	let margin = 20;
+	let headerHeight = 330;
+
 	let onScroll = () => {
-		let headerHeight = 330;
-		let size = Math.max(0, headerHeight - document.body.scrollTop);
-		sidePanelHeight = `calc(100vh - ${size}px)`;
+		let subtractSize = Math.max(0, headerHeight - document.body.scrollTop);
+		subtractSize += Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin - document.body.scrollHeight);
+		sidePanelHeight = `calc(100vh - ${subtractSize}px)`;
 		fileNameShadow = document.body.scrollTop > headerHeight;
 	};
 
@@ -224,11 +228,11 @@
 		border-bottom: none;
 	}
 
-	:global(h2) {
+	:global(h2, h3) {
 		transition: background-color cubic-bezier(0, 0.79, 0.56, 0.5) 0.6s;
 	}
 
-	:global(h2.highlight) {
+	:global(h2.highlight, h3.highlight) {
 		background: rgb(236 238 0 / 30%);
 	}
 

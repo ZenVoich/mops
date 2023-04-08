@@ -4,7 +4,7 @@
 	import Twitter from './links/Twitter.svelte';
 </script>
 
-<footer>
+<footer id="app-footer">
 	<Logo size="small" />
 	<GitHub />
 	<Twitter />
