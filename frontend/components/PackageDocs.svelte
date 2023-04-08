@@ -36,11 +36,10 @@
 
 		let div = document.createElement('div');
 
-		// @ts-ignore
 		let text = new TextDecoder().decode(file.buffer);
+		// @ts-ignore
 		let asciidoctor = window.Asciidoctor();
 		let doc = asciidoctor.load(text);
-		console.log(doc);
 		definitions = Object.keys(doc.getRefs()).slice(1);
 		div.innerHTML = doc.convert();
 

@@ -391,6 +391,10 @@
 		filter: hue-rotate(45deg) contrast(0.6);
 	}
 
+	.no-docs {
+		margin: auto;
+	}
+
 	@media (max-width: 750px) {
 		.layout-compact {
 			flex-wrap: wrap;

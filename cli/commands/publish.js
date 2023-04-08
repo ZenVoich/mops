@@ -190,8 +190,6 @@ export async function publish({noDocs} = {}) {
 		}
 	}
 
-	console.log(files);
-
 	// check required files
 	if (!files.includes('mops.toml')) {
 		console.log(chalk.red('Error: ') + ' please add mops.toml file');

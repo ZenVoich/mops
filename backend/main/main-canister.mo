@@ -332,13 +332,11 @@ actor {
 			};
 		};
 
-		if (not docsTarGz) {
-			let pubFile: PublishingFile = {
-				id = fileId;
-				path = path;
-			};
-			pubFiles.add(pubFile);
+		let pubFile: PublishingFile = {
+			id = fileId;
+			path = path;
 		};
+		pubFiles.add(pubFile);
 
 		#ok(fileId);
 	};
@@ -389,7 +387,9 @@ actor {
 			return res;
 		};
 
-		fileIdsByPackage.put(packageId, fileIds);
+		fileIdsByPackage.put(packageId, Array.filter(fileIds, func(fileId: Text.Text): Bool {
+			not Text.endsWith(fileId, #text("docs.tgz"));
+		}));
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));
