@@ -321,6 +321,7 @@ actor {
 			case (_) {};
 		};
 
+		// upload first chunk
 		if (chunkCount != 0) {
 			let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, 0, firstChunk);
 			switch (uploadRes) {
@@ -331,11 +332,13 @@ actor {
 			};
 		};
 
-		let pubFile: PublishingFile = {
-			id = fileId;
-			path = path;
+		if (not docsTarGz) {
+			let pubFile: PublishingFile = {
+				id = fileId;
+				path = path;
+			};
+			pubFiles.add(pubFile);
 		};
-		pubFiles.add(pubFile);
 
 		#ok(fileId);
 	};
