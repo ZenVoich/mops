@@ -1,4 +1,4 @@
-<a aria-label="Mops on Discord" href="https://discord.gg/MfWpnf2X" target="_blank" rel="external noopener norefferer">
+<a aria-label="Mops on Discord" href="https://discord.gg/9HNsJwaU3T" target="_blank" rel="external noopener norefferer">
 	<img src="/img/discord.svg" alt="Discord logo" loading="lazy" />
 </a>
 
