@@ -56,19 +56,41 @@
 		});
 	};
 
-	let sidePanelHeight = '';
+	let docHeaderEl: HTMLElement;
+	let filesEl: HTMLElement;
+	let defsEl: HTMLElement;
+
+	let filesPanelHeight = '';
+	let defsPanelHeight = '';
+	let defsPanelTop = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
 	let margin = 20;
-	let headerHeight = 330;
+	let filesDefsDiff = 0;
 
+	// adjust side panel's height on scroll
 	let onScroll = () => {
-		let subtractSize = Math.max(0, headerHeight - document.body.scrollTop);
-		subtractSize += Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin - document.body.scrollHeight);
-		sidePanelHeight = `calc(100vh - ${subtractSize}px)`;
-		fileNameShadow = document.body.scrollTop > headerHeight;
+		if (!filesDefsDiff) {
+			filesDefsDiff = defsEl.offsetTop - filesEl.offsetTop;
+		}
+
+		let filesTop = Math.max(0, filesEl.getBoundingClientRect().top);
+		let footerSizeFiles = Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin - document.body.scrollHeight);
+		let footerSizeDefs = Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin + filesDefsDiff - document.body.scrollHeight);
+
+		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
+		defsPanelHeight = `calc(100vh - ${filesTop + footerSizeDefs}px)`;
+
+		if (filesTop < 1) {
+			defsPanelTop = `${filesDefsDiff}px`;
+		}
+		else {
+			defsPanelTop = '';
+		}
+
+		fileNameShadow = filesTop < 1;
 	};
 
-	onScroll();
+	filesEl && onScroll();
 
 	onMount(() => {
 		window.addEventListener('scroll', onScroll);
@@ -92,7 +114,7 @@
 			return;
 		}
 		document.body.scroll({
-			top: el.offsetTop - 60,
+			top: el.offsetTop - docHeaderEl.offsetHeight - 10,
 			behavior: 'smooth',
 		});
 		el.classList.add('highlight');
@@ -106,7 +128,7 @@
 </script>
 
 <div id="package-docs" class="package-docs">
-	<div class="files" style:max-height={sidePanelHeight}>
+	<div class="files" style:max-height={filesPanelHeight} bind:this={filesEl}>
 		{#each files as file}
 			<a
 				class="file"
@@ -119,22 +141,29 @@
 		{/each}
 	</div>
 
-	<div class="content">
-		<div class="file-name" class:shadow={fileNameShadow}><code>{selectedFileName}</code></div>
-		{@html docsHtml}
-	</div>
+	<div class="middle-right">
+		<div class="doc-header" class:shadow={fileNameShadow} bind:this={docHeaderEl}>
+			<div class="file-name"><code>{selectedFileName}</code></div>
+		</div>
 
-	<div class="definitions" style:max-height={sidePanelHeight}>
-		{#each definitions as definition}
-			<a
-				class="definition"
-				class:in-viewport={false}
-				href="#{definition}"
-				on:click={definitionOnClick}
-			>
-				{definition}
-			</a>
-		{/each}
+		<div class="content-and-definitions">
+			<div class="content">
+				{@html docsHtml}
+			</div>
+
+			<div class="definitions" style:max-height={defsPanelHeight} style:top={defsPanelTop} bind:this={defsEl}>
+				{#each definitions as definition}
+					<a
+						class="definition"
+						class:in-viewport={false}
+						href="#{definition}"
+						on:click={definitionOnClick}
+					>
+						{definition}
+					</a>
+				{/each}
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -146,12 +175,49 @@
 		min-width: 0;
 	}
 
+	.middle-right {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		flex-grow: 1;
+	}
+
+	.content-and-definitions {
+		display: flex;
+	}
+
+	.doc-header  {
+		position: sticky;
+		top: -1px;
+		z-index: 1;
+		background: white;
+		margin-bottom: 25px;
+		padding: 10px;
+	}
+
+	.doc-header.shadow {
+		box-shadow: -4px 2px 3px 0px #c7c7c7;
+	}
+	.doc-header.shadow .file-name {
+		border-bottom-color: transparent;
+	}
+
+	.doc-header .file-name {
+		display: flex;
+		padding: 8px 0;
+		border-bottom: 1px solid rgb(111 111 111);
+		font-size: 2em;
+		font-weight: bold;
+		padding-left: 10px;
+	}
+
 	.files, .definitions {
 		position: sticky;
 		top: 0;
 		max-height: calc(100vh - 330px);
 		overflow: auto;
 		width: 260px;
+		flex-shrink: 0;
 	}
 
 	:is(.files, .definitions)::-webkit-scrollbar {
@@ -170,6 +236,7 @@
 	.files {
 		padding-right: 2px;
 		background: white;
+		z-index: 2;
 	}
 
 	.file, .definition {
@@ -207,25 +274,6 @@
 		min-width: 0;
 		/* extra space for scroll */
 		min-height: 1500px;
-	}
-
-	.content .file-name {
-		position: sticky;
-		top: -1px;
-		display: flex;
-		padding: 8px 0;
-		border-bottom: 1px solid rgb(111 111 111);
-		font-size: 2em;
-		font-weight: bold;
-		margin-bottom: 25px;
-		background: white;
-	}
-
-	.content .file-name.shadow {
-		margin: 0 -20px;
-		padding: 5px 20px;
-		box-shadow: 0px 2px 3px 0px #c7c7c7;
-		border-bottom: none;
 	}
 
 	:global(h2, h3) {
