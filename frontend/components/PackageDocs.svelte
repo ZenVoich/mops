@@ -67,18 +67,25 @@
 	let margin = 20;
 	let filesDefsDiff = 0;
 
-	// adjust side panel's height on scroll
+	// adjust side panels' height on scroll
 	let onScroll = () => {
 		if (!filesDefsDiff) {
 			filesDefsDiff = defsEl.offsetTop - filesEl.offsetTop;
 		}
 
 		let filesTop = Math.max(0, filesEl.getBoundingClientRect().top);
-		let footerSizeFiles = Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin - document.body.scrollHeight);
-		let footerSizeDefs = Math.max(0, document.body.scrollTop + document.body.clientHeight + footerHeight + margin + filesDefsDiff - document.body.scrollHeight);
+		let scrollTopWithFooter = document.body.scrollTop + document.body.clientHeight + footerHeight + margin;
+		let footerSizeFiles = Math.max(0, scrollTopWithFooter - document.body.scrollHeight);
+		let footerSizeDefs = Math.max(0, scrollTopWithFooter + filesDefsDiff - document.body.scrollHeight);
+
+		let defsExtra = filesDefsDiff;
+		if (document.body.scrollHeight < scrollTopWithFooter + filesDefsDiff) {
+			defsExtra -= scrollTopWithFooter + filesDefsDiff - document.body.scrollHeight;
+		}
+		defsExtra = Math.max(0, defsExtra);
 
 		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
-		defsPanelHeight = `calc(100vh - ${filesTop + footerSizeDefs}px)`;
+		defsPanelHeight = `calc(100vh - ${filesTop + footerSizeDefs}px - ${defsExtra}px)`;
 
 		if (filesTop < 1) {
 			defsPanelTop = `${filesDefsDiff}px`;
@@ -90,11 +97,9 @@
 		fileNameShadow = filesTop < 1;
 	};
 
-	filesEl && onScroll();
-
 	onMount(() => {
+		filesEl && onScroll();
 		window.addEventListener('scroll', onScroll);
-
 		return () => {
 			window.removeEventListener('scroll', onScroll);
 		};
