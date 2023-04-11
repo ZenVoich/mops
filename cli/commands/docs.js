@@ -45,6 +45,7 @@ export async function docs({silent} = {}) {
 				process.exit(1);
 			}
 			if (text.includes('No such file or directory') || text.includes('Couldn\'t find a module expression')) {
+				silent || console.log(text);
 				return;
 			}
 			stderr += text;
