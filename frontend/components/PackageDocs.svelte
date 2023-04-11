@@ -126,7 +126,9 @@
 						}
 						return `\n${indent}${m0}`;
 					})
-					.replaceAll('}\t;', '};');
+					.replace(/([^;])(\n\t*})/g, '$1;$2')
+					.replaceAll('}\t;', '};')
+					+ ';';
 			}
 
 			// syntax highlight
