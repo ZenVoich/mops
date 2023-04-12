@@ -18,6 +18,7 @@
 			"packtool": "mops sources"
 		}
 	},
+	"dfx": "0.13.1",
 	"networks": {
 		"local": {
 			"type": "ephemeral",
