@@ -60,7 +60,11 @@ export default defineConfig({
 				{
 					src: 'img/*',
 					dest: 'img'
-				}
+				},
+				{
+					src: 'asciidoctor.min.js',
+					dest: '.'
+				},
 			]
 		})
 	],
