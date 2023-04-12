@@ -48,20 +48,25 @@
 			return;
 		}
 
-		// download readme
-		let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
-		if ('ok' in res) {
-			readme = new TextDecoder().decode(new Uint8Array(res.ok));
-		}
-		else {
-			readme = '*Not found README.md*';
-		}
+		let dowloadReadme = async () => {
+			let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
+			if ('ok' in res) {
+				readme = new TextDecoder().decode(new Uint8Array(res.ok));
+			}
+			else {
+				readme = '*Not found README.md*';
+			}
+		};
 
-		// download docs
-		let docsRes = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/docs.tgz`, 0n);
-		if ('ok' in docsRes) {
-			docsData = new Uint8Array(docsRes.ok);
-		}
+
+		let downloadDocs = async () => {
+			let docsRes = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/docs.tgz`, 0n);
+			if ('ok' in docsRes) {
+				docsData = new Uint8Array(docsRes.ok);
+			}
+		};
+
+		await Promise.all([dowloadReadme(), downloadDocs()]);
 
 		loaded = true;
 	});
