@@ -1,0 +1,60 @@
+name: CI with production version of mops CLI, Node.js v14
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+env:
+  DFX_MOC_PATH: /home/runner/.cache/mocv/versions/current/moc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - uses: aviate-labs/setup-dfx@v0.2.3
+        with:
+          dfx-version: 0.13.0
+
+      - name: Select moc version
+        run: |
+          npx mocv use 0.8.5
+
+      - name: Build and Deploy
+        run: |
+            npm i
+            npm i -g ic-mops
+            mops install
+            npm run replica
+            npm run deploy
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - uses: aviate-labs/setup-dfx@v0.2.3
+        with:
+          dfx-version: 0.13.0
+
+      - name: Install npm packages
+        run: |
+            cd cli
+            npm install
+
+      - name: Run Tests
+        run: |
+            npm i -g ic-mops
+            mops install
+            dfx cache install
+            mops test
+
