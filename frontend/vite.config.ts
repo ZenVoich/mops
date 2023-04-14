@@ -65,6 +65,10 @@ export default defineConfig({
 					src: 'asciidoctor.min.js',
 					dest: '.'
 				},
+				{
+					src: '.ic-assets.json',
+					dest: '.'
+				},
 			]
 		})
 	],
