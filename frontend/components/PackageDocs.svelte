@@ -109,7 +109,7 @@
 
 			// beautify
 			let indentLevel = 0;
-			if (el.closest('.no-repl')) {
+			if (el.closest('.sectionbody > :first-child.listingblock.no-repl')) {
 				text = text.replaceAll(/(;)\s|(\{)\s|\s(\})/g, '$1$2$3')
 					.replace(/\{|\}|;/g, (m0) => {
 						if (m0 == '{') {
@@ -127,8 +127,11 @@
 						return `\n${indent}${m0}`;
 					})
 					.replace(/([^;])(\n\t*})/g, '$1;$2')
-					.replaceAll('}\t;', '};')
-					+ ';';
+					.replaceAll('}\t;', '};');
+
+				if (!text.trim().endsWith(';')) {
+					text += ';';
+				}
 			}
 
 			// syntax highlight
@@ -393,7 +396,7 @@
 		font-weight: 500;
 	}
 	.def-kind-func + .def-name {
-		color: hsl(35.08deg 51.75% 44.71%);
+		color: hsl(35 78% 38% / 1);
 	}
 	.def-kind-value + .def-name {
 		color: black;
