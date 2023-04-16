@@ -127,7 +127,7 @@ To be able to install/publish packages locally:
 
 2. Inside `cli` folder run
 ```
-npm run link
+npm link
 ```
 
 2. Switch network to local
