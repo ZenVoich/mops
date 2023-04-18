@@ -18,6 +18,7 @@ import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
+// import {docs} from './commands/docs.js';
 
 program.name('mops');
 
@@ -90,13 +91,14 @@ program
 program
 	.command('publish')
 	.description('Publish package to the mops registry')
-	.action(async () => {
+	.option('--no-docs', 'Do not generate docs')
+	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
 		let compatible = await checkApiCompatibility();
 		if (compatible) {
-			await publish();
+			await publish(options);
 		}
 	});
 
@@ -195,6 +197,17 @@ program
 		}
 		await template(options);
 	});
+
+// docs
+// program
+// 	.command('docs')
+// 	.description('Generate documentation (experimental)')
+// 	.action(async () => {
+// 		if (!checkConfigFile()) {
+// 			process.exit(1);
+// 		}
+// 		await docs();
+// 	});
 
 // self update
 program

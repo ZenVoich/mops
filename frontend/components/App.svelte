@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {Router, currentURL} from 'svelte-spa-history-router';
+	import {Router, currentURL, routeParams} from 'svelte-spa-history-router';
 	import {onMount} from 'svelte';
 
 	import Home from './Home.svelte';
@@ -15,7 +15,8 @@
 		{path: '/docs/publish', component: PublishDoc},
 		{path: '/docs/config', component: ConfigDoc},
 		{path: '/search/(?<search>.*)', component: SearchResults},
-		{path: '/(?<package>.*?)(@(?<version>.*?))?(/(?<tab>.*?))?', component: Package},
+		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)/(?<tab>docs)/(?<file>.*)', component: Package},
+		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)(/(?<tab>.*?))?', component: Package},
 	];
 
 	// redirect legacy paths
@@ -37,7 +38,19 @@
 	$: {
 		if ($currentURL) {
 			resetScrollTimer = setTimeout(() => {
-				window.scrollTo(0, 0);
+				// hack to scroll to docs section
+				if ($routeParams.packageId && $routeParams.tab == 'docs') {
+					setTimeout(() => {
+						let docsEl = document.querySelector('#package-docs') as HTMLElement;
+						let to = docsEl?.offsetTop || 0;
+						if (document.body.scrollTop > to) {
+							docsEl.scrollIntoView({behavior: 'smooth'});
+						}
+					}, 200);
+				}
+				else {
+					window.scrollTo(0, 0);
+				}
 			});
 		}
 	}

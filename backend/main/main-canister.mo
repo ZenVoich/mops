@@ -301,7 +301,8 @@ actor {
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
 		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
 		let license = Text.endsWith(path, #text("LICENSE")) or Text.endsWith(path, #text("LICENSE.md")) or Text.endsWith(path, #text("license"));
-		if (not (moMd or didToml or license)) {
+		let docsTgz = path == "docs.tgz";
+		if (not (moMd or didToml or license or docsTgz)) {
 			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
 
@@ -320,6 +321,7 @@ actor {
 			case (_) {};
 		};
 
+		// upload first chunk
 		if (chunkCount != 0) {
 			let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, 0, firstChunk);
 			switch (uploadRes) {
@@ -385,7 +387,9 @@ actor {
 			return res;
 		};
 
-		fileIdsByPackage.put(packageId, fileIds);
+		fileIdsByPackage.put(packageId, Array.filter(fileIds, func(fileId: Text.Text): Bool {
+			not Text.endsWith(fileId, #text("docs.tgz"));
+		}));
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));

@@ -18,11 +18,8 @@
 			"packtool": "mops sources"
 		}
 	},
+	"dfx": "0.13.1",
 	"networks": {
-		"local": {
-			"type": "ephemeral",
-			"bind": "127.0.0.1:4943"
-		},
 		"staging": {
 			"type": "persistent",
 			"providers": ["https://ic0.app"]

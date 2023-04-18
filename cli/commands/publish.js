@@ -1,18 +1,21 @@
 import fs from 'fs';
+import path from 'path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
 import {Principal} from '@dfinity/principal';
 import {globbySync} from 'globby';
 import minimatch from 'minimatch';
 import prompts from 'prompts';
-import {checkConfigFile, getIdentity, mainActor, progressBar, readConfig} from '../mops.js';
+import {checkConfigFile, getIdentity, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
+import {docs} from './docs.js';
 
-export async function publish() {
+export async function publish({noDocs} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
+	let rootDir = getRootDir();
 	let config = readConfig();
 
 	// validate
@@ -178,6 +181,15 @@ export async function publish() {
 	files = [...files, ...defaultFiles];
 	files = globbySync([...files, ...defaultFiles]);
 
+	// generate docs
+	let docsFile = path.join(rootDir, '.mops/_docs/docs.tgz');
+	if (!noDocs) {
+		await docs({silent: true});
+		if (fs.existsSync(docsFile)) {
+			files.unshift(docsFile);
+		}
+	}
+
 	// check required files
 	if (!files.includes('mops.toml')) {
 		console.log(chalk.red('Error: ') + ' please add mops.toml file');
@@ -190,7 +202,7 @@ export async function publish() {
 
 	// check allowed exts
 	for (let file of files) {
-		if (!minimatch(file, '**/*.{mo,did,md,toml}') && !file.toLowerCase().endsWith('license')) {
+		if (!minimatch(file, '**/*.{mo,did,md,toml}') && !file.toLowerCase().endsWith('license') && file !== docsFile) {
 			console.log(chalk.red('Error: ') + `file ${file} has unsupported extension. Allowed: .mo, .did, .md, .toml`);
 			return;
 		}
@@ -222,6 +234,11 @@ export async function publish() {
 		let content = fs.readFileSync(file);
 		let chunkCount = Math.ceil(content.length / chunkSize);
 		let firstChunk = Array.from(content.slice(0, chunkSize));
+
+		// remove path from docs file
+		if (file === docsFile) {
+			file = path.basename(file);
+		}
 
 		let res = await actor.startFileUpload(puiblishingId, file, chunkCount, firstChunk);
 		if (res.err) {

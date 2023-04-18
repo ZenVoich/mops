@@ -18,7 +18,7 @@ jobs:
           node-version: 18
       - uses: aviate-labs/setup-dfx@v0.2.3
         with:
-          dfx-version: 0.13.0
+          dfx-version: 0.13.1
 
       - name: install dfx
         run: dfx cache install

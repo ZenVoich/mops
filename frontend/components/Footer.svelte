@@ -5,7 +5,7 @@
 	import Discord from './links/Discord.svelte';
 </script>
 
-<footer>
+<footer id="app-footer">
 	<Logo size="small" />
 	<GitHub />
 	<Discord />
