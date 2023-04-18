@@ -13,8 +13,8 @@
 		"decl:frontend": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' frontend/declarations",
 		"decl:cli": "rsync -avr .dfx/local/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --exclude='*.old.did' cli/declarations",
 		"build:prod": "NODE_ENV=production dfx build --network ic",
-		"deploy:prod": "NODE_ENV=production dfx deploy --network ic --no-wallet",
-		"deploy:staging": "NODE_ENV=production dfx deploy --network staging --no-wallet",
+		"deploy:prod": "NODE_ENV=production dfx deploy --network ic --no-wallet --identity mops",
+		"deploy:staging": "NODE_ENV=production dfx deploy --network staging --no-wallet --identity mops",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)"
 	},
 	"devDependencies": {
