@@ -373,6 +373,7 @@
 		display: flex;
 		max-width: 900px;
 		flex-grow: 1;
+		min-width: 0;
 	}
 
 	.layout-compact .middle {
@@ -388,6 +389,7 @@
 		display: flex;
 		max-width: 1280px;
 		flex-grow: 1;
+		min-width: 0;
 	}
 
 	.github-icon {

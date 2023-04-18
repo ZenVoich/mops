@@ -22,7 +22,7 @@
 	let fileNameShadow = false;
 
 	function getDefaultFileName(files: any[]): string {
-		return files[0]?.name.replace('.adoc', '');
+		return files[0]?.name.replace('.adoc', '') || '';
 	}
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : getDefaultFileName(files);
@@ -88,16 +88,15 @@
 			if (getModuleNesting(el.id)) {
 				let section = el.closest('.sectionbody') as HTMLElement;
 				if (section) {
+					// sticky sub header
 					// let sectionTitle = section.previousElementSibling as HTMLElement;
-					// sectionTitle.previousElementSibling.style.position = 'sticky';
-					// sectionTitle.previousElementSibling.style.top = '72px';
-					// sectionTitle.previousElementSibling.style.background = 'white';
-					// sectionTitle.previousElementSibling.style.borderBottom = '1px solid gray';
+					// sectionTitle.style.position = 'sticky';
+					// sectionTitle.style.top = '72px';
+					// sectionTitle.style.background = 'white';
+					// sectionTitle.style.borderBottom = '1px solid gray';
 
 					section.style.marginLeft = '0px';
 					section.style.paddingLeft = '20px';
-					// section.style.borderLeft = '2px solid #e2e2e2';
-					// section.style.borderLeft = '2px dotted rgb(222 222 222)';
 					section.style.borderLeft = '1px solid rgb(222 222 222)';
 				}
 			}
@@ -224,16 +223,18 @@
 
 <div id="package-docs" class="package-docs">
 	<div class="files" style:max-height={filesPanelHeight} bind:this={filesEl}>
-		{#each files as file}
-			<a
-				class="file"
-				class:selected={isFileSelected(file, $routeParams.file)}
-				href="/{$routeParams.packageId}/{$routeParams.tab}/{file.name.replace('.adoc', '')}"
-				use:link
-			>
-				{file.name.replace('.adoc', '')}
-			</a>
-		{/each}
+		<div class="files-scrollable">
+			{#each files as file}
+				<a
+					class="file"
+					class:selected={isFileSelected(file, $routeParams.file)}
+					href="/{$routeParams.packageId}/{$routeParams.tab}/{file.name.replace('.adoc', '')}"
+					use:link
+				>
+					{file.name.replace('.adoc', '')}
+				</a>
+			{/each}
+		</div>
 	</div>
 
 	<div class="middle-right">
@@ -247,16 +248,18 @@
 			</div>
 
 			<div class="definitions" style:max-height={defsPanelHeight} style:top={defsPanelTop} bind:this={defsEl}>
-				{#each definitions as definition}
-					<a
-						class="definition nesting-{getModuleNesting(definition.id)}"
-						class:in-viewport={false}
-						href="#{definition.id}"
-						on:click={definitionOnClick}
-					>
-						<span class="def-kind def-kind-{definition.kind}">{definition.kind.split('-')[0]}</span> <span class="def-name">{definition.name}</span>
-					</a>
-				{/each}
+				<div class="definitions-scrollable">
+					{#each definitions as definition}
+						<a
+							class="definition nesting-{getModuleNesting(definition.id)}"
+							class:in-viewport={false}
+							href="#{definition.id}"
+							on:click={definitionOnClick}
+						>
+							<span class="def-kind def-kind-{definition.kind}">{definition.kind.split('-')[0]}</span> <span class="def-name">{definition.name}</span>
+						</a>
+					{/each}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -307,23 +310,29 @@
 	}
 
 	.files, .definitions {
+		display: flex;
 		position: sticky;
 		top: 0;
 		max-height: calc(100vh - 330px);
-		overflow: auto;
 		width: 260px;
 		flex-shrink: 0;
 	}
 
-	:is(.files, .definitions)::-webkit-scrollbar {
+	.files-scrollable,
+	.definitions-scrollable {
+		overflow: auto;
+		margin: 15px 0;
+	}
+
+	:is(.files-scrollable, .definitions-scrollable)::-webkit-scrollbar {
 		width: 10px;
 	}
 
-	:is(.files, .definitions)::-webkit-scrollbar-track {
+	:is(.files-scrollable, .definitions-scrollable)::-webkit-scrollbar-track {
 		background: rgba(0, 0, 0, 0.03);
 	}
 
-	:is(.files, .definitions)::-webkit-scrollbar-thumb {
+	:is(.files-scrollable, .definitions-scrollable)::-webkit-scrollbar-thumb {
 		background-color: lightgrey;
 		border-radius: 5px;
 	}
@@ -339,9 +348,12 @@
 
 	/* files */
 	.files {
-		padding-right: 2px;
 		background: white;
 		z-index: 2;
+	}
+
+	.files-scrollable {
+		padding-right: 2px;
 	}
 
 	.file:hover {
@@ -354,9 +366,10 @@
 	}
 
 	/* definitions */
-	.definitions {
+	.definitions-scrollable {
 		border-left: 2px solid rgb(246, 246, 246);
 		padding-left: 2px;
+		flex-grow: 1;
 	}
 
 	.definition {
@@ -440,7 +453,21 @@
 		line-height: 1.5;
 	}
 
-	/* :global(#preamble .paragraph:first-child p:first-child) {
-		margin-top: 0.5em;
-	} */
+	@media (max-width: 1300px) {
+		.definitions {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1030px) {
+		.package-docs {
+			flex-wrap: wrap;
+		}
+
+		.files {
+			position: static;
+			flex-grow: 1;
+			height: 185px;
+		}
+	}
 </style>
