@@ -450,7 +450,7 @@
 		padding: 10px;
 		tab-size: 4;
 		background: rgb(246 248 248);
-		line-height: 1.5;
+		line-height: 1.55;
 	}
 
 	@media (max-width: 1300px) {
