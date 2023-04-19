@@ -40,4 +40,12 @@
 	$: render(readme);
 </script>
 
-{@html readmeHtml}
+<div class="readme">
+	{@html readmeHtml}
+</div>
+
+<style>
+	.readme {
+		line-height: 1.5;
+	}
+</style>

@@ -322,6 +322,7 @@
 	.definitions-scrollable {
 		overflow: auto;
 		margin: 15px 0;
+		flex-grow: 1;
 	}
 
 	:is(.files-scrollable, .definitions-scrollable)::-webkit-scrollbar {
@@ -369,7 +370,6 @@
 	.definitions-scrollable {
 		border-left: 2px solid rgb(246, 246, 246);
 		padding-left: 2px;
-		flex-grow: 1;
 	}
 
 	.definition {
@@ -423,6 +423,7 @@
 		min-width: 0;
 		/* extra space for scroll */
 		min-height: 1500px;
+		line-height: 1.5;
 	}
 
 	:global(h2) {
