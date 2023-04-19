@@ -64,6 +64,9 @@
 			if ('ok' in docsRes) {
 				docsData = new Uint8Array(docsRes.ok);
 			}
+			else {
+				docsData = null;
+			}
 		};
 
 		await Promise.all([dowloadReadme(), downloadDocs()]);

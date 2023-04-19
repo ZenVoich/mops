@@ -314,7 +314,7 @@
 		position: sticky;
 		top: 0;
 		max-height: calc(100vh - 330px);
-		width: 260px;
+		width: 265px;
 		flex-shrink: 0;
 	}
 
