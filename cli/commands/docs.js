@@ -71,7 +71,11 @@ export async function docs({silent} = {}) {
 	});
 
 	// create archive
-	let files = glob.sync(`${docsDir}/**/*.adoc`).map(f => path.relative(docsDir, f));
+	let ignore = [
+		`${docsDir}/**/*.test.adoc`,
+		`${docsDir}/test/**/*`,
+	];
+	let files = glob.sync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
 	if (files.length) {
 		let stream = tar.create(
 			{
