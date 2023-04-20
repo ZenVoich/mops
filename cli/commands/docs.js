@@ -33,6 +33,10 @@ export async function docs({silent} = {}) {
 		// stdout
 		proc.stdout.on('data', (data) => {
 			let text = data.toString().trim();
+			let failedText = 'Failed to extract documentation';
+			if (text.includes(failedText)) {
+				console.log(text.replaceAll(failedText, chalk.yellow('Warning: ') + failedText));
+			}
 			silent || console.log('stdout', text);
 		});
 
