@@ -1,5 +1,5 @@
-import type {Principal} from '@dfinity/principal';
-import type {ActorMethod} from '@dfinity/agent';
+import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
 
 export type Chunk = Array<number>;
 export type Err = string;

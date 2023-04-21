@@ -3,7 +3,10 @@
 	"canisters": {
 		"main": {
 			"type": "motoko",
-			"main": "backend/main/main-canister.mo"
+			"main": "backend/main/main-canister.mo",
+			"declarations": {
+				"output": "cli/declarations/main/"
+			}
 		},
 		"assets": {
 			"type": "assets",
