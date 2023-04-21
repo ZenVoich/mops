@@ -59,6 +59,10 @@ jobs:
         with:
           dfx-version: 0.13.1
 
+      - name: Select moc version
+        run: |
+          npx mocv use 0.8.5
+
       - name: Install npm packages
         run: |
             cd cli

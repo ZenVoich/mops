@@ -51,6 +51,10 @@ jobs:
             cd cli
             npm install
 
+      - name: Select moc version
+        run: |
+          npx mocv use 0.8.5
+
       - name: Run Tests
         run: |
             npm i -g ic-mops
