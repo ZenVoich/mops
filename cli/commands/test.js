@@ -53,7 +53,7 @@ export async function test(filter = '', {watch = false} = {}) {
 	}
 }
 
-let dfxCache;
+let mocPath = process.env.DFX_MOC_PATH;
 
 export async function runAll(filter = '') {
 	let start = Date.now();
@@ -93,8 +93,9 @@ export async function runAll(filter = '') {
 	let passed = 0;
 	let skipped = 0;
 	let sourcesArr = await sources();
-	if (!dfxCache) {
-		dfxCache = execSync('dfx cache show').toString().trim();
+
+	if (!mocPath) {
+		mocPath = execSync('dfx cache show').toString().trim() + '/moc';
 	}
 
 	for (let file of files) {
@@ -104,7 +105,7 @@ export async function runAll(filter = '') {
 			file !== files[0] && console.log('-'.repeat(50));
 			console.log(`Running ${chalk.gray(absToRel(file))}`);
 
-			let proc = spawn(`${dfxCache}/moc`, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
+			let proc = spawn(mocPath, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
 
 			// stdout
 			proc.stdout.on('data', (data) => {
