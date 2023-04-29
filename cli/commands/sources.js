@@ -132,7 +132,7 @@ export async function sources({verbose} = {}) {
 		}
 
 		// use pkgDir if baseDir doesn't exist for local packages
-		if (pkg.path && !fs.existsSync(pkgBaseDir) && fs.existsSync(pkgDir)) {
+		if (pkg.path && !fs.existsSync(pkgBaseDir)) {
 			pkgBaseDir = pkgDir;
 		}
 
