@@ -16,20 +16,3 @@ export async function importPem(data) {
 		console.log(chalk.red('Error: ') + err);
 	}
 }
-
-// export async function pemFile(file) {
-// 	try {
-// 		if (!file.endsWith('.pem')) {
-// 			throw 'Please specify .pem file';
-// 		}
-// 		if (!fs.existsSync(file)) {
-// 			throw 'File not found ' + file;
-// 		}
-// 		let url = new URL('./pem-file', import.meta.url);
-// 		fs.writeFileSync(url, file);
-// 		console.log(chalk.green('Success'));
-// 	}
-// 	catch (e) {
-// 		console.log(chalk.red('Error: ') + e);
-// 	}
-// }

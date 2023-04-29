@@ -224,4 +224,20 @@ program
 		}
 	});
 
+// user
+program
+	.command('user set|get <prop> <value>')
+	.description('User settings')
+	.action(async (sub, prop, value) => {
+		if (sub == 'get') {
+			//
+		}
+		else if (sub == 'set') {
+			//
+		}
+		else {
+			console.log('Unknown sub command. Available sub commands: set, get');
+		}
+	});
+
 program.parse();

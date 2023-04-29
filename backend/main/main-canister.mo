@@ -21,10 +21,11 @@ import {DAY} "mo:time-consts";
 import Utils "../utils";
 import Version "./version";
 import Types "./types";
-import {validateConfig} "./validate-config";
 import DownloadLog "./download-log";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
+import Users "./users";
+import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
 actor {
@@ -58,6 +59,7 @@ actor {
 	downloadLog.setTimers();
 
 	let storageManager = StorageManager.StorageManager();
+	let users = Users.Users();
 
 	// publish
 	type PublishingId = Text.Text;
@@ -620,6 +622,7 @@ actor {
 
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
+	stable var usersStable: Users.Stable = null;
 
 	system func preupgrade() {
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
@@ -628,6 +631,7 @@ actor {
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
+		usersStable := users.toStable();
 
 		highestConfigsStableV2 := Iter.toArray(highestConfigs.entries());
 		packageConfigsStableV2 := Iter.toArray(packageConfigs.entries());
@@ -653,6 +657,9 @@ actor {
 
 		storageManager.loadStable(storageManagerStable);
 		storageManagerStable := null;
+
+		users.loadStable(usersStable);
+		usersStable := null;
 
 		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);

@@ -5,6 +5,18 @@ module {
 	public type PackageId = Text; // lib@1.2.3
 	public type Err = Text;
 
+	public type Verified = Bool;
+
+	public type User = {
+		id: Principal;
+		name: Text; // max 30 (e.g. "zen")
+		fullName: Text; // max 30 (e.g. "Zen Voich")
+		twitter: Text; // max 30 (e.g. "@mops_one")
+		twitterVerified: Bool;
+		github: Text; // max 30 (e.g. "ZenVoich")
+		githubVerified: Bool;
+	};
+
 	public type Access = {
 		#readOnly;
 		#readWrite;
