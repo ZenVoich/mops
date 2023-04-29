@@ -112,6 +112,7 @@ export async function sources({verbose} = {}) {
 		let pkgDir;
 		if (pkg.path) {
 			pkgDir = path.relative(process.cwd(), path.resolve(pkg.path));
+			pkgDir = pkgDir.replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 		}
 		else if (pkg.repo) {
 			pkgDir = path.relative(process.cwd(), formatGithubDir(name, pkg.repo));
@@ -128,6 +129,11 @@ export async function sources({verbose} = {}) {
 		}
 		else {
 			pkgBaseDir = path.join(pkgDir, 'src');
+		}
+
+		// use pkgDir if baseDir doesn't exist for local packages
+		if (pkg.path && !fs.existsSync(pkgBaseDir) && fs.existsSync(pkgDir)) {
+			pkgBaseDir = pkgDir;
 		}
 
 		return `--package ${name} ${pkgBaseDir}`;
