@@ -42,6 +42,7 @@ actor {
 	public type PackageSummary = Types.PackageSummary;
 	public type Ver = Version.Version;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
+	public type User = Types.User;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -609,6 +610,20 @@ actor {
 
 	public query func getStoragesStats(): async [(StorageManager.StorageId, StorageManager.StorageStats)] {
 		storageManager.getStoragesStats();
+	};
+
+	// USERS
+	public query func getUser(uesrId : Principal) : async ?User {
+		users.getUser(uesrId);
+	};
+
+	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {
+		switch (prop) {
+			case ("name") users.setName(caller, value);
+			case ("github") users.setGithub(caller, value);
+			case ("twitter") users.setTwitter(caller, value);
+			case (_) #err("unknown property");
+		};
 	};
 
 	// SYSTEM

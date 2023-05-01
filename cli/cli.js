@@ -18,6 +18,7 @@ import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
+import {getUserProp, setUserProp} from './commands/user.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -230,10 +231,10 @@ program
 	.description('User settings')
 	.action(async (sub, prop, value) => {
 		if (sub == 'get') {
-			//
+			await getUserProp(prop);
 		}
 		else if (sub == 'set') {
-			//
+			await setUserProp(prop, value);
 		}
 		else {
 			console.log('Unknown sub command. Available sub commands: set, get');
