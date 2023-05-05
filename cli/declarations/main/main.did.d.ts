@@ -99,11 +99,13 @@ export type Result_1 = { 'ok' : PublishingId } |
   { 'err' : PublishingErr };
 export type Result_2 = { 'ok' : FileId } |
   { 'err' : Err };
-export type Result_3 = { 'ok' : PackageDetails } |
+export type Result_3 = { 'ok' : null } |
+  { 'err' : string };
+export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
-export type Result_4 = { 'ok' : Ver } |
+export type Result_5 = { 'ok' : Ver } |
   { 'err' : Err };
-export type Result_5 = { 'ok' : Array<FileId> } |
+export type Result_6 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
 export type StorageId = Principal;
@@ -114,6 +116,15 @@ export interface StorageStats {
 }
 export type Text = string;
 export type Time = bigint;
+export interface User {
+  'id' : Principal,
+  'twitter' : string,
+  'name' : string,
+  'fullName' : string,
+  'twitterVerified' : boolean,
+  'githubVerified' : boolean,
+  'github' : string,
+}
 export type Ver = string;
 export type Version = string;
 export interface _SERVICE {
@@ -131,17 +142,19 @@ export interface _SERVICE {
     [PackageName__1],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_5>,
-  'getHighestVersion' : ActorMethod<[PackageName__1], Result_4>,
+  'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_6>,
+  'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_3>,
+  'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_4>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
+  'getUser' : ActorMethod<[Principal], [] | [User]>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
+  'setUserProp' : ActorMethod<[string, string], Result_3>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array | number[]],
     Result_2

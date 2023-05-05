@@ -5,25 +5,35 @@ import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
 
+import Set "mo:map/Set";
+
 import Types "./types";
 import {isLetter; isLowerCaseLetter} "../main/is-letter";
 
 module {
 	public type Stable = ?{
-		#v1 : [(Principal, Types.User)];
+		#v1 : {
+			users : [(Principal, Types.User)];
+			names : Set.Set<Text>;
+		};
 	};
 
 	public class Users() {
 		var _users = TrieMap.TrieMap<Principal, Types.User>(Principal.equal, Principal.hash);
+		var _names = Set.new<Text>(Set.thash);
 
 		public func toStable() : Stable {
-			?#v1(Iter.toArray(_users.entries()));
+			?#v1({
+				users = Iter.toArray(_users.entries());
+				names = _names;
+			});
 		};
 
 		public func loadStable(stab : Stable) {
 			switch (stab) {
-				case (?#v1(users)) {
-					_users := TrieMap.fromEntries<Principal, Types.User>(users.vals(), Principal.equal, Principal.hash)
+				case (?#v1(data)) {
+					_users := TrieMap.fromEntries<Principal, Types.User>(data.users.vals(), Principal.equal, Principal.hash);
+					_names := data.names;
 				};
 				case (null) {};
 			};
@@ -53,6 +63,10 @@ module {
 				return valid;
 			};
 
+			if (Set.has(_names, Set.thash, name)) {
+				return #err("Name already taken");
+			};
+
 			let ?user = _users.get(userId) else return #err("User not found");
 
 			if (user.name != "") {
@@ -63,6 +77,8 @@ module {
 				user with
 				name;
 			});
+
+			Set.add(_names, Set.thash, name);
 
 			#ok;
 		};

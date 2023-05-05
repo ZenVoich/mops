@@ -1,5 +1,15 @@
 type Version = text;
 type Ver = text;
+type User = 
+ record {
+   fullName: text;
+   github: text;
+   githubVerified: bool;
+   id: principal;
+   name: text;
+   twitter: text;
+   twitterVerified: bool;
+ };
 type Time = int;
 type Text = text;
 type StorageStats = 
@@ -14,20 +24,25 @@ type Script =
    name: text;
    value: text;
  };
-type Result_5 = 
+type Result_6 = 
  variant {
    err: Err;
    ok: vec FileId;
  };
-type Result_4 = 
+type Result_5 = 
  variant {
    err: Err;
    ok: Ver;
  };
-type Result_3 = 
+type Result_4 = 
  variant {
    err: Err;
    ok: PackageDetails;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok;
  };
 type Result_2 = 
  variant {
@@ -156,11 +171,11 @@ service : {
    (vec DownloadsSnapshot__1) query;
   getDownloadTrendByPackageName: (PackageName__1) ->
    (vec DownloadsSnapshot__1) query;
-  getFileIds: (PackageName__1, Ver) -> (Result_5) query;
-  getHighestVersion: (PackageName__1) -> (Result_4) query;
+  getFileIds: (PackageName__1, Ver) -> (Result_6) query;
+  getHighestVersion: (PackageName__1) -> (Result_5) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;
   getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
-  getPackageDetails: (PackageName__1, Ver) -> (Result_3) query;
+  getPackageDetails: (PackageName__1, Ver) -> (Result_4) query;
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
@@ -168,8 +183,10 @@ service : {
                                }) query;
   getTotalDownloads: () -> (nat) query;
   getTotalPackages: () -> (nat) query;
+  getUser: (principal) -> (opt User) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageSummary) query;
+  setUserProp: (text, text) -> (Result_3);
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfigV2) -> (Result_1);
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);

@@ -5,6 +5,7 @@ import {test; suite; skip} "mo:test";
 
 import Users "../backend/main/users";
 import Debug "mo:base/Debug";
+import Set "mo:map/Set";
 
 let fuzz = Fuzz.Fuzz();
 let users = Users.Users();
@@ -41,6 +42,12 @@ test("Alice setName second time should return error", func() {
 	assert Result.isErr(users.setName(aliceId, "alice"));
 });
 
+test("try to set existing name", func() {
+	assert Result.isErr(users.setName(ensureNewUser(), "alice"));
+	assert Result.isOk(users.setName(ensureNewUser(), "bob"));
+	assert Result.isErr(users.setName(ensureNewUser(), "bob"));
+});
+
 test("Alice setGithub and check result", func() {
 	assert Result.isOk(users.setGithub(aliceId, "Alice.A"));
 	assert Option.unwrap(users.getUser(aliceId)).name == "alice";
@@ -49,8 +56,8 @@ test("Alice setGithub and check result", func() {
 });
 
 test("setName validation", func() {
-	assert Result.isOk(users.setName(ensureNewUser(), "alice"));
-	assert Result.isOk(users.setName(ensureNewUser(), "bob"));
+	assert Result.isOk(users.setName(ensureNewUser(), "alice1"));
+	assert Result.isOk(users.setName(ensureNewUser(), "bob2"));
 
 	assert Result.isErr(users.setName(ensureNewUser(), "Alice"));
 	assert Result.isErr(users.setName(ensureNewUser(), "alice a"));
@@ -93,5 +100,29 @@ test("setTwitter validation", func() {
 test("stable", func() {
 	let users2 = Users.Users();
 	users2.loadStable(users.toStable());
-	assert users2.toStable() == users.toStable();
+
+	test("stable users", func() {
+		let stableUsers1 = switch (users.toStable()) {
+			case (?#v1({users})) { users };
+			case (null) { Debug.trap(""); }
+		};
+		let stableUsers2 = switch (users2.toStable()) {
+			case (?#v1({users})) { users };
+			case (null) { Debug.trap(""); }
+		};
+		assert stableUsers1 == stableUsers2;
+	});
+
+	test("stable names", func() {
+		let stableNames1 = switch (users.toStable()) {
+			case (?#v1({names})) { names };
+			case (null) { Debug.trap(""); }
+		};
+		let stableNames2 = switch (users2.toStable()) {
+			case (?#v1({names})) { names };
+			case (null) { Debug.trap(""); }
+		};
+		assert Set.toArray(stableNames1) == Set.toArray(stableNames2);
+		assert Set.toArray(stableNames2) != [];
+	});
 });
