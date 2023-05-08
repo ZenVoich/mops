@@ -10,8 +10,8 @@ module {
 	public type User = {
 		id: Principal;
 		name: Text; // max 30 (e.g. "zen")
-		fullName: Text; // max 30 (e.g. "Zen Voich")
-		twitter: Text; // max 30 (e.g. "@mops_one")
+		displayName: Text; // max 30 (e.g. "Zen Voich")
+		twitter: Text; // max 30 (e.g. "mops_one")
 		github: Text; // max 30 (e.g. "ZenVoich")
 		twitterVerified: Bool;
 		githubVerified: Bool;

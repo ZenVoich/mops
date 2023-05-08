@@ -120,7 +120,7 @@ export interface User {
   'id' : Principal,
   'twitter' : string,
   'name' : string,
-  'fullName' : string,
+  'displayName' : string,
   'twitterVerified' : boolean,
   'githubVerified' : boolean,
   'github' : string,

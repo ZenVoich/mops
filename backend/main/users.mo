@@ -48,7 +48,7 @@ module {
 				_users.put(userId, {
 					id = userId;
 					name = "";
-					fullName = "";
+					displayName = "";
 					twitter = "";
 					github = "";
 					twitterVerified = false;
@@ -62,9 +62,11 @@ module {
 			if (Result.isErr(valid)) {
 				return valid;
 			};
-
 			if (Set.has(_names, Set.thash, name)) {
 				return #err("Name already taken");
+			};
+			if (name == "dfinity") {
+				return #err("'dfinity' name is reserved");
 			};
 
 			let ?user = _users.get(userId) else return #err("User not found");

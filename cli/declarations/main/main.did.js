@@ -91,7 +91,7 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Principal,
     'twitter' : IDL.Text,
     'name' : IDL.Text,
-    'fullName' : IDL.Text,
+    'displayName' : IDL.Text,
     'twitterVerified' : IDL.Bool,
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
