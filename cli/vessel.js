@@ -77,6 +77,9 @@ export const downloadFromGithub = async (repo, dest, onProgress = null) => {
 	const readStream = got.stream(zipFile);
 
 	const promise = new Promise((resolve, reject) => {
+		readStream.on('error', (err) => {
+			reject(err);
+		});
 
 		readStream.on('downloadProgress', ({transferred, total}) => {
 			onProgress?.(transferred, total || 2 * (1024 ** 2));
@@ -153,10 +156,14 @@ export const installFromGithub = async (name, repo, options = {}) => {
 		};
 
 		progress(0, 2 * (1024 ** 2));
-		await downloadFromGithub(repo, dir, progress).catch((err) => {
+
+		try {
+			await downloadFromGithub(repo, dir, progress);
+		}
+		catch (err) {
 			del.sync([dir]);
-			console.log(chalk.red('Error: ') + err);
-		});
+			throw err;
+		}
 
 		// add to cache
 		await addCache(cacheName, dir);
