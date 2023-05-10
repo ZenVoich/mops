@@ -124,8 +124,8 @@ export function checkConfigFile() {
 }
 
 export function progressBar(step, total) {
-	let done = total > 0 ? Math.round(step / total * 10) : 0;
-	return `[${':'.repeat(done)}${' '.repeat(10 - done)}]`;
+	let done = Math.round(step / total * 10);
+	return `[${':'.repeat(done)}${' '.repeat(Math.max(0, 10 - done))}]`;
 }
 
 export async function getHighestVersion(pkgName) {
