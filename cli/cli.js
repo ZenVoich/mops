@@ -227,13 +227,17 @@ program
 
 // user
 program
-	.command('user set|get <prop> <value>')
+	.command('user set|get <prop> [value]')
 	.description('User settings')
 	.action(async (sub, prop, value) => {
 		if (sub == 'get') {
 			await getUserProp(prop);
 		}
 		else if (sub == 'set') {
+			if (!value) {
+				console.log('error: missing required argument "value"');
+				return;
+			}
 			await setUserProp(prop, value);
 		}
 		else {

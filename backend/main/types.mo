@@ -34,7 +34,7 @@ module {
 
 	public type PackagePublication = {
 		time: Time.Time;
-		user: Principal;
+		user: Principal; // TODO: userId?
 		storage: Principal;
 	};
 
@@ -64,7 +64,8 @@ module {
 	};
 
 	public type PackageSummary = {
-		owner: Principal;
+		owner: Principal; // TODO: ownerId?
+		ownerInfo: User;
 		config: PackageConfigV2;
 		publication: PackagePublication;
 		downloadsTotal: Nat;

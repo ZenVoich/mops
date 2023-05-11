@@ -65,15 +65,18 @@ module {
 			if (Set.has(_names, Set.thash, name)) {
 				return #err("Name already taken");
 			};
+			if (name == "mops") {
+				return #err("'mops' name is reserved");
+			};
 			if (name == "dfinity") {
 				return #err("'dfinity' name is reserved");
 			};
 
 			let ?user = _users.get(userId) else return #err("User not found");
 
-			if (user.name != "") {
-				return #err("Name already set");
-			};
+			// if (user.name != "") {
+			// 	return #err("You cannot change user name");
+			// };
 
 			_users.put(userId, {
 				user with

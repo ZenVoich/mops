@@ -1,6 +1,16 @@
 type Version = text;
 type Ver = text;
-type User =
+type User__1 = 
+ record {
+   displayName: text;
+   github: text;
+   githubVerified: bool;
+   id: principal;
+   name: text;
+   twitter: text;
+   twitterVerified: bool;
+ };
+type User = 
  record {
    displayName: text;
    github: text;
@@ -12,56 +22,56 @@ type User =
  };
 type Time = int;
 type Text = text;
-type StorageStats =
+type StorageStats = 
  record {
    cyclesBalance: nat;
    fileCount: nat;
    memorySize: nat;
  };
 type StorageId = principal;
-type Script =
+type Script = 
  record {
    name: text;
    value: text;
  };
-type Result_6 =
+type Result_6 = 
  variant {
    err: Err;
    ok: vec FileId;
  };
-type Result_5 =
+type Result_5 = 
  variant {
    err: Err;
    ok: Ver;
  };
-type Result_4 =
+type Result_4 = 
  variant {
    err: Err;
    ok: PackageDetails;
  };
-type Result_3 =
+type Result_3 = 
  variant {
    err: text;
    ok;
  };
-type Result_2 =
+type Result_2 = 
  variant {
    err: Err;
    ok: FileId;
  };
-type Result_1 =
+type Result_1 = 
  variant {
    err: PublishingErr;
    ok: PublishingId;
  };
-type Result =
+type Result = 
  variant {
    err: Err;
    ok;
  };
 type PublishingId = text;
 type PublishingErr = text;
-type PackageSummary__1 =
+type PackageSummary__1 = 
  record {
    config: PackageConfigV2__1;
    downloadsInLast30Days: nat;
@@ -70,7 +80,7 @@ type PackageSummary__1 =
    owner: principal;
    publication: PackagePublication;
  };
-type PackageSummary =
+type PackageSummary = 
  record {
    config: PackageConfigV2__1;
    downloadsInLast30Days: nat;
@@ -79,7 +89,7 @@ type PackageSummary =
    owner: principal;
    publication: PackagePublication;
  };
-type PackagePublication =
+type PackagePublication = 
  record {
    storage: principal;
    time: Time;
@@ -88,7 +98,7 @@ type PackagePublication =
 type PackageName__1 = text;
 type PackageName = text;
 type PackageId = text;
-type PackageDetails =
+type PackageDetails = 
  record {
    config: PackageConfigV2__1;
    dependents: vec PackageSummary__1;
@@ -99,10 +109,11 @@ type PackageDetails =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
+   ownerInfo: User__1;
    publication: PackagePublication;
    versionHistory: vec PackageSummary__1;
  };
-type PackageConfigV2__1 =
+type PackageConfigV2__1 = 
  record {
    baseDir: text;
    dependencies: vec DependencyV2;
@@ -121,7 +132,7 @@ type PackageConfigV2__1 =
    scripts: vec Script;
    version: text;
  };
-type PackageConfigV2 =
+type PackageConfigV2 = 
  record {
    baseDir: text;
    dependencies: vec DependencyV2;
@@ -142,19 +153,19 @@ type PackageConfigV2 =
  };
 type FileId = text;
 type Err = text;
-type DownloadsSnapshot__1 =
+type DownloadsSnapshot__1 = 
  record {
    downloads: nat;
    endTime: Time;
    startTime: Time;
  };
-type DownloadsSnapshot =
+type DownloadsSnapshot = 
  record {
    downloads: nat;
    endTime: Time;
    startTime: Time;
  };
-type DependencyV2 =
+type DependencyV2 = 
  record {
    name: PackageName;
    repo: text;

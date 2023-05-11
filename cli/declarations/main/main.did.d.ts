@@ -55,6 +55,7 @@ export interface PackageConfigV2__1 {
   'readme' : string,
 }
 export interface PackageDetails {
+  'ownerInfo' : User__1,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,
   'downloadsTotal' : bigint,
@@ -119,8 +120,17 @@ export type Time = bigint;
 export interface User {
   'id' : Principal,
   'twitter' : string,
-  'name' : string,
   'displayName' : string,
+  'name' : string,
+  'twitterVerified' : boolean,
+  'githubVerified' : boolean,
+  'github' : string,
+}
+export interface User__1 {
+  'id' : Principal,
+  'twitter' : string,
+  'displayName' : string,
+  'name' : string,
   'twitterVerified' : boolean,
   'githubVerified' : boolean,
   'github' : string,

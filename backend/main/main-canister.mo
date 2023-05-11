@@ -123,8 +123,12 @@ actor {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
 
+			let owner = Option.unwrap(packageOwners.get(name));
+			users.ensureUser(owner);
+
 			return ?{
-				owner = Option.get(packageOwners.get(name), Utils.anonymousPrincipal());
+				owner = owner;
+				ownerInfo = Option.unwrap(users.getUser(owner));
 				config = config;
 				publication = publication;
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
@@ -618,6 +622,7 @@ actor {
 	};
 
 	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {
+		users.ensureUser(caller);
 		switch (prop) {
 			case ("name") users.setName(caller, value);
 			case ("github") users.setGithub(caller, value);

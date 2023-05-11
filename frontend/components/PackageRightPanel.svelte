@@ -16,7 +16,7 @@
 	{#if packageDetails.config.repository}
 		<div class="detail">
 			<div class="label">Repository</div>
-			<a class="value repository" href="{packageDetails.config.repository}" target="_blank">
+			<a class="value with-icon" href="{packageDetails.config.repository}" target="_blank">
 				<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
 				{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
 			</a>
@@ -35,6 +35,24 @@
 		</div>
 	{/if}
 	{#if packageDetails.owner}
+		<div class="detail">
+			<div class="label">Owner</div>
+			<div class="value">@{packageDetails.ownerInfo.name} <small>({packageDetails.ownerInfo.id})</small></div>
+			<div class="value owner"></div>
+			{#if packageDetails.ownerInfo.github}
+				<a class="value with-icon" href="https://github.com/{packageDetails.ownerInfo.github}" target="_blank">
+					<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+					{packageDetails.ownerInfo.github}
+				</a>
+			{/if}
+			{#if packageDetails.ownerInfo.twitter}
+				<a class="value with-icon" href="https://twitter.com/{packageDetails.ownerInfo.twitter}" target="_blank">
+					<img class="twitter-icon" src="/img/twitter.svg" alt="Twitter logo" loading="lazy" />
+					{packageDetails.ownerInfo.twitter}
+				</a>
+			{/if}
+		</div>
+	{:else if packageDetails.owner}
 		<div class="detail">
 			<div class="label">Owner</div>
 			<div class="value">{packageDetails.owner}</div>
@@ -74,7 +92,11 @@
 		text-overflow: ellipsis;
 	}
 
-	.repository {
+	.value.owner {
+		margin-bottom: 7px;
+	}
+
+	.value.with-icon {
 		display: flex;
 		align-items: center;
 		line-height: 1;
@@ -82,7 +104,8 @@
 		white-space: normal;
 	}
 
-	.github-icon {
+	.github-icon,
+	.twitter-icon {
 		width: 20px;
 		height: 20px;
 		filter: hue-rotate(45deg) contrast(0.6);
