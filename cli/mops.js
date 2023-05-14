@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
+import prompts from 'prompts';
 
 import {idlFactory} from './declarations/main/main.did.js';
 import {idlFactory as storageIdlFactory} from './declarations/storage/storage.did.js';
@@ -53,19 +54,28 @@ export function getNetwork() {
 	}
 }
 
-export let getIdentity = () => {
+export let getIdentity = async () => {
 	let identityPem = path.resolve(globalCacheDir, 'identity.pem');
+	let identityPemEncrypted = path.resolve(globalCacheDir, 'identity.pem.encrypted');
+	if (fs.existsSync(identityPemEncrypted)) {
+		let res = await prompts({
+			type: 'password',
+			name: 'value',
+			message: 'Enter password:'
+		});
+		return await decodeFile(identityPemEncrypted, res.value);
+	}
 	if (fs.existsSync(identityPem)) {
 		return decodeFile(identityPem);
 	}
 };
 
-export let mainActor = async () => {
+export let mainActor = async (useIdentity = false) => {
 	let network = getNetwork().network;
 	let host = getNetwork().host;
 	let canisterId = getNetwork().canisterId;
 
-	let identity = getIdentity();
+	let identity = useIdentity && await getIdentity();
 	let agent = new HttpAgent({host, identity});
 
 	if (network === 'local') {

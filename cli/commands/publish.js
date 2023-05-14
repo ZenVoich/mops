@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {Principal} from '@dfinity/principal';
 import {globbySync} from 'globby';
 import minimatch from 'minimatch';
 import prompts from 'prompts';
@@ -148,6 +147,8 @@ export async function publish({noDocs} = {}) {
 		}
 	}
 
+	let identity = await getIdentity();
+
 	// map fields
 	let backendPkgConfig = {
 		name: config.package.name,
@@ -160,7 +161,7 @@ export async function publish({noDocs} = {}) {
 		baseDir: 'src',
 		readme: 'README.md',
 		license: config.package.license || '',
-		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),
+		owner: identity.getPrincipal(),
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
@@ -218,7 +219,7 @@ export async function publish({noDocs} = {}) {
 
 	// upload config
 	progress();
-	let actor = await mainActor();
+	let actor = await mainActor(true);
 	let publishing = await actor.startPublish(backendPkgConfig);
 	if (publishing.err) {
 		console.log(chalk.red('Error: ') + publishing.err);
