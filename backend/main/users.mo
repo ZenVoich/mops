@@ -4,6 +4,7 @@ import Char "mo:base/Char";
 import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
+import Debug "mo:base/Debug";
 
 import Set "mo:map/Set";
 
@@ -39,7 +40,12 @@ module {
 			};
 		};
 
-		public func getUser(userId : Principal) : ?Types.User {
+		public func getUser(userId : Principal) : Types.User {
+			let ?user = _users.get(userId) else Debug.trap("User not found");
+			user;
+		};
+
+		public func getUserOpt(userId : Principal) : ?Types.User {
 			_users.get(userId);
 		};
 

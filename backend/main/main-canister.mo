@@ -128,7 +128,7 @@ actor {
 
 			return ?{
 				owner = owner;
-				ownerInfo = Option.unwrap(users.getUser(owner));
+				ownerInfo = users.getUser(owner);
 				config = config;
 				publication = publication;
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
@@ -618,13 +618,20 @@ actor {
 
 	// USERS
 	public query func getUser(uesrId : Principal) : async ?User {
-		users.getUser(uesrId);
+		users.getUserOpt(uesrId);
 	};
 
 	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {
 		users.ensureUser(caller);
 		switch (prop) {
-			case ("name") users.setName(caller, value);
+			case ("name") {
+				let user = users.getUser(caller);
+				let hasScopedPackages = false; // TODO
+				if (user.name != "" and hasScopedPackages) {
+					return #err("You can't change name after publishing scoped packages");
+				};
+				users.setName(caller, value);
+			};
 			case ("github") users.setGithub(caller, value);
 			case ("twitter") users.setTwitter(caller, value);
 			case (_) #err("unknown property");
