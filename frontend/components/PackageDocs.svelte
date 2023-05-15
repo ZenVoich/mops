@@ -2,10 +2,10 @@
 	import {link, routeParams} from 'svelte-spa-history-router';
 	import pako from 'pako';
 	import untar from 'js-untar';
-	import {createStarryNight} from '@wooorm/starry-night';
-	import moGrammar from '@wooorm/starry-night/lang/source.mo';
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
+	import '@wooorm/starry-night/style/light.css';
+	import {getStarryNight} from '/logic/get-starry-night';
 
 	type DefinitionKind = 'module' | 'class' | 'type' | 'func' | 'value' | 'type-actor';
 	type Definition = {
@@ -102,11 +102,7 @@
 			}
 		});
 
-		let starryNight = await createStarryNight([moGrammar], {
-			getOnigurumaUrlFetch: () => {
-				return new URL('/external/onig@1.7.0.wasm', import.meta.url);
-			}
-		});
+		let starryNight = await getStarryNight();
 		div.querySelectorAll('pre code.language-motoko, pre code.language-mo').forEach((el) => {
 			let text = el.textContent;
 
