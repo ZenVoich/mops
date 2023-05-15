@@ -88,11 +88,11 @@ export let mainActor = async (useIdentity = false) => {
 	});
 };
 
-export let storageActor = async (storageId) => {
+export let storageActor = async (storageId, useIdentity = false) => {
 	let network = getNetwork().network;
 	let host = getNetwork().host;
 
-	let identity = getIdentity();
+	let identity = useIdentity && await getIdentity();
 	let agent = new HttpAgent({host, identity});
 
 	if (network === 'local') {

@@ -5,7 +5,7 @@ import logUpdate from 'log-update';
 import {globbySync} from 'globby';
 import minimatch from 'minimatch';
 import prompts from 'prompts';
-import {checkConfigFile, getIdentity, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
+import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
 
@@ -147,8 +147,6 @@ export async function publish({noDocs} = {}) {
 		}
 	}
 
-	let identity = await getIdentity();
-
 	// map fields
 	let backendPkgConfig = {
 		name: config.package.name,
@@ -161,7 +159,6 @@ export async function publish({noDocs} = {}) {
 		baseDir: 'src',
 		readme: 'README.md',
 		license: config.package.license || '',
-		owner: identity.getPrincipal(),
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
