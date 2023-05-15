@@ -102,7 +102,11 @@
 			}
 		});
 
-		let starryNight = await createStarryNight([moGrammar]);
+		let starryNight = await createStarryNight([moGrammar], {
+			getOnigurumaUrlFetch: () => {
+				return new URL('/external/onig@1.7.0.wasm', import.meta.url);
+			}
+		});
 		div.querySelectorAll('pre code.language-motoko, pre code.language-mo').forEach((el) => {
 			let text = el.textContent;
 

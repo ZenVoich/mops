@@ -3,7 +3,7 @@
 	import {debounce} from 'throttle-debounce';
 	import {currentURL} from 'svelte-spa-history-router';
 
-	import {PackageDetails} from '/declarations/main/main.did.js';
+	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
 	import Header from './Header.svelte';
@@ -15,7 +15,7 @@
 	$: searchText = decodeURI($currentURL.pathname.split('/search/')[1]);
 	$: $currentURL && updateResults();
 
-	let packages: PackageDetails[] = [];
+	let packages: PackageSummary[] = [];
 	let loaded = false;
 
 	let updateResults = debounce(10, () => {
