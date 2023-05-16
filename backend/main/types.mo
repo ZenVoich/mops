@@ -11,8 +11,10 @@ module {
 		id: Principal;
 		name: Text; // max 30 (e.g. "zen")
 		displayName: Text; // max 30 (e.g. "Zen Voich")
-		twitter: Text; // max 30 (e.g. "mops_one")
+		email: Text; // max 50 (e.g. "zen.voich@gmail.com")
 		github: Text; // max 30 (e.g. "ZenVoich")
+		twitter: Text; // max 30 (e.g. "mops_one")
+		emailVerified: Bool;
 		twitterVerified: Bool;
 		githubVerified: Bool;
 	};

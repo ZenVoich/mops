@@ -55,11 +55,13 @@ module {
 					id = userId;
 					name = "";
 					displayName = "";
-					twitter = "";
+					email = "";
 					github = "";
+					twitter = "";
+					emailVerified = false;
 					twitterVerified = false;
 					githubVerified = false;
-				})
+				});
 			};
 		};
 
@@ -90,6 +92,21 @@ module {
 			});
 
 			Set.add(_names, Set.thash, name);
+
+			#ok;
+		};
+
+		public func setEmail(userId : Principal, email : Text) : Result.Result<(), Text> {
+			let valid = _validateValue(email, ['-', '_', '.', '@']);
+			if (Result.isErr(valid)) {
+				return valid;
+			};
+
+			let ?user = _users.get(userId) else return #err("User not found");
+			_users.put(userId, {
+				user with
+				email;
+			});
 
 			#ok;
 		};
