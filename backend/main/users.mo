@@ -146,10 +146,20 @@ module {
 				return #err("invalid value: max length is 30 chars");
 			};
 
+			var prevChar = '-';
 			for (char in value.chars()) {
-				if (not isLowerCaseLetter(char) and not Char.isDigit(char)) {
+				if (not isLowerCaseLetter(char) and not Char.isDigit(char) and char != '-') {
 					return #err("invalid value: unexpected char '" # Char.toText(char) # "' in '" # value # "'");
 				};
+				// deny -alice a--lice
+				if (prevChar == '-' and char == '-') {
+					return #err("invalid value: unexpected char '" # Char.toText(char) # "' in '" # value # "'");
+				};
+				prevChar := char;
+			};
+			// deny alice-
+			if (prevChar == '-') {
+				return #err("invalid value: name cannot end with '-' in '" # value # "'");
 			};
 
 			#ok;

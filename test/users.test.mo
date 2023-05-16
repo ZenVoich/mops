@@ -18,8 +18,8 @@ func ensureNewUser() : Principal {
 };
 
 test("get unkown user", func() {
-	assert users.getUser(fuzz.principal.random()) == null;
-	assert users.getUser(fuzz.principal.random()) == null;
+	assert users.getUserOpt(fuzz.principal.random()) == null;
+	assert users.getUserOpt(fuzz.principal.random()) == null;
 });
 
 test("register Alice", func() {
@@ -33,9 +33,9 @@ test("setName before user created", func() {
 
 test("Alice setName and check result", func() {
 	assert Result.isOk(users.setName(aliceId, "alice"));
-	assert Option.unwrap(users.getUser(aliceId)).name == "alice";
-	assert Option.unwrap(users.getUser(aliceId)).github == "";
-	assert Option.unwrap(users.getUser(aliceId)).githubVerified == false;
+	assert users.getUser(aliceId).name == "alice";
+	assert users.getUser(aliceId).github == "";
+	assert users.getUser(aliceId).githubVerified == false;
 });
 
 test("Alice setName second time should return error", func() {
@@ -50,21 +50,42 @@ test("try to set existing name", func() {
 
 test("Alice setGithub and check result", func() {
 	assert Result.isOk(users.setGithub(aliceId, "Alice.A"));
-	assert Option.unwrap(users.getUser(aliceId)).name == "alice";
-	assert Option.unwrap(users.getUser(aliceId)).github == "Alice.A";
-	assert Option.unwrap(users.getUser(aliceId)).githubVerified == false;
+	assert users.getUser(aliceId).name == "alice";
+	assert users.getUser(aliceId).github == "Alice.A";
+	assert users.getUser(aliceId).githubVerified == false;
 });
 
 test("setName validation", func() {
 	assert Result.isOk(users.setName(ensureNewUser(), "alice1"));
 	assert Result.isOk(users.setName(ensureNewUser(), "bob2"));
+	assert Result.isOk(users.setName(ensureNewUser(), "bob-b2"));
+	assert Result.isOk(users.setName(ensureNewUser(), "alice-a"));
 
 	assert Result.isErr(users.setName(ensureNewUser(), "Alice"));
+	assert Result.isErr(users.setName(ensureNewUser(), "-alice"));
+	assert Result.isErr(users.setName(ensureNewUser(), "alice-"));
+	assert Result.isErr(users.setName(ensureNewUser(), "alice_"));
+	assert Result.isErr(users.setName(ensureNewUser(), "alice_a"));
 	assert Result.isErr(users.setName(ensureNewUser(), "alice a"));
 	assert Result.isErr(users.setName(ensureNewUser(), "alice.a"));
-	assert Result.isErr(users.setName(ensureNewUser(), "alice-a"));
 	assert Result.isErr(users.setName(ensureNewUser(), "alice_a"));
 	assert Result.isErr(users.setName(ensureNewUser(), "alicealicealicealicealicealicealice"));
+});
+
+test("setEmail validation", func() {
+	assert Result.isOk(users.setEmail(ensureNewUser(), "foo"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "FooBar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "Bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "Foo_Bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "-Foo_Bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "Foo.Bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "foo@bar"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "foo@bar.com"));
+
+	assert Result.isErr(users.setEmail(ensureNewUser(), "foo$bar"));
+	assert Result.isErr(users.setEmail(ensureNewUser(), "foo/bar"));
+	assert Result.isErr(users.setEmail(ensureNewUser(), "foobarfoobarfoobarfoobarfoobarfoobar"));
 });
 
 test("setGithub validation", func() {
