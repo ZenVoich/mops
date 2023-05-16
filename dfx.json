@@ -21,15 +21,15 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.13.1",
+	"dfx": "0.14.0",
 	"networks": {
 		"staging": {
 			"type": "persistent",
-			"providers": ["https://ic0.app"]
+			"providers": ["https://icp0.io"]
 		},
 		"ic": {
 			"type": "persistent",
-			"providers": ["https://ic0.app"]
+			"providers": ["https://icp0.io"]
 		}
 	}
 }
