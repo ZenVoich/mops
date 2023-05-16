@@ -215,8 +215,9 @@ export async function publish({noDocs} = {}) {
 	}
 
 	// upload config
-	progress();
 	let actor = await mainActor(true);
+
+	progress();
 	let publishing = await actor.startPublish(backendPkgConfig);
 	if (publishing.err) {
 		console.log(chalk.red('Error: ') + publishing.err);
