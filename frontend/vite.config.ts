@@ -62,8 +62,8 @@ export default defineConfig({
 					dest: 'img'
 				},
 				{
-					src: 'asciidoctor.min.js',
-					dest: '.'
+					src: 'external/*',
+					dest: 'external'
 				},
 				{
 					src: '.ic-assets.json',
