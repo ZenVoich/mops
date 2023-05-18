@@ -1,9 +1,8 @@
 <script lang="ts">
 	import {micromark} from 'micromark';
-	import {createStarryNight} from '@wooorm/starry-night';
-	import moGrammar from '@wooorm/starry-night/lang/source.mo';
 	import {toHtml} from 'hast-util-to-html';
 	import '@wooorm/starry-night/style/light.css';
+	import {getStarryNight} from '/logic/get-starry-night';
 
 	export let readme = '';
 	export let repository = '';
@@ -30,7 +29,7 @@
 		});
 
 		// syntax highlight
-		let starryNight = await createStarryNight([moGrammar]);
+		let starryNight = await getStarryNight();
 		div.querySelectorAll('pre code.language-motoko, pre code.language-mo').forEach((el) => {
 			el.innerHTML = toHtml(starryNight.highlight(el.textContent, 'source.mo'));
 		});

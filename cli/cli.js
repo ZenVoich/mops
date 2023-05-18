@@ -128,7 +128,7 @@ program
 	.description('Import .pem file data to use as identity')
 	.action(async (data) => {
 		await importPem(data);
-		whoami();
+		await whoami();
 	});
 
 // sources
@@ -150,7 +150,7 @@ program
 	.command('whoami')
 	.description('Print your principal')
 	.action(async () => {
-		whoami();
+		await whoami();
 	});
 
 // search
