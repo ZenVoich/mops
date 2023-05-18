@@ -5,6 +5,8 @@ import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
 import Debug "mo:base/Debug";
+import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 
 import Set "mo:map/Set";
 
@@ -55,6 +57,7 @@ module {
 					id = userId;
 					name = "";
 					displayName = "";
+					site = "";
 					email = "";
 					github = "";
 					twitter = "";
@@ -96,8 +99,26 @@ module {
 			#ok;
 		};
 
+		public func setSite(userId : Principal, site : Text) : Result.Result<(), Text> {
+			let valid = _validateValue(site, 100, ['-', '_', '.', ':', '/', '?', '=', '&', '%', '#', '+', '@']);
+			if (Result.isErr(valid)) {
+				return valid;
+			};
+			if (not Text.startsWith(site, #text("https://")) and not Text.startsWith(site, #text("http://"))) {
+				return #err("invalid value: site must start with 'https://' or 'http://'");
+			};
+
+			let ?user = _users.get(userId) else return #err("User not found");
+			_users.put(userId, {
+				user with
+				site;
+			});
+
+			#ok;
+		};
+
 		public func setEmail(userId : Principal, email : Text) : Result.Result<(), Text> {
-			let valid = _validateValue(email, ['-', '_', '.', '@']);
+			let valid = _validateValue(email, 50, ['-', '_', '.', '@']);
 			if (Result.isErr(valid)) {
 				return valid;
 			};
@@ -112,7 +133,7 @@ module {
 		};
 
 		public func setGithub(userId : Principal, github : Text) : Result.Result<(), Text> {
-			let valid = _validateValue(github, ['-', '_', '.']);
+			let valid = _validateValue(github, 30, ['-', '_', '.']);
 			if (Result.isErr(valid)) {
 				return valid;
 			};
@@ -127,7 +148,7 @@ module {
 		};
 
 		public func setTwitter(userId : Principal, twitter : Text) : Result.Result<(), Text> {
-			let valid = _validateValue(twitter, ['-', '_', '.']);
+			let valid = _validateValue(twitter, 30, ['-', '_', '.']);
 			if (Result.isErr(valid)) {
 				return valid;
 			};
@@ -165,11 +186,11 @@ module {
 			#ok;
 		};
 
-		func _validateValue(value : Text, allowedChars : [Char]) : Result.Result<(), Text> {
+		func _validateValue(value : Text, max : Nat, allowedChars : [Char]) : Result.Result<(), Text> {
 			let allowedCharsBuf = Buffer.fromArray<Char>(allowedChars);
 
-			if (value.size() > 30) {
-				return #err("invalid value: max length is 30 chars");
+			if (value.size() > max) {
+				return #err("invalid value: max length is " # Nat.toText(max) # " chars");
 			};
 
 			for (char in value.chars()) {

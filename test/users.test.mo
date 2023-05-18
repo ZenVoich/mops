@@ -72,6 +72,19 @@ test("setName validation", func() {
 	assert Result.isErr(users.setName(ensureNewUser(), "alicealicealicealicealicealicealice"));
 });
 
+test("setSite validation", func() {
+	assert Result.isOk(users.setSite(ensureNewUser(), "http://dfinity.org"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://dfinity.org"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://mops.one"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.ic0.app"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.ic0.app/base/docs/Array"));
+
+	assert Result.isErr(users.setSite(ensureNewUser(), "htt://mops.one"));
+	assert Result.isErr(users.setSite(ensureNewUser(), "dfinity.org"));
+	assert Result.isErr(users.setSite(ensureNewUser(), "sadasdasd"));
+	assert Result.isErr(users.setSite(ensureNewUser(), "http://dfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.orgdfinity.org"));
+});
+
 test("setEmail validation", func() {
 	assert Result.isOk(users.setEmail(ensureNewUser(), "foo"));
 	assert Result.isOk(users.setEmail(ensureNewUser(), "bar"));
@@ -82,10 +95,11 @@ test("setEmail validation", func() {
 	assert Result.isOk(users.setEmail(ensureNewUser(), "Foo.Bar"));
 	assert Result.isOk(users.setEmail(ensureNewUser(), "foo@bar"));
 	assert Result.isOk(users.setEmail(ensureNewUser(), "foo@bar.com"));
+	assert Result.isOk(users.setEmail(ensureNewUser(), "foobarfoobarfoobarfoobarfoobarfoobar"));
 
 	assert Result.isErr(users.setEmail(ensureNewUser(), "foo$bar"));
 	assert Result.isErr(users.setEmail(ensureNewUser(), "foo/bar"));
-	assert Result.isErr(users.setEmail(ensureNewUser(), "foobarfoobarfoobarfoobarfoobarfoobar"));
+	assert Result.isErr(users.setEmail(ensureNewUser(), "foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobar"));
 });
 
 test("setGithub validation", func() {

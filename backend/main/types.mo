@@ -11,6 +11,7 @@ module {
 		id: Principal;
 		name: Text; // max 30 (e.g. "zen")
 		displayName: Text; // max 30 (e.g. "Zen Voich")
+		site: Text; // max 100 (e.g. "https://dfinity.org")
 		email: Text; // max 50 (e.g. "zen.voich@gmail.com")
 		github: Text; // max 30 (e.g. "ZenVoich")
 		twitter: Text; // max 30 (e.g. "mops_one")

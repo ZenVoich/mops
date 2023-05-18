@@ -633,6 +633,7 @@ actor {
 				};
 				users.setName(caller, value);
 			};
+			case ("site") users.setSite(caller, value);
 			case ("email") users.setEmail(caller, value);
 			case ("github") users.setGithub(caller, value);
 			case ("twitter") users.setTwitter(caller, value);
