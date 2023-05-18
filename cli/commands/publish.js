@@ -2,11 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {Principal} from '@dfinity/principal';
 import {globbySync} from 'globby';
 import minimatch from 'minimatch';
 import prompts from 'prompts';
-import {checkConfigFile, getIdentity, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
+import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
 
@@ -160,7 +159,6 @@ export async function publish({noDocs} = {}) {
 		baseDir: 'src',
 		readme: 'README.md',
 		license: config.package.license || '',
-		owner: getIdentity()?.getPrincipal() || Principal.anonymous(),
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
@@ -217,8 +215,9 @@ export async function publish({noDocs} = {}) {
 	}
 
 	// upload config
+	let actor = await mainActor(true);
+
 	progress();
-	let actor = await mainActor();
 	let publishing = await actor.startPublish(backendPkgConfig);
 	if (publishing.err) {
 		console.log(chalk.red('Error: ') + publishing.err);
