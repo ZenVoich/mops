@@ -95,8 +95,8 @@ export const downloadFromGithub = async (repo, dest, onProgress = null) => {
 
 			// Prevent `onError` being called twice.
 			readStream.off('error', reject);
-			const tmpDir = process.cwd() + '/.mops/_tmp/';
-			const tmpFile = tmpDir + `/${gitName}@${branch}.zip`;
+			const tmpDir = path.resolve(process.cwd(), '.mops/_tmp/');
+			const tmpFile = path.resolve(tmpDir, `${gitName}@${branch}.zip`);
 
 			try {
 				mkdirSync(tmpDir, {recursive: true});

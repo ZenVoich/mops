@@ -105,7 +105,7 @@ export async function runAll(filter = '') {
 			file !== files[0] && console.log('-'.repeat(50));
 			console.log(`Running ${chalk.gray(absToRel(file))}`);
 
-			let proc = spawn(mocPath, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file]);
+			let proc = spawn(mocPath, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x));
 
 			// stdout
 			proc.stdout.on('data', (data) => {
