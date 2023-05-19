@@ -85,9 +85,9 @@ module {
 
 			let ?user = _users.get(userId) else return #err("User not found");
 
-			// if (user.name != "") {
-			// 	return #err("You cannot change user name");
-			// };
+			if (user.name != "") {
+				Set.delete(_names, Set.thash, user.name);
+			};
 
 			_users.put(userId, {
 				user with

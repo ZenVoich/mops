@@ -3,20 +3,26 @@ type Ver = text;
 type User__1 = 
  record {
    displayName: text;
+   email: text;
+   emailVerified: bool;
    github: text;
    githubVerified: bool;
    id: principal;
    name: text;
+   site: text;
    twitter: text;
    twitterVerified: bool;
  };
 type User = 
  record {
    displayName: text;
+   email: text;
+   emailVerified: bool;
    github: text;
    githubVerified: bool;
    id: principal;
    name: text;
+   site: text;
    twitter: text;
    twitterVerified: bool;
  };
@@ -78,6 +84,7 @@ type PackageSummary__1 =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
+   ownerInfo: User;
    publication: PackagePublication;
  };
 type PackageSummary = 
@@ -87,6 +94,7 @@ type PackageSummary =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
+   ownerInfo: User;
    publication: PackagePublication;
  };
 type PackagePublication = 
@@ -109,7 +117,7 @@ type PackageDetails =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    owner: principal;
-   ownerInfo: User__1;
+   ownerInfo: User;
    publication: PackagePublication;
    versionHistory: vec PackageSummary__1;
  };
@@ -194,7 +202,7 @@ service : {
                                }) query;
   getTotalDownloads: () -> (nat) query;
   getTotalPackages: () -> (nat) query;
-  getUser: (principal) -> (opt User) query;
+  getUser: (principal) -> (opt User__1) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
   search: (Text) -> (vec PackageSummary) query;
   setUserProp: (text, text) -> (Result_3);

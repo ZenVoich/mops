@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {link} from 'svelte-spa-history-router';
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import DownloadTrend from './DownloadTrend.svelte';
 
@@ -34,11 +35,15 @@
 			<a class="value" href="https://spdx.org/licenses/{packageDetails.config.license}.html" target="_blank">{packageDetails.config.license}</a>
 		</div>
 	{/if}
-	{#if packageDetails.owner}
+	{#if packageDetails.ownerInfo.name}
 		<div class="detail">
 			<div class="label">Owner</div>
-			<div class="value">@{packageDetails.ownerInfo.name} <small>({packageDetails.ownerInfo.id})</small></div>
-			<div class="value owner"></div>
+			<div class="value owner">
+				<a class="value" href="/search/owner:{packageDetails.ownerInfo.name}" use:link>
+					@{packageDetails.ownerInfo.name}
+				</a>
+				<small>{packageDetails.ownerInfo.id}</small>
+			</div>
 			{#if packageDetails.ownerInfo.github}
 				<a class="value with-icon" href="https://github.com/{packageDetails.ownerInfo.github}" target="_blank">
 					<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />

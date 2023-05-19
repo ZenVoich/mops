@@ -486,15 +486,32 @@ actor {
 
 		for (config in highestConfigs.vals()) {
 			var sortingPoints = 0;
-			if (Text.contains(config.name, pattern)) {
-				sortingPoints += 3;
-			};
-			if (Text.contains(config.description, pattern)) {
-				sortingPoints += 1;
-			};
-			for (keyword in config.keywords.vals()) {
-				if (Text.contains(keyword, pattern)) {
-					sortingPoints += 2;
+
+			// search by owner
+			if (Text.startsWith(searchText, #text("owner:"))) {
+				ignore do ? {
+					let ?searchOwnerName = Text.stripStart(searchText, #text("owner:"));
+					let ?ownerId = packageOwners.get(config.name);
+					let ?ownerInfo = users.getUserOpt(ownerId);
+					if (searchOwnerName == ownerInfo.name) {
+						sortingPoints += 3;
+					};
+				};
+			}
+			else {
+				if (config.name == searchText) {
+					sortingPoints += 3;
+				};
+				if (Text.contains(config.name, pattern)) {
+					sortingPoints += 3;
+				};
+				if (Text.contains(config.description, pattern)) {
+					sortingPoints += 1;
+				};
+				for (keyword in config.keywords.vals()) {
+					if (Text.contains(keyword, pattern)) {
+						sortingPoints += 2;
+					};
 				};
 			};
 
@@ -618,8 +635,8 @@ actor {
 	};
 
 	// USERS
-	public query func getUser(uesrId : Principal) : async ?User {
-		users.getUserOpt(uesrId);
+	public query func getUser(userId : Principal) : async ?User {
+		users.getUserOpt(userId);
 	};
 
 	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {

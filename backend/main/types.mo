@@ -5,8 +5,6 @@ module {
 	public type PackageId = Text; // lib@1.2.3
 	public type Err = Text;
 
-	public type Verified = Bool;
-
 	public type User = {
 		id: Principal;
 		name: Text; // max 30 (e.g. "zen")

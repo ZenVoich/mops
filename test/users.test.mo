@@ -48,6 +48,20 @@ test("try to set existing name", func() {
 	assert Result.isErr(users.setName(ensureNewUser(), "bob"));
 });
 
+test("change name and check if prev name is available", func() {
+	let a = ensureNewUser();
+	let b = ensureNewUser();
+
+	assert Result.isOk(users.setName(a, "foo"));
+	assert Result.isErr(users.setName(b, "foo"));
+
+	assert Result.isOk(users.setName(a, "bar"));
+	assert Result.isOk(users.setName(b, "foo"));
+
+	assert users.getUser(a).name == "bar";
+	assert users.getUser(b).name == "foo";
+});
+
 test("Alice setGithub and check result", func() {
 	assert Result.isOk(users.setGithub(aliceId, "Alice.A"));
 	assert users.getUser(aliceId).name == "alice";

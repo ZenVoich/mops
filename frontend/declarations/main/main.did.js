@@ -16,6 +16,18 @@ export const idlFactory = ({ IDL }) => {
   const FileId = IDL.Text;
   const Result_6 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
   const Result_5 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
+  const User = IDL.Record({
+    'id' : IDL.Principal,
+    'emailVerified' : IDL.Bool,
+    'twitter' : IDL.Text,
+    'displayName' : IDL.Text,
+    'name' : IDL.Text,
+    'site' : IDL.Text,
+    'email' : IDL.Text,
+    'twitterVerified' : IDL.Bool,
+    'githubVerified' : IDL.Bool,
+    'github' : IDL.Text,
+  });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const DependencyV2 = IDL.Record({
@@ -47,6 +59,7 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Principal,
   });
   const PackageSummary = IDL.Record({
+    'ownerInfo' : User,
     'owner' : IDL.Principal,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -54,16 +67,8 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
-  const User__1 = IDL.Record({
-    'id' : IDL.Principal,
-    'twitter' : IDL.Text,
-    'displayName' : IDL.Text,
-    'name' : IDL.Text,
-    'twitterVerified' : IDL.Bool,
-    'githubVerified' : IDL.Bool,
-    'github' : IDL.Text,
-  });
   const PackageSummary__1 = IDL.Record({
+    'ownerInfo' : User,
     'owner' : IDL.Principal,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -77,7 +82,7 @@ export const idlFactory = ({ IDL }) => {
     'downloads' : IDL.Nat,
   });
   const PackageDetails = IDL.Record({
-    'ownerInfo' : User__1,
+    'ownerInfo' : User,
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
     'downloadsTotal' : IDL.Nat,
@@ -97,11 +102,14 @@ export const idlFactory = ({ IDL }) => {
     'cyclesBalance' : IDL.Nat,
     'memorySize' : IDL.Nat,
   });
-  const User = IDL.Record({
+  const User__1 = IDL.Record({
     'id' : IDL.Principal,
+    'emailVerified' : IDL.Bool,
     'twitter' : IDL.Text,
     'displayName' : IDL.Text,
     'name' : IDL.Text,
+    'site' : IDL.Text,
+    'email' : IDL.Text,
     'twitterVerified' : IDL.Bool,
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
@@ -175,7 +183,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getTotalDownloads' : IDL.Func([], [IDL.Nat], ['query']),
     'getTotalPackages' : IDL.Func([], [IDL.Nat], ['query']),
-    'getUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
+    'getUser' : IDL.Func([IDL.Principal], [IDL.Opt(User__1)], ['query']),
     'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
     'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
     'setUserProp' : IDL.Func([IDL.Text, IDL.Text], [Result_3], []),

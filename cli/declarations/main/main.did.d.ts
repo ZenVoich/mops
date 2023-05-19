@@ -55,7 +55,7 @@ export interface PackageConfigV2__1 {
   'readme' : string,
 }
 export interface PackageDetails {
-  'ownerInfo' : User__1,
+  'ownerInfo' : User,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,
   'downloadsTotal' : bigint,
@@ -77,6 +77,7 @@ export interface PackagePublication {
   'user' : Principal,
 }
 export interface PackageSummary {
+  'ownerInfo' : User,
   'owner' : Principal,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -85,6 +86,7 @@ export interface PackageSummary {
   'publication' : PackagePublication,
 }
 export interface PackageSummary__1 {
+  'ownerInfo' : User,
   'owner' : Principal,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -119,18 +121,24 @@ export type Text = string;
 export type Time = bigint;
 export interface User {
   'id' : Principal,
+  'emailVerified' : boolean,
   'twitter' : string,
   'displayName' : string,
   'name' : string,
+  'site' : string,
+  'email' : string,
   'twitterVerified' : boolean,
   'githubVerified' : boolean,
   'github' : string,
 }
 export interface User__1 {
   'id' : Principal,
+  'emailVerified' : boolean,
   'twitter' : string,
   'displayName' : string,
   'name' : string,
+  'site' : string,
+  'email' : string,
   'twitterVerified' : boolean,
   'githubVerified' : boolean,
   'github' : string,
@@ -161,7 +169,7 @@ export interface _SERVICE {
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
-  'getUser' : ActorMethod<[Principal], [] | [User]>,
+  'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'setUserProp' : ActorMethod<[string, string], Result_3>,
