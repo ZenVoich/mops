@@ -490,9 +490,9 @@ actor {
 			// search by owner
 			if (Text.startsWith(searchText, #text("owner:"))) {
 				ignore do ? {
-					let ?searchOwnerName = Text.stripStart(searchText, #text("owner:"));
-					let ?ownerId = packageOwners.get(config.name);
-					let ?ownerInfo = users.getUserOpt(ownerId);
+					let searchOwnerName = Text.stripStart(searchText, #text("owner:"))!;
+					let ownerId = packageOwners.get(config.name)!;
+					let ownerInfo = users.getUserOpt(ownerId)!;
 					if (searchOwnerName == ownerInfo.name) {
 						sortingPoints += 3;
 					};
