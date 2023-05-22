@@ -5,6 +5,19 @@ module {
 	public type PackageId = Text; // lib@1.2.3
 	public type Err = Text;
 
+	public type User = {
+		id: Principal;
+		name: Text; // max 30 (e.g. "zen")
+		displayName: Text; // max 30 (e.g. "Zen Voich")
+		site: Text; // max 100 (e.g. "https://dfinity.org")
+		email: Text; // max 50 (e.g. "zen.voich@gmail.com")
+		github: Text; // max 30 (e.g. "ZenVoich")
+		twitter: Text; // max 30 (e.g. "mops_one")
+		emailVerified: Bool;
+		twitterVerified: Bool;
+		githubVerified: Bool;
+	};
+
 	public type Access = {
 		#readOnly;
 		#readWrite;
@@ -22,7 +35,7 @@ module {
 
 	public type PackagePublication = {
 		time: Time.Time;
-		user: Principal;
+		user: Principal; // TODO: userId?
 		storage: Principal;
 	};
 
@@ -52,7 +65,8 @@ module {
 	};
 
 	public type PackageSummary = {
-		owner: Principal;
+		owner: Principal; // TODO: ownerId?
+		ownerInfo: User;
 		config: PackageConfigV2;
 		publication: PackagePublication;
 		downloadsTotal: Nat;

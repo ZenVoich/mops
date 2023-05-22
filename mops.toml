@@ -3,6 +3,7 @@ base = "0.8.1"
 time-consts = "1.0.0"
 itertools = "0.1.1"
 chronosphere = "https://github.com/enzoh/chronosphere#master"
+map = "8.1.0"
 
 [dev-dependencies]
 test = "1.0.0"

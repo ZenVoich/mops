@@ -8,12 +8,14 @@
 	import InstallDoc from './docs/InstallDoc.svelte';
 	import PublishDoc from './docs/PublishDoc.svelte';
 	import ConfigDoc from './docs/ConfigDoc.svelte';
+	// import UserPage from './docs/UserPage.svelte';
 
 	let routes = [
 		{path: '/', component: Home},
 		{path: '/docs/install', component: InstallDoc},
 		{path: '/docs/publish', component: PublishDoc},
 		{path: '/docs/config', component: ConfigDoc},
+		// {path: '/@(?<username>.+)', component: UserPage},
 		{path: '/search/(?<search>.*)', component: SearchResults},
 		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)/(?<tab>docs)/(?<file>.*)', component: Package},
 		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)(/(?<tab>.*?))?', component: Package},

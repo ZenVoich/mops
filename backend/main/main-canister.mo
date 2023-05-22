@@ -21,10 +21,11 @@ import {DAY} "mo:time-consts";
 import Utils "../utils";
 import Version "./version";
 import Types "./types";
-import {validateConfig} "./validate-config";
 import DownloadLog "./download-log";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
+import Users "./users";
+import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
 actor {
@@ -41,6 +42,7 @@ actor {
 	public type PackageSummary = Types.PackageSummary;
 	public type Ver = Version.Version;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
+	public type User = Types.User;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -58,6 +60,7 @@ actor {
 	downloadLog.setTimers();
 
 	let storageManager = StorageManager.StorageManager();
+	let users = Users.Users();
 
 	// publish
 	type PublishingId = Text.Text;
@@ -120,8 +123,12 @@ actor {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
 
+			let owner = Option.unwrap(packageOwners.get(name));
+			users.ensureUser(owner);
+
 			return ?{
-				owner = Option.get(packageOwners.get(name), Utils.anonymousPrincipal());
+				owner = owner;
+				ownerInfo = users.getUser(owner);
 				config = config;
 				publication = publication;
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
@@ -479,15 +486,32 @@ actor {
 
 		for (config in highestConfigs.vals()) {
 			var sortingPoints = 0;
-			if (Text.contains(config.name, pattern)) {
-				sortingPoints += 3;
-			};
-			if (Text.contains(config.description, pattern)) {
-				sortingPoints += 1;
-			};
-			for (keyword in config.keywords.vals()) {
-				if (Text.contains(keyword, pattern)) {
-					sortingPoints += 2;
+
+			// search by owner
+			if (Text.startsWith(searchText, #text("owner:"))) {
+				ignore do ? {
+					let searchOwnerName = Text.stripStart(searchText, #text("owner:"))!;
+					let ownerId = packageOwners.get(config.name)!;
+					let ownerInfo = users.getUserOpt(ownerId)!;
+					if (searchOwnerName == ownerInfo.name) {
+						sortingPoints += 3;
+					};
+				};
+			}
+			else {
+				if (config.name == searchText) {
+					sortingPoints += 3;
+				};
+				if (Text.contains(config.name, pattern)) {
+					sortingPoints += 3;
+				};
+				if (Text.contains(config.description, pattern)) {
+					sortingPoints += 1;
+				};
+				for (keyword in config.keywords.vals()) {
+					if (Text.contains(keyword, pattern)) {
+						sortingPoints += 2;
+					};
 				};
 			};
 
@@ -610,6 +634,30 @@ actor {
 		storageManager.getStoragesStats();
 	};
 
+	// USERS
+	public query func getUser(userId : Principal) : async ?User {
+		users.getUserOpt(userId);
+	};
+
+	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {
+		users.ensureUser(caller);
+		switch (prop) {
+			case ("name") {
+				let user = users.getUser(caller);
+				let hasScopedPackages = false; // TODO
+				if (user.name != "" and hasScopedPackages) {
+					return #err("You can't change name after publishing scoped packages");
+				};
+				users.setName(caller, value);
+			};
+			case ("site") users.setSite(caller, value);
+			case ("email") users.setEmail(caller, value);
+			case ("github") users.setGithub(caller, value);
+			case ("twitter") users.setTwitter(caller, value);
+			case (_) #err("unknown property");
+		};
+	};
+
 	// SYSTEM
 	stable var packagePublicationsStable: [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable: [(PackageName, [Ver])] = [];
@@ -621,6 +669,7 @@ actor {
 
 	stable var downloadLogStable: DownloadLog.Stable = null;
 	stable var storageManagerStable: StorageManager.Stable = null;
+	stable var usersStable: Users.Stable = null;
 
 	system func preupgrade() {
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
@@ -629,6 +678,7 @@ actor {
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
+		usersStable := users.toStable();
 
 		highestConfigsStableV2 := Iter.toArray(highestConfigs.entries());
 		packageConfigsStableV2 := Iter.toArray(packageConfigs.entries());
@@ -654,6 +704,9 @@ actor {
 
 		storageManager.loadStable(storageManagerStable);
 		storageManagerStable := null;
+
+		users.loadStable(usersStable);
+		usersStable := null;
 
 		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);

@@ -18,6 +18,7 @@ import {test} from './commands/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
+import {getUserProp, setUserProp} from './commands/user.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -221,6 +222,26 @@ program
 		}
 		else {
 			console.log('Please run \'npm i -g ic-mops\'');
+		}
+	});
+
+// user
+program
+	.command('user set|get <prop> [value]')
+	.description('User settings')
+	.action(async (sub, prop, value) => {
+		if (sub == 'get') {
+			await getUserProp(prop);
+		}
+		else if (sub == 'set') {
+			if (!value) {
+				console.log('error: missing required argument "value"');
+				return;
+			}
+			await setUserProp(prop, value);
+		}
+		else {
+			console.log('Unknown sub command. Available sub commands: set, get');
 		}
 	});
 

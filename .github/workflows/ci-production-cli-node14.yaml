@@ -25,7 +25,7 @@ jobs:
 
       - name: Select moc version
         run: |
-          npx mocv use 0.8.5
+          npx mocv use 0.9.1
 
       - name: Build and Deploy
         run: |
@@ -53,7 +53,7 @@ jobs:
 
       - name: Select moc version
         run: |
-          npx mocv use 0.8.5
+          npx mocv use 0.9.1
 
       - name: Run Tests
         run: |
