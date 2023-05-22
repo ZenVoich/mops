@@ -473,7 +473,7 @@ module {
 		"ZPL-2.1",
 	];
 
-	public func validateLicense(license: Text): Result.Result<(), Text> {
+	public func validateLicense(license : Text) : Result.Result<(), Text> {
 		if (license == "") {
 			return #ok;
 		};

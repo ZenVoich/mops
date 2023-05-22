@@ -11,19 +11,19 @@ module {
 	public type Version = Text.Text;
 	type Err = Types.Err;
 
-	public func major(ver: Version): Nat {
+	public func major(ver : Version) : Nat {
 		textToNat(versionPart(ver, 0));
 	};
 
-	public func minor(ver: Version): Nat {
+	public func minor(ver : Version) : Nat {
 		textToNat(versionPart(ver, 1));
 	};
 
-	public func patch(ver: Version): Nat {
+	public func patch(ver : Version) : Nat {
 		textToNat(versionPart(ver, 2));
 	};
 
-	func textToNat(text: Text): Nat {
+	func textToNat(text : Text) : Nat {
 		var res = 0;
 		for (char in text.chars()) {
 			let n = (Nat32.toNat(Char.toNat32(char)) - 48) : Nat;
@@ -32,7 +32,7 @@ module {
 		res;
 	};
 
-	func versionPart(ver: Version, partIndex: Nat): Text.Text {
+	func versionPart(ver : Version, partIndex : Nat) : Text.Text {
 		var res = "";
 		var dots = 0;
 		for (char in ver.chars()) {
@@ -51,7 +51,7 @@ module {
 		res;
 	};
 
-	public func compare(x: Version, y: Version): Order.Order {
+	public func compare(x : Version, y : Version) : Order.Order {
 		let order = Nat.compare(major(x), major(y));
 		if (order == #equal) {
 			let order = Nat.compare(minor(x), minor(y));
@@ -68,7 +68,7 @@ module {
 	};
 
 	// TODO: support 1.2.3-pre.1
-	public func validate(ver: Version): Result.Result<(), Err> {
+	public func validate(ver : Version) : Result.Result<(), Err> {
 		var dots = 0;
 		var prevChar = '.';
 		var index = 0;

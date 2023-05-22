@@ -107,7 +107,7 @@ suite("populate", func() {
 	});
 });
 
-func check(name: Text) = suite(name, func() {
+func check(name : Text) = suite(name, func() {
 	skip("check total download snapshots", func() {
 		let snapshots = downloadLog.getDownloadTrend();
 		assert snapshots.size() == 1;

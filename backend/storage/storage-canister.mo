@@ -25,7 +25,7 @@ shared({caller = parent}) actor class Storage() {
 	var filesChunks = TrieMap.TrieMap<FileId, [Chunk]>(Text.equal, Text.hash);
 
 
-	func _getStats(): StorageStats {
+	func _getStats() : StorageStats {
 		return {
 			fileCount = filesMeta.size();
 			memorySize = rts_memory_size();
@@ -35,15 +35,15 @@ shared({caller = parent}) actor class Storage() {
 		};
 	};
 
-	public query func getStats(): async StorageStats {
+	public query func getStats() : async StorageStats {
 		_getStats();
 	};
 
-	public func acceptCycles(): async () {
+	public func acceptCycles() : async () {
 		ignore Cycles.accept(Cycles.available());
 	};
 
-	public shared query ({caller}) func getFileIdsRange(start: Nat, end: Nat): async [FileId] {
+	public shared query ({caller}) func getFileIdsRange(start : Nat, end : Nat) : async [FileId] {
 		assert(caller == parent);
 
 		let buffer = Buffer.Buffer<FileId>(end - start);
@@ -61,7 +61,7 @@ shared({caller = parent}) actor class Storage() {
 	let activeUploadsMeta = TrieMap.TrieMap<FileId, FileMeta>(Text.equal, Text.hash);
 	let activeUploadsChunks = TrieMap.TrieMap<FileId, [var Chunk]>(Text.equal, Text.hash);
 
-	public shared ({caller}) func startUpload(fileMeta: FileMeta): async Result.Result<(), Err> {
+	public shared ({caller}) func startUpload(fileMeta : FileMeta) : async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		if (filesMeta.get(fileMeta.id) != null) {
@@ -74,7 +74,7 @@ shared({caller = parent}) actor class Storage() {
 		#ok;
 	};
 
-	public shared ({caller}) func uploadChunk(fileId: FileId, chunkIndex: Nat, chunk: Chunk): async Result.Result<(), Err> {
+	public shared ({caller}) func uploadChunk(fileId : FileId, chunkIndex : Nat, chunk : Chunk) : async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		switch (activeUploadsChunks.get(fileId)) {
@@ -91,7 +91,7 @@ shared({caller = parent}) actor class Storage() {
 		};
 	};
 
-	public shared ({caller}) func finishUploads(fileIds: [FileId]): async Result.Result<(), Err> {
+	public shared ({caller}) func finishUploads(fileIds : [FileId]) : async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		for (fileId in fileIds.vals()) {
@@ -118,7 +118,7 @@ shared({caller = parent}) actor class Storage() {
 	};
 
 	// update file owners
-	public shared ({caller}) func updateFileOwners(fileId: FileId, owners: [Principal]): async Result.Result<(), Err> {
+	public shared ({caller}) func updateFileOwners(fileId : FileId, owners : [Principal]) : async Result.Result<(), Err> {
 		assert(caller == parent);
 
 		switch (filesMeta.get(fileId)) {
@@ -138,14 +138,14 @@ shared({caller = parent}) actor class Storage() {
 	};
 
 	// delete file
-	public shared ({caller}) func deleteFile(fileId: FileId): async () {
+	public shared ({caller}) func deleteFile(fileId : FileId) : async () {
 		assert(caller == parent);
 
 		filesMeta.delete(fileId);
 		filesChunks.delete(fileId);
 	};
 
-	public shared ({caller}) func clearActiveUploads(): async () {
+	public shared ({caller}) func clearActiveUploads() : async () {
 		assert(caller == parent);
 
 		for (fileId in activeUploadsMeta.keys()) {
@@ -157,7 +157,7 @@ shared({caller = parent}) actor class Storage() {
 	};
 
 	// DOWNLOAD
-	func _getFileMeta(fileId: FileId, caller: Principal): Result.Result<FileMeta, Err>  {
+	func _getFileMeta(fileId : FileId, caller : Principal) : Result.Result<FileMeta, Err>  {
 		switch (filesMeta.get(fileId)) {
 			case (null) {
 				#err("File '" # fileId # "' not found");
@@ -174,12 +174,12 @@ shared({caller = parent}) actor class Storage() {
 		};
 	};
 
-	public shared query ({caller}) func getFileMeta(fileId: FileId): async Result.Result<FileMeta, Err> {
+	public shared query ({caller}) func getFileMeta(fileId : FileId) : async Result.Result<FileMeta, Err> {
 		assert(fileId.size() < 1000);
 		_getFileMeta(fileId, caller);
 	};
 
-	public shared query ({caller}) func downloadChunk(fileId: FileId, chunkIndex: Nat): async Result.Result<Chunk, Err> {
+	public shared query ({caller}) func downloadChunk(fileId : FileId, chunkIndex : Nat) : async Result.Result<Chunk, Err> {
 		assert(fileId.size() < 1000);
 
 		// check access
@@ -199,8 +199,8 @@ shared({caller = parent}) actor class Storage() {
 
 
 	// SYSTEM
-	stable var filesMetaStable: [(FileId, FileMeta)] = [];
-	stable var filesChunksStable: [(FileId, [Chunk])] = [];
+	stable var filesMetaStable : [(FileId, FileMeta)] = [];
+	stable var filesChunksStable : [(FileId, [Chunk])] = [];
 
 	system func preupgrade() {
 		filesMetaStable := Iter.toArray(filesMeta.entries());

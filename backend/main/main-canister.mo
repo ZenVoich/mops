@@ -66,22 +66,22 @@ actor {
 	type PublishingId = Text.Text;
 	type PublishingErr = Err;
 	type PublishingPackage = {
-		time: Time.Time;
-		user: Principal;
-		config: PackageConfigV2;
-		storage: Principal;
+		time : Time.Time;
+		user : Principal;
+		config : PackageConfigV2;
+		storage : Principal;
 	};
 	public type FileId = Text.Text;
 	public type PublishingFile = {
-		id: FileId;
-		path: Text.Text;
+		id : FileId;
+		path : Text.Text;
 	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
 
 
 	// PRIVATE
-	func _getHighestVersion(name: PackageName): ?Ver {
+	func _getHighestVersion(name : PackageName) : ?Ver {
 		let versionsMaybe = packageVersions.get(name);
 		if (Option.isSome(versionsMaybe)) {
 			let versions = Utils.unwrap(versionsMaybe);
@@ -94,7 +94,7 @@ actor {
 		return null;
 	};
 
-	func _resolveVersion(name: PackageName, version: Ver): ?Ver {
+	func _resolveVersion(name : PackageName, version : Ver) : ?Ver {
 		if (version == "highest") {
 			_getHighestVersion(name);
 		}
@@ -103,7 +103,7 @@ actor {
 		};
 	};
 
-	func _updateHighestConfig(config: PackageConfigV2) {
+	func _updateHighestConfig(config : PackageConfigV2) {
 		switch (_getHighestVersion(config.name)) {
 			case (?ver) {
 				if (Version.compare(config.version, ver) == #greater) {
@@ -116,7 +116,7 @@ actor {
 		}
 	};
 
-	func _getPackageSummary(name: PackageName, version: Ver): ?PackageSummary {
+	func _getPackageSummary(name : PackageName, version : Ver) : ?PackageSummary {
 		let packageId = name # "@" # version;
 
 		do ? {
@@ -139,7 +139,7 @@ actor {
 		};
 	};
 
-	func _getPackageDetails(name: PackageName, version: Ver): ?PackageDetails {
+	func _getPackageDetails(name : PackageName, version : Ver) : ?PackageDetails {
 		let packageId = name # "@" # version;
 
 		do ? {
@@ -156,14 +156,14 @@ actor {
 		};
 	};
 
-	func _getPackageVersionHistory(name: PackageName): [PackageSummary] {
+	func _getPackageVersionHistory(name : PackageName) : [PackageSummary] {
 		let versions = Utils.unwrap(packageVersions.get(name));
 		Array.reverse(Array.map<Ver, PackageSummary>(versions, func(version) {
 			Utils.unwrap(_getPackageSummary(name, version));
 		}));
 	};
 
-	func _getDepsSummaries(deps: [DependencyV2]): [PackageSummary] {
+	func _getDepsSummaries(deps : [DependencyV2]) : [PackageSummary] {
 		let filtered = Array.filter<DependencyV2>(deps, func(dep) {
 			dep.repo == "";
 		});
@@ -172,24 +172,24 @@ actor {
 		});
 	};
 
-	func _getPackageDependencies(name: PackageName, version: Ver): [PackageSummary] {
+	func _getPackageDependencies(name : PackageName, version : Ver) : [PackageSummary] {
 		let packageId = name # "@" # version;
 		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
 		_getDepsSummaries(config.dependencies);
 	};
 
-	func _getPackageDevDependencies(name: PackageName, version: Ver): [PackageSummary] {
+	func _getPackageDevDependencies(name : PackageName, version : Ver) : [PackageSummary] {
 		let packageId = name # "@" # version;
 		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
 		_getDepsSummaries(config.devDependencies);
 	};
 
-	func _getPackageDependents(name: PackageName): [PackageSummary] {
-		func isDependent(config: PackageConfigV2): Bool {
-			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep: DependencyV2) {
+	func _getPackageDependents(name : PackageName) : [PackageSummary] {
+		func isDependent(config : PackageConfigV2) : Bool {
+			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
 				dep.name == name;
 			}));
-			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep: DependencyV2) {
+			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
 				dep.name == name;
 			}));
 			dependent or devDependent;
@@ -197,10 +197,10 @@ actor {
 
 		let dependentConfigs = Iter.filter<PackageConfigV2>(packageConfigs.vals(), isDependent);
 
-		let pkgHash = func(a: PackageConfigV2): Hash.Hash {
+		let pkgHash = func(a : PackageConfigV2) : Hash.Hash {
 			Text.hash(a.name);
 		};
-		let pkgEqual = func(a: PackageConfigV2, b: PackageConfigV2): Bool {
+		let pkgEqual = func(a : PackageConfigV2, b : PackageConfigV2) : Bool {
 			a.name == b.name;
 		};
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
@@ -218,7 +218,7 @@ actor {
 
 
 	// PUBLIC
-	public shared ({caller}) func startPublish(config: PackageConfigV2): async Result.Result<PublishingId, PublishingErr> {
+	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
 		assert(Utils.isAuthorized(caller));
 
 		// validate config
@@ -250,7 +250,7 @@ actor {
 		// check if the same version is published
 		switch (packageVersions.get(config.name)) {
 			case (?versions) {
-				let sameVersionOpt = Array.find<Ver>(versions, func(ver: Ver) {
+				let sameVersionOpt = Array.find<Ver>(versions, func(ver : Ver) {
 					ver == config.version;
 				});
 				if (sameVersionOpt != null) {
@@ -296,7 +296,7 @@ actor {
 		#ok(publishingId);
 	};
 
-	public shared ({caller}) func startFileUpload(publishingId: PublishingId, path: Text.Text, chunkCount: Nat, firstChunk: Blob): async Result.Result<FileId, Err> {
+	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
 		assert(Utils.isAuthorized(caller));
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
@@ -339,7 +339,7 @@ actor {
 			};
 		};
 
-		let pubFile: PublishingFile = {
+		let pubFile : PublishingFile = {
 			id = fileId;
 			path = path;
 		};
@@ -348,7 +348,7 @@ actor {
 		#ok(fileId);
 	};
 
-	public shared ({caller}) func uploadFileChunk(publishingId: PublishingId, fileId: FileId, chunkIndex: Nat, chunk: Blob): async Result.Result<(), Err> {
+	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
@@ -357,7 +357,7 @@ actor {
 		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
 	};
 
-	public shared ({caller}) func finishPublish(publishingId: PublishingId): async Result.Result<(), Err> {
+	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
@@ -385,7 +385,7 @@ actor {
 			return #err("Missing required file README.md");
 		};
 
-		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file: PublishingFile): Text.Text {
+		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file : PublishingFile) : Text.Text {
 			file.id;
 		});
 
@@ -394,7 +394,7 @@ actor {
 			return res;
 		};
 
-		fileIdsByPackage.put(packageId, Array.filter(fileIds, func(fileId: Text.Text): Bool {
+		fileIdsByPackage.put(packageId, Array.filter(fileIds, func(fileId : Text.Text) : Bool {
 			not Text.endsWith(fileId, #text("docs.tgz"));
 		}));
 
@@ -418,11 +418,11 @@ actor {
 
 
 	// QUERY
-	public shared query ({caller}) func getApiVersion(): async Text.Text {
+	public shared query ({caller}) func getApiVersion() : async Text.Text {
 		apiVersion;
 	};
 
-	public shared query ({caller}) func getDefaultPackages(dfxVersion: Text): async [(PackageName, Version.Version)] {
+	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, Version.Version)] {
 		switch (dfxVersion) {
 			case ("0.9.0") [("base", "0.6.20")];
 			case ("0.9.2") [("base", "0.6.21")];
@@ -445,11 +445,11 @@ actor {
 		};
 	};
 
-	public shared query ({caller}) func getHighestVersion(name: PackageName): async Result.Result<Ver, Err> {
+	public shared query ({caller}) func getHighestVersion(name : PackageName) : async Result.Result<Ver, Err> {
 		Result.fromOption(_getHighestVersion(name), "Package '" # name # "' not found");
 	};
 
-	public shared query ({caller}) func getPackageDetails(name: PackageName, version: Ver): async Result.Result<PackageDetails, Err> {
+	public shared query ({caller}) func getPackageDetails(name : PackageName, version : Ver) : async Result.Result<PackageDetails, Err> {
 		let packageDetails = do ? {
 			let ver = _resolveVersion(name, version)!;
 			_getPackageDetails(name, ver)!;
@@ -457,12 +457,12 @@ actor {
 		Result.fromOption(packageDetails, "Package '" # name # "' not found");
 	};
 
-	public shared query ({caller}) func getFileIds(name: PackageName, version: Ver): async Result.Result<[FileId], Err> {
+	public shared query ({caller}) func getFileIds(name : PackageName, version : Ver) : async Result.Result<[FileId], Err> {
 		let packageId = name # "@" # version;
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func notifyInstall(name: PackageName, version: Ver) {
+	public shared ({caller}) func notifyInstall(name : PackageName, version : Ver) {
 		let packageId = name # "@" # version;
 
 		ignore Utils.expect(packageConfigs.get(packageId), "Package not found");
@@ -475,11 +475,11 @@ actor {
 		});
 	};
 
-	public query func search(searchText: Text.Text): async [PackageSummary] {
+	public query func search(searchText : Text.Text) : async [PackageSummary] {
 		let max = 20;
 		type ConfigWithPoints = {
-			config: PackageConfigV2;
-			sortingPoints: Nat;
+			config : PackageConfigV2;
+			sortingPoints : Nat;
 		};
 		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(max);
 		let pattern = #text(searchText);
@@ -531,16 +531,16 @@ actor {
 		});
 
 		// limit results
-		Array.tabulate<PackageSummary>(Nat.min(configs.size(), max), func(i: Nat) {
+		Array.tabulate<PackageSummary>(Nat.min(configs.size(), max), func(i : Nat) {
 			Utils.unwrap(_getPackageSummary(configs[i].config.name, configs[i].config.version));
 		});
 	};
 
-	public query func getRecentlyUpdatedPackages(): async [PackageSummary] {
+	public query func getRecentlyUpdatedPackages() : async [PackageSummary] {
 		let max = 5;
 		let packages = Buffer.Buffer<PackageSummary>(max);
 
-		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a: (PackageId, PackagePublication), b: (PackageId, PackagePublication)): Order.Order {
+		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
 			Int.compare(b.1.time, a.1.time);
 		});
 
@@ -570,7 +570,7 @@ actor {
 		Buffer.toArray(packages)
 	};
 
-	public query func getMostDownloadedPackages(): async [PackageSummary] {
+	public query func getMostDownloadedPackages() : async [PackageSummary] {
 		let max = 5;
 		let packages = Buffer.Buffer<PackageSummary>(max);
 
@@ -592,7 +592,7 @@ actor {
 		Buffer.toArray(packages);
 	};
 
-	public query func getMostDownloadedPackagesIn7Days(): async [PackageSummary] {
+	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
 		let max = 5;
 		let packages = Buffer.Buffer<PackageSummary>(max);
 
@@ -614,23 +614,23 @@ actor {
 		Buffer.toArray(packages);
 	};
 
-	public query func getDownloadTrendByPackageName(name: PackageName): async [DownloadsSnapshot] {
+	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {
 		downloadLog.getDownloadTrendByPackageName(name);
 	};
 
-	public query func getDownloadTrendByPackageId(packageId: PackageId): async [DownloadsSnapshot] {
+	public query func getDownloadTrendByPackageId(packageId : PackageId) : async [DownloadsSnapshot] {
 		downloadLog.getDownloadTrendByPackageId(packageId);
 	};
 
-	public query func getTotalDownloads(): async Nat {
+	public query func getTotalDownloads() : async Nat {
 		downloadLog.getTotalDownloads();
 	};
 
-	public query func getTotalPackages(): async Nat {
+	public query func getTotalPackages() : async Nat {
 		packageVersions.size();
 	};
 
-	public query func getStoragesStats(): async [(StorageManager.StorageId, StorageManager.StorageStats)] {
+	public query func getStoragesStats() : async [(StorageManager.StorageId, StorageManager.StorageStats)] {
 		storageManager.getStoragesStats();
 	};
 
@@ -659,17 +659,17 @@ actor {
 	};
 
 	// SYSTEM
-	stable var packagePublicationsStable: [(PackageId, PackagePublication)] = [];
-	stable var packageVersionsStable: [(PackageName, [Ver])] = [];
-	stable var packageOwnersStable: [(PackageName, Principal)] = [];
-	stable var packageConfigsStableV2: [(PackageId, PackageConfigV2)] = [];
-	stable var highestConfigsStableV2: [(PackageName, PackageConfigV2)] = [];
+	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];
+	stable var packageVersionsStable : [(PackageName, [Ver])] = [];
+	stable var packageOwnersStable : [(PackageName, Principal)] = [];
+	stable var packageConfigsStableV2 : [(PackageId, PackageConfigV2)] = [];
+	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
 
-	stable var fileIdsByPackageStable: [(PackageId, [FileId])] = [];
+	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
 
-	stable var downloadLogStable: DownloadLog.Stable = null;
-	stable var storageManagerStable: StorageManager.Stable = null;
-	stable var usersStable: Users.Stable = null;
+	stable var downloadLogStable : DownloadLog.Stable = null;
+	stable var storageManagerStable : StorageManager.Stable = null;
+	stable var usersStable : Users.Stable = null;
 
 	system func preupgrade() {
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());

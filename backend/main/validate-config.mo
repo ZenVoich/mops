@@ -56,7 +56,7 @@ module {
 		"cli",
 	];
 
-	public func validateConfig(config: PackageConfigV2): Result.Result<(), Err> {
+	public func validateConfig(config : PackageConfigV2) : Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
 			return #err("invalid config: 'dfx' field is not supported yet");

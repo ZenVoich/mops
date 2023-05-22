@@ -29,31 +29,31 @@ module {
 	public type PackageId = Text.Text;
 
 	public type Record = {
-		time: Time.Time;
-		name: PackageName;
-		version: Version.Version;
-		downloader: Principal;
+		time : Time.Time;
+		name : PackageName;
+		version : Version.Version;
+		downloader : Principal;
 	};
 
 	public type ByPackageNameStable = [(Text.Text, Nat)];
 	public type ByPackageIdStable = [(Text.Text, Nat)];
 	public type Stable = ?{
-		#v1: ([Record], ByPackageNameStable, ByPackageIdStable);
-		#v2: {
-			totalDownloads: Nat;
-			downloadsByPackageName: [(Text.Text, Nat)];
-			downloadsByPackageId: [(Text.Text, Nat)];
-			dailySnapshots: [DownloadsSnapshot];
-			weeklySnapshots: [DownloadsSnapshot];
-			dailySnapshotsByPackageName: [(Text.Text, [DownloadsSnapshot])];
-			dailySnapshotsByPackageId: [(Text.Text, [DownloadsSnapshot])];
-			weeklySnapshotsByPackageName: [(Text.Text, [DownloadsSnapshot])];
-			weeklySnapshotsByPackageId: [(Text.Text, [DownloadsSnapshot])];
-			dailyTempRecords: [Record];
-			weeklyTempRecords: [Record];
-			curSnapshotDay: Nat;
-			curSnapshotWeekDay: DateBase.DayOfWeek;
-			timerId: Nat;
+		#v1 : ([Record], ByPackageNameStable, ByPackageIdStable);
+		#v2 : {
+			totalDownloads : Nat;
+			downloadsByPackageName : [(Text.Text, Nat)];
+			downloadsByPackageId : [(Text.Text, Nat)];
+			dailySnapshots : [DownloadsSnapshot];
+			weeklySnapshots : [DownloadsSnapshot];
+			dailySnapshotsByPackageName : [(Text.Text, [DownloadsSnapshot])];
+			dailySnapshotsByPackageId : [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageName : [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageId : [(Text.Text, [DownloadsSnapshot])];
+			dailyTempRecords : [Record];
+			weeklyTempRecords : [Record];
+			curSnapshotDay : Nat;
+			curSnapshotWeekDay : DateBase.DayOfWeek;
+			timerId : Nat;
 		};
 	};
 
@@ -74,10 +74,10 @@ module {
 		var dailyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to daily snapshots
 		var weeklyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to weekly snapshots
 		var curSnapshotDay = 0;
-		var curSnapshotWeekDay: DateBase.DayOfWeek = #Monday;
+		var curSnapshotWeekDay : DateBase.DayOfWeek = #Monday;
 		var timerId = 0;
 
-		public func add(record: Record) {
+		public func add(record : Record) {
 			let packageId = record.name # "@" # record.version;
 			dailyTempRecords.add(record);
 			weeklyTempRecords.add(record);
@@ -86,7 +86,7 @@ module {
 			totalDownloads += 1;
 		};
 
-		public func getTotalDownloads(): Nat {
+		public func getTotalDownloads() : Nat {
 			totalDownloads;
 		};
 
@@ -98,15 +98,15 @@ module {
 			totalDownloads := total
 		};
 
-		public func getTotalDownloadsByPackageName(name: PackageName): Nat {
+		public func getTotalDownloadsByPackageName(name : PackageName) : Nat {
 			Option.get(downloadsByPackageName.get(name), 0);
 		};
 
-		public func getTotalDownloadsByPackageId(id: PackageId): Nat {
+		public func getTotalDownloadsByPackageId(id : PackageId) : Nat {
 			Option.get(downloadsByPackageId.get(id), 0);
 		};
 
-		func _getTrend(snapshotsOpt: ?Buffer.Buffer<DownloadsSnapshot>, max: Nat): [DownloadsSnapshot] {
+		func _getTrend(snapshotsOpt : ?Buffer.Buffer<DownloadsSnapshot>, max : Nat) : [DownloadsSnapshot] {
 			switch (snapshotsOpt) {
 				case (?snapshots) {
 					let deiter = Deiter.fromArray(Buffer.toArray(snapshots));
@@ -118,15 +118,15 @@ module {
 			};
 		};
 
-		public func getDownloadTrend(): [DownloadsSnapshot] {
+		public func getDownloadTrend() : [DownloadsSnapshot] {
 			_getTrend(?dailySnapshots, 14);
 		};
 
-		public func getDownloadTrendByPackageName(name: PackageName): [DownloadsSnapshot] {
+		public func getDownloadTrendByPackageName(name : PackageName) : [DownloadsSnapshot] {
 			_getTrend(dailySnapshotsByPackageName.get(name), 14);
 		};
 
-		public func getDownloadTrendByPackageId(packageId: PackageId): [DownloadsSnapshot] {
+		public func getDownloadTrendByPackageId(packageId : PackageId) : [DownloadsSnapshot] {
 			_getTrend(dailySnapshotsByPackageId.get(packageId), 14);
 		};
 
@@ -276,7 +276,7 @@ module {
 			curSnapshotWeekDay := weekDay;
 		};
 
-		public func getDownloadsByPackageNameIn(name: PackageName, duration: Time.Time): Nat {
+		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time) : Nat {
 			if (duration < 1 * DAY - 100) {
 				Debug.trap("duration cannot be less than 1 day");
 			};
@@ -304,13 +304,13 @@ module {
 			total;
 		};
 
-		public func getMostDownloadedPackageNames(): [PackageName] {
+		public func getMostDownloadedPackageNames() : [PackageName] {
 			var arr = Iter.toArray(downloadsByPackageName.entries());
-			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
+			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item : (PackageName, Nat)) {
 				(item.0, item.1);
 			});
 
-			let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
+			let sorted = Array.sort(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {
 				Nat.compare(b.1, a.1);
 			});
 
@@ -319,13 +319,13 @@ module {
 			});
 		};
 
-		public func getMostDownloadedPackageNamesIn(duration: Time.Time): [PackageName] {
+		public func getMostDownloadedPackageNamesIn(duration : Time.Time) : [PackageName] {
 			var arr = Iter.toArray(downloadsByPackageName.entries());
-			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item: (PackageName, Nat)) {
+			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item : (PackageName, Nat)) {
 				(item.0, getDownloadsByPackageNameIn(item.0, duration));
 			});
 
-			let sorted = Array.sort(arr, func(a: (PackageName, Nat), b: (PackageName, Nat)): Order.Order {
+			let sorted = Array.sort(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {
 				Nat.compare(b.1, a.1);
 			});
 
@@ -336,7 +336,7 @@ module {
 
 		public func setTimers() {
 			cancelTimers();
-			timerId := Timer.recurringTimer(#nanoseconds(5 * MINUTE), func(): async () {
+			timerId := Timer.recurringTimer(#nanoseconds(5 * MINUTE), func() : async () {
 				takeSnapshotsIfNeeded();
 			});
 		};
@@ -345,8 +345,8 @@ module {
 			Timer.cancelTimer(timerId);
 		};
 
-		public func toStable(): Stable {
-			func snapshotsToStable(snapshotsMap: TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>>): [(Text.Text, [DownloadsSnapshot])] {
+		public func toStable() : Stable {
+			func snapshotsToStable(snapshotsMap : TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>>) : [(Text.Text, [DownloadsSnapshot])] {
 				Iter.toArray(
 					Iter.map<(Text.Text, Buffer.Buffer<DownloadsSnapshot>), (Text.Text, [DownloadsSnapshot])>(
 						snapshotsMap.entries(),
@@ -375,7 +375,7 @@ module {
 			});
 		};
 
-		public func loadStable(stab: Stable) {
+		public func loadStable(stab : Stable) {
 			switch (stab) {
 				case (?#v1(records, byName, byId)) {
 					dailyTempRecords := Buffer.fromArray<Record>(records);
@@ -385,7 +385,7 @@ module {
 					recalcTotalDownloads();
 				};
 				case (?#v2(data)) {
-					func snapshotsFromStable(snapshotsMapStable: [(Text.Text, [DownloadsSnapshot])]): TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>> {
+					func snapshotsFromStable(snapshotsMapStable : [(Text.Text, [DownloadsSnapshot])]) : TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>> {
 						let iter = Iter.map<(Text.Text, [DownloadsSnapshot]), (Text.Text, Buffer.Buffer<DownloadsSnapshot>)>(
 							snapshotsMapStable.vals(),
 							func((key, buf)) {
