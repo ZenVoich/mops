@@ -80,6 +80,7 @@ program
 		}
 
 		if (pkg) {
+			// @deprecated
 			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
 			await add(pkg, options);
 		}
