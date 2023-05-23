@@ -7,9 +7,6 @@ on:
       - master
   pull_request:
 
-env:
-  DFX_MOC_PATH: /home/runner/.cache/mocv/versions/current/moc
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,8 +21,7 @@ jobs:
           dfx-version: 0.14.0
 
       - name: Select moc version
-        run: |
-          npx mocv use 0.9.1
+        run: echo "DFX_MOC_PATH=$(npx mocv bin 0.9.1)" >> $GITHUB_ENV
 
       - name: Build and Deploy Frontend
         run: |
@@ -59,9 +55,16 @@ jobs:
         with:
           dfx-version: 0.14.0
 
-      - name: Select moc version
+      - name: print moc version
         run: |
-          npx mocv use 0.9.1
+          echo $DFX_MOC_PATH
+
+      - name: Select moc version
+        run: echo "DFX_MOC_PATH=$(npx mocv bin 0.9.1)" >> $GITHUB_ENV
+
+      - name: print moc version
+        run: |
+          echo $DFX_MOC_PATH
 
       - name: Install npm packages
         run: |
