@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
 
       - name: Select moc version
         run: echo "DFX_MOC_PATH=$(npx mocv bin ${{ matrix.moc-version }})/moc" >> $GITHUB_ENV
