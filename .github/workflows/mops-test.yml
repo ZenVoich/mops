@@ -29,6 +29,11 @@ jobs:
       - name: install mops
         run: npm i -g ${{ matrix.mops-version }}
 
+      - name: install npm packages
+        run: |
+            cd cli
+            npm install
+
       - name: install mops packages
         run: mops install
 
