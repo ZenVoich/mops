@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         moc-version: [0.8.3, 0.9.1]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.8, ic-mops@0.10, ic-mops@0.12]
+        mops-version: [./cli, ic-mops@latest, ic-mops@0.9, ic-mops@0.10, ic-mops@0.12]
         node-version: [14, 18]
 
     runs-on: ubuntu-latest
