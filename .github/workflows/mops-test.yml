@@ -9,6 +9,10 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        moc-version: [0.8.1, 0.8.7, 0.9.1]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -16,12 +20,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: aviate-labs/setup-dfx@v0.2.3
-        with:
-          dfx-version: 0.14.0
 
-      - name: install dfx
-        run: dfx cache install
+      - name: Select moc version
+        run: echo "DFX_MOC_PATH=$(npx mocv bin ${{ matrix.moc-version }})/moc" >> $GITHUB_ENV
 
       - name: install mops
         run: npm i ic-mops -g --yes
