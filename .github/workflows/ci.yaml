@@ -60,7 +60,7 @@ jobs:
           echo $DFX_MOC_PATH
 
       - name: Select moc version
-        run: echo "DFX_MOC_PATH=$(npx mocv bin 0.9.1)" >> $GITHUB_ENV
+        run: echo "DFX_MOC_PATH=$(npx mocv bin 0.9.1)/moc" >> $GITHUB_ENV
 
       - name: print moc version
         run: |
