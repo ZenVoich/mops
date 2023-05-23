@@ -1,4 +1,4 @@
-[*]
+[*.{mo,ts,js,html,css,svelte}]
 indent_style = tab
 end_of_line = lf
 insert_final_newline = false
