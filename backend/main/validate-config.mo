@@ -17,7 +17,7 @@ module {
 	let CONFIG_MAX_SIZES = {
 		name = 50;
 		version = 20;
-		keywords = (5, 20);
+		keywords = (10, 20);
 		description = 200;
 		repository = 300;
 		documentation = 300;
