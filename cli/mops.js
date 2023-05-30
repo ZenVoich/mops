@@ -194,7 +194,11 @@ export function writeConfig(config, configFile = getClosestConfigFile()) {
 		devDeps[name] = repo || path || version;
 	});
 
-	fs.writeFileSync(configFile, TOML.stringify(config).trim());
+	let text = TOML.stringify(config).trim();
+	if (fs.existsSync(configFile) && fs.readFileSync(configFile).toString().endsWith('\n')) {
+		text += '\n';
+	}
+	fs.writeFileSync(configFile, text);
 }
 
 export function formatDir(name, version) {
