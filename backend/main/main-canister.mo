@@ -419,7 +419,7 @@ actor {
 	};
 
 	// AIRDROP
-	let cyclesPerOwner = 10_000_000_000_000; // 10 TC
+	let cyclesPerOwner = 15_000_000_000_000; // 15 TC
 	let cyclesPerPackage = 1_000_000_000_000; // 1 TC
 	// id -> pkg count
 	stable let airdropSnapshot = Map.new<Principal, Nat>(Map.phash);
