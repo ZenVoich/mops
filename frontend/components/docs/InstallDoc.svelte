@@ -51,6 +51,12 @@
 		<div>You can also add packages from GitHub like this</div>
 		<br>
 		<code>mops add https://github.com/dfinity/motoko-base</code>
+
+		<br>
+		<div>For GitHub-packages you can specify branch, tag, or commit hash by adding <code class="inline">#&lt;branch/tag/hash&gt;</code></div>
+		<br>
+		<code>mops add https://github.com/dfinity/motoko-base#moc-0.9.1</code>
+
 		<br>
 		<div>You can also add local packages like this (put source files inside <code class="inline">src</code> directory)</div>
 		<br>

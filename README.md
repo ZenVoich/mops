@@ -50,6 +50,11 @@ You can also add packages from GitHub like this
 mops add https://github.com/dfinity/motoko-base
 ```
 
+For GitHub-packages you can specify branch, tag, or commit hash by adding `#<branch/tag/hash>`
+```
+mops add https://github.com/dfinity/motoko-base#moc-0.9.1
+```
+
 You can also add local packages like this (put source files inside `src` directory)
 ```
 mops add ./shared
