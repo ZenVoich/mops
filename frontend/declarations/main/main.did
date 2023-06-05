@@ -180,7 +180,10 @@ type DependencyV2 =
    version: text;
  };
 service : {
+  claimAirdrop: (principal) -> (text);
   finishPublish: (PublishingId) -> (Result);
+  getAirdropAmount: () -> (nat) query;
+  getAirdropAmountAll: () -> (nat) query;
   getApiVersion: () -> (Text) query;
   getDefaultPackages: (text) -> (vec record {
                                        PackageName__1;
@@ -208,5 +211,6 @@ service : {
   setUserProp: (text, text) -> (Result_3);
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfigV2) -> (Result_1);
+  takeAirdropSnapshot: () -> () oneway;
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
 }

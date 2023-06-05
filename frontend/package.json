@@ -26,6 +26,7 @@
     "hast-util-to-html": "^8.0.4",
     "js-untar": "^2.0.0",
     "micromark": "^3.0.10",
+    "micromark-extension-gfm-table": "^1.0.7",
     "pako": "^2.1.0",
     "svelte-chartjs": "^3.1.2",
     "svelte-icons": "^2.1.0",

@@ -146,7 +146,10 @@ export interface User__1 {
 export type Ver = string;
 export type Version = string;
 export interface _SERVICE {
+  'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
+  'getAirdropAmount' : ActorMethod<[], bigint>,
+  'getAirdropAmountAll' : ActorMethod<[], bigint>,
   'getApiVersion' : ActorMethod<[], Text>,
   'getDefaultPackages' : ActorMethod<
     [string],
@@ -178,6 +181,7 @@ export interface _SERVICE {
     Result_2
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_1>,
+  'takeAirdropSnapshot' : ActorMethod<[], undefined>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
