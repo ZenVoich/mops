@@ -424,6 +424,7 @@
 		/* extra space for scroll */
 		min-height: 1500px;
 		line-height: 1.5;
+		word-break: break-word;
 	}
 
 	:global(h2) {
