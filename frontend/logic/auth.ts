@@ -41,7 +41,7 @@ class Auth extends EventEmitter {
 		let client = await this.getClient();
 		return new Promise((resolve) => {
 			client.login({
-				identityProvider: 'https://identity.ic0.app',
+				identityProvider: 'https://identity.icp0.io',
 				maxTimeToLive: 1_000_000n * 1000n * 60n * 60n * 24n * 10n,
 				onSuccess: () => {
 					this.updateAuthState();
