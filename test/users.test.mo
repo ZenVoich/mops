@@ -90,8 +90,8 @@ test("setSite validation", func() {
 	assert Result.isOk(users.setSite(ensureNewUser(), "http://dfinity.org"));
 	assert Result.isOk(users.setSite(ensureNewUser(), "https://dfinity.org"));
 	assert Result.isOk(users.setSite(ensureNewUser(), "https://mops.one"));
-	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.ic0.app"));
-	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.ic0.app/base/docs/Array"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.icp0.io"));
+	assert Result.isOk(users.setSite(ensureNewUser(), "https://j4mwm-bqaaa-aaaam-qajbq-cai.icp0.io/base/docs/Array"));
 
 	assert Result.isErr(users.setSite(ensureNewUser(), "htt://mops.one"));
 	assert Result.isErr(users.setSite(ensureNewUser(), "dfinity.org"));

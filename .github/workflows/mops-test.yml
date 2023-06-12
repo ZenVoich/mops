@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - uses: aviate-labs/setup-dfx@v0.2.3
         with:
-          dfx-version: 0.14.0
+          dfx-version: 0.14.1
 
       - name: install dfx
         run: dfx cache install

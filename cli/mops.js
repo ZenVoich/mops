@@ -41,14 +41,14 @@ export function getNetwork() {
 	else if (network === 'staging') {
 		return {
 			network,
-			host: 'https://ic0.app',
+			host: 'https://icp-api.io',
 			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
 		};
 	}
 	else if (network === 'ic') {
 		return {
 			network,
-			host: 'https://ic0.app',
+			host: 'https://icp-api.io',
 			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
 		};
 	}

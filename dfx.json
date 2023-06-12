@@ -21,7 +21,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.14.0",
+	"dfx": "0.14.1",
 	"networks": {
 		"staging": {
 			"type": "persistent",

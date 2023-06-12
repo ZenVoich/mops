@@ -18,7 +18,7 @@ jobs:
           node-version: 14
       - uses: aviate-labs/setup-dfx@v0.2.3
         with:
-          dfx-version: 0.14.0
+          dfx-version: 0.14.1
 
       - name: Select moc version
         run: echo "DFX_MOC_PATH=$(npx mocv bin 0.9.1)/moc" >> $GITHUB_ENV
@@ -40,7 +40,7 @@ jobs:
           node-version: 14
       - uses: aviate-labs/setup-dfx@v0.2.3
         with:
-          dfx-version: 0.14.0
+          dfx-version: 0.14.1
 
       - name: Install npm packages
         run: |
