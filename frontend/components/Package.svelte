@@ -144,6 +144,12 @@
 						</div>
 						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>
+
+					<div class="keywords">
+						{#each packageDetails.config.keywords as keyword}
+							<a class="keyword" href="/search/keyword:{keyword}" use:link>#{keyword}</a>
+						{/each}
+					</div>
 				</div>
 			</div>
 
@@ -314,6 +320,14 @@
 		transition: opacity 0.3s;
 		pointer-events: none;
 		user-select: none;
+	}
+
+	.keywords {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		font-family: 'Open Sans', monospace;
+		font-size: 14px;
 	}
 
 	.tabs {

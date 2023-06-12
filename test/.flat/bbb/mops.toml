@@ -3,6 +3,7 @@ name = "bbb"
 version = "0.1.0"
 description = "bbb"
 repository = "repo bbb"
+keywords = [ "test", "cli", "pkg" ]
 files = [ "test.mo" ]
 
 [dependencies]

@@ -3,4 +3,5 @@ name = "aaa"
 version = "0.1.0"
 description = "asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd "
 repository = "repo aaa"
+keywords = [ "test", "cli", "data" ]
 files = [ "test.mo" ]

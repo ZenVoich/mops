@@ -3,6 +3,7 @@ name = 'fff'
 version = '0.1.0'
 description = 'fff'
 repository = 'repo fff'
+keywords = [ "fff" ]
 files = ['test.mo']
 
 [dependencies]

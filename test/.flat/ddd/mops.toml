@@ -3,6 +3,7 @@ name = "ddd"
 version = "0.1.0"
 description = "ddd"
 repository = "repo ddd"
+keywords = [ "http", "test" ]
 
 [dependencies]
 aaa = "0.1.0"

@@ -560,6 +560,18 @@ actor {
 					};
 				};
 			}
+			// search by keyword
+			else if (Text.startsWith(searchText, #text("keyword:"))) {
+				ignore do ? {
+					let searchKeyword = Text.stripStart(searchText, #text("keyword:"))!;
+					let found = Array.find(config.keywords, func(keyword : Text) : Bool {
+						keyword == searchKeyword;
+					});
+					if (found != null) {
+						sortingPoints += 3;
+					};
+				};
+			}
 			else {
 				if (config.name == searchText) {
 					sortingPoints += 3;

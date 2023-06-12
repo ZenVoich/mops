@@ -3,6 +3,7 @@ name = 'ccc'
 version = '0.1.0'
 description = 'ccc'
 repository = 'repo bbb'
+keywords = [ "ccc" ]
 files = ['test.mo']
 
 [dependencies]
