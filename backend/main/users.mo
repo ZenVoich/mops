@@ -19,6 +19,10 @@ module {
 			users : [(Principal, Types.User)];
 			names : Set.Set<Text>;
 		};
+		#v2 : {
+			users : [(Principal, Types.User)];
+			names : [Text];
+		};
 	};
 
 	public class Users() {
@@ -26,9 +30,9 @@ module {
 		var _names = Set.new<Text>(Set.thash);
 
 		public func toStable() : Stable {
-			?#v1({
+			?#v2({
 				users = Iter.toArray(_users.entries());
-				names = _names;
+				names = Set.toArray(_names);
 			});
 		};
 
@@ -37,6 +41,10 @@ module {
 				case (?#v1(data)) {
 					_users := TrieMap.fromEntries<Principal, Types.User>(data.users.vals(), Principal.equal, Principal.hash);
 					_names := data.names;
+				};
+				case (?#v2(data)) {
+					_users := TrieMap.fromEntries<Principal, Types.User>(data.users.vals(), Principal.equal, Principal.hash);
+					_names := Set.fromIter(data.names.vals(), Set.thash);
 				};
 				case (null) {};
 			};
