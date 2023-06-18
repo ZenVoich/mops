@@ -15,10 +15,6 @@ import {isLetter; isLowerCaseLetter} "../main/is-letter";
 
 module {
 	public type Stable = ?{
-		#v1 : {
-			users : [(Principal, Types.User)];
-			names : Set.Set<Text>;
-		};
 		#v2 : {
 			users : [(Principal, Types.User)];
 			names : [Text];
@@ -38,10 +34,6 @@ module {
 
 		public func loadStable(stab : Stable) {
 			switch (stab) {
-				case (?#v1(data)) {
-					_users := TrieMap.fromEntries<Principal, Types.User>(data.users.vals(), Principal.equal, Principal.hash);
-					_names := data.names;
-				};
 				case (?#v2(data)) {
 					_users := TrieMap.fromEntries<Principal, Types.User>(data.users.vals(), Principal.equal, Principal.hash);
 					_names := Set.fromIter(data.names.vals(), Set.thash);

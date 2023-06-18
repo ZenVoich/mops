@@ -152,11 +152,11 @@ test("stable", func() {
 
 	test("stable users", func() {
 		let stableUsers1 = switch (users.toStable()) {
-			case (?#v1({users})) { users };
+			case (?#v2({users})) { users };
 			case (null) { Debug.trap(""); }
 		};
 		let stableUsers2 = switch (users2.toStable()) {
-			case (?#v1({users})) { users };
+			case (?#v2({users})) { users };
 			case (null) { Debug.trap(""); }
 		};
 		assert stableUsers1 == stableUsers2;
@@ -164,14 +164,14 @@ test("stable", func() {
 
 	test("stable names", func() {
 		let stableNames1 = switch (users.toStable()) {
-			case (?#v1({names})) { names };
+			case (?#v2({names})) { names };
 			case (null) { Debug.trap(""); }
 		};
 		let stableNames2 = switch (users2.toStable()) {
-			case (?#v1({names})) { names };
+			case (?#v2({names})) { names };
 			case (null) { Debug.trap(""); }
 		};
-		assert Set.toArray(stableNames1) == Set.toArray(stableNames2);
-		assert Set.toArray(stableNames2) != [];
+		assert stableNames1 == stableNames2;
+		assert stableNames2 != [];
 	});
 });
