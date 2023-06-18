@@ -15,11 +15,14 @@
 		"build:prod": "NODE_ENV=production dfx build --network ic",
 		"deploy:prod": "NODE_ENV=production dfx deploy --network ic --no-wallet --identity mops",
 		"deploy:staging": "NODE_ENV=production dfx deploy --network staging --no-wallet --identity mops",
-		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)"
+		"prepare": "husky install",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)",
+		"test": "mops test"
 	},
 	"devDependencies": {
 		"@typescript-eslint/parser": "^5.45.1",
 		"eslint": "^8.29.0",
-		"eslint-plugin-svelte": "^2.14.0"
+		"eslint-plugin-svelte": "^2.14.0",
+		"husky": "^8.0.3"
 	}
 }
