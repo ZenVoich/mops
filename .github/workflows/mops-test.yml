@@ -11,7 +11,7 @@ jobs:
   test:
     strategy:
       matrix:
-        moc-version: [0.7.0, 0.8.3, 0.9.1]
+        moc-version: [0.8.3, 0.9.1]
         mops-version: [./cli, ic-mops@latest, ic-mops@0.10, ic-mops@0.12]
         node-version: [14, 18]
 
@@ -28,9 +28,6 @@ jobs:
 
       - name: install dfx
         run: dfx cache install
-
-      # - name: Select moc version
-      #   run: echo "DFX_MOC_PATH=$(npx mocv bin ${{ matrix.moc-version }})/moc" >> $GITHUB_ENV
 
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
