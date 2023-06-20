@@ -20,6 +20,7 @@ import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
 import {getUserProp, setUserProp} from './commands/user.js';
+import {bump} from './commands/bump.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -277,6 +278,14 @@ program
 		else {
 			console.log('Unknown sub command. Available sub commands: check, claim');
 		}
+	});
+
+// bump
+program
+	.command('bump [major|minor|patch]')
+	.description('Bump current package version')
+	.action(async (part) => {
+		bump(part);
 	});
 
 program.parse();
