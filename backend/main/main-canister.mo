@@ -574,7 +574,7 @@ actor {
 			}
 			else {
 				if (config.name == searchText) {
-					sortingPoints += 3;
+					sortingPoints += 10;
 				};
 				if (Text.contains(config.name, pattern)) {
 					sortingPoints += 3;
