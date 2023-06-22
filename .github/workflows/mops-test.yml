@@ -16,6 +16,7 @@ jobs:
         node-version: [14, 18]
 
     runs-on: ubuntu-latest
+    name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
 
     steps:
       - uses: actions/checkout@v3
