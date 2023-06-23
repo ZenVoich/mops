@@ -4,6 +4,7 @@ import glob from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
 import path from 'path';
+import fs from 'fs';
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
 import {getRootDir} from '../mops.js';
@@ -58,7 +59,6 @@ let mocPath = process.env.DFX_MOC_PATH;
 export async function runAll(filter = '') {
 	let start = Date.now();
 	let rootDir = getRootDir();
-
 	let files = [];
 	let libFiles = glob.sync('**/test?(s)/lib.mo', globConfig);
 	if (libFiles.length) {
@@ -81,8 +81,6 @@ export async function runAll(filter = '') {
 		return;
 	}
 
-	let absToRel = (p) => path.relative(rootDir, path.resolve(p));
-
 	console.log('Test files:');
 	for (let file of files) {
 		console.log(chalk.gray(`• ${absToRel(file)}`));
@@ -98,50 +96,52 @@ export async function runAll(filter = '') {
 		mocPath = execSync('dfx cache show').toString().trim() + '/moc';
 	}
 
+	let wasmDir = `${getRootDir()}/.mops/.test/`;
+	fs.mkdirSync(wasmDir, {recursive: true});
+
 	for (let file of files) {
 		let mmf1 = new MMF1;
 
 		await new Promise((resolve) => {
+			let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
+
 			file !== files[0] && console.log('-'.repeat(50));
-			console.log(`Running ${chalk.gray(absToRel(file))}`);
+			console.log(`Running ${chalk.gray(absToRel(file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
 
-			let proc = spawn(mocPath, ['-r', '-wasi-system-api', '-ref-system-api', '--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x));
+			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
-			// stdout
-			proc.stdout.on('data', (data) => {
-				for (let line of data.toString().split('\n')) {
-					line = line.trim();
-					if (line) {
-						mmf1.parseLine(line);
+			// build and run wasm
+			if (wasiMode) {
+				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+
+				// build
+				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
+				pipeMMF(buildProc, mmf1).then(async () => {
+					if (mmf1.failed > 0) {
+						resolve();
+						return;
 					}
-				}
-			});
-
-			// stderr
-			proc.stderr.on('data', (data) => {
-				let text = data.toString().trim();
-				// change absolute file path to relative
-				// change :line:col-line:col to :line:col to work in vscode
-				text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${absToRel(m1)}:${m2}:${m3}`);
-				mmf1.fail(text);
-			});
-
-			// exit
-			proc.on('exit', (code) => {
-				if (code === 0) {
-					mmf1.pass();
-				}
-				else if (code !== 1) {
-					console.log(chalk.red('unknown code:'), code);
-				}
-				resolve();
-			});
+					// run
+					let proc = spawn('wasmtime', [wasmFile]);
+					await pipeMMF(proc, mmf1);
+				}).finally(() => {
+					fs.rmSync(wasmFile);
+					resolve();
+				});
+			}
+			// interpret
+			else {
+				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs], {cwd: rootDir});
+				pipeMMF(proc, mmf1).then(resolve);
+			}
 		});
 
 		passed += mmf1.passed;
 		failed += mmf1.failed;
 		skipped += mmf1.skipped;
 	}
+
+	fs.rmSync(wasmDir, {recursive: true, force: true});
 
 	console.log('='.repeat(50));
 	if (failed) {
@@ -158,4 +158,43 @@ export async function runAll(filter = '') {
 	);
 
 	return failed === 0;
+}
+
+function absToRel(p) {
+	let rootDir = getRootDir();
+	return path.relative(rootDir, path.resolve(p));
+}
+
+function pipeMMF(proc, mmf1) {
+	return new Promise((resolve) => {
+		// stdout
+		proc.stdout.on('data', (data) => {
+			for (let line of data.toString().split('\n')) {
+				line = line.trim();
+				if (line) {
+					mmf1.parseLine(line);
+				}
+			}
+		});
+
+		// stderr
+		proc.stderr.on('data', (data) => {
+			let text = data.toString().trim();
+			// change absolute file path to relative
+			// change :line:col-line:col to :line:col to work in vscode
+			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${absToRel(m1)}:${m2}:${m3}`);
+			mmf1.fail(text);
+		});
+
+		// exit
+		proc.on('exit', (code) => {
+			if (code === 0) {
+				mmf1.pass();
+			}
+			else if (code !== 1) {
+				console.log(chalk.red('unknown code:'), code);
+			}
+			resolve();
+		});
+	});
 }
