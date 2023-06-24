@@ -16,15 +16,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: aviate-labs/setup-dfx@v0.2.5
-        with:
-          dfx-version: 0.14.1
 
-      - name: install dfx
-        run: dfx cache install
+      - name: install moc
+        run: npx mocv use 0.9.3
 
       - name: install mops
-        run: npm i ic-mops -g --yes
+        run: npm i ic-mops -g
 
       - name: install mops packages
         run: mops install
