@@ -23,12 +23,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: aviate-labs/setup-dfx@v0.2.5
-        with:
-          dfx-version: 0.14.1
-
-      - name: install dfx
-        run: dfx cache install
 
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
