@@ -1,5 +1,12 @@
 [
 	{
+		"match": "external/onig@1.7.0.wasm",
+		"allow_raw_access": true,
+		"headers": {
+			"Cache-Control": "public, max-age=60"
+		}
+	},
+	{
 		"match": "**/*",
 		"allow_raw_access": true
 	}

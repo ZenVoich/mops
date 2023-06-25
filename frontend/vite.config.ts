@@ -58,10 +58,6 @@ export default defineConfig({
 		viteStaticCopy({
 			targets: [
 				{
-					src: 'img/*',
-					dest: 'img'
-				},
-				{
 					src: 'external/*',
 					dest: 'external'
 				},
@@ -70,13 +66,16 @@ export default defineConfig({
 					dest: '.'
 				},
 			]
-		})
+		}),
 	],
 	build: {
 		target: ['es2020'],
 		lib: {
 			entry: './index.html',
 			formats: ['es'],
+		},
+		rollupOptions: {
+			external: ['img', 'external'],
 		},
 	},
 	resolve: {

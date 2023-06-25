@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
+	import mops2Img from '/img/mops2.svg';
 
 	export let size = '200px';
 
@@ -11,7 +12,7 @@
 </script>
 
 <div bind:this="{loaderEl}" class="loader">
-	<img src="/img/mops2.svg" alt="">
+	<img src="{mops2Img}" alt="">
 	<div class="grad"></div>
 </div>
 
