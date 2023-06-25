@@ -16,6 +16,7 @@ import Char "mo:base/Char";
 import Hash "mo:base/Hash";
 import TrieSet "mo:base/TrieSet";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
+import Prim "mo:prim";
 
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
@@ -537,14 +538,20 @@ actor {
 		});
 	};
 
+	func _toLowerCase(text : Text) : Text {
+		Text.map(text , Prim.charToLower);
+	};
+
 	public query func search(searchText : Text.Text) : async [PackageSummary] {
+		assert(searchText.size() < 100);
+
 		let max = 20;
 		type ConfigWithPoints = {
 			config : PackageConfigV2;
 			sortingPoints : Nat;
 		};
 		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(max);
-		let pattern = #text(searchText);
+		let pattern = #text(_toLowerCase(searchText));
 
 		for (config in highestConfigs.vals()) {
 			var sortingPoints = 0;
@@ -579,11 +586,11 @@ actor {
 				if (Text.contains(config.name, pattern)) {
 					sortingPoints += 3;
 				};
-				if (Text.contains(config.description, pattern)) {
+				if (Text.contains(_toLowerCase(config.description), pattern)) {
 					sortingPoints += 1;
 				};
 				for (keyword in config.keywords.vals()) {
-					if (Text.contains(keyword, pattern)) {
+					if (Text.contains(_toLowerCase(keyword), pattern)) {
 						sortingPoints += 2;
 					};
 				};
