@@ -7,6 +7,13 @@
 		}
 	},
 	{
+		"match": "bundle/*",
+		"allow_raw_access": true,
+		"headers": {
+			"Cache-Control": "public, max-age=31536000"
+		}
+	},
+	{
 		"match": "**/*",
 		"allow_raw_access": true
 	}

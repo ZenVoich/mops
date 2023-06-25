@@ -76,6 +76,10 @@ export default defineConfig({
 		},
 		rollupOptions: {
 			external: ['img', 'external'],
+			output: {
+				entryFileNames: 'bundle/[name]-[hash].js',
+				assetFileNames: 'bundle/[name]-[hash].[ext]',
+			}
 		},
 	},
 	resolve: {
