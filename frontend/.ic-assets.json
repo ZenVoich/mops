@@ -1,9 +1,9 @@
 [
 	{
-		"match": "external/onig@1.7.0.wasm",
+		"match": "external/*",
 		"allow_raw_access": true,
 		"headers": {
-			"Cache-Control": "public, max-age=60"
+			"Cache-Control": "public, max-age=31536000"
 		}
 	},
 	{
