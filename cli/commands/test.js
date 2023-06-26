@@ -130,7 +130,7 @@ export async function runAll(filter = '') {
 		}
 		// interpret
 		else {
-			let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs], {cwd: rootDir});
+			let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
 			await pipeMMF(proc, mmf);
 		}
 
