@@ -10,6 +10,28 @@ export class MMF1 {
 	failed = 0;
 	passed = 0;
 	skipped = 0;
+	srategy; // 'store' | 'print'
+	output = [];
+
+	constructor(srategy) {
+		this.srategy = srategy;
+	}
+
+	_log(...args) {
+		if (this.srategy === 'store') {
+			this.output.push(args.join(' '));
+		}
+		else if (this.srategy === 'print') {
+			console.log(...args);
+		}
+	}
+
+	flush() {
+		for (let out of this.output) {
+			console.log(out);
+		}
+		this.store = [];
+	}
 
 	parseLine(line) {
 		if (line.startsWith('mops:1:start ')) {
@@ -22,7 +44,7 @@ export class MMF1 {
 			this._testSkip(line.split('mops:1:skip ')[1]);
 		}
 		else {
-			console.log(' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
+			this._log(' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
 		}
 	}
 
@@ -31,7 +53,7 @@ export class MMF1 {
 			let suite = this.stack[this.stack.length - 1];
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
-				console.log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
+				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
 			}
 		}
 		this.stack.push(name);
@@ -55,22 +77,22 @@ export class MMF1 {
 				return;
 			}
 			this.passed++;
-			console.log(' '.repeat(this.stack.length * 2), chalk.green('✓'), name);
+			this._log(' '.repeat(this.stack.length * 2), chalk.green('✓'), name);
 		}
 		else if (status === 'fail') {
 			this.failed++;
-			console.log(' '.repeat(this.stack.length * 2), chalk.red('×'), name);
+			this._log(' '.repeat(this.stack.length * 2), chalk.red('×'), name);
 		}
 		else if (status === 'skip') {
 			this.skipped++;
-			console.log(' '.repeat(this.stack.length * 2), chalk.yellow('−'), name);
+			this._log(' '.repeat(this.stack.length * 2), chalk.yellow('−'), name);
 		}
 	}
 
 	fail(stderr) {
 		let name = this.stack.pop() || '';
 		this._status(name, 'fail');
-		console.log(' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);
+		this._log(' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);
 	}
 
 	pass() {
@@ -78,6 +100,6 @@ export class MMF1 {
 		if (name) {
 			this._status(name, 'pass');
 		}
-		console.log(' '.repeat(this.stack.length * 2), chalk.green('PASS'));
+		this._log(' '.repeat(this.stack.length * 2), chalk.green('PASS'));
 	}
 }
