@@ -53,7 +53,7 @@ export class MMF1 {
 			let suite = this.stack[this.stack.length - 1];
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
-				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', this.stack.at(-1));
+				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
 			}
 		}
 		this.stack.push(name);
