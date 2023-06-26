@@ -44,7 +44,7 @@
 			<tr>
 				<td>keywords</td>
 				<td>[Text]</td>
-				<td>Array of keywords (max 5 items, max 20 chars)</td>
+				<td>Array of keywords (max 10 items, max 20 chars)</td>
 			</tr>
 			<!-- <tr>
 				<td>documentation</td>
