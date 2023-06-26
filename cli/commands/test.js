@@ -102,7 +102,7 @@ export async function runAll(filter = '') {
 	let wasmDir = `${getRootDir()}/.mops/.test/`;
 	fs.mkdirSync(wasmDir, {recursive: true});
 
-	let promises = [];
+	let i = 0;
 
 	await parallel(os.cpus().length, files, async (file) => {
 		let mmf = new MMF1('store');
@@ -125,7 +125,7 @@ export async function runAll(filter = '') {
 				let proc = spawn('wasmtime', [wasmFile]);
 				await pipeMMF(proc, mmf);
 			}).finally(() => {
-				fs.rmSync(wasmFile);
+				fs.rmSync(wasmFile, {force: true});
 			});
 		}
 		// interpret
@@ -138,16 +138,10 @@ export async function runAll(filter = '') {
 		failed += mmf.failed;
 		skipped += mmf.skipped;
 
-		promises.push([file, mmf]);
-	});
-
-	let i = 0;
-	for (let [file, mmf] of promises) {
 		i++ && console.log('-'.repeat(50));
-		let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 		console.log(`Running ${chalk.gray(file)} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
 		mmf.flush();
-	}
+	});
 
 	fs.rmSync(wasmDir, {recursive: true, force: true});
 
