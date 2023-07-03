@@ -499,6 +499,7 @@ actor {
 			case ("0.13.1") [("base", "0.7.6")];
 			case ("0.14.0") [("base", "0.8.7")];
 			case ("0.14.1") [("base", "0.8.8")];
+			case ("0.14.2") [("base", "0.9.3")];
 			case (_) {
 				switch (_getHighestVersion("base")) {
 					case (?ver) [("base", ver)];
