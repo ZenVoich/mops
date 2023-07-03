@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
 import prompts from 'prompts';
+import ncp from 'ncp';
 
 import {idlFactory} from './declarations/main/main.did.js';
 import {idlFactory as storageIdlFactory} from './declarations/storage/storage.did.js';
@@ -18,7 +19,45 @@ export let apiVersion = '1.2';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 
-export let globalCacheDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+export let globalConfigDir;
+export let globalCacheDir;
+
+// OS specific dirs
+if (process.platform == 'win32') {
+	globalConfigDir = path.join(process.env.LOCALAPPDATA, 'mops/config');
+	globalCacheDir = path.join(process.env.LOCALAPPDATA, 'mops/cache');
+}
+else if (process.platform == 'darwin') {
+	globalConfigDir = path.join(process.env.HOME, 'Library/Application Support/mops');
+	globalCacheDir = path.join(process.env.HOME, 'Library/Caches/mops');
+}
+else {
+	globalConfigDir = path.join(process.env.HOME, '.config/mops');
+	globalCacheDir = path.join(process.env.HOME, '.cache/mops');
+}
+// XDG overrides
+if (process.env.XDG_CONFIG_HOME) {
+	globalConfigDir = path.join(process.env.XDG_CONFIG_HOME, 'mops');
+}
+if (process.env.XDG_CACHE_HOME) {
+	globalCacheDir = path.join(process.env.XDG_CACHE_HOME, 'mops');
+}
+
+// move old config/cache to new location
+let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
+	ncp.ncp(oldGlobalConfigDir, globalConfigDir, {
+		filter: new RegExp('identity.pem'),
+		stopOnErr: true,
+		clobber: false,
+	});
+}
+if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
+	ncp.ncp(path.join(oldGlobalConfigDir, 'packages'), path.join(globalCacheDir, 'packages'), {
+		stopOnErr: true,
+		clobber: false,
+	});
+}
 
 export function setNetwork(network) {
 	fs.writeFileSync(networkFile, network);
