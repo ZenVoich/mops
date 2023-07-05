@@ -39,7 +39,10 @@ export async function test(filter = '', {watch = false} = {}) {
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
 		}, 200);
 
-		let watcher = chokidar.watch(path.join(rootDir, '**/*.mo'), {
+		let watcher = chokidar.watch([
+			path.join(rootDir, '**/*.mo'),
+			path.join(rootDir, 'mops.toml'),
+		], {
 			ignored: ignore,
 			ignoreInitial: true,
 		});
