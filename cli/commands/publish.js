@@ -171,9 +171,12 @@ export async function publish({noDocs} = {}) {
 		'mops.toml',
 		'README.md',
 		'LICENSE',
+		'NOTICE',
 		'!.mops/**',
 		'!test/**',
+		'!tests/**',
 		'!**/*.test.mo',
+		'!**/*.Test.mo',
 	];
 	let files = config.package.files || ['**/*.mo'];
 	files = [...files, ...defaultFiles];
