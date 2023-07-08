@@ -696,6 +696,36 @@ actor {
 		Buffer.toArray(packages);
 	};
 
+	type PageCount = Nat;
+
+	public query func getAllPackages(limit : Nat, pageIndex : Nat) : async (PageCount, [PackageSummary]) {
+		(1, []);
+	};
+
+	public query func getNewPackages() : async [PackageSummary] {
+		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
+			Int.compare(a.1.time, b.1.time);
+		});
+
+		let packagesFirstPub = TrieMap.TrieMap<PackageName, PackageSummary>(Text.equal, Text.hash);
+
+		label l for ((packageId, _) in pubsSorted.vals()) {
+			ignore do ? {
+				let config = packageConfigs.get(packageId)!;
+				let packageSummary = _getPackageSummary(config.name, config.version)!;
+
+				if (packagesFirstPub.get(config.name) == null) {
+					packagesFirstPub.put(config.name, packageSummary);
+				};
+			};
+		};
+
+		let buf = Buffer.fromArray<PackageSummary>(Iter.toArray(packagesFirstPub.vals()));
+		let max = Nat.min(5, buf.size());
+		Buffer.reverse(buf);
+		Buffer.toArray(Buffer.subBuffer<PackageSummary>(buf, buf.size() - max, max));
+	};
+
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {
 		downloadLog.getDownloadTrendByPackageName(name);
 	};
