@@ -3,13 +3,13 @@ import chalk from 'chalk';
 import path from 'path';
 import prompts from 'prompts';
 import del from 'del';
-import {globalCacheDir} from '../mops.js';
+import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
 export async function importPem(data) {
 	try {
-		if (!fs.existsSync(globalCacheDir)) {
-			fs.mkdirSync(globalCacheDir);
+		if (!fs.existsSync(globalConfigDir)) {
+			fs.mkdirSync(globalConfigDir);
 		}
 
 		let res = await prompts({
@@ -31,8 +31,8 @@ export async function importPem(data) {
 			}
 		}
 
-		let identityPem = path.resolve(globalCacheDir, 'identity.pem');
-		let identityPemEncrypted = path.resolve(globalCacheDir, 'identity.pem.encrypted');
+		let identityPem = path.resolve(globalConfigDir, 'identity.pem');
+		let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 
 		del.sync([identityPem, identityPemEncrypted], {force: true});
 
