@@ -81,7 +81,7 @@ export class MMF1 {
 		}
 		else if (status === 'fail') {
 			this.failed++;
-			this._log(' '.repeat(this.stack.length * 2), chalk.red('×'), name);
+			this._log(' '.repeat(this.stack.length * 2), chalk.red('✖'), name);
 		}
 		else if (status === 'skip') {
 			this.skipped++;
