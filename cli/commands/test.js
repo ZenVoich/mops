@@ -142,7 +142,7 @@ export async function runAll(filter = '') {
 		skipped += mmf.skipped;
 
 		i++ && console.log('-'.repeat(50));
-		console.log(`Running ${chalk.gray(file)} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
+		console.log(`Running ${chalk.gray(path.relative(rootDir, file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
 		mmf.flush();
 	});
 
