@@ -183,7 +183,7 @@ export async function publish({noDocs} = {}) {
 	files = globbySync([...files, ...defaultFiles]);
 
 	// generate docs
-	let docsFile = path.join(rootDir, '.mops/_docs/docs.tgz');
+	let docsFile = path.join(rootDir, '.mops/.docs/docs.tgz');
 	if (!noDocs) {
 		await docs({silent: true});
 		if (fs.existsSync(docsFile)) {
@@ -259,6 +259,8 @@ export async function publish({noDocs} = {}) {
 			}
 		}
 	});
+
+	fs.rmSync(path.join(rootDir, '.mops/.docs'), {force: true, recursive: true});
 
 	// finish
 	progress();

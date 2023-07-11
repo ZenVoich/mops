@@ -13,8 +13,8 @@ let moDoc;
 
 export async function docs({silent} = {}) {
 	let rootDir = getRootDir();
-	let docsDir = path.join(rootDir, '.mops/_docs');
-	let docsDirRelative = path.relative(process.cwd(), path.join(rootDir, '.mops/_docs'));
+	let docsDir = path.join(rootDir, '.mops/.docs');
+	let docsDirRelative = path.relative(process.cwd(), docsDir);
 
 	del.sync([docsDir], {force: true});
 
