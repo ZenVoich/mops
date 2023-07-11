@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {formatDistance} from 'date-fns';
+	import {formatDistanceStrict} from 'date-fns';
 
 	export let date: number | Date;
 
 	function distance(date:  number | Date) {
-		return formatDistance(date, Date.now(), {addSuffix: true});
+		return formatDistanceStrict(date, Date.now(), {addSuffix: true});
 	}
 
 	function format(date: number | Date) {
