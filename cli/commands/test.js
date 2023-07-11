@@ -185,9 +185,28 @@ function pipeMMF(proc, mmf) {
 		// stderr
 		proc.stderr.on('data', (data) => {
 			let text = data.toString().trim();
-			// change absolute file path to relative
-			// change :line:col-line:col to :line:col to work in vscode
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${absToRel(m1)}:${m2}:${m3}`);
+			let failedLine = '';
+			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => {
+				// change absolute file path to relative
+				// change :line:col-line:col to :line:col to work in vscode
+				let res = `${absToRel(m1)}:${m2}:${m3}`;
+				// show failed line
+				let content = fs.readFileSync(m1);
+				let lines = content.toString().split('\n');
+				failedLine += chalk.dim`\n   ...`;
+				if (m2 - 2 >= 0) {
+					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lines[m2 - 2].replaceAll('\t', '  ')}`;
+				}
+				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[m2 - 1].replaceAll('\t', '  ')}`;
+				if (lines.length > +m2) {
+					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[m2].replaceAll('\t', '  ')}`;
+				}
+				failedLine += chalk.dim`\n   ...`;
+				return res;
+			});
+			if (failedLine) {
+				text += failedLine;
+			}
 			mmf.fail(text);
 		});
 
