@@ -190,6 +190,11 @@ function pipeMMF(proc, mmf) {
 				// change absolute file path to relative
 				// change :line:col-line:col to :line:col to work in vscode
 				let res = `${absToRel(m1)}:${m2}:${m3}`;
+
+				if (!fs.existsSync(m1)) {
+					return res;
+				}
+
 				// show failed line
 				let content = fs.readFileSync(m1);
 				let lines = content.toString().split('\n');
