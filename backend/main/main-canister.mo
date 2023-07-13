@@ -831,7 +831,7 @@ actor {
 		};
 	};
 
-	ignore Timer.recurringTimer(#seconds(5), _backup);
+	ignore Timer.recurringTimer(#seconds(60 * 10), _backup);
 
 	// SYSTEM
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];
