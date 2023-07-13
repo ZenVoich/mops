@@ -52,7 +52,7 @@ actor class Backup(whitelist : [Principal]) {
 	stable var backups = Map.new<BackupId, Backup>(Map.nhash);
 
 	let PAGE_SIZE = 65536; // 64KB
-	let GROW_PAGES = 51200 : Nat64; // 32MB
+	let GROW_PAGES = 512 : Nat64; // 32MB
 	let uploadingBackups = TrieMap.TrieMap<BackupId, UploadingBackup>(Nat.equal, func x = Text.hash(Nat.toText(x)));
 
 	/////////////////////////
