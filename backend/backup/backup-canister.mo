@@ -15,7 +15,6 @@ import ExperimentalStableMemory "mo:base/ExperimentalStableMemory";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 
 import DateTime "mo:motoko-datetime/DateTime";
-import HttpParser "mo:http-parser";
 import LinkedList "mo:linked-list";
 import Map "mo:map/Map";
 
@@ -227,7 +226,22 @@ actor class Backup(whitelist : [Principal]) {
 		};
 	};
 
-	public query func http_request(request : HttpParser.HttpRequest) : async HttpParser.HttpResponse {
+	public type HeaderField = (Text, Text);
+
+	public type HttpRequest = {
+		url : Text;
+		method : Text;
+		body : Blob;
+		headers : [HeaderField];
+	};
+
+	public type HttpResponse = {
+		body : Blob;
+		headers : [HeaderField];
+		status_code : Nat16;
+	};
+
+	public query func http_request(request : HttpRequest) : async HttpResponse {
 		var body = "";
 		body #= "Total backups:\t\t" # Nat.toText(Map.size(backups)) # "\n\n";
 		body #= "Total size:\t\t" # formatSize(totalSize, ["b", "B"]) # "\n\n";

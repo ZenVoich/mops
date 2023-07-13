@@ -6,7 +6,6 @@ chronosphere = "https://github.com/enzoh/chronosphere#master"
 map = "8.1.0"
 ic = "0.2.0"
 linked-list = "0.1.0"
-http-parser = "https://github.com/NatLabs/http-parser.mo#v0.1.2"
 motoko-datetime = "https://github.com/ByronBecker/motoko-datetime#v0.1.1"
 
 [dev-dependencies]
