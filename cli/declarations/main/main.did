@@ -180,6 +180,7 @@ type DependencyV2 =
    version: text;
  };
 service : {
+  backup: () -> ();
   claimAirdrop: (principal) -> (text);
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
@@ -207,6 +208,7 @@ service : {
   getTotalPackages: () -> (nat) query;
   getUser: (principal) -> (opt User__1) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
+  restore: (nat, nat) -> ();
   search: (Text) -> (vec PackageSummary) query;
   setUserProp: (text, text) -> (Result_3);
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);

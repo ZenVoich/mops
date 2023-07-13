@@ -146,6 +146,7 @@ export interface User__1 {
 export type Ver = string;
 export type Version = string;
 export interface _SERVICE {
+  'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
@@ -174,6 +175,7 @@ export interface _SERVICE {
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
+  'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<[Text], Array<PackageSummary>>,
   'setUserProp' : ActorMethod<[string, string], Result_3>,
   'startFileUpload' : ActorMethod<

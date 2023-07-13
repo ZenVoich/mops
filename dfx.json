@@ -6,7 +6,13 @@
 			"main": "backend/main/main-canister.mo",
 			"declarations": {
 				"output": "cli/declarations/main/"
-			}
+			},
+			"dependencies": ["backup"]
+		},
+		"backup": {
+			"type": "motoko",
+			"main": "backend/backup/backup-canister.mo",
+			"args": "--max-stable-pages=1048576"
 		},
 		"assets": {
 			"type": "assets",
@@ -21,7 +27,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.14.1",
+	"dfx": "0.14.2",
 	"networks": {
 		"staging": {
 			"type": "persistent",
