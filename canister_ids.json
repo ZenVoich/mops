@@ -6,5 +6,8 @@
   "main": {
     "staging": "2d2zu-vaaaa-aaaak-qb6pq-cai",
     "ic": "oknww-riaaa-aaaam-qaf6a-cai"
+  },
+  "backup": {
+    "staging": "uo36s-hyaaa-aaaam-abpma-cai"
   }
 }
