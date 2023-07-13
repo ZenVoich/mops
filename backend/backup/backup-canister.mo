@@ -18,7 +18,6 @@ import DateTime "mo:motoko-datetime/DateTime";
 import HttpParser "mo:http-parser";
 import LinkedList "mo:linked-list";
 import Map "mo:map/Map";
-import Fuzz "mo:fuzz";
 
 actor class Backup(whitelist : [Principal]) {
 	type BackupId = Nat;
