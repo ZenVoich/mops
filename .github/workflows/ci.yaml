@@ -29,7 +29,7 @@ jobs:
             npm i -g ./cli
             mops install
             npm run replica
-            npm run deploy
+            npm run deploy-local
             npm run build
 
   lint:

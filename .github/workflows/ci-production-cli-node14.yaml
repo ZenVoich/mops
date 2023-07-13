@@ -29,7 +29,7 @@ jobs:
             npm i -g ic-mops
             mops install
             npm run replica
-            npm run deploy
+            npm run deploy-local
 
   test:
     runs-on: ubuntu-latest
