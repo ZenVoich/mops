@@ -31,11 +31,10 @@ export function getNetwork() {
 	}
 
 	if (network === 'local') {
-		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
 		return {
 			network,
 			host: 'http://127.0.0.1:4943',
-			canisterId: ids.main.local,
+			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
 		};
 	}
 	else if (network === 'staging') {
