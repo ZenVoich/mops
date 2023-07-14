@@ -53,6 +53,11 @@
 			<TopPackages type="most-downloaded"></TopPackages>
 			<TopPackages type="recently-updated"></TopPackages>
 		</div>
+
+		<br><br>
+		<div class="section">
+			<a class="link" href="/search/" use:link>All Packages</a>
+		</div>
 	</div>
 </div>
 

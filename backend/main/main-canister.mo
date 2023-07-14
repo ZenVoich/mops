@@ -47,6 +47,7 @@ actor {
 	public type Ver = Version.Version;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
+	public type PageCount = Nat;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -543,15 +544,19 @@ actor {
 		Text.map(text , Prim.charToLower);
 	};
 
-	public query func search(searchText : Text.Text) : async [PackageSummary] {
-		assert(searchText.size() < 100);
+	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
+		let limit = Option.get(limitOpt, 20);
+		let pageIndex = Option.get(pageIndexOpt, 0);
 
-		let max = 20;
+		assert(limit <= 100);
+		assert(pageIndex <= 1_000_000);
+		assert(searchText.size() <= 100);
+
 		type ConfigWithPoints = {
 			config : PackageConfigV2;
 			sortingPoints : Nat;
 		};
-		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(max);
+		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(0);
 		let pattern = #text(_toLowerCase(searchText));
 
 		for (config in highestConfigs.vals()) {
@@ -612,10 +617,13 @@ actor {
 			Nat.compare(bPoints, aPoints);
 		});
 
-		// limit results
-		Array.tabulate<PackageSummary>(Nat.min(configs.size(), max), func(i : Nat) {
-			Utils.unwrap(_getPackageSummary(configs[i].config.name, configs[i].config.version));
+		let page = Utils.getPage(configs, pageIndex, limit);
+
+		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
+			Utils.unwrap(_getPackageSummary(config.config.name, config.config.version));
 		});
+
+		(summaries, page.1);
 	};
 
 	public query func getRecentlyUpdatedPackages() : async [PackageSummary] {
@@ -694,6 +702,34 @@ actor {
 		};
 
 		Buffer.toArray(packages);
+	};
+
+	public query func getAllPackages(limit : Nat, pageIndex : Nat) : async ([PackageSummary], PageCount) {
+		([], 1);
+	};
+
+	public query func getNewPackages() : async [PackageSummary] {
+		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
+			Int.compare(a.1.time, b.1.time);
+		});
+
+		let packagesFirstPub = TrieMap.TrieMap<PackageName, PackageSummary>(Text.equal, Text.hash);
+
+		label l for ((packageId, _) in pubsSorted.vals()) {
+			ignore do ? {
+				let config = packageConfigs.get(packageId)!;
+				let packageSummary = _getPackageSummary(config.name, config.version)!;
+
+				if (packagesFirstPub.get(config.name) == null) {
+					packagesFirstPub.put(config.name, packageSummary);
+				};
+			};
+		};
+
+		let buf = Buffer.fromArray<PackageSummary>(Iter.toArray(packagesFirstPub.vals()));
+		let max = Nat.min(5, buf.size());
+		Buffer.reverse(buf);
+		Buffer.toArray(Buffer.subBuffer<PackageSummary>(buf, buf.size() - max, max));
 	};
 
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {
