@@ -23,7 +23,7 @@
 	let updateResults = debounce(10, () => {
 		loaded = false;
 
-		mainActor().search(searchText, [3n], [BigInt(page) - 1n]).then((res) => {
+		mainActor().search(searchText, [10n], [BigInt(page) - 1n]).then((res) => {
 			packages = res[0];
 			pageCount = Number(res[1]);
 			loaded = true;
