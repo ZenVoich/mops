@@ -24,6 +24,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Cache mops packages
+        uses: actions/cache@v3
+        with:
+          key: mops-packages-${{ matrix.mops-version }}
+          path: |
+            ~/.cache/mops
+            ~/mops/cache
+
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
 
