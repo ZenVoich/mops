@@ -94,6 +94,7 @@ export interface PackageSummary__1 {
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
+export type PageCount = bigint;
 export type PublishingErr = string;
 export type PublishingId = string;
 export type Result = { 'ok' : null } |
@@ -151,6 +152,10 @@ export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
+  'getAllPackages' : ActorMethod<
+    [bigint, bigint],
+    [Array<PackageSummary>, PageCount]
+  >,
   'getApiVersion' : ActorMethod<[], Text>,
   'getDefaultPackages' : ActorMethod<
     [string],
@@ -168,6 +173,7 @@ export interface _SERVICE {
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
+  'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_4>,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
@@ -176,7 +182,10 @@ export interface _SERVICE {
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
   'restore' : ActorMethod<[bigint, bigint], undefined>,
-  'search' : ActorMethod<[Text], Array<PackageSummary>>,
+  'search' : ActorMethod<
+    [Text, [] | [bigint], [] | [bigint]],
+    [Array<PackageSummary>, PageCount]
+  >,
   'setUserProp' : ActorMethod<[string, string], Result_3>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array | number[]],

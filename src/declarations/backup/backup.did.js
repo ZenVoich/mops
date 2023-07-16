@@ -17,7 +17,6 @@ export const idlFactory = ({ IDL }) => {
     'add' : IDL.Func([IDL.Vec(IDL.Nat8)], [], ['oneway']),
     'finishBackup' : IDL.Func([BackupId], [], []),
     'getChunk' : IDL.Func([IDL.Nat, IDL.Nat], [Chunk, IDL.Bool], ['query']),
-    'grow' : IDL.Func([IDL.Nat], [], ['oneway']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'startBackup' : IDL.Func([IDL.Text], [BackupId], []),
     'uploadChunk' : IDL.Func([BackupId, Chunk], [], []),

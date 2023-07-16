@@ -5,7 +5,6 @@ export interface Backup {
   'add' : ActorMethod<[Uint8Array | number[]], undefined>,
   'finishBackup' : ActorMethod<[BackupId], undefined>,
   'getChunk' : ActorMethod<[bigint, bigint], [Chunk, boolean]>,
-  'grow' : ActorMethod<[bigint], undefined>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'startBackup' : ActorMethod<[string], BackupId>,
   'uploadChunk' : ActorMethod<[BackupId, Chunk], undefined>,

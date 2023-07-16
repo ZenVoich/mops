@@ -4,9 +4,10 @@ import {mainActor} from '../mops.js';
 
 export async function search(text) {
 	let actor = await mainActor();
-	let res = await actor.search(text);
+	let res = await actor.search(text, [], []);
+	let packages = res[0];
 
-	if (!res.length) {
+	if (!packages.length) {
 		console.log('Packages not found');
 		return;
 	}
@@ -20,9 +21,9 @@ export async function search(text) {
 		}
 	};
 
-	let maxNameLength = Math.max(...res.map(a => a.config.name.length));
+	let maxNameLength = Math.max(...packages.map(a => a.config.name.length));
 
-	let table = res.map((item) => {
+	let table = packages.map((item) => {
 		return {
 			NAME: chalk.bold(item.config.name),
 			DESCRIPTION: ellipsis(item.config.description, process.stdout.columns - 40 - maxNameLength),

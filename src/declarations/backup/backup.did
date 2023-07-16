@@ -23,7 +23,6 @@ type Backup =
    add: (blob) -> () oneway;
    finishBackup: (BackupId) -> ();
    getChunk: (nat, nat) -> (Chunk, bool) query;
-   grow: (nat) -> () oneway;
    http_request: (HttpRequest) -> (HttpResponse) query;
    startBackup: (text) -> (BackupId);
    uploadChunk: (BackupId, Chunk) -> ();
