@@ -27,7 +27,7 @@ jobs:
       - name: Cache mops packages
         uses: actions/cache@v3
         with:
-          key: mops-packages
+          key: mops-packages-${{ hashFiles('mops.toml') }}
           path: |
             ~/.cache/mops
             ~/mops/cache
