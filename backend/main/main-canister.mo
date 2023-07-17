@@ -795,6 +795,21 @@ actor {
 		};
 	};
 
+	// create backup canister on the same subnet
+	public shared ({caller}) func createBackupCanister() : async Principal {
+		assert(Utils.isAdmin(caller));
+		ExperimentalCycles.add(1_000_000_000_000); // 1 TC
+		let res = await ic.create_canister({
+			settings = ?{
+				controllers = ?[caller];
+				freezing_threshold = ?15_768_000; // 6 months
+				compute_allocation = null;
+				memory_allocation = null;
+			};
+		});
+		res.canister_id;
+	};
+
 	public shared ({caller}) func backup() : async () {
 		assert(Utils.isAdmin(caller));
 		await _backup();
