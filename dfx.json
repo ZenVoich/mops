@@ -9,11 +9,6 @@
 			},
 			"dependencies": ["backup"]
 		},
-		"backup": {
-			"type": "motoko",
-			"main": "backend/backup/backup-canister.mo",
-			"args": "--max-stable-pages=1048576"
-		},
 		"assets": {
 			"type": "assets",
 			"frontend": {

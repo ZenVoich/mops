@@ -24,6 +24,8 @@ import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
 
+import Backup "../backup";
+
 import Utils "../utils";
 import Version "./version";
 import Types "./types";
@@ -34,7 +36,7 @@ import Users "./users";
 import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
-import BackupCanister "canister:backup";
+// import BackupCanister "canister:backup";
 
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
@@ -781,6 +783,8 @@ actor {
 	};
 
 	// BACKUP
+	stable var backupState : Backup.State = null;
+
 	type BackupChunk = {
 		#v1 : {
 			#packagePublications : [(PackageId, PackagePublication)];
@@ -795,42 +799,26 @@ actor {
 		};
 	};
 
-	// create backup canister on the same subnet
-	public shared ({caller}) func createBackupCanister() : async Principal {
-		assert(Utils.isAdmin(caller));
-		ExperimentalCycles.add(1_000_000_000_000); // 1 TC
-		let res = await ic.create_canister({
-			settings = ?{
-				controllers = ?[caller];
-				freezing_threshold = ?15_768_000; // 6 months
-				compute_allocation = null;
-				memory_allocation = null;
-			};
-		});
-		res.canister_id;
-	};
-
 	public shared ({caller}) func backup() : async () {
 		assert(Utils.isAdmin(caller));
 		await _backup();
 	};
 
 	func _backup() : async () {
-		let backupId = await BackupCanister.startBackup("v1");
-		await _backupChunk(backupId, #v1(#packagePublications(Iter.toArray(packagePublications.entries()))));
-		await _backupChunk(backupId, #v1(#packageVersions(Iter.toArray(packageVersions.entries()))));
-		await _backupChunk(backupId, #v1(#packageOwners(Iter.toArray(packageOwners.entries()))));
-		await _backupChunk(backupId, #v1(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))));
-		await _backupChunk(backupId, #v1(#downloadLog(downloadLog.toStable())));
-		await _backupChunk(backupId, #v1(#storageManager(storageManager.toStable())));
-		await _backupChunk(backupId, #v1(#users(users.toStable())));
-		await _backupChunk(backupId, #v1(#highestConfigs(Iter.toArray(highestConfigs.entries()))));
-		await _backupChunk(backupId, #v1(#packageConfigs(Iter.toArray(packageConfigs.entries()))));
-		await BackupCanister.finishBackup(backupId);
-	};
+		backupState := await Backup.init(backupState);
 
-	func _backupChunk(backupId : Nat, chunk : BackupChunk) : async () {
-		await BackupCanister.uploadChunk(backupId, Blob.toArray(to_candid(chunk)));
+		let backup = Backup.NewBackup(backupState);
+		await backup.startBackup("v1");
+		await backup.uploadChunk(to_candid(#v1(#packagePublications(Iter.toArray(packagePublications.entries())))));
+		await backup.uploadChunk(to_candid(#v1(#packageVersions(Iter.toArray(packageVersions.entries())))));
+		await backup.uploadChunk(to_candid(#v1(#packageOwners(Iter.toArray(packageOwners.entries())))));
+		await backup.uploadChunk(to_candid(#v1(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries())))));
+		await backup.uploadChunk(to_candid(#v1(#downloadLog(downloadLog.toStable()))));
+		await backup.uploadChunk(to_candid(#v1(#storageManager(storageManager.toStable()))));
+		await backup.uploadChunk(to_candid(#v1(#users(users.toStable()))));
+		await backup.uploadChunk(to_candid(#v1(#highestConfigs(Iter.toArray(highestConfigs.entries())))));
+		await backup.uploadChunk(to_candid(#v1(#packageConfigs(Iter.toArray(packageConfigs.entries())))));
+		await backup.finishBackup();
 	};
 
 	// RESTORE
@@ -838,8 +826,12 @@ actor {
 		assert(false); // restore disabled
 		assert(Utils.isAdmin(caller));
 
-		let (raw, done) = await BackupCanister.getChunk(backupId, chunkIndex);
-		_restoreChunk(Blob.fromArray(raw));
+		// reset state...
+
+		let backupCanister = Backup.getCanister(backupState);
+
+		let (raw, done) = await backupCanister.getChunk(backupId, chunkIndex);
+		_restoreChunk(raw);
 
 		if (not done) {
 			await restore(backupId, chunkIndex + 1);
@@ -882,7 +874,8 @@ actor {
 		};
 	};
 
-	ignore Timer.recurringTimer(#seconds(60 * 2), _backup);
+	// Backup.setTimer(backupState, #seconds(60 * 2), _backup);
+	// ignore Timer.recurringTimer(#seconds(60 * 2), _backup);
 
 	// SYSTEM
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];

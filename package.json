@@ -3,7 +3,7 @@
 	"scripts": {
 		"start": "npm run replica && npm run deploy-local && npm run decl && cd frontend && npm run start && cd ..",
 		"build": "cd frontend && npm run build",
-		"create-canisters": "dfx canister create main --no-wallet --specified-id 2d2zu-vaaaa-aaaak-qb6pq-cai && dfx canister create assets --no-wallet && dfx canister create backup --no-wallet",
+		"create-canisters": "dfx canister create main --no-wallet --specified-id 2d2zu-vaaaa-aaaak-qb6pq-cai && dfx canister create assets --no-wallet",
 		"replica": "dfx stop && dfx start --clean --background && npm run create-canisters",
 		"decl": "npm run decl:cli && npm run decl:frontend",
 		"lint": "npm run lint:cli && npm run lint:frontend",
@@ -11,7 +11,7 @@
 		"lint:frontend": "eslint frontend --ext .svelte,.ts",
 		"decl:cli": "dfx generate main",
 		"decl:frontend": "cp -r cli/declarations frontend",
-		"deploy": "dfx deploy backup --no-wallet --identity ${IDENTITY} --network ${NETWORK} --argument '(vec {principal \"'$(DFX_WARNING=-version_check dfx canister id main --network ${NETWORK} -qq)'\"})' && dfx canister stop main --identity ${IDENTITY} --network ${NETWORK} && dfx deploy main --no-wallet --identity ${IDENTITY} --network ${NETWORK} && dfx canister start main --identity ${IDENTITY} --network ${NETWORK}",
+		"deploy": "dfx canister stop main --identity ${IDENTITY} --network ${NETWORK} && dfx deploy main --no-wallet --identity ${IDENTITY} --network ${NETWORK} && dfx canister start main --identity ${IDENTITY} --network ${NETWORK}",
 		"deploy-local": "NODE_ENV=production IDENTITY=default NETWORK=local npm run deploy",
 		"deploy-staging": "NODE_ENV=production DFX_MOC_PATH=$(mocv bin 0.9.3)/moc  IDENTITY=mops NETWORK=staging npm run deploy",
 		"deploy-ic": "NODE_ENV=production DFX_MOC_PATH=$(mocv bin 0.9.3)/moc  IDENTITY=mops NETWORK=ic npm run deploy",

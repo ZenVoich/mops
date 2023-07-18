@@ -18,7 +18,7 @@ import DateTime "mo:motoko-datetime/DateTime";
 import LinkedList "mo:linked-list";
 import Map "mo:map/Map";
 
-actor class Backup(whitelist : [Principal]) {
+actor class BackupCanister(whitelist : [Principal]) {
 	type BackupId = Nat;
 	type Chunk = Blob;
 
