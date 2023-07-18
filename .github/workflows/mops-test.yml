@@ -31,7 +31,7 @@ jobs:
           key: mops-packages-${{ hashFiles('mops.toml') }}
           path: |
             ~/.cache/mops
-            ~/mops/cache
+            ~/mops
 
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
