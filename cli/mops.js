@@ -46,7 +46,7 @@ if (process.env.XDG_CACHE_HOME) {
 // temp: move old config to new location
 let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
 if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
-	fs.mkdirSync(globalConfigDir);
+	fs.mkdirSync(globalConfigDir, {recursive: true});
 	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem'))) {
 		fs.copyFileSync(path.join(oldGlobalConfigDir, 'identity.pem'), path.join(globalConfigDir, 'identity.pem'));
 	}
@@ -58,7 +58,7 @@ if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
 
 // temp: move old cache to new location
 if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
-	fs.mkdirSync(globalCacheDir);
+	fs.mkdirSync(globalCacheDir, {recursive: true});
 	ncp.ncp(path.join(oldGlobalConfigDir, 'packages'), path.join(globalCacheDir, 'packages'), {
 		stopOnErr: true,
 		clobber: false,
