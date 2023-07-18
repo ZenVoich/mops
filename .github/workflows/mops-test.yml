@@ -23,11 +23,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Cache mops packages
         uses: actions/cache@v3
         with:
-          key: mops-packages-${{ hashFiles('mops.toml') }}
+          key: mops-packages
           path: |
             ~/.cache/mops
             ~/mops/cache
