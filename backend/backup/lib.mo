@@ -1,28 +1,47 @@
 import Principal "mo:base/Principal";
-import BackupCanister "./backup-canister";
 import Debug "mo:base/Debug";
+import Timer "mo:base/Timer";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 
+import BackupCanister "./backup-canister";
+
 module {
-	public type State = ?Principal;
+	public type State = ?{
+		#v1 : Principal;
+	};
+
+	public type Duration = {
+		#nanoseconds : Nat;
+		#seconds : Nat;
+		#minutes : Nat;
+		#hours : Nat;
+		#days : Nat;
+	};
+
 
 	public func init(state : State) : async State {
 		switch (state) {
-			case (?canisterId) {
-				?canisterId;
-			};
 			case (null) {
-				?(await createBackupCanister());
+				let canisterId = await _createBackupCanister();
+				?#v1(canisterId);
+			};
+			case (sameState) {
+				sameState;
 			};
 		};
 	};
 
+	public func getCanisterId(state : State) : Principal {
+		let ?#v1(canisterId) = state else Debug.trap("Backup canister not initialized");
+		canisterId;
+	};
+
 	public func getCanister(state : State) : BackupCanister.BackupCanister {
-		let ?canisterId = state else Debug.trap("Backup canister not initialized");
+		let canisterId = getCanisterId(state);
 		actor(Principal.toText(canisterId)) : BackupCanister.BackupCanister;
 	};
 
-	public shared ({caller}) func createBackupCanister() : async Principal {
+	shared ({caller}) func _createBackupCanister() : async Principal {
 		ExperimentalCycles.add(1_000_000_000_000); // 1 TC
 		let backupCanister = await BackupCanister.BackupCanister([caller]);
 		// let backupCanister = await (system BackupCanister.BackupCanister)(#new {
@@ -32,8 +51,22 @@ module {
 		// 		compute_allocation = null;
 		// 		memory_allocation = null;
 		// 	}
-		// })([]);
+		// })([caller]);
 		Principal.fromActor(backupCanister);
+	};
+
+	func _toNanos(duration : Duration) : Nat {
+		switch (duration) {
+			case (#nanoseconds(ns)) ns;
+			case (#seconds(s)) s * 1_000_000_000;
+			case (#minutes(m)) m * 1_000_000_000 * 60;
+			case (#hours(h)) h * 1000_000_000 * 60 * 60;
+			case (#days(d)) d * 1000_000_000 * 60 * 60 * 24;
+		};
+  };
+
+	public func setTimer(state : State, duration : Duration, backupFn : () -> async ()) : Nat {
+		Timer.recurringTimer(#nanoseconds(_toNanos(duration)), backupFn);
 	};
 
 	public class NewBackup(state : State) {
