@@ -63,6 +63,11 @@ actor class BackupCanister(whitelist : [Principal]) {
 		Array.find<Principal>(whitelist, func(whitelisted) = whitelisted == id) != null;
 	};
 
+	func _isAllowed(id : Principal) : Bool {
+		// _isWhitelisted(id) or Principal.isController(id);
+		_isWhitelisted(id);
+	};
+
 	func _storeChunk(chunk : Blob) : ChunkRef {
 		let pages = Nat64.toNat(ExperimentalStableMemory.size());
 		if (pages * PAGE_SIZE < curOffset + chunk.size()) {
@@ -86,10 +91,8 @@ actor class BackupCanister(whitelist : [Principal]) {
 	// BACKUP
 	/////////////////////////
 
-	public func add(data : Blob) {};
-
 	public shared ({caller}) func startBackup(tag : Text) : async BackupId {
-		assert(_isWhitelisted(caller));
+		assert(_isAllowed(caller));
 
 		let backupId = curBackupId;
 		curBackupId += 1;
@@ -104,13 +107,14 @@ actor class BackupCanister(whitelist : [Principal]) {
 	};
 
 	public shared ({caller}) func uploadChunk(backupId : BackupId, chunk : Chunk) : async () {
-		assert(_isWhitelisted(caller));
+		assert(_isAllowed(caller));
+
 		let ?uploadingBackup = uploadingBackups.get(backupId) else Debug.trap("uploadChunk: Invalid backup id " # Nat.toText(backupId));
 		LinkedList.append(uploadingBackup.chunks, chunk);
 	};
 
 	public shared ({caller}) func finishBackup(backupId : BackupId) : async () {
-		assert(_isWhitelisted(caller));
+		assert(_isAllowed(caller));
 
 		let ?uploadingBackup = uploadingBackups.get(backupId) else Debug.trap("finishBackup: Invalid backup id " # Nat.toText(backupId));
 
@@ -157,8 +161,7 @@ actor class BackupCanister(whitelist : [Principal]) {
 	/////////////////////////
 
 	public query ({caller}) func getChunk(backupId : Nat, chunkIndex : Nat) : async (Chunk, Bool) {
-		// assert(_isWhitelisted(caller) or Principal.isController(caller));
-		assert(_isWhitelisted(caller));
+		assert(_isAllowed(caller));
 
 		let ?backup = Map.get(backups, Map.nhash, backupId) else Debug.trap("getChunk: Invalid backup id " # Nat.toText(backupId));
 		(_chunkFromRef(backup.chunkRefs[chunkIndex]), backup.chunkRefs.size() == chunkIndex + 1);

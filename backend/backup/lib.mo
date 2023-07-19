@@ -10,6 +10,8 @@ module {
 		#v1 : Principal;
 	};
 
+	public type BackupService = BackupCanister.BackupCanister;
+
 	public type Duration = {
 		#nanoseconds : Nat;
 		#seconds : Nat;
@@ -41,17 +43,17 @@ module {
 		actor(Principal.toText(canisterId)) : BackupCanister.BackupCanister;
 	};
 
-	shared ({caller}) func _createBackupCanister() : async Principal {
+	func _createBackupCanister() : async Principal {
 		ExperimentalCycles.add(1_000_000_000_000); // 1 TC
-		let backupCanister = await BackupCanister.BackupCanister([caller]);
+		let backupCanister = await BackupCanister.BackupCanister([]);
 		// let backupCanister = await (system BackupCanister.BackupCanister)(#new {
 		// 	settings = ?{
-		// 		controllers = ?[caller];
+		// 		controllers = ?[];
 		// 		freezing_threshold = ?15_768_000; // 6 months
 		// 		compute_allocation = null;
 		// 		memory_allocation = null;
 		// 	}
-		// })([caller]);
+		// })([]);
 		Principal.fromActor(backupCanister);
 	};
 
@@ -66,7 +68,17 @@ module {
   };
 
 	public func setTimer(state : State, duration : Duration, backupFn : () -> async ()) : Nat {
-		Timer.recurringTimer(#nanoseconds(_toNanos(duration)), backupFn);
+		var backupInProgress = false;
+		Timer.recurringTimer(#nanoseconds(_toNanos(duration)), func() : async () {
+			if (backupInProgress) {
+				return;
+			};
+			backupInProgress := true;
+			try {
+				await backupFn();
+			} catch (_) {};
+			backupInProgress := false;
+		});
 	};
 
 	public class NewBackup(state : State) {

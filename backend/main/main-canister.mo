@@ -799,9 +799,10 @@ actor {
 		};
 	};
 
-	public shared ({caller}) func backup() : async () {
+	public shared ({caller}) func backup() : async Principal {
 		assert(Utils.isAdmin(caller));
 		await _backup();
+		Backup.getCanisterId(backupState);
 	};
 
 	func _backup() : async () {
@@ -821,6 +822,8 @@ actor {
 		await backup.finishBackup();
 	};
 
+	ignore Backup.setTimer(backupState, #minutes(1), _backup);
+
 	// RESTORE
 	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
 		assert(false); // restore disabled
@@ -828,7 +831,8 @@ actor {
 
 		// reset state...
 
-		let backupCanister = Backup.getCanister(backupState);
+		// let backupCanister = Backup.getCanister(backupState);
+		let backupCanister = actor("<backup-canister-id>") : Backup.BackupService;
 
 		let (raw, done) = await backupCanister.getChunk(backupId, chunkIndex);
 		_restoreChunk(raw);
@@ -873,9 +877,6 @@ actor {
 			};
 		};
 	};
-
-	// Backup.setTimer(backupState, #seconds(60 * 2), _backup);
-	// ignore Timer.recurringTimer(#seconds(60 * 2), _backup);
 
 	// SYSTEM
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];

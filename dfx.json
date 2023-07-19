@@ -6,8 +6,7 @@
 			"main": "backend/main/main-canister.mo",
 			"declarations": {
 				"output": "cli/declarations/main/"
-			},
-			"dependencies": ["backup"]
+			}
 		},
 		"assets": {
 			"type": "assets",
