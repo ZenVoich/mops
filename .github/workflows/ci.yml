@@ -1,4 +1,4 @@
-name: mops test
+name: CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  build:
     strategy:
       matrix:
         moc-version: [0.9.3, 0.9.7]
@@ -25,6 +25,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - uses: aviate-labs/setup-dfx@v0.2.6
+        with:
+          dfx-version: 0.14.1
+
       - name: Cache mops packages
         uses: actions/cache@v3
         with:
@@ -36,16 +40,17 @@ jobs:
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
 
-      - name: install mops
+      - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
 
-      - name: install npm packages
-        run: |
-            cd cli
-            npm install
+      - name: Install npm packages
+        run: npm install
 
-      - name: install mops packages
+      - name: Install mops packages
         run: mops install
 
-      - name: run tests
-        run: mops test
+      - name: Build and Deploy
+        run: |
+            npm run replica
+            npm run deploy-local
+            npm run build
