@@ -11,7 +11,7 @@ jobs:
   test:
     strategy:
       matrix:
-        moc-version: [0.8.3, 0.9.1]
+        moc-version: [0.9.3, 0.9.7]
         mops-version: [./cli, ic-mops@latest, ic-mops@0.12, ic-mops@0.14]
         node-version: [16, 18, 20]
 
