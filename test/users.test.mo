@@ -17,7 +17,7 @@ let users = Users.Users();
 let aliceId = fuzz.principal.random();
 
 func ensureNewUser() : Principal {
-	let userId = fuzz.principal.randomPrincipal(2);
+	let userId = fuzz.principal.random();
 	users.ensureUser(userId);
 	userId;
 };
