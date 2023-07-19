@@ -1,4 +1,4 @@
-name: CI with production version of mops CLI
+name: CI
 
 on:
   push:
