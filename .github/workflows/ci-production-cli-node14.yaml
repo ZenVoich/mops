@@ -30,6 +30,7 @@ jobs:
             mops install
             npm run replica
             npm run deploy
+            npm run build
 
   test:
     runs-on: ubuntu-latest
@@ -42,13 +43,13 @@ jobs:
         with:
           dfx-version: 0.14.1
 
+      - name: Select moc version
+        run: npx mocv use 0.9.3
+
       - name: Install npm packages
         run: |
             cd cli
             npm install
-
-      - name: Select moc version
-        run: npx mocv use 0.9.3
 
       - name: Run Tests
         run: |
