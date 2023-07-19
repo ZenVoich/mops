@@ -43,12 +43,14 @@ jobs:
       - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
 
+      - name: Install npm packages
+        run: npm install
+
       - name: Install mops packages
         run: mops install
 
       - name: Build and Deploy
         run: |
-            npm i
             npm run replica
             npm run deploy
             npm run build
