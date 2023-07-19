@@ -21,7 +21,7 @@ jobs:
           dfx-version: 0.14.1
 
       - name: Select moc version
-        run: npx mocv use 0.9.2
+        run: npx mocv use 0.9.3
 
       - name: Build and Deploy
         run: |
@@ -48,7 +48,7 @@ jobs:
             npm install
 
       - name: Select moc version
-        run: npx mocv use 0.9.2
+        run: npx mocv use 0.9.3
 
       - name: Run Tests
         run: |
