@@ -70,6 +70,7 @@
 		margin-bottom: 20px;
 		font-size: 22px;
 		font-weight: 600;
+		text-align: center;
 	}
 
 	.categories {
@@ -103,7 +104,7 @@
 		flex-wrap: wrap;
 		gap: 10px;
 		column-gap: 40px;
-		box-sizing: border-box;
+		padding: 0 40px;
 		margin: 0 auto;
 	}
 
