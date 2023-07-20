@@ -20,7 +20,6 @@ module {
 		#days : Nat;
 	};
 
-
 	public func init(state : State) : async State {
 		switch (state) {
 			case (null) {
@@ -31,6 +30,10 @@ module {
 				sameState;
 			};
 		};
+	};
+
+	public func initWithCanisterId(canisterId : Principal) : State {
+		?#v1(canisterId);
 	};
 
 	public func getCanisterId(state : State) : Principal {
@@ -45,15 +48,15 @@ module {
 
 	func _createBackupCanister() : async Principal {
 		ExperimentalCycles.add(1_000_000_000_000); // 1 TC
-		let backupCanister = await BackupCanister.BackupCanister([]);
-		// let backupCanister = await (system BackupCanister.BackupCanister)(#new {
-		// 	settings = ?{
-		// 		controllers = ?[];
-		// 		freezing_threshold = ?15_768_000; // 6 months
-		// 		compute_allocation = null;
-		// 		memory_allocation = null;
-		// 	}
-		// })([]);
+		// let backupCanister = await BackupCanister.BackupCanister([]);
+		let backupCanister = await (system BackupCanister.BackupCanister)(#new {
+			settings = ?{
+				controllers = ?[];
+				freezing_threshold = ?15_768_000; // 6 months
+				compute_allocation = null;
+				memory_allocation = null;
+			}
+		})([]);
 		Principal.fromActor(backupCanister);
 	};
 
