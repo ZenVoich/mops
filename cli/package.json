@@ -21,6 +21,9 @@
 	"engines": {
 		"node": ">=14.0.0"
 	},
+	"scripts": {
+		"tsc": "tsc"
+	},
 	"dependencies": {
 		"@dfinity/agent": "^0.11.0",
 		"@dfinity/candid": "^0.11.0",
@@ -50,5 +53,15 @@
 		"prompts": "^2.4.2",
 		"stream-to-promise": "^3.0.0",
 		"tar": "^6.1.13"
+	},
+	"devDependencies": {
+		"@tsconfig/strictest": "^2.0.1",
+		"@types/debounce": "^1.2.1",
+		"@types/glob": "^8.1.0",
+		"@types/node": "^20.4.2",
+		"@types/prompts": "^2.4.4",
+		"@types/stream-to-promise": "^2.2.1",
+		"@types/tar": "^6.1.5",
+		"typescript": "^5.1.6"
 	}
 }

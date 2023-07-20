@@ -1,0 +1,13 @@
+{
+	"extends": ["@tsconfig/strictest/tsconfig.json"],
+	"include": ["**/*.ts", "**/*.js"],
+	"ignore": ["node_modules", "dist", "**/*.js"],
+	"compilerOptions": {
+		"types": ["node"],
+		"target": "ES2022",
+		"outDir": "./dist",
+		"allowJs": true,
+		"moduleResolution": "nodenext",
+		"noPropertyAccessFromIndexSignature": false
+	}
+}
