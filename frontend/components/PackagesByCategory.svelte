@@ -67,9 +67,9 @@
 	}
 
 	.title {
-		margin-bottom: 30px;
-		font-weight: 500;
-		font-size: 30px;
+		margin-bottom: 20px;
+		font-size: 22px;
+		font-weight: 600;
 	}
 
 	.categories {
