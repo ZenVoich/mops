@@ -660,11 +660,8 @@ actor {
 		Buffer.toArray(packages)
 	};
 
-	public query func getMostDownloadedPackages() : async [PackageSummary] {
-		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
-
-		let packageNames = downloadLog.getMostDownloadedPackageNames();
+	func _summariesFromNames(packageNames : [PackageName], limit: Nat) : [PackageSummary] {
+		let packages = Buffer.Buffer<PackageSummary>(limit);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
@@ -673,39 +670,118 @@ actor {
 
 				packages.add(packageSummary);
 
-				if (packages.size() >= max) {
+				if (packages.size() >= limit) {
 					break l;
 				};
 			};
 		};
 
 		Buffer.toArray(packages);
+	};
+
+	public query func getMostDownloadedPackages() : async [PackageSummary] {
+		let packageNames = downloadLog.getMostDownloadedPackageNames();
+		_summariesFromNames(packageNames, 5);
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
-
 		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
-
-		label l for (packageName in packageNames.vals()) {
-			ignore do ? {
-				let version = _getHighestVersion(packageName)!;
-				let packageSummary = _getPackageSummary(packageName, version)!;
-
-				packages.add(packageSummary);
-
-				if (packages.size() >= max) {
-					break l;
-				};
-			};
-		};
-
-		Buffer.toArray(packages);
+		_summariesFromNames(downloadLog.getMostDownloadedPackageNames(), 5);
 	};
 
-	public query func getAllPackages(limit : Nat, pageIndex : Nat) : async ([PackageSummary], PageCount) {
-		([], 1);
+	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		let limit = 10;
+		[
+			(
+				"Data Structures",
+				_summariesFromNames([
+					"bitbuffer",
+					"enumeration",
+					"buffer-deque",
+					"stableheapbtreemap",
+					"swb",
+					"vector",
+					"circular-buffer",
+					"splay",
+					"linked-list",
+					"map",
+					"merkle-patricia-trie",
+				], limit)
+			),
+			(
+				"Utilities",
+				_summariesFromNames([
+					"itertools",
+					"xtended-text",
+					"xtended-numbers",
+					"prng",
+					"fuzz",
+					"test",
+					"time-consts",
+				], limit)
+			),
+			(
+				"Encoding",
+				_summariesFromNames([
+					"deflate",
+					"serde",
+					"xml",
+					"cbor",
+					"candy",
+					"candid",
+				], limit)
+			),
+			(
+				"Cryptography",
+				_summariesFromNames([
+					"sha2",
+					"sha3",
+					"libsecp256k1",
+					"merkle-patricia-trie",
+					"evm-txs",
+					"ic-certification",
+				], limit)
+			),
+			(
+				"Types/Interfaces",
+				_summariesFromNames([
+					"ic",
+					"ledger-types",
+					"ckbtc-types",
+					"canistergeek",
+					"icrc1",
+					"origyn-nft",
+					"kyc",
+				], limit)
+			),
+			(
+				"HTTP",
+				_summariesFromNames([
+					"certified-http",
+					"certified-cache",
+					"ic-certification",
+					"assets",
+					"server",
+					"http-parser",
+					"web-io",
+				], limit)
+			),
+			(
+				"Async Data Flow",
+				_summariesFromNames([
+					"star",
+					"maf",
+					"rxmo",
+				], limit)
+			),
+			(
+				"Databases",
+				_summariesFromNames([
+					"candb",
+					"rxmodb",
+				], limit)
+			),
+		];
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {

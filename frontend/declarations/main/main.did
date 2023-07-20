@@ -185,7 +185,6 @@ service : {
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
   getAirdropAmountAll: () -> (nat) query;
-  getAllPackages: (nat, nat) -> (vec PackageSummary, PageCount) query;
   getApiVersion: () -> (Text) query;
   getDefaultPackages: (text) -> (vec record {
                                        PackageName__1;
@@ -201,6 +200,10 @@ service : {
   getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
   getNewPackages: () -> (vec PackageSummary) query;
   getPackageDetails: (PackageName__1, Ver) -> (Result_4) query;
+  getPackagesByCategory: () -> (vec record {
+                                      text;
+                                      vec PackageSummary;
+                                    }) query;
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;

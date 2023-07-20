@@ -2,6 +2,20 @@ export const idlFactory = ({ IDL }) => {
   const PublishingId = IDL.Text;
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
+  const Text = IDL.Text;
+  const PackageName__1 = IDL.Text;
+  const Version = IDL.Text;
+  const PackageId = IDL.Text;
+  const Time = IDL.Int;
+  const DownloadsSnapshot__1 = IDL.Record({
+    'startTime' : Time,
+    'endTime' : Time,
+    'downloads' : IDL.Nat,
+  });
+  const Ver = IDL.Text;
+  const FileId = IDL.Text;
+  const Result_6 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
+  const Result_5 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
   const User = IDL.Record({
     'id' : IDL.Principal,
     'emailVerified' : IDL.Bool,
@@ -39,7 +53,6 @@ export const idlFactory = ({ IDL }) => {
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
-  const Time = IDL.Int;
   const PackagePublication = IDL.Record({
     'storage' : IDL.Principal,
     'time' : Time,
@@ -54,20 +67,6 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
-  const PageCount = IDL.Nat;
-  const Text = IDL.Text;
-  const PackageName__1 = IDL.Text;
-  const Version = IDL.Text;
-  const PackageId = IDL.Text;
-  const DownloadsSnapshot__1 = IDL.Record({
-    'startTime' : Time,
-    'endTime' : Time,
-    'downloads' : IDL.Nat,
-  });
-  const Ver = IDL.Text;
-  const FileId = IDL.Text;
-  const Result_6 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
-  const Result_5 = IDL.Variant({ 'ok' : Ver, 'err' : Err });
   const PackageSummary__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
@@ -115,6 +114,7 @@ export const idlFactory = ({ IDL }) => {
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
   });
+  const PageCount = IDL.Nat;
   const Result_3 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Result_2 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
   const PackageConfigV2 = IDL.Record({
@@ -142,11 +142,6 @@ export const idlFactory = ({ IDL }) => {
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
     'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),
-    'getAllPackages' : IDL.Func(
-        [IDL.Nat, IDL.Nat],
-        [IDL.Vec(PackageSummary), PageCount],
-        ['query'],
-      ),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
     'getDefaultPackages' : IDL.Func(
         [IDL.Text],
@@ -179,6 +174,11 @@ export const idlFactory = ({ IDL }) => {
     'getPackageDetails' : IDL.Func(
         [PackageName__1, Ver],
         [Result_4],
+        ['query'],
+      ),
+    'getPackagesByCategory' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Vec(PackageSummary)))],
         ['query'],
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(

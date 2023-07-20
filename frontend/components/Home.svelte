@@ -4,6 +4,7 @@
 	import TopPackages from './TopPackages.svelte';
 	import Footer from './Footer.svelte';
 	import TotalStats from './TotalStats.svelte';
+	import PackagesByCategory from './PackagesByCategory.svelte';
 </script>
 
 <svelte:head>
@@ -39,13 +40,7 @@
 
 		<div class="delimiter"></div>
 
-		<div class="section">
-			<img src="/img/motoko.svg" alt="">
-			<div class="text">
-				<div class="title">Built for Motoko</div>
-				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://internetcomputer.org/">Internet Computer</a> blockchain network.</div>
-			</div>
-		</div>
+		<PackagesByCategory></PackagesByCategory>
 
 		<div class="delimiter"></div>
 
@@ -57,6 +52,16 @@
 		<br><br>
 		<div class="section">
 			<a class="link" href="/search/" use:link>All Packages</a>
+		</div>
+
+		<div class="delimiter"></div>
+
+		<div class="section">
+			<img src="/img/motoko.svg" alt="">
+			<div class="text">
+				<div class="title">Built for Motoko</div>
+				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://internetcomputer.org/">Internet Computer</a> blockchain network.</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -74,7 +79,7 @@
 		flex-direction: column;
 		align-items: center;
 		margin-top: 40px;
-		margin-bottom: 100px;
+		margin-bottom: 50px;
 	}
 
 	.content > * {
