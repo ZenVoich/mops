@@ -829,17 +829,10 @@ actor {
 		assert(false); // restore disabled
 		assert(Utils.isAdmin(caller));
 
-		// reset state...
+		let backupCanister = Backup.getCanister(backupState);
+		// let backupCanister = actor("<backup-canister-id>") : Backup.BackupService;
 
-		// let backupCanister = Backup.getCanister(backupState);
-		let backupCanister = actor("<backup-canister-id>") : Backup.BackupService;
-
-		let (raw, done) = await backupCanister.getChunk(backupId, chunkIndex);
-		_restoreChunk(raw);
-
-		if (not done) {
-			await restore(backupId, chunkIndex + 1);
-		};
+		await Backup.restore(backupCanister, backupId, _restoreChunk);
 	};
 
 	func _restoreChunk(blob : Blob) {

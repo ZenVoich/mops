@@ -138,7 +138,7 @@ export const idlFactory = ({ IDL }) => {
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
   return IDL.Service({
-    'backup' : IDL.Func([], [], []),
+    'backup' : IDL.Func([], [IDL.Principal], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),

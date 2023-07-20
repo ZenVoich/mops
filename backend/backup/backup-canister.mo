@@ -64,8 +64,7 @@ actor class BackupCanister(whitelist : [Principal]) {
 	};
 
 	func _isAllowed(id : Principal) : Bool {
-		// _isWhitelisted(id) or Principal.isController(id);
-		_isWhitelisted(id);
+		_isWhitelisted(id) or Principal.isController(id);
 	};
 
 	func _storeChunk(chunk : Blob) : ChunkRef {

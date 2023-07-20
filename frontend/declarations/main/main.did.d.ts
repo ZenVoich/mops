@@ -147,7 +147,7 @@ export interface User__1 {
 export type Ver = string;
 export type Version = string;
 export interface _SERVICE {
-  'backup' : ActorMethod<[], undefined>,
+  'backup' : ActorMethod<[], Principal>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,

@@ -81,6 +81,21 @@ module {
 		});
 	};
 
+	public func restore(backupCanister : BackupCanister.BackupCanister, backupId : Nat, restoreChunk : (Blob) -> ()) : async () {
+		var chunkIndex = 0;
+
+		label l while (true) {
+			let (blob, done) = await backupCanister.getChunk(backupId, chunkIndex);
+
+			restoreChunk(blob);
+
+			if (done) {
+				break l;
+			};
+			chunkIndex += 1;
+		};
+	};
+
 	public class NewBackup(state : State) {
 		let backupCanister : BackupCanister.BackupCanister = getCanister(state);
 

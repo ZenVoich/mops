@@ -181,7 +181,7 @@ type DependencyV2 =
    version: text;
  };
 service : {
-  backup: () -> ();
+  backup: () -> (principal);
   claimAirdrop: (principal) -> (text);
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
