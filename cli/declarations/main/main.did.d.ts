@@ -151,10 +151,6 @@ export interface _SERVICE {
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
-  'getAllPackages' : ActorMethod<
-    [bigint, bigint],
-    [Array<PackageSummary>, PageCount]
-  >,
   'getApiVersion' : ActorMethod<[], Text>,
   'getDefaultPackages' : ActorMethod<
     [string],
@@ -174,6 +170,10 @@ export interface _SERVICE {
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_4>,
+  'getPackagesByCategory' : ActorMethod<
+    [],
+    Array<[string, Array<PackageSummary>]>
+  >,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
