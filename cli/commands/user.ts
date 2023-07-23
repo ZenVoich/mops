@@ -4,6 +4,10 @@ import {getIdentity, mainActor} from '../mops.js';
 export async function getUserProp(prop) {
 	let actor = await mainActor();
 	let identity = await getIdentity();
+	if (!identity) {
+		console.log(chalk.red('Error: ') + 'No identity found');
+		process.exit(1);
+	}
 	let res = await actor.getUser(identity.getPrincipal());
 	console.log(res[0]?.[prop] || '');
 }

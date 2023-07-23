@@ -14,7 +14,7 @@ export let addCache = (pkgId, source) => {
 	let dest = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		ncp.ncp(source, dest, {stopOnErr: true}, (err) => {
 			if (err) {
 				reject(err[0]);
@@ -28,7 +28,7 @@ export let copyCache = (pkgId, dest) => {
 	let source = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		ncp.ncp(source, dest, {stopOnErr: true}, (err) => {
 			if (err) {
 				reject(err);

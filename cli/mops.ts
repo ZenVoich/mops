@@ -1,4 +1,4 @@
-import {Actor, HttpAgent} from '@dfinity/agent';
+import {Actor, HttpAgent, Identity} from '@dfinity/agent';
 import TOML from '@iarna/toml';
 import chalk from 'chalk';
 import fetch from 'node-fetch';
@@ -7,33 +7,38 @@ import fs from 'fs';
 import prompts from 'prompts';
 import ncp from 'ncp';
 
-import {idlFactory} from './declarations/main/main.did.js';
-import {idlFactory as storageIdlFactory} from './declarations/storage/storage.did.js';
+import {idlFactory} from './declarations/main/index.js';
+import {_SERVICE} from './declarations/main/main.did.js';
+import {idlFactory as storageIdlFactory} from './declarations/storage/index.js';
+import {_SERVICE as _STORAGE_SERVICE} from './declarations/storage/storage.did.js';
 import {decodeFile} from './pem.js';
+import {Config} from './types.js';
 
 
-global.fetch = fetch;
+if (!global.fetch) {
+	global.fetch = fetch as any;
+}
 
 // (!) make changes in pair with backend
 export let apiVersion = '1.2';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 
-export let globalConfigDir;
-export let globalCacheDir;
+export let globalConfigDir = '';
+export let globalCacheDir = '';
 
 // OS specific dirs
 if (process.platform == 'win32') {
-	globalConfigDir = path.join(process.env.LOCALAPPDATA, 'mops/config');
-	globalCacheDir = path.join(process.env.LOCALAPPDATA, 'mops/cache');
+	globalConfigDir = path.join(process.env.LOCALAPPDATA || '', 'mops/config');
+	globalCacheDir = path.join(process.env.LOCALAPPDATA || '', 'mops/cache');
 }
 else if (process.platform == 'darwin') {
-	globalConfigDir = path.join(process.env.HOME, 'Library/Application Support/mops');
-	globalCacheDir = path.join(process.env.HOME, 'Library/Caches/mops');
+	globalConfigDir = path.join(process.env.HOME || '', 'Library/Application Support/mops');
+	globalCacheDir = path.join(process.env.HOME || '', 'Library/Caches/mops');
 }
 else {
-	globalConfigDir = path.join(process.env.HOME, '.config/mops');
-	globalCacheDir = path.join(process.env.HOME, '.cache/mops');
+	globalConfigDir = path.join(process.env.HOME || '', '.config/mops');
+	globalCacheDir = path.join(process.env.HOME || '', '.cache/mops');
 }
 // XDG overrides
 if (process.env.XDG_CONFIG_HOME) {
@@ -44,7 +49,7 @@ if (process.env.XDG_CACHE_HOME) {
 }
 
 // temp: move old config to new location
-let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA || '/', 'mops');
 if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
 	fs.mkdirSync(globalConfigDir, {recursive: true});
 	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem'))) {
@@ -71,7 +76,7 @@ if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
 	console.log('Moved cache to ' + chalk.green(globalCacheDir));
 }
 
-export function setNetwork(network) {
+export function setNetwork(network: string) {
 	fs.writeFileSync(networkFile, network);
 }
 
@@ -81,14 +86,7 @@ export function getNetwork() {
 		network = fs.readFileSync(networkFile).toString() || 'ic';
 	}
 
-	if (network === 'local') {
-		return {
-			network,
-			host: 'http://127.0.0.1:4943',
-			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
-		};
-	}
-	else if (network === 'staging') {
+	if (network === 'staging') {
 		return {
 			network,
 			host: 'https://icp-api.io',
@@ -102,9 +100,16 @@ export function getNetwork() {
 			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
 		};
 	}
+	else {
+		return {
+			network,
+			host: 'http://127.0.0.1:4943',
+			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
+		};
+	}
 }
 
-export let getIdentity = async () => {
+export let getIdentity = async (): Promise<Identity | undefined> => {
 	let identityPem = path.resolve(globalConfigDir, 'identity.pem');
 	let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 	if (fs.existsSync(identityPemEncrypted)) {
@@ -118,14 +123,16 @@ export let getIdentity = async () => {
 	if (fs.existsSync(identityPem)) {
 		return decodeFile(identityPem);
 	}
+	return undefined;
 };
 
-export let mainActor = async (useIdentity = false) => {
+export let mainActor = async (useIdentity = false): Promise<_SERVICE> => {
 	let network = getNetwork().network;
 	let host = getNetwork().host;
 	let canisterId = getNetwork().canisterId;
 
-	let identity = useIdentity && await getIdentity();
+	let identity = useIdentity ? await getIdentity() : undefined;
+	// @ts-ignore exactOptionalPropertyTypes
 	let agent = new HttpAgent({host, identity});
 
 	if (network === 'local') {
@@ -138,11 +145,12 @@ export let mainActor = async (useIdentity = false) => {
 	});
 };
 
-export let storageActor = async (storageId, useIdentity = false) => {
+export let storageActor = async (storageId, useIdentity = false): Promise<_STORAGE_SERVICE> => {
 	let network = getNetwork().network;
 	let host = getNetwork().host;
 
 	let identity = useIdentity && await getIdentity();
+	// @ts-ignore exactOptionalPropertyTypes
 	let agent = new HttpAgent({host, identity});
 
 	if (network === 'local') {
@@ -157,7 +165,7 @@ export let storageActor = async (storageId, useIdentity = false) => {
 
 export function getClosestConfigFile(dir = process.cwd()) {
 	if (!path.basename(dir)) {
-		return null;
+		throw '';
 	}
 	let configFile = path.join(dir, 'mops.toml');
 	if (fs.existsSync(configFile)) {
@@ -169,7 +177,7 @@ export function getClosestConfigFile(dir = process.cwd()) {
 export function getRootDir() {
 	let configFile = getClosestConfigFile();
 	if (!configFile) {
-		return null;
+		return '';
 	}
 	return path.dirname(configFile);
 }
@@ -199,14 +207,14 @@ export function parseGithubURL(href) {
 
 	let [org, gitName] = url.pathname.split('/').filter(path => !!path);
 
-	if (gitName.endsWith('.git')) {
+	if (gitName?.endsWith('.git')) {
 		gitName = gitName.substring(0, gitName.length - 4);
 	}
 
 	return {org, gitName, branch};
 }
 
-export function readConfig(configFile = getClosestConfigFile()) {
+export function readConfig(configFile = getClosestConfigFile()): Config {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
@@ -233,18 +241,20 @@ export function readConfig(configFile = getClosestConfigFile()) {
 	return toml;
 }
 
-export function writeConfig(config, configFile = getClosestConfigFile()) {
-	const deps = config.dependencies || {};
-	Object.entries(deps).forEach(([name, {repo, path, version}]) => {
+export function writeConfig(config: Config, configFile = getClosestConfigFile()) {
+	let resConfig: any = {...config};
+
+	let deps = resConfig.dependencies || {};
+	Object.entries(config.dependencies || {}).forEach(([name, {repo, path, version}]) => {
 		deps[name] = repo || path || version;
 	});
 
-	const devDeps = config['dev-dependencies'] || {};
-	Object.entries(devDeps).forEach(([name, {repo, path, version}]) => {
+	let devDeps = resConfig['dev-dependencies'] || {};
+	Object.entries(config['dev-dependencies'] || {}).forEach(([name, {repo, path, version}]) => {
 		devDeps[name] = repo || path || version;
 	});
 
-	let text = TOML.stringify(config).trim();
+	let text = TOML.stringify(resConfig).trim();
 	if (fs.existsSync(configFile) && fs.readFileSync(configFile).toString().endsWith('\n')) {
 		text += '\n';
 	}
@@ -260,7 +270,7 @@ export function formatGithubDir(name, repo) {
 	return path.join(getRootDir(), '.mops/_github', `${name}@${branch}`);
 }
 
-export function readDfxJson() {
+export function readDfxJson(): any {
 	let dir = process.cwd();
 	let dfxJson = null;
 	for (let i = 0; i < 5; i++) {

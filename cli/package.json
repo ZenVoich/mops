@@ -1,9 +1,9 @@
 {
-	"name": "ic-mops",
+	"name": "ic-mops-local",
 	"version": "0.19.1",
 	"type": "module",
 	"bin": {
-		"mops": "cli.js"
+		"mops-local": "dist/cli.js"
 	},
 	"files": [
 		"*",
@@ -22,7 +22,11 @@
 		"node": ">=14.0.0"
 	},
 	"scripts": {
-		"tsc": "tsc"
+		"build": "tsc",
+		"bundle": "esbuild --bundle --outfile=dist.js --platform=node --packages=external --target=node16 --format=esm ./dist/cli.js",
+		"prepare": "npm run build && npm run bundle",
+		"tsc": "tsc",
+		"esbuild": "esbuild"
 	},
 	"dependencies": {
 		"@dfinity/agent": "^0.11.0",
@@ -58,10 +62,13 @@
 		"@tsconfig/strictest": "^2.0.1",
 		"@types/debounce": "^1.2.1",
 		"@types/glob": "^8.1.0",
+		"@types/ncp": "^2.0.5",
 		"@types/node": "^20.4.2",
 		"@types/prompts": "^2.4.4",
 		"@types/stream-to-promise": "^2.2.1",
 		"@types/tar": "^6.1.5",
+		"esbuild": "^0.18.15",
+		"tsx": "^3.12.7",
 		"typescript": "^5.1.6"
 	}
 }

@@ -26,7 +26,7 @@ import {bump} from './commands/bump.js';
 program.name('mops');
 
 // --version
-let packageJson = JSON.parse(fs.readFileSync(new URL('package.json', import.meta.url)));
+let packageJson = JSON.parse(fs.readFileSync(new URL('package.json', import.meta.url)).toString());
 program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version');
 
 // init
@@ -195,11 +195,11 @@ program
 program
 	.command('template')
 	.description('Apply template')
-	.action(async (options) => {
+	.action(async () => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await template(options);
+		await template();
 	});
 
 // docs

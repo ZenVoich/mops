@@ -5,9 +5,9 @@ import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeCon
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
-export async function add(name, {verbose, dev} = {}) {
+export async function add(name, {verbose = false, dev = false} = {}) {
 	if (!checkConfigFile()) {
-		return false;
+		return;
 	}
 
 	let config = readConfig();
@@ -51,7 +51,7 @@ export async function add(name, {verbose, dev} = {}) {
 		}
 		else {
 			let versionRes = await getHighestVersion(name);
-			if (versionRes.err) {
+			if ('err' in versionRes) {
 				console.log(chalk.red('Error: ') + versionRes.err);
 				return;
 			}
@@ -75,7 +75,14 @@ export async function add(name, {verbose, dev} = {}) {
 		}
 	}
 
-	config[dev ? 'dev-dependencies' : 'dependencies'][pkgDetails.name] = pkgDetails;
+	let depsProp = dev ? 'dev-dependencies' : 'dependencies';
+	let deps = config[depsProp];
+	if (deps) {
+		deps[pkgDetails.name] = pkgDetails;
+	}
+	else {
+		throw Error(`Invalid config file: [${depsProp}] not found`);
+	}
 	writeConfig(config);
 
 	logUpdate.clear();

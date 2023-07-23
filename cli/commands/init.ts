@@ -3,8 +3,9 @@ import path from 'path';
 import fs from 'fs';
 import {checkApiCompatibility, mainActor, readDfxJson, writeConfig} from '../mops.js';
 import {installAll} from './install-all.js';
-import {readVesselConfig} from '../vessel.js';
+import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {execSync} from 'child_process';
+import {Config, Dependencies} from '../types.js';
 
 export async function init(name = '') {
 	let configFile = path.join(process.cwd(), 'mops.toml');
@@ -16,23 +17,25 @@ export async function init(name = '') {
 
 	console.log('Initializing...');
 
-	let config = {};
-	let vesselConfig = {};
-	let vesselDeps;
+	let config: Config = {};
+	let vesselConfig: VesselConfig = {dependencies: []};
+	let deps: Dependencies = {};
 
 	const vesselFile = path.join(process.cwd(), 'vessel.dhall');
 
 	if (fs.existsSync(vesselFile)) {
 		console.log('Reading vessel.dhall file');
 		const res = await readVesselConfig(process.cwd(), {cache: false});
-		vesselConfig = {...res};
+		if (res) {
+			vesselConfig = {...res};
+		}
 	}
 
 	if (vesselConfig.dependencies) {
-		vesselDeps = {};
+		deps = {};
 
 		for (const dep of (vesselConfig.dependencies || [])) {
-			vesselDeps[dep.name] = dep;
+			deps[dep.name] = dep;
 		}
 	}
 
@@ -45,8 +48,8 @@ export async function init(name = '') {
 			repository: '',
 		};
 
-		if (vesselDeps) {
-			config.dependencies = vesselDeps;
+		if (deps) {
+			config.dependencies = deps;
 		}
 
 		writeConfig(config, configFile);
@@ -83,13 +86,13 @@ export async function init(name = '') {
 			config.dependencies = {};
 		}
 
-		if (vesselDeps) {
-			config.dependencies = vesselDeps;
+		if (deps) {
+			config.dependencies = deps;
 		}
 
-		defaultPackages.forEach(([name, version]) => {
-			config.dependencies[name] = {version};
-		});
+		for (let [name, version] of defaultPackages) {
+			config.dependencies[name] = {name, version};
+		}
 
 		writeConfig(config, configFile);
 

@@ -11,7 +11,7 @@ import {getRootDir} from '../mops.js';
 
 let moDoc;
 
-export async function docs({silent} = {}) {
+export async function docs({silent = false} = {}) {
 	let rootDir = getRootDir();
 	let docsDir = path.join(rootDir, '.mops/.docs');
 	let docsDirRelative = path.relative(process.cwd(), docsDir);
@@ -27,7 +27,7 @@ export async function docs({silent} = {}) {
 	}
 
 	// generate docs
-	await new Promise((resolve) => {
+	await new Promise<void>((resolve) => {
 		let proc = spawn(moDoc, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
 
 		// stdout

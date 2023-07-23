@@ -1,5 +1,5 @@
 export async function parallel(threads, items, fn) {
-	return new Promise((resolve) => {
+	return new Promise<void>((resolve) => {
 		let busyThreads = 0;
 		items = items.slice();
 
