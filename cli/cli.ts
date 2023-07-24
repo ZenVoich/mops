@@ -33,7 +33,7 @@ program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version')
 program
 	.command('init [name]')
 	.description('Create mops.toml')
-	.action(async (name) => {
+	.action(async (name: string) => {
 		await init(name);
 	});
 

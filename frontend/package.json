@@ -41,6 +41,7 @@
     "@types/node": "^16.11.12",
     "@types/pako": "^2.0.0",
     "buffer": "^6.0.3",
+    "eslint-plugin-svelte": "^2.32.4",
     "svelte": "^3.46.3",
     "svelte-preprocess": "^4.10.2",
     "vite": "^2.7.1",

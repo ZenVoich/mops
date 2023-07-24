@@ -12,7 +12,7 @@ export function decodeFile(file, password?: string) {
 }
 
 function decode(rawKey) {
-	var buf = pemfile.decode(rawKey);
+	let buf = pemfile.decode(rawKey);
 	if (rawKey.includes('EC PRIVATE KEY')) {
 		if (buf.length != 118) {
 			throw 'expecting byte length 118 but got ' + buf.length;

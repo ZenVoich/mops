@@ -154,7 +154,7 @@ export async function publish({noDocs = false} = {}) {
 			...dep,
 			version: dep.version || '',
 			repo: dep.repo || ''
-		}
+		};
 	};
 
 	// map fields
