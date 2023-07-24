@@ -3,13 +3,14 @@ import fs from 'fs';
 import del from 'del';
 import chalk from 'chalk';
 import {formatDir, formatGithubDir} from '../mops.js';
+import {Config} from '../types.js';
 
-export async function remove(name, {dev, verbose, dryRun} = {}) {
+export async function remove(name, {dev = false, verbose = false, dryRun = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
-	function getTransitiveDependencies(config, exceptPkgId) {
+	function getTransitiveDependencies(config: Config, exceptPkgId) {
 		let deps = Object.values(config.dependencies || {});
 		let devDeps = Object.values(config['dev-dependencies'] || {});
 		return [...deps, ...devDeps]
@@ -21,7 +22,7 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 			}).flat();
 	}
 
-	function getTransitiveDependenciesOf(name, version, repo) {
+	function getTransitiveDependenciesOf(name, version, repo?: string) {
 		let pkgDir = repo ? formatGithubDir(name, repo) : formatDir(name, version);
 		let configFile = pkgDir + '/mops.toml';
 		if (!fs.existsSync(configFile)) {
@@ -37,6 +38,7 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 
 	let config = readConfig();
 	let deps = dev ? config['dev-dependencies'] : config.dependencies;
+	deps = deps || {};
 	let pkgDetails = deps[name];
 
 	if (!pkgDetails) {
@@ -76,11 +78,11 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 	}
 
 	// remove from config
-	if (dev) {
-		delete config['dev-dependencies'][name];
-	}
-	else {
+	if (!dev && config.dependencies) {
 		delete config.dependencies[name];
+	}
+	if (dev && config['dev-dependencies']) {
+		delete config['dev-dependencies'][name];
 	}
 	dryRun || writeConfig(config);
 

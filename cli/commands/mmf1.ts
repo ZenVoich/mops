@@ -4,20 +4,22 @@
 // mops:1:skip
 import chalk from 'chalk';
 
+type Strategy = 'store' | 'print';
+
 export class MMF1 {
-	stack = [];
-	currSuite = '';
+	stack: string[] = [];
+	currSuite: string | undefined = '';
 	failed = 0;
 	passed = 0;
 	skipped = 0;
-	srategy; // 'store' | 'print'
-	output = [];
+	srategy: Strategy;
+	output: string[] = [];
 
-	constructor(srategy) {
+	constructor(srategy: Strategy) {
 		this.srategy = srategy;
 	}
 
-	_log(...args) {
+	_log(...args: string[]) {
 		if (this.srategy === 'store') {
 			this.output.push(args.join(' '));
 		}
@@ -30,7 +32,7 @@ export class MMF1 {
 		for (let out of this.output) {
 			console.log(out);
 		}
-		this.store = [];
+		this.output = [];
 	}
 
 	parseLine(line) {
@@ -49,8 +51,8 @@ export class MMF1 {
 	}
 
 	_testStart(name) {
-		if (this.stack.length) {
-			let suite = this.stack[this.stack.length - 1];
+		let suite = this.stack[this.stack.length - 1];
+		if (suite) {
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
 				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);

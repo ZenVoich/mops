@@ -3,7 +3,7 @@
 	"version": "0.19.1",
 	"type": "module",
 	"bin": {
-		"mops-local": "dist/cli.js"
+		"mops-local": "dist.js"
 	},
 	"files": [
 		"*",
@@ -24,7 +24,8 @@
 	"scripts": {
 		"build": "tsc",
 		"bundle": "esbuild --bundle --outfile=dist.js --platform=node --packages=external --target=node16 --format=esm ./dist/cli.js",
-		"prepare": "npm run build && npm run bundle",
+		"decl": "cp -r declarations dist",
+		"prepare": "npm run build && npm run decl && npm run bundle",
 		"tsc": "tsc",
 		"esbuild": "esbuild"
 	},

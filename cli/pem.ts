@@ -3,7 +3,7 @@ import {Ed25519KeyIdentity, Secp256k1KeyIdentity} from '@dfinity/identity';
 import pemfile from 'pem-file';
 import crypto from 'crypto';
 
-export function decodeFile(file, password) {
+export function decodeFile(file, password?: string) {
 	let rawKey = fs.readFileSync(file);
 	if (password) {
 		return decode(decrypt(rawKey, password));

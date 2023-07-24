@@ -8,8 +8,10 @@ import prompts from 'prompts';
 import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
+import {DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
+import {Dependency} from '../types.js';
 
-export async function publish({noDocs} = {}) {
+export async function publish({noDocs = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -147,8 +149,16 @@ export async function publish({noDocs} = {}) {
 		}
 	}
 
+	let toBackendDep = (dep: Dependency): DependencyV2 => {
+		return {
+			...dep,
+			version: dep.version || '',
+			repo: dep.repo || ''
+		}
+	};
+
 	// map fields
-	let backendPkgConfig = {
+	let backendPkgConfig: PackageConfigV2 = {
 		name: config.package.name,
 		version: config.package.version,
 		keywords: config.package.keywords || [],
@@ -162,8 +172,8 @@ export async function publish({noDocs} = {}) {
 		dfx: config.package.dfx || '',
 		moc: config.package.moc || '',
 		donation: config.package.donation || '',
-		dependencies: Object.values(config.dependencies || {}),
-		devDependencies: Object.values(config['dev-dependencies'] || {}),
+		dependencies: Object.values(config.dependencies || {}).map(toBackendDep),
+		devDependencies: Object.values(config['dev-dependencies'] || {}).map(toBackendDep),
 		scripts: [],
 	};
 
@@ -214,7 +224,7 @@ export async function publish({noDocs} = {}) {
 	let step = 0;
 	function progress() {
 		step++;
-		logUpdate(`Publishing ${config.package.name}@${config.package.version} ${progressBar(step, total)}`);
+		logUpdate(`Publishing ${config.package?.name}@${config.package?.version} ${progressBar(step, total)}`);
 	}
 
 	// upload config
@@ -222,7 +232,7 @@ export async function publish({noDocs} = {}) {
 
 	progress();
 	let publishing = await actor.startPublish(backendPkgConfig);
-	if (publishing.err) {
+	if ('err' in publishing) {
 		console.log(chalk.red('Error: ') + publishing.err);
 		return;
 	}
@@ -242,8 +252,8 @@ export async function publish({noDocs} = {}) {
 			file = path.basename(file);
 		}
 
-		let res = await actor.startFileUpload(puiblishingId, file, chunkCount, firstChunk);
-		if (res.err) {
+		let res = await actor.startFileUpload(puiblishingId, file, BigInt(chunkCount), firstChunk);
+		if ('err' in res) {
 			console.log(chalk.red('Error: ') + res.err);
 			return;
 		}
@@ -252,8 +262,8 @@ export async function publish({noDocs} = {}) {
 		for (let i = 1; i < chunkCount; i++) {
 			let start = i * chunkSize;
 			let chunk = Array.from(content.slice(start, start + chunkSize));
-			let res = await actor.uploadFileChunk(puiblishingId, fileId, i, chunk);
-			if (res.err) {
+			let res = await actor.uploadFileChunk(puiblishingId, fileId, BigInt(i), chunk);
+			if ('err' in res) {
 				console.log(chalk.red('Error: ') + res.err);
 				return;
 			}
@@ -265,7 +275,7 @@ export async function publish({noDocs} = {}) {
 	// finish
 	progress();
 	let res = await actor.finishPublish(puiblishingId);
-	if (res.err) {
+	if ('err' in res) {
 		console.log(chalk.red('Error: ') + res.err);
 		return;
 	}

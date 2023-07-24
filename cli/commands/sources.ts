@@ -3,15 +3,16 @@ import fs from 'fs';
 import chalk from 'chalk';
 import {checkConfigFile, formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
 import {readVesselConfig} from '../vessel.js';
+import {Config, Dependency} from '../types.js';
 
 // TODO: resolve conflicts
-export async function sources({verbose} = {}) {
+export async function sources({verbose = false} = {}) {
 	if (!checkConfigFile()) {
 		return [];
 	}
 
-	let packages = {};
-	let versions = {};
+	let packages: Record<string, Dependency & {isRoot: boolean}> = {};
+	let versions: Record<string, string[]> = {};
 
 	let compareVersions = (a, b) => {
 		let ap = a.split('.').map(x => x |0);
@@ -45,7 +46,7 @@ export async function sources({verbose} = {}) {
 		}
 	};
 
-	let collectDeps = async (config, isRoot = false) => {
+	let collectDeps = async (config: Config, isRoot = false) => {
 		let allDeps = [...Object.values(config.dependencies || {})];
 		if (isRoot) {
 			allDeps = [...allDeps, ...Object.values(config['dev-dependencies'] || {})];
@@ -57,13 +58,15 @@ export async function sources({verbose} = {}) {
 			if (
 				isRoot
 				|| !packages[name]
-				|| !packages[name].isRoot
+				|| !packages[name]?.isRoot
 				&& (
-					repo && packages[name].repo && compareGitVersions(packages[name].repo, repo) === -1
-					|| compareVersions(packages[name].version, version) === -1)
+					repo && packages[name]?.repo && compareGitVersions(packages[name]?.repo, repo) === -1
+					|| compareVersions(packages[name]?.version, version) === -1)
 			) {
-				packages[name] = pkgDetails;
-				packages[name].isRoot = isRoot;
+				packages[name] = {
+					...pkgDetails,
+					isRoot,
+				};
 			}
 
 			let nestedConfig;
@@ -87,10 +90,10 @@ export async function sources({verbose} = {}) {
 
 			if (repo) {
 				const {branch} = parseGithubURL(repo);
-				versions[name].push(branch);
+				versions[name]?.push(branch);
 			}
-			else {
-				versions[name].push(version);
+			else if (version) {
+				versions[name]?.push(version);
 			}
 		}
 	};

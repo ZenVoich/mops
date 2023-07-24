@@ -6,6 +6,14 @@ export type Config = {
 		license?: string;
 		repository?: string;
 		keywords?: string[];
+		baseDir?: string;
+		readme?: string;
+		files?: string[];
+		homepage?: string;
+		documentation?: string;
+		dfx?: string;
+		moc?: string;
+		donation?: string;
 	};
 	dependencies?: Dependencies;
 	'dev-dependencies'?: Dependencies;
