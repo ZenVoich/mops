@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import {Ed25519KeyIdentity, Secp256k1KeyIdentity} from '@dfinity/identity';
 import pemfile from 'pem-file';
 import crypto from 'crypto';

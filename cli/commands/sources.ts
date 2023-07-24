@@ -1,5 +1,5 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import chalk from 'chalk';
 import {checkConfigFile, formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
 import {readVesselConfig} from '../vessel.js';

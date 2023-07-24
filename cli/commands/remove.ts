@@ -1,8 +1,7 @@
-import {checkConfigFile, readConfig, writeConfig} from '../mops.js';
-import fs from 'fs';
+import fs from 'node:fs';
 import del from 'del';
 import chalk from 'chalk';
-import {formatDir, formatGithubDir} from '../mops.js';
+import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
 import {Config} from '../types.js';
 
 export async function remove(name, {dev = false, verbose = false, dryRun = false} = {}) {

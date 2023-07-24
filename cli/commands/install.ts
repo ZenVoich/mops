@@ -1,9 +1,9 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import logUpdate from 'log-update';
+import chalk from 'chalk';
 import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
 import {parallel} from '../parallel.js';
-import chalk from 'chalk';
 import {installFromGithub} from '../vessel.js';
 import {addCache, copyCache, isCached} from '../cache.js';
 

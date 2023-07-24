@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import ncp from 'ncp';
 import getFolderSize from 'get-folder-size';
 

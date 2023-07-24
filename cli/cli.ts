@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
+import fs from 'node:fs';
 import {program} from 'commander';
 import chalk from 'chalk';
 import {Principal} from '@dfinity/principal';

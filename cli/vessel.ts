@@ -1,13 +1,13 @@
-import {existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync} from 'fs';
+import {existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync} from 'node:fs';
+import path from 'node:path';
 import del from 'del';
 import {execaCommand} from 'execa';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
-import path from 'path';
 import got from 'got';
 import decompress from 'decompress';
 import {pipeline} from 'stream';
+import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
 import {addCache, copyCache, isCached} from './cache.js';
 
 const dhallFileToJson = async (filePath) => {

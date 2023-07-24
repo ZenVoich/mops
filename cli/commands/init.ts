@@ -1,10 +1,10 @@
+import {execSync} from 'node:child_process';
+import path from 'node:path';
+import fs from 'node:fs';
 import chalk from 'chalk';
-import path from 'path';
-import fs from 'fs';
 import {checkApiCompatibility, mainActor, readDfxJson, writeConfig} from '../mops.js';
 import {installAll} from './install-all.js';
 import {VesselConfig, readVesselConfig} from '../vessel.js';
-import {execSync} from 'child_process';
 import {Config, Dependencies} from '../types.js';
 
 export async function init(name = '') {

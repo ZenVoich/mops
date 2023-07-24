@@ -1,9 +1,9 @@
+import fetch from 'node-fetch';
+import path from 'node:path';
+import fs from 'node:fs';
 import {Actor, HttpAgent, Identity} from '@dfinity/agent';
 import TOML from '@iarna/toml';
 import chalk from 'chalk';
-import fetch from 'node-fetch';
-import path from 'path';
-import fs from 'fs';
 import prompts from 'prompts';
 import ncp from 'ncp';
 
