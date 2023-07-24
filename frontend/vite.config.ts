@@ -69,6 +69,10 @@ export default defineConfig({
 					src: '.ic-assets.json',
 					dest: '.'
 				},
+				{
+					src: '.well-known/*',
+					dest: '.well-known'
+				},
 			]
 		})
 	],
