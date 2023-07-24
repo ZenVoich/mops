@@ -11,6 +11,7 @@
 		"moduleResolution": "nodenext",
 		"noEmitOnError": false,
 		"noImplicitAny": false,
-		"noPropertyAccessFromIndexSignature": false
+		"noPropertyAccessFromIndexSignature": false,
+		"declaration": true
 	}
 }
