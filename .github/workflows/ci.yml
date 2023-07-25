@@ -43,6 +43,10 @@ jobs:
       - name: Install npm packages
         run: npm install
 
+      - name: Build local cli
+        if: ${{ matrix.mops-version == './cli' }}
+        run: cd cli && npm run prepare
+
       - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
 
