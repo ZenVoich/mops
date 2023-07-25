@@ -16,6 +16,7 @@ import Char "mo:base/Char";
 import Hash "mo:base/Hash";
 import TrieSet "mo:base/TrieSet";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
+import Prim "mo:prim";
 
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
@@ -46,6 +47,7 @@ actor {
 	public type Ver = Version.Version;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
+	public type PageCount = Nat;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -498,6 +500,7 @@ actor {
 			case ("0.13.1") [("base", "0.7.6")];
 			case ("0.14.0") [("base", "0.8.7")];
 			case ("0.14.1") [("base", "0.8.8")];
+			case ("0.14.2") [("base", "0.9.3")];
 			case (_) {
 				switch (_getHighestVersion("base")) {
 					case (?ver) [("base", ver)];
@@ -537,14 +540,24 @@ actor {
 		});
 	};
 
-	public query func search(searchText : Text.Text) : async [PackageSummary] {
-		let max = 20;
+	func _toLowerCase(text : Text) : Text {
+		Text.map(text , Prim.charToLower);
+	};
+
+	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
+		let limit = Option.get(limitOpt, 20);
+		let pageIndex = Option.get(pageIndexOpt, 0);
+
+		assert(limit <= 100);
+		assert(pageIndex <= 1_000_000);
+		assert(searchText.size() <= 100);
+
 		type ConfigWithPoints = {
 			config : PackageConfigV2;
 			sortingPoints : Nat;
 		};
-		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(max);
-		let pattern = #text(searchText);
+		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(0);
+		let pattern = #text(_toLowerCase(searchText));
 
 		for (config in highestConfigs.vals()) {
 			var sortingPoints = 0;
@@ -579,11 +592,11 @@ actor {
 				if (Text.contains(config.name, pattern)) {
 					sortingPoints += 3;
 				};
-				if (Text.contains(config.description, pattern)) {
+				if (Text.contains(_toLowerCase(config.description), pattern)) {
 					sortingPoints += 1;
 				};
 				for (keyword in config.keywords.vals()) {
-					if (Text.contains(keyword, pattern)) {
+					if (Text.contains(_toLowerCase(keyword), pattern)) {
 						sortingPoints += 2;
 					};
 				};
@@ -604,10 +617,13 @@ actor {
 			Nat.compare(bPoints, aPoints);
 		});
 
-		// limit results
-		Array.tabulate<PackageSummary>(Nat.min(configs.size(), max), func(i : Nat) {
-			Utils.unwrap(_getPackageSummary(configs[i].config.name, configs[i].config.version));
+		let page = Utils.getPage(configs, pageIndex, limit);
+
+		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
+			Utils.unwrap(_getPackageSummary(config.config.name, config.config.version));
 		});
+
+		(summaries, page.1);
 	};
 
 	public query func getRecentlyUpdatedPackages() : async [PackageSummary] {
@@ -644,11 +660,8 @@ actor {
 		Buffer.toArray(packages)
 	};
 
-	public query func getMostDownloadedPackages() : async [PackageSummary] {
-		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
-
-		let packageNames = downloadLog.getMostDownloadedPackageNames();
+	func _summariesFromNames(packageNames : [PackageName], limit: Nat) : [PackageSummary] {
+		let packages = Buffer.Buffer<PackageSummary>(limit);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
@@ -657,7 +670,7 @@ actor {
 
 				packages.add(packageSummary);
 
-				if (packages.size() >= max) {
+				if (packages.size() >= limit) {
 					break l;
 				};
 			};
@@ -666,26 +679,133 @@ actor {
 		Buffer.toArray(packages);
 	};
 
+	public query func getMostDownloadedPackages() : async [PackageSummary] {
+		let packageNames = downloadLog.getMostDownloadedPackageNames();
+		_summariesFromNames(packageNames, 5);
+	};
+
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
-
 		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
+		_summariesFromNames(downloadLog.getMostDownloadedPackageNames(), 5);
+	};
 
-		label l for (packageName in packageNames.vals()) {
+	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		let limit = 10;
+		[
+			(
+				"Data Structures",
+				_summariesFromNames([
+					"bitbuffer",
+					"enumeration",
+					"buffer-deque",
+					"stableheapbtreemap",
+					"swb",
+					"vector",
+					"circular-buffer",
+					"splay",
+					"linked-list",
+					"map",
+					"merkle-patricia-trie",
+				], limit)
+			),
+			(
+				"Utilities",
+				_summariesFromNames([
+					"itertools",
+					"xtended-text",
+					"xtended-numbers",
+					"prng",
+					"fuzz",
+					"test",
+					"time-consts",
+				], limit)
+			),
+			(
+				"Encoding",
+				_summariesFromNames([
+					"deflate",
+					"serde",
+					"xml",
+					"cbor",
+					"candy",
+					"candid",
+				], limit)
+			),
+			(
+				"Cryptography",
+				_summariesFromNames([
+					"sha2",
+					"sha3",
+					"libsecp256k1",
+					"merkle-patricia-trie",
+					"evm-txs",
+					"ic-certification",
+				], limit)
+			),
+			(
+				"Types/Interfaces",
+				_summariesFromNames([
+					"ic",
+					"ledger-types",
+					"ckbtc-types",
+					"canistergeek",
+					"icrc1",
+					"origyn-nft",
+					"kyc",
+				], limit)
+			),
+			(
+				"HTTP",
+				_summariesFromNames([
+					"certified-http",
+					"certified-cache",
+					"ic-certification",
+					"assets",
+					"server",
+					"http-parser",
+					"web-io",
+				], limit)
+			),
+			(
+				"Async Data Flow",
+				_summariesFromNames([
+					"star",
+					"maf",
+					"rxmo",
+				], limit)
+			),
+			(
+				"Databases",
+				_summariesFromNames([
+					"candb",
+					"rxmodb",
+				], limit)
+			),
+		];
+	};
+
+	public query func getNewPackages() : async [PackageSummary] {
+		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
+			Int.compare(a.1.time, b.1.time);
+		});
+
+		let packagesFirstPub = TrieMap.TrieMap<PackageName, PackageSummary>(Text.equal, Text.hash);
+
+		label l for ((packageId, _) in pubsSorted.vals()) {
 			ignore do ? {
-				let version = _getHighestVersion(packageName)!;
-				let packageSummary = _getPackageSummary(packageName, version)!;
+				let config = packageConfigs.get(packageId)!;
+				let packageSummary = _getPackageSummary(config.name, config.version)!;
 
-				packages.add(packageSummary);
-
-				if (packages.size() >= max) {
-					break l;
+				if (packagesFirstPub.get(config.name) == null) {
+					packagesFirstPub.put(config.name, packageSummary);
 				};
 			};
 		};
 
-		Buffer.toArray(packages);
+		let buf = Buffer.fromArray<PackageSummary>(Iter.toArray(packagesFirstPub.vals()));
+		let max = Nat.min(5, buf.size());
+		Buffer.reverse(buf);
+		Buffer.toArray(Buffer.subBuffer<PackageSummary>(buf, buf.size() - max, max));
 	};
 
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {

@@ -1,11 +1,16 @@
 import Result "mo:base/Result";
 import Option "mo:base/Option";
-import Fuzz "mo:fuzz";
-import {test; suite; skip} "mo:test";
-
-import Users "../backend/main/users";
+import Array "mo:base/Array";
 import Debug "mo:base/Debug";
+import Order "mo:base/Order";
+import Principal "mo:base/Principal";
+
+import {test; suite; skip} "mo:test";
+import Fuzz "mo:fuzz";
 import Set "mo:map/Set";
+
+import Types "../backend/main/types";
+import Users "../backend/main/users";
 
 let fuzz = Fuzz.Fuzz();
 let users = Users.Users();
@@ -159,7 +164,10 @@ test("stable", func() {
 			case (?#v2({users})) { users };
 			case (null) { Debug.trap(""); }
 		};
-		assert stableUsers1 == stableUsers2;
+		func comp(a : (Principal, Types.User), b : (Principal, Types.User)) : Order.Order {
+			Principal.compare(a.0, b.0);
+		};
+		assert Array.sort(stableUsers1, comp) == Array.sort(stableUsers2, comp);
 	});
 
 	test("stable names", func() {

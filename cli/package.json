@@ -1,6 +1,6 @@
 {
 	"name": "ic-mops",
-	"version": "0.16.0",
+	"version": "0.19.1",
 	"type": "module",
 	"bin": {
 		"mops": "cli.js"
@@ -19,7 +19,7 @@
 	"author": "Zen Voich <zen.voich@gmail.com>",
 	"license": "MIT",
 	"engines": {
-		"node": ">=14.0.0"
+		"node": ">=16.0.0"
 	},
 	"dependencies": {
 		"@dfinity/agent": "^0.11.0",

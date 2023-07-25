@@ -18,7 +18,7 @@ jobs:
           node-version: 18
 
       - name: install moc
-        run: npx mocv use 0.9.3
+        run: npx mocv use latest
 
       - name: install mops
         run: npm i ic-mops -g

@@ -186,7 +186,7 @@ program
 program
 	.command('test [filter]')
 	.description('Run tests')
-	.option('--watch', 'Enable watch mode')
+	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		await test(filter, options);
 	});

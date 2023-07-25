@@ -77,6 +77,7 @@ type Result =
  };
 type PublishingId = text;
 type PublishingErr = text;
+type PageCount = nat;
 type PackageSummary__1 = 
  record {
    config: PackageConfigV2__1;
@@ -197,7 +198,12 @@ service : {
   getHighestVersion: (PackageName__1) -> (Result_5) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;
   getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
+  getNewPackages: () -> (vec PackageSummary) query;
   getPackageDetails: (PackageName__1, Ver) -> (Result_4) query;
+  getPackagesByCategory: () -> (vec record {
+                                      text;
+                                      vec PackageSummary;
+                                    }) query;
   getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
@@ -207,7 +213,7 @@ service : {
   getTotalPackages: () -> (nat) query;
   getUser: (principal) -> (opt User__1) query;
   notifyInstall: (PackageName__1, Ver) -> () oneway;
-  search: (Text) -> (vec PackageSummary) query;
+  search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
   setUserProp: (text, text) -> (Result_3);
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
   startPublish: (PackageConfigV2) -> (Result_1);

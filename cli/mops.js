@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
 import prompts from 'prompts';
+import ncp from 'ncp';
 
 import {idlFactory} from './declarations/main/main.did.js';
 import {idlFactory as storageIdlFactory} from './declarations/storage/storage.did.js';
@@ -18,7 +19,57 @@ export let apiVersion = '1.2';
 
 let networkFile = new URL('./network.txt', import.meta.url);
 
-export let globalCacheDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+export let globalConfigDir;
+export let globalCacheDir;
+
+// OS specific dirs
+if (process.platform == 'win32') {
+	globalConfigDir = path.join(process.env.LOCALAPPDATA, 'mops/config');
+	globalCacheDir = path.join(process.env.LOCALAPPDATA, 'mops/cache');
+}
+else if (process.platform == 'darwin') {
+	globalConfigDir = path.join(process.env.HOME, 'Library/Application Support/mops');
+	globalCacheDir = path.join(process.env.HOME, 'Library/Caches/mops');
+}
+else {
+	globalConfigDir = path.join(process.env.HOME, '.config/mops');
+	globalCacheDir = path.join(process.env.HOME, '.cache/mops');
+}
+// XDG overrides
+if (process.env.XDG_CONFIG_HOME) {
+	globalConfigDir = path.join(process.env.XDG_CONFIG_HOME, 'mops');
+}
+if (process.env.XDG_CACHE_HOME) {
+	globalCacheDir = path.join(process.env.XDG_CACHE_HOME, 'mops');
+}
+
+// temp: move old config to new location
+let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA, 'mops');
+if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
+	fs.mkdirSync(globalConfigDir, {recursive: true});
+	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem'))) {
+		fs.copyFileSync(path.join(oldGlobalConfigDir, 'identity.pem'), path.join(globalConfigDir, 'identity.pem'));
+	}
+	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem.encrypted'))) {
+		fs.copyFileSync(path.join(oldGlobalConfigDir, 'identity.pem.encrypted'), path.join(globalConfigDir, 'identity.pem.encrypted'));
+	}
+	console.log('Moved config to ' + chalk.green(globalConfigDir));
+}
+
+// temp: move old cache to new location
+if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
+	fs.mkdirSync(globalCacheDir, {recursive: true});
+	ncp.ncp(path.join(oldGlobalConfigDir, 'packages'), path.join(globalCacheDir, 'packages'), {
+		stopOnErr: true,
+		clobber: false,
+	}, (err) => {
+		if (err) {
+			console.log('Error moving config: ', err);
+			fs.rmSync(globalCacheDir, {recursive: true, force: true});
+		}
+	});
+	console.log('Moved cache to ' + chalk.green(globalCacheDir));
+}
 
 export function setNetwork(network) {
 	fs.writeFileSync(networkFile, network);
@@ -31,11 +82,10 @@ export function getNetwork() {
 	}
 
 	if (network === 'local') {
-		let ids = JSON.parse(fs.readFileSync(new URL('../.dfx/local/canister_ids.json', import.meta.url)).toString());
 		return {
 			network,
 			host: 'http://127.0.0.1:4943',
-			canisterId: ids.main.local,
+			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
 		};
 	}
 	else if (network === 'staging') {
@@ -55,8 +105,8 @@ export function getNetwork() {
 }
 
 export let getIdentity = async () => {
-	let identityPem = path.resolve(globalCacheDir, 'identity.pem');
-	let identityPemEncrypted = path.resolve(globalCacheDir, 'identity.pem.encrypted');
+	let identityPem = path.resolve(globalConfigDir, 'identity.pem');
+	let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 	if (fs.existsSync(identityPemEncrypted)) {
 		let res = await prompts({
 			type: 'password',

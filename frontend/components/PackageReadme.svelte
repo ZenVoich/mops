@@ -51,4 +51,8 @@
 	.readme {
 		line-height: 1.5;
 	}
+
+	:global(.readme img) {
+		max-width: 100%;
+	}
 </style>

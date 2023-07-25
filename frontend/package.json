@@ -13,9 +13,9 @@
   "author": "Zen Voich <zen.voich@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/auth-client": "^0.10.2",
-    "@dfinity/principal": "^0.10.2",
+    "@dfinity/agent": "^0.18.1",
+    "@dfinity/auth-client": "^0.18.1",
+    "@dfinity/principal": "^0.18.1",
     "@types/throttle-debounce": "^2.1.0",
     "@wooorm/starry-night": "^2.0.0",
     "asciidoctor": "^2.2.6",

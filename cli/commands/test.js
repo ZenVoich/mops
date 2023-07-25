@@ -5,9 +5,12 @@ import chokidar from 'chokidar';
 import debounce from 'debounce';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
+
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
 import {getRootDir} from '../mops.js';
+import {parallel} from '../parallel.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -36,7 +39,10 @@ export async function test(filter = '', {watch = false} = {}) {
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
 		}, 200);
 
-		let watcher = chokidar.watch(path.join(rootDir, '**/*.mo'), {
+		let watcher = chokidar.watch([
+			path.join(rootDir, '**/*.mo'),
+			path.join(rootDir, 'mops.toml'),
+		], {
 			ignored: ignore,
 			ignoreInitial: true,
 		});
@@ -99,47 +105,46 @@ export async function runAll(filter = '') {
 	let wasmDir = `${getRootDir()}/.mops/.test/`;
 	fs.mkdirSync(wasmDir, {recursive: true});
 
-	for (let file of files) {
-		let mmf1 = new MMF1;
+	let i = 0;
 
-		await new Promise((resolve) => {
-			let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
+	await parallel(os.cpus().length, files, async (file) => {
+		let mmf = new MMF1('store');
 
-			file !== files[0] && console.log('-'.repeat(50));
-			console.log(`Running ${chalk.gray(absToRel(file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
+		let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
-			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
+		let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
-			// build and run wasm
-			if (wasiMode) {
-				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+		// build and run wasm
+		if (wasiMode) {
+			let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
 
-				// build
-				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
-				pipeMMF(buildProc, mmf1).then(async () => {
-					if (mmf1.failed > 0) {
-						resolve();
-						return;
-					}
-					// run
-					let proc = spawn('wasmtime', [wasmFile]);
-					await pipeMMF(proc, mmf1);
-				}).finally(() => {
-					fs.rmSync(wasmFile);
-					resolve();
-				});
-			}
-			// interpret
-			else {
-				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
-				pipeMMF(proc, mmf1).then(resolve);
-			}
-		});
+			// build
+			let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
+			await pipeMMF(buildProc, mmf).then(async () => {
+				if (mmf.failed > 0) {
+					return;
+				}
+				// run
+				let proc = spawn('wasmtime', [wasmFile]);
+				await pipeMMF(proc, mmf);
+			}).finally(() => {
+				fs.rmSync(wasmFile, {force: true});
+			});
+		}
+		// interpret
+		else {
+			let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
+			await pipeMMF(proc, mmf);
+		}
 
-		passed += mmf1.passed;
-		failed += mmf1.failed;
-		skipped += mmf1.skipped;
-	}
+		passed += mmf.passed;
+		failed += mmf.failed;
+		skipped += mmf.skipped;
+
+		i++ && console.log('-'.repeat(50));
+		console.log(`Running ${chalk.gray(path.relative(rootDir, file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
+		mmf.flush();
+	});
 
 	fs.rmSync(wasmDir, {recursive: true, force: true});
 
@@ -165,14 +170,14 @@ function absToRel(p) {
 	return path.relative(rootDir, path.resolve(p));
 }
 
-function pipeMMF(proc, mmf1) {
+function pipeMMF(proc, mmf) {
 	return new Promise((resolve) => {
 		// stdout
 		proc.stdout.on('data', (data) => {
 			for (let line of data.toString().split('\n')) {
 				line = line.trim();
 				if (line) {
-					mmf1.parseLine(line);
+					mmf.parseLine(line);
 				}
 			}
 		});
@@ -180,21 +185,45 @@ function pipeMMF(proc, mmf1) {
 		// stderr
 		proc.stderr.on('data', (data) => {
 			let text = data.toString().trim();
-			// change absolute file path to relative
-			// change :line:col-line:col to :line:col to work in vscode
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => `${absToRel(m1)}:${m2}:${m3}`);
-			mmf1.fail(text);
+			let failedLine = '';
+			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => {
+				// change absolute file path to relative
+				// change :line:col-line:col to :line:col to work in vscode
+				let res = `${absToRel(m1)}:${m2}:${m3}`;
+
+				if (!fs.existsSync(m1)) {
+					return res;
+				}
+
+				// show failed line
+				let content = fs.readFileSync(m1);
+				let lines = content.toString().split('\n');
+				failedLine += chalk.dim`\n   ...`;
+				if (m2 - 2 >= 0) {
+					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lines[m2 - 2].replaceAll('\t', '  ')}`;
+				}
+				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[m2 - 1].replaceAll('\t', '  ')}`;
+				if (lines.length > +m2) {
+					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[m2].replaceAll('\t', '  ')}`;
+				}
+				failedLine += chalk.dim`\n   ...`;
+				return res;
+			});
+			if (failedLine) {
+				text += failedLine;
+			}
+			mmf.fail(text);
 		});
 
 		// exit
-		proc.on('exit', (code) => {
+		proc.on('close', (code) => {
 			if (code === 0) {
-				mmf1.pass();
+				mmf.pass();
 			}
 			else if (code !== 1) {
-				console.log(chalk.red('unknown code:'), code);
+				mmf.fail(`unknown exit code: ${code}`);
 			}
-			resolve();
+			resolve(mmf);
 		});
 	});
 }

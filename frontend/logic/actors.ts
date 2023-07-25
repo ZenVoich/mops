@@ -6,6 +6,7 @@ import {createActor as createStorageActor} from '/declarations/storage';
 let getOptions = () => {
 	return {
 		agentOptions: {
+			host: process.env.NODE_ENV === 'production' && 'https://icp-api.io',
 			identity: process.env.NODE_ENV === 'production' && auth.identity,
 		}
 	};

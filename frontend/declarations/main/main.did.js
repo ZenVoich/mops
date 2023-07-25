@@ -114,6 +114,7 @@ export const idlFactory = ({ IDL }) => {
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
   });
+  const PageCount = IDL.Nat;
   const Result_3 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Result_2 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
   const PackageConfigV2 = IDL.Record({
@@ -169,9 +170,15 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(PackageSummary)],
         ['query'],
       ),
+    'getNewPackages' : IDL.Func([], [IDL.Vec(PackageSummary)], ['query']),
     'getPackageDetails' : IDL.Func(
         [PackageName__1, Ver],
         [Result_4],
+        ['query'],
+      ),
+    'getPackagesByCategory' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Vec(PackageSummary)))],
         ['query'],
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(
@@ -188,7 +195,11 @@ export const idlFactory = ({ IDL }) => {
     'getTotalPackages' : IDL.Func([], [IDL.Nat], ['query']),
     'getUser' : IDL.Func([IDL.Principal], [IDL.Opt(User__1)], ['query']),
     'notifyInstall' : IDL.Func([PackageName__1, Ver], [], ['oneway']),
-    'search' : IDL.Func([Text], [IDL.Vec(PackageSummary)], ['query']),
+    'search' : IDL.Func(
+        [Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
+        [IDL.Vec(PackageSummary), PageCount],
+        ['query'],
+      ),
     'setUserProp' : IDL.Func([IDL.Text, IDL.Text], [Result_3], []),
     'startFileUpload' : IDL.Func(
         [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],
