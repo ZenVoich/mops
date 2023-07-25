@@ -1,5 +1,4 @@
 import {Principal} from '@dfinity/principal';
-import {auth} from './auth';
 import {createActor as createMainActor, canisterId as mainCanisterId} from '/declarations/main';
 import {createActor as createStorageActor} from '/declarations/storage';
 
@@ -7,7 +6,6 @@ let getOptions = () => {
 	return {
 		agentOptions: {
 			host: process.env.NODE_ENV === 'production' ? 'https://icp-api.io' : undefined,
-			identity: process.env.NODE_ENV === 'production' ? auth.identity : undefined,
 		}
 	};
 };
