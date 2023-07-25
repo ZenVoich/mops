@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "vite",
+    "start": "vite --port 3000",
     "vite": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -29,21 +30,20 @@
     "micromark-extension-gfm-table": "^1.0.7",
     "pako": "^2.1.0",
     "svelte-chartjs": "^3.1.2",
-    "svelte-icons": "^2.1.0",
-    "svelte-material-ui": "^6.0.0-beta.14",
     "svelte-spa-history-router": "^2.1.0",
     "throttle-debounce": "^3.0.1"
   },
   "devDependencies": {
-    "@smui/button": "^6.0.0-beta.14",
-    "@smui/menu": "^6.0.0-beta.14",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.36",
-    "@types/node": "^16.11.12",
+    "@sveltejs/vite-plugin-svelte": "^2.4.3",
+    "@types/node": "^20.4.4",
     "@types/pako": "^2.0.0",
     "buffer": "^6.0.3",
-    "svelte": "^3.46.3",
-    "svelte-preprocess": "^4.10.2",
-    "vite": "^2.7.1",
-    "vite-plugin-static-copy": "^0.5.0"
+    "svelte": "^4.1.1",
+    "svelte-preprocess": "^5.0.4",
+    "vite": "^4.4.7",
+    "vite-plugin-static-copy": "^0.17.0"
+  },
+  "overrides": {
+    "svelte": "^4.1.1"
   }
 }

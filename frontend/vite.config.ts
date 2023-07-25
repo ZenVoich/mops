@@ -28,6 +28,7 @@ catch (e) {
 const canisterDefinitions = Object.entries(canisterIds).reduce((acc, [key, val]) => ({
 	...acc,
 	[`process.env.${key.toUpperCase()}_CANISTER_ID`]: JSON.stringify(val[network as Network]),
+	[`process.env.CANISTER_ID_${key.toUpperCase()}`]: JSON.stringify(val[network as Network]),
 }), {});
 
 // List of all aliases for canisters
@@ -58,10 +59,6 @@ export default defineConfig({
 		viteStaticCopy({
 			targets: [
 				{
-					src: 'img/*',
-					dest: 'img'
-				},
-				{
 					src: 'external/*',
 					dest: 'external'
 				},
@@ -74,13 +71,21 @@ export default defineConfig({
 					dest: '.well-known'
 				},
 			]
-		})
+		}),
 	],
 	build: {
 		target: ['es2020'],
 		lib: {
 			entry: './index.html',
 			formats: ['es'],
+		},
+		rollupOptions: {
+			external: ['img', 'external'],
+			output: {
+				entryFileNames: 'bundle/[name]-[hash:20].js',
+				chunkFileNames: 'bundle/[name]-[hash:20].js',
+				assetFileNames: 'bundle/[name]-[hash:20].[ext]',
+			}
 		},
 	},
 	resolve: {
