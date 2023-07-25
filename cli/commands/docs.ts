@@ -2,8 +2,8 @@ import {spawn, execSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import glob from 'glob';
-import del from 'del';
+import {globSync} from 'glob';
+import {deleteSync} from 'del';
 import tar from 'tar';
 import streamToPromise from 'stream-to-promise';
 
@@ -16,7 +16,7 @@ export async function docs({silent = false} = {}) {
 	let docsDir = path.join(rootDir, '.mops/.docs');
 	let docsDirRelative = path.relative(process.cwd(), docsDir);
 
-	del.sync([docsDir], {force: true});
+	deleteSync([docsDir], {force: true});
 
 	// detect mocv
 	if (process.env.DFX_MOC_PATH && process.env.DFX_MOC_PATH.includes('mocv/versions')) {
@@ -75,7 +75,7 @@ export async function docs({silent = false} = {}) {
 		`${docsDir}/**/*.test.adoc`,
 		`${docsDir}/test/**/*`,
 	];
-	let files = glob.sync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
+	let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
 	if (files.length) {
 		let stream = tar.create(
 			{

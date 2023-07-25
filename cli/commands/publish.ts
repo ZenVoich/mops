@@ -3,7 +3,7 @@ import path from 'node:path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
 import {globbySync} from 'globby';
-import minimatch from 'minimatch';
+import {minimatch} from 'minimatch';
 import prompts from 'prompts';
 import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';

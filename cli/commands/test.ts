@@ -1,6 +1,6 @@
 import {spawn, execSync, ChildProcessWithoutNullStreams} from 'node:child_process';
 import chalk from 'chalk';
-import glob from 'glob';
+import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
 import path from 'node:path';
@@ -66,7 +66,7 @@ export async function runAll(filter = '') {
 	let start = Date.now();
 	let rootDir = getRootDir();
 	let files: string[] = [];
-	let libFiles = glob.sync('**/test?(s)/lib.mo', globConfig);
+	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
 	if (libFiles[0]) {
 		files = [libFiles[0]];
 	}
@@ -75,7 +75,7 @@ export async function runAll(filter = '') {
 		if (filter) {
 			globStr = `**/test?(s)/**/*${filter}*.mo`;
 		}
-		files = glob.sync(path.join(rootDir, globStr), globConfig);
+		files = globSync(path.join(rootDir, globStr), globConfig);
 	}
 	if (!files.length) {
 		if (filter) {

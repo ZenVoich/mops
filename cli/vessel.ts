@@ -1,6 +1,6 @@
 import {existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
-import del from 'del';
+import {deleteSync} from 'del';
 import {execaCommand} from 'execa';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
@@ -113,7 +113,7 @@ export const downloadFromGithub = async (repo, dest, onProgress: any) => {
 
 				pipeline(readStream, createWriteStream(tmpFile), (err) => {
 					if (err) {
-						del.sync([tmpDir]);
+						deleteSync([tmpDir]);
 						reject(err);
 					}
 					else {
@@ -125,17 +125,17 @@ export const downloadFromGithub = async (repo, dest, onProgress: any) => {
 							},
 						};
 						decompress(tmpFile, dest, options).then((unzippedFiles) => {
-							del.sync([tmpDir]);
+							deleteSync([tmpDir]);
 							resolve(unzippedFiles);
 						}).catch(err => {
-							del.sync([tmpDir]);
+							deleteSync([tmpDir]);
 							reject(err);
 						});
 					}
 				});
 			}
 			catch (err) {
-				del.sync([tmpDir]);
+				deleteSync([tmpDir]);
 				reject(err);
 			}
 		});
@@ -169,7 +169,7 @@ export const installFromGithub = async (name, repo, {verbose = false, dep = fals
 			await downloadFromGithub(repo, dir, progress);
 		}
 		catch (err) {
-			del.sync([dir]);
+			deleteSync([dir]);
 			throw err;
 		}
 

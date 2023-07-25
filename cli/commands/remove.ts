@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import del from 'del';
+import {deleteSync} from 'del';
 import chalk from 'chalk';
 import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
 import {Config} from '../types.js';
@@ -71,7 +71,7 @@ export async function remove(name, {dev = false, verbose = false, dryRun = false
 			pkgDir = formatDir(dep.name, dep.version);
 		}
 		if (fs.existsSync(pkgDir)) {
-			dryRun || del.sync([`${pkgDir}`]);
+			dryRun || deleteSync([`${pkgDir}`]);
 			verbose && console.log(`Removed local cache ${pkgDir}`);
 		}
 	}

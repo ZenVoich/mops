@@ -1,5 +1,5 @@
 node_modules
 dist
-dist.js
+cli.js
 identity.pem
 network.txt

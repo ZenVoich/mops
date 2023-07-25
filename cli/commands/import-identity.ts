@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import del from 'del';
+import {deleteSync} from 'del';
 import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
@@ -34,7 +34,7 @@ export async function importPem(data) {
 		let identityPem = path.resolve(globalConfigDir, 'identity.pem');
 		let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 
-		del.sync([identityPem, identityPemEncrypted], {force: true});
+		deleteSync([identityPem, identityPemEncrypted], {force: true});
 
 		// encrypted
 		if (password) {
