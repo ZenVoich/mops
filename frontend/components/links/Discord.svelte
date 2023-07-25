@@ -1,5 +1,9 @@
+<script lang="ts">
+	import discordImg from '/img/discord.svg';
+</script>
+
 <a aria-label="Mops on Discord" href="https://discord.gg/9HNsJwaU3T" target="_blank" rel="external noopener norefferer">
-	<img src="/img/discord.svg" alt="Discord logo" loading="lazy" />
+	<img src="{discordImg}" alt="Discord logo" loading="lazy" />
 </a>
 
 <style>

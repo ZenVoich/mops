@@ -2,6 +2,8 @@
 	import {link} from 'svelte-spa-history-router';
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import DownloadTrend from './DownloadTrend.svelte';
+	import githubImg from '/img/github.svg';
+	import twitterImg from '/img/twitter.svg';
 
 	export let packageDetails: PackageDetails;
 </script>
@@ -18,7 +20,7 @@
 		<div class="detail">
 			<div class="label">Repository</div>
 			<a class="value with-icon" href="{packageDetails.config.repository}" target="_blank">
-				<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+				<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
 				{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
 			</a>
 		</div>
@@ -46,13 +48,13 @@
 			</div>
 			{#if packageDetails.ownerInfo.github}
 				<a class="value with-icon" href="https://github.com/{packageDetails.ownerInfo.github}" target="_blank">
-					<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+					<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
 					{packageDetails.ownerInfo.github}
 				</a>
 			{/if}
 			{#if packageDetails.ownerInfo.twitter}
 				<a class="value with-icon" href="https://twitter.com/{packageDetails.ownerInfo.twitter}" target="_blank">
-					<img class="twitter-icon" src="/img/twitter.svg" alt="Twitter logo" loading="lazy" />
+					<img class="twitter-icon" src="{twitterImg}" alt="Twitter logo" loading="lazy" />
 					{packageDetails.ownerInfo.twitter}
 				</a>
 			{/if}

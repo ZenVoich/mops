@@ -45,8 +45,8 @@
 				<div class="package">
 					<PackageCard
 						{pkg}
-						showUpdated={true}
-						showVersion={true}
+						showUpdated={false}
+						showVersion={false}
 					></PackageCard>
 				</div>
 			{:else}
@@ -63,7 +63,9 @@
 <style>
 	.packages-by-category {
 		padding: 0 40px;
-		max-width: 900px;
+		width: 900px;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.title {
@@ -95,7 +97,7 @@
 		display: flex;
 		align-items: center;
 		white-space: nowrap;
-		min-width: 175px;
+		min-width: 155px;
 		cursor: pointer;
 	}
 
@@ -106,9 +108,11 @@
 		column-gap: 40px;
 		padding: 0 40px;
 		margin: 0 auto;
+		padding: 0;
 	}
 
 	.package {
 		width: 390px;
+		max-width: 100%;
 	}
 </style>

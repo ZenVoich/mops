@@ -5,6 +5,8 @@
 	import Footer from './Footer.svelte';
 	import TotalStats from './TotalStats.svelte';
 	import PackagesByCategory from './PackagesByCategory.svelte';
+	import mopsImg from '/img/mops.svg';
+	import motokoImg from '/img/motoko.svg';
 </script>
 
 <svelte:head>
@@ -17,7 +19,7 @@
 	<div class="content">
 
 		<div class="section">
-			<img src="/img/mops.svg" alt="mops logo" style="width: 100px;">
+			<img src="{mopsImg}" alt="mops logo" style="width: 100px;">
 			<div class="text">
 				<div class="description"><b>Mops</b> is a package manager for Motoko with fully on-chain package registry.</div>
 			</div>
@@ -57,7 +59,7 @@
 		<div class="delimiter"></div>
 
 		<div class="section">
-			<img src="/img/motoko.svg" alt="">
+			<img src="{motokoImg}" alt="">
 			<div class="text">
 				<div class="title">Built for Motoko</div>
 				<div class="description">The Motoko programming language is a new, modern and type safe language for developers who want to build the next generation of distributed applications to run on the <a href="https://internetcomputer.org/">Internet Computer</a> blockchain network.</div>

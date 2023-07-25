@@ -1,6 +1,10 @@
+<script lang="ts">
+	import sadMopsImg from '/img/sad-mops.svg';
+</script>
+
 <div class="not-found">
 	<div class="not-found-text"><slot></slot></div>
-	<img class="not-found-img" src="/img/sad-mops.svg" alt="">
+	<img class="not-found-img" src="{sadMopsImg}" alt="">
 </div>
 
 <style>
