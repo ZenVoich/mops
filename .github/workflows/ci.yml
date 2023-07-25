@@ -40,11 +40,11 @@ jobs:
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
 
-      - name: Install mops
-        run: npm i -g ${{ matrix.mops-version }}
-
       - name: Install npm packages
         run: npm install
+
+      - name: Install mops
+        run: npm i -g ${{ matrix.mops-version }}
 
       - name: Install mops packages
         run: mops install
