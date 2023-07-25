@@ -1,9 +1,9 @@
 {
-	"name": "ic-mops-local",
+	"name": "ic-mops",
 	"version": "0.19.1",
 	"type": "module",
 	"bin": {
-		"mops-local": "dist.js"
+		"mops": "dist.js"
 	},
 	"files": [
 		"*",
