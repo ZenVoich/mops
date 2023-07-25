@@ -36,8 +36,6 @@
     "throttle-debounce": "^3.0.1"
   },
   "devDependencies": {
-    "@smui/button": "^6.0.0-beta.14",
-    "@smui/menu": "^6.0.0-beta.14",
     "@sveltejs/vite-plugin-svelte": "^2.4.3",
     "@types/node": "^20.4.4",
     "@types/pako": "^2.0.0",
@@ -46,5 +44,8 @@
     "svelte-preprocess": "^5.0.4",
     "vite": "^4.4.7",
     "vite-plugin-static-copy": "^0.17.0"
+  },
+  "overrides": {
+    "svelte": "^4.1.1"
   }
 }
