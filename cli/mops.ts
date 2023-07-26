@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import path from 'node:path';
 import fs from 'node:fs';
 import {Actor, HttpAgent, Identity} from '@dfinity/agent';
@@ -6,6 +5,7 @@ import TOML from '@iarna/toml';
 import chalk from 'chalk';
 import prompts from 'prompts';
 import ncp from 'ncp';
+import fetch from 'node-fetch';
 
 import {idlFactory} from './declarations/main/index.js';
 import {_SERVICE} from './declarations/main/main.did.js';

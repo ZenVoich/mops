@@ -1,11 +1,11 @@
 import {spawn, execSync, ChildProcessWithoutNullStreams} from 'node:child_process';
+import path from 'node:path';
+import fs from 'node:fs';
+import os from 'node:os';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import path from 'node:path';
-import fs from 'node:fs';
-import os from 'os';
 
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
