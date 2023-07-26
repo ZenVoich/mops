@@ -5,26 +5,26 @@ import getFolderSize from 'get-folder-size';
 
 import {globalCacheDir} from './mops.js';
 
-export let isCached = (pkgId) => {
+export let isCached = (pkgId: string) => {
 	let dir = path.join(globalCacheDir, 'packages', pkgId);
 	return fs.existsSync(dir);
 };
 
-export let addCache = (pkgId, source) => {
+export let addCache = (pkgId: string, source: string) => {
 	let dest = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 
 	return new Promise<void>((resolve, reject) => {
 		ncp.ncp(source, dest, {stopOnErr: true}, (err) => {
 			if (err) {
-				reject(err[0]);
+				reject(err);
 			}
 			resolve();
 		});
 	});
 };
 
-export let copyCache = (pkgId, dest) => {
+export let copyCache = (pkgId: string, dest: string) => {
 	let source = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 

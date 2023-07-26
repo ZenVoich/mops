@@ -107,7 +107,7 @@ export async function runAll(filter = '') {
 
 	let i = 0;
 
-	await parallel(os.cpus().length, files, async (file) => {
+	await parallel(os.cpus().length, files, async (file: string) => {
 		if (!mocPath) {
 			mocPath = 'moc';
 		}
@@ -169,12 +169,12 @@ export async function runAll(filter = '') {
 	return failed === 0;
 }
 
-function absToRel(p) {
+function absToRel(p: string) {
 	let rootDir = getRootDir();
 	return path.relative(rootDir, path.resolve(p));
 }
 
-function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf) {
+function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf: MMF1) {
 	return new Promise((resolve) => {
 		// stdout
 		proc.stdout.on('data', (data) => {
@@ -207,9 +207,9 @@ function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf) {
 				if (lineBefore) {
 					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`;
 				}
-				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${(lines[+m2 - 1] || '').replaceAll('\t', '  ')}`;
+				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
 				if (lines.length > +m2) {
-					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[m2].replaceAll('\t', '  ')}`;
+					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`;
 				}
 				failedLine += chalk.dim`\n   ...`;
 				return res;

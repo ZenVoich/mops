@@ -13,6 +13,7 @@ import {idlFactory as storageIdlFactory} from './declarations/storage/index.js';
 import {_SERVICE as _STORAGE_SERVICE} from './declarations/storage/storage.did.js';
 import {decodeFile} from './pem.js';
 import {Config} from './types.js';
+import {Principal} from '@dfinity/principal';
 
 
 if (!global.fetch) {
@@ -145,7 +146,7 @@ export let mainActor = async (useIdentity = false): Promise<_SERVICE> => {
 	});
 };
 
-export let storageActor = async (storageId, useIdentity = false): Promise<_STORAGE_SERVICE> => {
+export let storageActor = async (storageId: Principal, useIdentity = false): Promise<_STORAGE_SERVICE> => {
 	let network = getNetwork().network;
 	let host = getNetwork().host;
 
@@ -191,17 +192,17 @@ export function checkConfigFile() {
 	return true;
 }
 
-export function progressBar(step, total) {
+export function progressBar(step: number, total: number) {
 	let done = Math.round(step / total * 10);
 	return `[${':'.repeat(done)}${' '.repeat(Math.max(0, 10 - done))}]`;
 }
 
-export async function getHighestVersion(pkgName) {
+export async function getHighestVersion(pkgName: string) {
 	let actor = await mainActor();
 	return actor.getHighestVersion(pkgName);
 }
 
-export function parseGithubURL(href) {
+export function parseGithubURL(href: string) {
 	const url = new URL(href);
 	const branch =  url.hash?.substring(1) || 'master';
 
@@ -218,7 +219,7 @@ export function readConfig(configFile = getClosestConfigFile()): Config {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
-	let processDeps = (deps) => {
+	let processDeps = (deps: any) => {
 		Object.entries(deps).forEach(([name, data]) => {
 			if (!data || typeof data !== 'string') {
 				throw Error(`Invalid dependency value ${name} = "${data}"`);
@@ -261,11 +262,11 @@ export function writeConfig(config: Config, configFile = getClosestConfigFile())
 	fs.writeFileSync(configFile, text);
 }
 
-export function formatDir(name, version) {
+export function formatDir(name: string, version: string) {
 	return path.join(getRootDir(), '.mops', `${name}@${version}`);
 }
 
-export function formatGithubDir(name, repo) {
+export function formatGithubDir(name: string, repo: string) {
 	const {branch} = parseGithubURL(repo);
 	return path.join(getRootDir(), '.mops/_github', `${name}@${branch}`);
 }

@@ -6,7 +6,7 @@ import {deleteSync} from 'del';
 import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
-export async function importPem(data) {
+export async function importPem(data: string) {
 	try {
 		if (!fs.existsSync(globalConfigDir)) {
 			fs.mkdirSync(globalConfigDir);
@@ -38,8 +38,8 @@ export async function importPem(data) {
 
 		// encrypted
 		if (password) {
-			data = await encrypt(Buffer.from(data), password);
-			fs.writeFileSync(identityPemEncrypted, data);
+			let encrypted = await encrypt(Buffer.from(data), password);
+			fs.writeFileSync(identityPemEncrypted, encrypted);
 		}
 		// unencrypted
 		else {

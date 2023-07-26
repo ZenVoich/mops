@@ -69,7 +69,7 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 		// download files
 		let filesData = new Map;
-		await parallel(16, filesIds, async (fileId) => {
+		await parallel(16, filesIds, async (fileId: string) => {
 			let fileMetaRes = await storage.getFileMeta(fileId);
 			if ('err' in fileMetaRes) {
 				console.log(chalk.red('ERR: ') + fileMetaRes.err);

@@ -2,7 +2,7 @@ import asTable from 'as-table';
 import chalk from 'chalk';
 import {mainActor} from '../mops.js';
 
-export async function search(text) {
+export async function search(text: string) {
 	let actor = await mainActor();
 	let res = await actor.search(text, [], []);
 	let packages = res[0];
@@ -12,7 +12,7 @@ export async function search(text) {
 		return;
 	}
 
-	let ellipsis = (text, max) => {
+	let ellipsis = (text: string, max: number) => {
 		if (text.length <= max) {
 			return text;
 		}

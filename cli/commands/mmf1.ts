@@ -8,7 +8,7 @@ type Strategy = 'store' | 'print';
 
 export class MMF1 {
 	stack: string[] = [];
-	currSuite: string | undefined = '';
+	currSuite: string = '';
 	failed = 0;
 	passed = 0;
 	skipped = 0;
@@ -35,22 +35,22 @@ export class MMF1 {
 		this.output = [];
 	}
 
-	parseLine(line) {
+	parseLine(line: string) {
 		if (line.startsWith('mops:1:start ')) {
-			this._testStart(line.split('mops:1:start ')[1]);
+			this._testStart(line.split('mops:1:start ')[1] || '');
 		}
 		else if (line.startsWith('mops:1:end ')) {
-			this._testEnd(line.split('mops:1:end ')[1]);
+			this._testEnd(line.split('mops:1:end ')[1] || '');
 		}
 		else if (line.startsWith('mops:1:skip ')) {
-			this._testSkip(line.split('mops:1:skip ')[1]);
+			this._testSkip(line.split('mops:1:skip ')[1] || '');
 		}
 		else {
 			this._log(' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
 		}
 	}
 
-	_testStart(name) {
+	_testStart(name: string) {
 		let suite = this.stack[this.stack.length - 1];
 		if (suite) {
 			if (this.currSuite !== suite) {
@@ -61,18 +61,18 @@ export class MMF1 {
 		this.stack.push(name);
 	}
 
-	_testEnd(name) {
+	_testEnd(name: string) {
 		if (name !== this.stack.pop()) {
 			throw 'mmf1._testEnd: start and end test mismatch';
 		}
 		this._status(name, 'pass');
 	}
 
-	_testSkip(name) {
+	_testSkip(name: string) {
 		this._status(name, 'skip');
 	}
 
-	_status(name, status) {
+	_status(name: string, status: string) {
 		if (status === 'pass') {
 			// do not print suite at the end
 			if (name === this.currSuite) {
@@ -91,7 +91,7 @@ export class MMF1 {
 		}
 	}
 
-	fail(stderr) {
+	fail(stderr: string) {
 		let name = this.stack.pop() || '';
 		this._status(name, 'fail');
 		this._log(' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);

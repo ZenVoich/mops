@@ -33,6 +33,7 @@ export async function publish({noDocs = false} = {}) {
 		return;
 	}
 	for (let key of ['name', 'version']) {
+		// @ts-ignore
 		if (!config.package[key]) {
 			console.log(chalk.red('Error: ') + `Please specify "${key}" in [config] section in your mops.toml`);
 			return;
@@ -41,6 +42,7 @@ export async function publish({noDocs = false} = {}) {
 
 	// desired fields
 	for (let key of ['description', 'repository']) {
+		// @ts-ignore
 		if (!config.package[key]) {
 			let res = await prompts({
 				type: 'confirm',
@@ -95,6 +97,7 @@ export async function publish({noDocs = false} = {}) {
 	};
 
 	for (let [key, max] of Object.entries(keysMax)) {
+		// @ts-ignore
 		if (config.package[key] && config.package[key].length > max) {
 			console.log(chalk.red('Error: ') + `package.${key} value max length is ${max}`);
 			return;
@@ -239,7 +242,7 @@ export async function publish({noDocs = false} = {}) {
 	let puiblishingId = publishing.ok;
 
 	// upload files
-	await parallel(8, files, async (file) => {
+	await parallel(8, files, async (file: string) => {
 		progress();
 
 		let chunkSize = 1024 * 1024 + 512 * 1024; // 1.5mb

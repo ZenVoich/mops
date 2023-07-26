@@ -5,7 +5,7 @@ import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeCon
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
-export async function add(name, {verbose = false, dev = false} = {}) {
+export async function add(name: string, {verbose = false, dev = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -22,7 +22,7 @@ export async function add(name, {verbose = false, dev = false} = {}) {
 		}
 	}
 
-	let pkgDetails;
+	let pkgDetails: any;
 
 	// local package
 	if (name.startsWith('./') || name.startsWith('../') || name.startsWith('/')) {
@@ -34,7 +34,7 @@ export async function add(name, {verbose = false, dev = false} = {}) {
 		};
 	}
 	// github package
-	else if (name.startsWith('https://github.com') || name.split('/') > 1) {
+	else if (name.startsWith('https://github.com') || name.split('/').length > 1) {
 		const {org, gitName, branch} = parseGithubURL(name);
 
 		pkgDetails = {
@@ -45,8 +45,9 @@ export async function add(name, {verbose = false, dev = false} = {}) {
 	}
 	// mops package
 	else {
-		let ver;
+		let ver: string;
 		if (name.includes('@')) {
+			// @ts-ignore
 			[name, ver] = name.split('@');
 		}
 		else {
@@ -75,7 +76,7 @@ export async function add(name, {verbose = false, dev = false} = {}) {
 		}
 	}
 
-	let depsProp = dev ? 'dev-dependencies' : 'dependencies';
+	const depsProp = dev ? 'dev-dependencies' : 'dependencies';
 	let deps = config[depsProp];
 	if (deps) {
 		deps[pkgDetails.name] = pkgDetails;

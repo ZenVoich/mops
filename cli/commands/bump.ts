@@ -2,7 +2,7 @@ import prompts from 'prompts';
 import chalk from 'chalk';
 import {checkConfigFile, readConfig, writeConfig} from '../mops.js';
 
-export async function bump(part) {
+export async function bump(part: string) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -44,15 +44,15 @@ export async function bump(part) {
 	console.log(`Updated version: ${chalk.green.bold(config.package.version)}`);
 }
 
-function updateVersion(version, part) {
+function updateVersion(version: string, part: string) {
 	let parts = version.split('.');
 	let idx = ['major', 'minor', 'patch'].indexOf(part);
-	if (idx < 0) {
+	if (!parts[idx]) {
 		throw new Error(`Invalid version part: ${part}`);
 	}
-	parts[idx] = parseInt(parts[idx]) + 1;
+	parts[idx] = String(parseInt(parts[idx] || '0') + 1);
 	for (let i = idx + 1; i < parts.length; i++) {
-		parts[i] = 0;
+		parts[i] = '0';
 	}
 	return parts.join('.');
 }

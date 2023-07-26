@@ -18,7 +18,7 @@ export async function init(name = '') {
 	console.log('Initializing...');
 
 	let config: Config = {};
-	let vesselConfig: VesselConfig = {dependencies: []};
+	let vesselConfig: VesselConfig = {dependencies: [], 'dev-dependencies': []};
 	let deps: Dependencies = {};
 
 	const vesselFile = path.join(process.cwd(), 'vessel.dhall');

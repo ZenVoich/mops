@@ -2,14 +2,14 @@ import fs from 'node:fs';
 import {deleteSync} from 'del';
 import chalk from 'chalk';
 import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
-import {Config} from '../types.js';
+import {Config, Dependency} from '../types.js';
 
-export async function remove(name, {dev = false, verbose = false, dryRun = false} = {}) {
+export async function remove(name: string, {dev = false, verbose = false, dryRun = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
-	function getTransitiveDependencies(config: Config, exceptPkgId) {
+	function getTransitiveDependencies(config: Config, exceptPkgId: string) {
 		let deps = Object.values(config.dependencies || {});
 		let devDeps = Object.values(config['dev-dependencies'] || {});
 		return [...deps, ...devDeps]
@@ -21,15 +21,21 @@ export async function remove(name, {dev = false, verbose = false, dryRun = false
 			}).flat();
 	}
 
-	function getTransitiveDependenciesOf(name, version, repo?: string) {
-		let pkgDir = repo ? formatGithubDir(name, repo) : formatDir(name, version);
+	function getTransitiveDependenciesOf(name: string, version: string | undefined, repo?: string) {
+		let pkgDir = '';
+		if (repo) {
+			pkgDir = formatGithubDir(name, repo);
+		}
+		else if (version) {
+			pkgDir = formatDir(name, version);
+		}
 		let configFile = pkgDir + '/mops.toml';
 		if (!fs.existsSync(configFile)) {
 			verbose && console.log('no config', configFile);
 			return [];
 		}
 		let config = readConfig(configFile);
-		let deps = Object.values(config.dependencies || {}).map((dep) => {
+		let deps: Dependency[] = Object.values(config.dependencies || {}).map((dep) => {
 			return [dep, ...getTransitiveDependenciesOf(dep.name, dep.version)];
 		}).flat();
 		return deps;
@@ -67,10 +73,10 @@ export async function remove(name, {dev = false, verbose = false, dryRun = false
 		if (dep.repo) {
 			pkgDir = formatGithubDir(dep.name, dep.repo);
 		}
-		else {
+		else if (dep.version) {
 			pkgDir = formatDir(dep.name, dep.version);
 		}
-		if (fs.existsSync(pkgDir)) {
+		if (pkgDir && fs.existsSync(pkgDir)) {
 			dryRun || deleteSync([`${pkgDir}`]);
 			verbose && console.log(`Removed local cache ${pkgDir}`);
 		}

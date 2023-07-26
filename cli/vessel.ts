@@ -10,7 +10,7 @@ import {pipeline} from 'stream';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
 import {addCache, copyCache, isCached} from './cache.js';
 
-const dhallFileToJson = async (filePath) => {
+const dhallFileToJson = async (filePath: string) => {
 	if (existsSync(filePath)) {
 		let cwd = new URL(path.dirname(import.meta.url)).pathname;
 		let res;
@@ -35,6 +35,7 @@ const dhallFileToJson = async (filePath) => {
 
 export type VesselConfig = {
 	dependencies: VesselDependencies;
+	'dev-dependencies': VesselDependencies;
 };
 
 export type VesselDependencies = Array<{
@@ -44,8 +45,8 @@ export type VesselDependencies = Array<{
 	path?: string; // local package
 }>;
 
-export const readVesselConfig = async (configFile, {cache = true} = {}): Promise<VesselConfig | null> => {
-	const cachedFile = (configFile || process.cwd()) + '/vessel.json';
+export const readVesselConfig = async (dir: string, {cache = true} = {}): Promise<VesselConfig | null> => {
+	const cachedFile = (dir || process.cwd()) + '/vessel.json';
 
 	if (existsSync(cachedFile)) {
 		let cachedConfig = readFileSync(cachedFile).toString();
@@ -53,24 +54,25 @@ export const readVesselConfig = async (configFile, {cache = true} = {}): Promise
 	}
 
 	const [vessel, packageSetArray] = await Promise.all([
-		dhallFileToJson((configFile || process.cwd()) + '/vessel.dhall'),
-		dhallFileToJson((configFile || process.cwd()) + '/package-set.dhall')
+		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall'),
+		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall')
 	]);
 
 	if (!vessel || !packageSetArray) {
 		return null;
 	}
 
-	let repos = {};
+	let repos: Record<string, string> = {};
 	for (const {name, repo, version} of packageSetArray) {
 		const {org, gitName} = parseGithubURL(repo);
 		repos[name] = `https://github.com/${org}/${gitName}#${version}`;
 	}
 
 	let config: VesselConfig = {
-		dependencies: vessel.dependencies.map((name) => {
+		dependencies: vessel.dependencies.map((name: string) => {
 			return {name, repo: repos[name], version: ''};
 		}),
+		'dev-dependencies': [],
 	};
 
 	if (cache === true) {
@@ -80,7 +82,7 @@ export const readVesselConfig = async (configFile, {cache = true} = {}): Promise
 	return config;
 };
 
-export const downloadFromGithub = async (repo, dest, onProgress: any) => {
+export const downloadFromGithub = async (repo: string, dest: string, onProgress: any) => {
 	const {branch, org, gitName} = parseGithubURL(repo);
 
 	const zipFile = `https://github.com/${org}/${gitName}/archive/${branch}.zip`;
@@ -144,7 +146,7 @@ export const downloadFromGithub = async (repo, dest, onProgress: any) => {
 	return promise;
 };
 
-export const installFromGithub = async (name, repo, {verbose = false, dep = false, silent = false} = {}) => {
+export const installFromGithub = async (name: string, repo: string, {verbose = false, dep = false, silent = false} = {}) => {
 	const {branch} = parseGithubURL(repo);
 	const dir = formatGithubDir(name, repo);
 	const cacheName = `github_${name}@${branch}`;
@@ -159,7 +161,7 @@ export const installFromGithub = async (name, repo, {verbose = false, dep = fals
 	else {
 		mkdirSync(dir, {recursive: true});
 
-		let progress = (step, total) => {
+		let progress = (step: number, total: number) => {
 			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} ${progressBar(step, total)}`);
 		};
 
@@ -185,7 +187,9 @@ export const installFromGithub = async (name, repo, {verbose = false, dep = fals
 
 	if (config) {
 		for (const {name, repo} of config.dependencies) {
-			await installFromGithub(name, repo, {verbose, silent, dep: true});
+			if (repo) {
+				await installFromGithub(name, repo, {verbose, silent, dep: true});
+			}
 		}
 	}
 };
