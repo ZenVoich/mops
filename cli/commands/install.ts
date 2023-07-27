@@ -1,13 +1,13 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import logUpdate from 'log-update';
+import chalk from 'chalk';
 import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
 import {parallel} from '../parallel.js';
-import chalk from 'chalk';
 import {installFromGithub} from '../vessel.js';
 import {addCache, copyCache, isCached} from '../cache.js';
 
-export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
+export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}) {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -23,7 +23,7 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 
 	if (!version) {
 		let versionRes = await getHighestVersion(pkg);
-		if (versionRes.err) {
+		if ('err' in versionRes) {
 			console.log(chalk.red('Error: ') + versionRes.err);
 			return false;
 		}
@@ -50,13 +50,13 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 			actor.getFileIds(pkg, version),
 		]);
 
-		if (packageDetailsRes.err) {
+		if ('err' in packageDetailsRes) {
 			console.log(chalk.red('Error: ') + packageDetailsRes.err);
 			return false;
 		}
 		let packageDetails = packageDetailsRes.ok;
 
-		if (filesIdsRes.err) {
+		if ('err' in filesIdsRes) {
 			console.log(chalk.red('Error: ') + filesIdsRes.err);
 			return false;
 		}
@@ -69,18 +69,18 @@ export async function install(pkg, version = '', {verbose, silent, dep} = {}) {
 
 		// download files
 		let filesData = new Map;
-		await parallel(16, filesIds, async (fileId) => {
+		await parallel(16, filesIds, async (fileId: string) => {
 			let fileMetaRes = await storage.getFileMeta(fileId);
-			if (fileMetaRes.err) {
+			if ('err' in fileMetaRes) {
 				console.log(chalk.red('ERR: ') + fileMetaRes.err);
 				return;
 			}
 			let fileMeta = fileMetaRes.ok;
 
 			let buffer = Buffer.from([]);
-			for (let i = 0; i < fileMeta.chunkCount; i++) {
+			for (let i = 0n; i < fileMeta.chunkCount; i++) {
 				let chunkRes = await storage.downloadChunk(fileId, i);
-				if (chunkRes.err) {
+				if ('err' in chunkRes) {
 					console.log(chalk.red('ERR: ') + chunkRes.err);
 					return;
 				}

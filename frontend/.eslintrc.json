@@ -6,7 +6,6 @@
     "extends": [
         "plugin:svelte/base"
     ],
-    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         // ...
         "project": "./frontend/tsconfig.json",

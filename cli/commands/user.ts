@@ -1,14 +1,19 @@
 import chalk from 'chalk';
 import {getIdentity, mainActor} from '../mops.js';
 
-export async function getUserProp(prop) {
+export async function getUserProp(prop: string) {
 	let actor = await mainActor();
 	let identity = await getIdentity();
+	if (!identity) {
+		console.log(chalk.red('Error: ') + 'No identity found');
+		process.exit(1);
+	}
 	let res = await actor.getUser(identity.getPrincipal());
+	// @ts-ignore
 	console.log(res[0]?.[prop] || '');
 }
 
-export async function setUserProp(prop, value) {
+export async function setUserProp(prop: string, value: string) {
 	let actor = await mainActor(true);
 	let res = await actor.setUserProp(prop, value);
 	if ('ok' in res) {

@@ -1,21 +1,22 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import chalk from 'chalk';
 import {checkConfigFile, formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
-import {readVesselConfig} from '../vessel.js';
+import {VesselConfig, readVesselConfig} from '../vessel.js';
+import {Config, Dependency} from '../types.js';
 
 // TODO: resolve conflicts
-export async function sources({verbose} = {}) {
+export async function sources({verbose = false} = {}) {
 	if (!checkConfigFile()) {
 		return [];
 	}
 
-	let packages = {};
-	let versions = {};
+	let packages: Record<string, Dependency & {isRoot: boolean}> = {};
+	let versions: Record<string, string[]> = {};
 
-	let compareVersions = (a, b) => {
-		let ap = a.split('.').map(x => x |0);
-		let bp = b.split('.').map(x => x |0);
+	let compareVersions = (a: string = '0.0.0', b: string = '0.0.0') => {
+		let ap = a.split('.').map((x: string) => parseInt(x)) as [number, number, number];
+		let bp = b.split('.').map((x: string) => parseInt(x)) as [number, number, number];
 		if (ap[0] - bp[0]) {
 			return Math.sign(ap[0] - bp[0]);
 		}
@@ -30,7 +31,7 @@ export async function sources({verbose} = {}) {
 
 	const gitVerRegex = new RegExp(/v(\d{1,2}\.\d{1,2}\.\d{1,2})(-.*)?$/);
 
-	const compareGitVersions = (repoA, repoB) => {
+	const compareGitVersions = (repoA: string, repoB: string) => {
 		const {branch: a} = parseGithubURL(repoA);
 		const {branch: b} = parseGithubURL(repoB);
 
@@ -45,7 +46,7 @@ export async function sources({verbose} = {}) {
 		}
 	};
 
-	let collectDeps = async (config, isRoot = false) => {
+	let collectDeps = async (config: Config | VesselConfig, isRoot = false) => {
 		let allDeps = [...Object.values(config.dependencies || {})];
 		if (isRoot) {
 			allDeps = [...allDeps, ...Object.values(config['dev-dependencies'] || {})];
@@ -57,13 +58,15 @@ export async function sources({verbose} = {}) {
 			if (
 				isRoot
 				|| !packages[name]
-				|| !packages[name].isRoot
+				|| !packages[name]?.isRoot
 				&& (
-					repo && packages[name].repo && compareGitVersions(packages[name].repo, repo) === -1
-					|| compareVersions(packages[name].version, version) === -1)
+					repo && packages[name]?.repo && compareGitVersions(packages[name]?.repo || '', repo) === -1
+					|| compareVersions(packages[name]?.version, version) === -1)
 			) {
-				packages[name] = pkgDetails;
-				packages[name].isRoot = isRoot;
+				packages[name] = {
+					...pkgDetails,
+					isRoot,
+				};
 			}
 
 			let nestedConfig;
@@ -72,12 +75,12 @@ export async function sources({verbose} = {}) {
 				const dir = formatGithubDir(name, repo);
 				nestedConfig = await readVesselConfig(dir) || {};
 			}
-			else if (!pkgDetails.path) {
-				const dir = formatDir(name, version) + '/mops.toml';
-				nestedConfig = readConfig(dir);
+			else if (!pkgDetails.path && version) {
+				const file = formatDir(name, version) + '/mops.toml';
+				nestedConfig = readConfig(file);
 			}
 
-			if (!pkgDetails.path) {
+			if (nestedConfig && !pkgDetails.path) {
 				await collectDeps(nestedConfig);
 			}
 
@@ -87,10 +90,10 @@ export async function sources({verbose} = {}) {
 
 			if (repo) {
 				const {branch} = parseGithubURL(repo);
-				versions[name].push(branch);
+				versions[name]?.push(branch);
 			}
-			else {
-				versions[name].push(version);
+			else if (version) {
+				versions[name]?.push(version);
 			}
 		}
 	};
@@ -117,8 +120,11 @@ export async function sources({verbose} = {}) {
 		else if (pkg.repo) {
 			pkgDir = path.relative(process.cwd(), formatGithubDir(name, pkg.repo));
 		}
-		else {
+		else if (pkg.version) {
 			pkgDir = path.relative(process.cwd(), formatDir(name, pkg.version));
+		}
+		else {
+			return;
 		}
 
 		// append baseDir

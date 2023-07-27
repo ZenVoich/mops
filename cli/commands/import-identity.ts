@@ -1,12 +1,12 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import chalk from 'chalk';
-import path from 'path';
 import prompts from 'prompts';
-import del from 'del';
+import {deleteSync} from 'del';
 import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
-export async function importPem(data) {
+export async function importPem(data: string) {
 	try {
 		if (!fs.existsSync(globalConfigDir)) {
 			fs.mkdirSync(globalConfigDir);
@@ -34,12 +34,12 @@ export async function importPem(data) {
 		let identityPem = path.resolve(globalConfigDir, 'identity.pem');
 		let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 
-		del.sync([identityPem, identityPemEncrypted], {force: true});
+		deleteSync([identityPem, identityPemEncrypted], {force: true});
 
 		// encrypted
 		if (password) {
-			data = await encrypt(Buffer.from(data), password);
-			fs.writeFileSync(identityPemEncrypted, data);
+			let encrypted = await encrypt(Buffer.from(data), password);
+			fs.writeFileSync(identityPemEncrypted, encrypted);
 		}
 		// unencrypted
 		else {

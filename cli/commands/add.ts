@@ -1,13 +1,13 @@
-import path from 'path';
+import path from 'node:path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
 import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
-export async function add(name, {verbose, dev} = {}) {
+export async function add(name: string, {verbose = false, dev = false} = {}) {
 	if (!checkConfigFile()) {
-		return false;
+		return;
 	}
 
 	let config = readConfig();
@@ -22,7 +22,7 @@ export async function add(name, {verbose, dev} = {}) {
 		}
 	}
 
-	let pkgDetails;
+	let pkgDetails: any;
 
 	// local package
 	if (name.startsWith('./') || name.startsWith('../') || name.startsWith('/')) {
@@ -34,7 +34,7 @@ export async function add(name, {verbose, dev} = {}) {
 		};
 	}
 	// github package
-	else if (name.startsWith('https://github.com') || name.split('/') > 1) {
+	else if (name.startsWith('https://github.com') || name.split('/').length > 1) {
 		const {org, gitName, branch} = parseGithubURL(name);
 
 		pkgDetails = {
@@ -45,13 +45,14 @@ export async function add(name, {verbose, dev} = {}) {
 	}
 	// mops package
 	else {
-		let ver;
+		let ver: string;
 		if (name.includes('@')) {
+			// @ts-ignore
 			[name, ver] = name.split('@');
 		}
 		else {
 			let versionRes = await getHighestVersion(name);
-			if (versionRes.err) {
+			if ('err' in versionRes) {
 				console.log(chalk.red('Error: ') + versionRes.err);
 				return;
 			}
@@ -75,7 +76,14 @@ export async function add(name, {verbose, dev} = {}) {
 		}
 	}
 
-	config[dev ? 'dev-dependencies' : 'dependencies'][pkgDetails.name] = pkgDetails;
+	const depsProp = dev ? 'dev-dependencies' : 'dependencies';
+	let deps = config[depsProp];
+	if (deps) {
+		deps[pkgDetails.name] = pkgDetails;
+	}
+	else {
+		throw Error(`Invalid config file: [${depsProp}] not found`);
+	}
 	writeConfig(config);
 
 	logUpdate.clear();

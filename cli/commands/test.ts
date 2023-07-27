@@ -1,11 +1,11 @@
-import {spawn, execSync} from 'child_process';
+import {spawn, execSync, ChildProcessWithoutNullStreams} from 'node:child_process';
+import path from 'node:path';
+import fs from 'node:fs';
+import os from 'node:os';
 import chalk from 'chalk';
-import glob from 'glob';
+import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import path from 'path';
-import fs from 'fs';
-import os from 'os';
 
 import {MMF1} from './mmf1.js';
 import {sources} from './sources.js';
@@ -65,9 +65,9 @@ let mocPath = process.env.DFX_MOC_PATH;
 export async function runAll(filter = '') {
 	let start = Date.now();
 	let rootDir = getRootDir();
-	let files = [];
-	let libFiles = glob.sync('**/test?(s)/lib.mo', globConfig);
-	if (libFiles.length) {
+	let files: string[] = [];
+	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
+	if (libFiles[0]) {
 		files = [libFiles[0]];
 	}
 	else {
@@ -75,7 +75,7 @@ export async function runAll(filter = '') {
 		if (filter) {
 			globStr = `**/test?(s)/**/*${filter}*.mo`;
 		}
-		files = glob.sync(path.join(rootDir, globStr), globConfig);
+		files = globSync(path.join(rootDir, globStr), globConfig);
 	}
 	if (!files.length) {
 		if (filter) {
@@ -107,7 +107,11 @@ export async function runAll(filter = '') {
 
 	let i = 0;
 
-	await parallel(os.cpus().length, files, async (file) => {
+	await parallel(os.cpus().length, files, async (file: string) => {
+		if (!mocPath) {
+			mocPath = 'moc';
+		}
+
 		let mmf = new MMF1('store');
 
 		let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
@@ -165,12 +169,12 @@ export async function runAll(filter = '') {
 	return failed === 0;
 }
 
-function absToRel(p) {
+function absToRel(p: string) {
 	let rootDir = getRootDir();
 	return path.relative(rootDir, path.resolve(p));
 }
 
-function pipeMMF(proc, mmf) {
+function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf: MMF1) {
 	return new Promise((resolve) => {
 		// stdout
 		proc.stdout.on('data', (data) => {
@@ -184,9 +188,9 @@ function pipeMMF(proc, mmf) {
 
 		// stderr
 		proc.stderr.on('data', (data) => {
-			let text = data.toString().trim();
+			let text: string = data.toString().trim();
 			let failedLine = '';
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (m0, m1, m2, m3) => {
+			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1: string, m2: string, m3: string) => {
 				// change absolute file path to relative
 				// change :line:col-line:col to :line:col to work in vscode
 				let res = `${absToRel(m1)}:${m2}:${m3}`;
@@ -197,14 +201,15 @@ function pipeMMF(proc, mmf) {
 
 				// show failed line
 				let content = fs.readFileSync(m1);
-				let lines = content.toString().split('\n');
+				let lines = content.toString().split('\n') || [];
 				failedLine += chalk.dim`\n   ...`;
-				if (m2 - 2 >= 0) {
-					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lines[m2 - 2].replaceAll('\t', '  ')}`;
+				let lineBefore = lines[+m2 - 2];
+				if (lineBefore) {
+					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`;
 				}
-				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[m2 - 1].replaceAll('\t', '  ')}`;
+				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
 				if (lines.length > +m2) {
-					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[m2].replaceAll('\t', '  ')}`;
+					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`;
 				}
 				failedLine += chalk.dim`\n   ...`;
 				return res;

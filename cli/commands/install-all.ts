@@ -4,7 +4,7 @@ import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
 
-export async function installAll({verbose, silent} = {}) {
+export async function installAll({verbose = false, silent = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}

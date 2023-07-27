@@ -5,7 +5,8 @@
 			"type": "motoko",
 			"main": "backend/main/main-canister.mo",
 			"declarations": {
-				"output": "cli/declarations/main/"
+				"output": "cli/declarations/main/",
+				"node_compatibility": true
 			}
 		},
 		"assets": {

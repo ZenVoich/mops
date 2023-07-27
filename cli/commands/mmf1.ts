@@ -4,20 +4,22 @@
 // mops:1:skip
 import chalk from 'chalk';
 
+type Strategy = 'store' | 'print';
+
 export class MMF1 {
-	stack = [];
-	currSuite = '';
+	stack: string[] = [];
+	currSuite: string = '';
 	failed = 0;
 	passed = 0;
 	skipped = 0;
-	srategy; // 'store' | 'print'
-	output = [];
+	srategy: Strategy;
+	output: string[] = [];
 
-	constructor(srategy) {
+	constructor(srategy: Strategy) {
 		this.srategy = srategy;
 	}
 
-	_log(...args) {
+	_log(...args: string[]) {
 		if (this.srategy === 'store') {
 			this.output.push(args.join(' '));
 		}
@@ -30,27 +32,27 @@ export class MMF1 {
 		for (let out of this.output) {
 			console.log(out);
 		}
-		this.store = [];
+		this.output = [];
 	}
 
-	parseLine(line) {
+	parseLine(line: string) {
 		if (line.startsWith('mops:1:start ')) {
-			this._testStart(line.split('mops:1:start ')[1]);
+			this._testStart(line.split('mops:1:start ')[1] || '');
 		}
 		else if (line.startsWith('mops:1:end ')) {
-			this._testEnd(line.split('mops:1:end ')[1]);
+			this._testEnd(line.split('mops:1:end ')[1] || '');
 		}
 		else if (line.startsWith('mops:1:skip ')) {
-			this._testSkip(line.split('mops:1:skip ')[1]);
+			this._testSkip(line.split('mops:1:skip ')[1] || '');
 		}
 		else {
 			this._log(' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
 		}
 	}
 
-	_testStart(name) {
-		if (this.stack.length) {
-			let suite = this.stack[this.stack.length - 1];
+	_testStart(name: string) {
+		let suite = this.stack[this.stack.length - 1];
+		if (suite) {
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
 				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
@@ -59,18 +61,18 @@ export class MMF1 {
 		this.stack.push(name);
 	}
 
-	_testEnd(name) {
+	_testEnd(name: string) {
 		if (name !== this.stack.pop()) {
 			throw 'mmf1._testEnd: start and end test mismatch';
 		}
 		this._status(name, 'pass');
 	}
 
-	_testSkip(name) {
+	_testSkip(name: string) {
 		this._status(name, 'skip');
 	}
 
-	_status(name, status) {
+	_status(name: string, status: string) {
 		if (status === 'pass') {
 			// do not print suite at the end
 			if (name === this.currSuite) {
@@ -89,7 +91,7 @@ export class MMF1 {
 		}
 	}
 
-	fail(stderr) {
+	fail(stderr: string) {
 		let name = this.stack.pop() || '';
 		this._status(name, 'fail');
 		this._log(' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);

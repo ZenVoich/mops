@@ -8,7 +8,7 @@
 		"replica": "dfx stop && dfx start --clean --background && npm run create-canisters",
 		"decl": "npm run decl:cli && npm run decl:frontend",
 		"lint": "npm run lint:cli && npm run lint:frontend",
-		"lint:cli": "eslint cli --ext .js",
+		"lint:cli": "eslint cli --ext .ts",
 		"lint:frontend": "eslint frontend --ext .svelte,.ts",
 		"decl:cli": "dfx generate main",
 		"decl:frontend": "cp -r cli/declarations frontend",
@@ -20,9 +20,11 @@
 		"test": "mops test"
 	},
 	"devDependencies": {
-		"@typescript-eslint/parser": "^5.45.1",
-		"eslint": "^8.29.0",
-		"eslint-plugin-svelte": "^2.14.0",
-		"husky": "^8.0.3"
+		"@typescript-eslint/eslint-plugin": "^6.2.0",
+		"@typescript-eslint/parser": "^6.2.0",
+		"eslint": "^8.45.0",
+		"eslint-plugin-svelte": "^2.32.4",
+		"husky": "^8.0.3",
+		"typescript": "^5.1.6"
 	}
 }

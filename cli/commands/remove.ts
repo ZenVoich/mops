@@ -1,15 +1,15 @@
-import {checkConfigFile, readConfig, writeConfig} from '../mops.js';
-import fs from 'fs';
-import del from 'del';
+import fs from 'node:fs';
+import {deleteSync} from 'del';
 import chalk from 'chalk';
-import {formatDir, formatGithubDir} from '../mops.js';
+import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
+import {Config, Dependency} from '../types.js';
 
-export async function remove(name, {dev, verbose, dryRun} = {}) {
+export async function remove(name: string, {dev = false, verbose = false, dryRun = false} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
-	function getTransitiveDependencies(config, exceptPkgId) {
+	function getTransitiveDependencies(config: Config, exceptPkgId: string) {
 		let deps = Object.values(config.dependencies || {});
 		let devDeps = Object.values(config['dev-dependencies'] || {});
 		return [...deps, ...devDeps]
@@ -21,15 +21,21 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 			}).flat();
 	}
 
-	function getTransitiveDependenciesOf(name, version, repo) {
-		let pkgDir = repo ? formatGithubDir(name, repo) : formatDir(name, version);
+	function getTransitiveDependenciesOf(name: string, version: string | undefined, repo?: string) {
+		let pkgDir = '';
+		if (repo) {
+			pkgDir = formatGithubDir(name, repo);
+		}
+		else if (version) {
+			pkgDir = formatDir(name, version);
+		}
 		let configFile = pkgDir + '/mops.toml';
 		if (!fs.existsSync(configFile)) {
 			verbose && console.log('no config', configFile);
 			return [];
 		}
 		let config = readConfig(configFile);
-		let deps = Object.values(config.dependencies || {}).map((dep) => {
+		let deps: Dependency[] = Object.values(config.dependencies || {}).map((dep) => {
 			return [dep, ...getTransitiveDependenciesOf(dep.name, dep.version)];
 		}).flat();
 		return deps;
@@ -37,6 +43,7 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 
 	let config = readConfig();
 	let deps = dev ? config['dev-dependencies'] : config.dependencies;
+	deps = deps || {};
 	let pkgDetails = deps[name];
 
 	if (!pkgDetails) {
@@ -66,21 +73,21 @@ export async function remove(name, {dev, verbose, dryRun} = {}) {
 		if (dep.repo) {
 			pkgDir = formatGithubDir(dep.name, dep.repo);
 		}
-		else {
+		else if (dep.version) {
 			pkgDir = formatDir(dep.name, dep.version);
 		}
-		if (fs.existsSync(pkgDir)) {
-			dryRun || del.sync([`${pkgDir}`]);
+		if (pkgDir && fs.existsSync(pkgDir)) {
+			dryRun || deleteSync([`${pkgDir}`]);
 			verbose && console.log(`Removed local cache ${pkgDir}`);
 		}
 	}
 
 	// remove from config
-	if (dev) {
-		delete config['dev-dependencies'][name];
-	}
-	else {
+	if (!dev && config.dependencies) {
 		delete config.dependencies[name];
+	}
+	if (dev && config['dev-dependencies']) {
+		delete config['dev-dependencies'][name];
 	}
 	dryRun || writeConfig(config);
 

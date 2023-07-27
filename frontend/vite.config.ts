@@ -1,9 +1,9 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import {defineConfig} from 'vite';
 import {viteStaticCopy} from 'vite-plugin-static-copy';
-import path from 'path';
 import dfxJson from '../dfx.json';
-import fs from 'fs';
 
 type Network = 'ic' | 'local' | 'staging';
 let network = process.env['DFX_NETWORK'] as Network || 'local';

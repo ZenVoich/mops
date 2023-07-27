@@ -1,22 +1,22 @@
-import {spawn, execSync} from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import {spawn, execSync} from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import chalk from 'chalk';
-import glob from 'glob';
-import del from 'del';
+import {globSync} from 'glob';
+import {deleteSync} from 'del';
 import tar from 'tar';
 import streamToPromise from 'stream-to-promise';
 
 import {getRootDir} from '../mops.js';
 
-let moDoc;
+let moDoc: string;
 
-export async function docs({silent} = {}) {
+export async function docs({silent = false} = {}) {
 	let rootDir = getRootDir();
 	let docsDir = path.join(rootDir, '.mops/.docs');
 	let docsDirRelative = path.relative(process.cwd(), docsDir);
 
-	del.sync([docsDir], {force: true});
+	deleteSync([docsDir], {force: true});
 
 	// detect mocv
 	if (process.env.DFX_MOC_PATH && process.env.DFX_MOC_PATH.includes('mocv/versions')) {
@@ -27,7 +27,7 @@ export async function docs({silent} = {}) {
 	}
 
 	// generate docs
-	await new Promise((resolve) => {
+	await new Promise<void>((resolve) => {
 		let proc = spawn(moDoc, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
 
 		// stdout
@@ -75,7 +75,7 @@ export async function docs({silent} = {}) {
 		`${docsDir}/**/*.test.adoc`,
 		`${docsDir}/test/**/*`,
 	];
-	let files = glob.sync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
+	let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
 	if (files.length) {
 		let stream = tar.create(
 			{
