@@ -24,7 +24,7 @@
 	"scripts": {
 		"build": "tsc",
 		"bundle": "esbuild --bundle --outfile=cli.js --platform=node --packages=external --target=node16 --format=esm ./dist/cli.js",
-		"copy": "cp -r declarations templates network.txt package.json dist",
+		"copy": "cp -r declarations templates network.txt package.json dist | true",
 		"save-network": "cp -r dist/network.txt . | true",
 		"prepare": "npm run save-network && npm run build && npm run copy",
 		"check": "tsc --project tsconfig.json --noEmit",
