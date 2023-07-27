@@ -76,6 +76,7 @@ export async function docs({silent = false} = {}) {
 		`${docsDir}/test/**/*`,
 	];
 	let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
+	files.sort();
 	if (files.length) {
 		let stream = tar.create(
 			{
