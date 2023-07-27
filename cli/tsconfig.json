@@ -4,7 +4,7 @@
 	"exclude": ["node_modules", "dist", "dist.js", "declarations/**/*.js"],
 	"compilerOptions": {
 		"types": ["node"],
-		"target": "ES2022",
+		"target": "ES2021",
 		"outDir": "./dist",
 		"allowJs": true,
 		"module": "nodenext",

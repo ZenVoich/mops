@@ -3,7 +3,7 @@
 	"version": "0.19.1",
 	"type": "module",
 	"bin": {
-		"mops": "cli.js"
+		"mops": "dist/cli.js"
 	},
 	"files": [
 		"*",
@@ -24,8 +24,10 @@
 	"scripts": {
 		"build": "tsc",
 		"bundle": "esbuild --bundle --outfile=cli.js --platform=node --packages=external --target=node16 --format=esm ./dist/cli.js",
-		"decl": "cp -r declarations dist",
-		"prepare": "npm run build && npm run decl && npm run bundle",
+		"copy": "cp -r declarations templates network.txt package.json dist",
+		"save-network": "cp -r dist/network.txt . | true",
+		"prepare": "npm run save-network && npm run build && npm run copy",
+		"check": "tsc --project tsconfig.json --noEmit",
 		"tsc": "tsc",
 		"esbuild": "esbuild"
 	},
