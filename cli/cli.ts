@@ -15,7 +15,7 @@ import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
-import {test} from './commands/test.js';
+import {test} from './commands/test/test.js';
 import {template} from './commands/template.js';
 import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
@@ -186,6 +186,7 @@ program
 program
 	.command('test [filter]')
 	.description('Run tests')
+	.option('-r, --reporter <reporter>', 'Choose reporter: verbose, compact, files')
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		await test(filter, options);
