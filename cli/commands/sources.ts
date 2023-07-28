@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import chalk from 'chalk';
-import {checkConfigFile, formatDir, formatGithubDir, parseGithubURL, readConfig} from '../mops.js';
+import {checkConfigFile, formatDir, formatGithubDir, getRootDir, parseGithubURL, readConfig} from '../mops.js';
 import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {Config, Dependency} from '../types.js';
 
@@ -111,10 +111,11 @@ export async function sources({verbose = false} = {}) {
 	}
 
 	// sources
+	let rootDir = getRootDir();
 	return Object.entries(packages).map(([name, pkg]) => {
 		let pkgDir;
 		if (pkg.path) {
-			pkgDir = path.relative(process.cwd(), path.resolve(pkg.path));
+			pkgDir = path.relative(process.cwd(), path.resolve(rootDir, pkg.path));
 			pkgDir = pkgDir.replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 		}
 		else if (pkg.repo) {
