@@ -186,16 +186,16 @@ function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf: MMF1) {
 				// show failed line
 				let content = fs.readFileSync(m1);
 				let lines = content.toString().split('\n') || [];
-				failedLine += chalk.dim`\n   ...`;
+				failedLine += chalk.dim('\n   ...');
 				let lineBefore = lines[+m2 - 2];
 				if (lineBefore) {
-					failedLine += chalk.dim`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`;
+					failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
 				}
 				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
 				if (lines.length > +m2) {
-					failedLine += chalk.dim`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`;
+					failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
 				}
-				failedLine += chalk.dim`\n   ...`;
+				failedLine += chalk.dim('\n   ...');
 				return res;
 			});
 			if (failedLine) {

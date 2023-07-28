@@ -5,6 +5,8 @@
 import chalk from 'chalk';
 
 type Strategy = 'store' | 'print';
+type TestStatus = 'pass' | 'fail' | 'skip';
+type MessageType = 'pass' | 'fail' | 'skip' | 'suite' | 'stdout';
 
 export class MMF1 {
 	stack: string[] = [];
@@ -13,24 +15,32 @@ export class MMF1 {
 	passed = 0;
 	skipped = 0;
 	srategy: Strategy;
-	output: string[] = [];
+	output: {
+		type: MessageType;
+		message: string;
+	}[] = [];
 
 	constructor(srategy: Strategy) {
 		this.srategy = srategy;
 	}
 
-	_log(...args: string[]) {
+	_log(type: MessageType,  ...args: string[]) {
 		if (this.srategy === 'store') {
-			this.output.push(args.join(' '));
+			this.output.push({
+				type,
+				message: args.join(' ')
+			});
 		}
 		else if (this.srategy === 'print') {
 			console.log(...args);
 		}
 	}
 
-	flush() {
+	flush(messageType?: MessageType) {
 		for (let out of this.output) {
-			console.log(out);
+			if (!messageType || out.type === messageType) {
+				console.log(out.message);
+			}
 		}
 		this.output = [];
 	}
@@ -46,7 +56,7 @@ export class MMF1 {
 			this._testSkip(line.split('mops:1:skip ')[1] || '');
 		}
 		else {
-			this._log(' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
+			this._log('stdout', ' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
 		}
 	}
 
@@ -55,7 +65,7 @@ export class MMF1 {
 		if (suite) {
 			if (this.currSuite !== suite) {
 				this.currSuite = suite;
-				this._log(' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
+				this._log('suite', ' '.repeat((this.stack.length - 1) * 2), (chalk.gray('•')) + '', suite);
 			}
 		}
 		this.stack.push(name);
@@ -72,29 +82,29 @@ export class MMF1 {
 		this._status(name, 'skip');
 	}
 
-	_status(name: string, status: string) {
+	_status(name: string, status: TestStatus) {
 		if (status === 'pass') {
 			// do not print suite at the end
 			if (name === this.currSuite) {
 				return;
 			}
 			this.passed++;
-			this._log(' '.repeat(this.stack.length * 2), chalk.green('✓'), name);
+			this._log(status, ' '.repeat(this.stack.length * 2), chalk.green('✓'), name);
 		}
 		else if (status === 'fail') {
 			this.failed++;
-			this._log(' '.repeat(this.stack.length * 2), chalk.red('✖'), name);
+			this._log(status, ' '.repeat(this.stack.length * 2), chalk.red('✖'), name);
 		}
 		else if (status === 'skip') {
 			this.skipped++;
-			this._log(' '.repeat(this.stack.length * 2), chalk.yellow('−'), name);
+			this._log(status, ' '.repeat(this.stack.length * 2), chalk.yellow('−'), name);
 		}
 	}
 
 	fail(stderr: string) {
 		let name = this.stack.pop() || '';
 		this._status(name, 'fail');
-		this._log(' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);
+		this._log('fail', ' '.repeat(this.stack.length * 2), chalk.red('FAIL'), stderr);
 	}
 
 	pass() {
@@ -102,6 +112,6 @@ export class MMF1 {
 		if (name) {
 			this._status(name, 'pass');
 		}
-		this._log(' '.repeat(this.stack.length * 2), chalk.green('PASS'));
+		this._log('pass', ' '.repeat(this.stack.length * 2), chalk.green('PASS'));
 	}
 }

@@ -22,7 +22,8 @@ export class FilesReporter implements Reporter {
 			this.skipped += mmf.skipped;
 
 			if (mmf.failed) {
-				mmf.flush();
+				console.log(chalk.red('✖'), absToRel(file));
+				mmf.flush('fail');
 				console.log('-'.repeat(50));
 			}
 			else {
