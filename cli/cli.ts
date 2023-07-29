@@ -188,7 +188,12 @@ program
 	.description('Run tests')
 	.option('-r, --reporter <reporter>', 'Choose reporter: verbose, compact, files')
 	.option('-w, --watch', 'Enable watch mode')
+	.option('--mode <mode>', 'Test mode: \'interpreter\' or \'wasi\' (default \'interpreter\'')
 	.action(async (filter, options) => {
+		if (options.mode && !['interpreter', 'wasi'].includes(options.mode)) {
+			console.log(`Unknown --mode value '${options.mode}'. Allowed: interpreter, wasi`);
+			process.exit(1);
+		}
 		await test(filter, options);
 	});
 

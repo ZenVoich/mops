@@ -30,7 +30,9 @@ let globConfig = {
 	ignore: ignore,
 };
 
-export async function test(filter = '', {watch = false, reporter = 'verbose'} = {}) {
+type TestMode = 'interpreter' | 'wasi';
+
+export async function test(filter = '', {watch = false, reporter = 'verbose', mode = 'interpreter' as TestMode} = {}) {
 	let rootDir = getRootDir();
 
 	if (watch) {
@@ -59,7 +61,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose'} = 
 		run();
 	}
 	else {
-		let passed = await runAll(filter, reporter);
+		let passed = await runAll(filter, reporter, mode);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -68,7 +70,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose'} = 
 
 let mocPath = process.env.DFX_MOC_PATH;
 
-export async function runAll(filter = '', reporterName = 'verbose') {
+export async function runAll(filter = '', reporterName = 'verbose', mode: TestMode = 'interpreter') {
 	let reporter: Reporter;
 	if (reporterName == 'compact') {
 		reporter = new CompactReporter;
@@ -116,7 +118,7 @@ export async function runAll(filter = '', reporterName = 'verbose') {
 
 	await parallel(os.cpus().length, files, async (file: string) => {
 		let mmf = new MMF1('store');
-		let wasiMode = fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
+		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
 		let promise = new Promise<void>((resolve) => {
 			if (!mocPath) {
