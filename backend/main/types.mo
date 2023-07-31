@@ -81,11 +81,29 @@ module {
 		devDeps : [PackageSummary];
 		dependents : [PackageSummary];
 		downloadTrend : [DownloadsSnapshot];
+		fileStats : PackageFileStatsPublic;
 	};
 
 	public type DownloadsSnapshot = {
 		startTime : Time.Time;
 		endTime : Time.Time;
 		downloads : Nat;
+	};
+
+	public type PackageFileStats = {
+		sourceFiles : Nat;
+		sourceSize : Nat;
+		docsCount : Nat;
+		docsSize : Nat;
+		testFiles : Nat;
+		testSize : Nat;
+		benchFiles : Nat;
+		benchSize : Nat;
+	};
+
+	public type PackageFileStatsPublic = {
+		sourceFiles : Nat;
+		sourceSize : Nat;
+		docsSize : Nat;
 	};
 };

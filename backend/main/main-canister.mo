@@ -45,6 +45,7 @@ actor {
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummary = Types.PackageSummary;
+	public type PackageFileStats = Types.PackageFileStats;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
 	public type PageCount = Nat;
@@ -57,6 +58,7 @@ actor {
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
 	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
@@ -83,6 +85,7 @@ actor {
 	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
+	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -156,6 +159,7 @@ actor {
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
+				fileStats = Option.get(publishingPackageFileStats.get(packageId), _defaultPackageFileStats());
 			};
 		};
 	};
@@ -218,6 +222,19 @@ actor {
 		});
 
 		Iter.toArray(sorted);
+	};
+
+	func _defaultPackageFileStats() : PackageFileStats {
+		{
+			sourceFiles = 0;
+			sourceSize = 0;
+			docsCount = 0;
+			docsSize = 0;
+			testFiles = 0;
+			testSize = 0;
+			benchFiles = 0;
+			benchSize = 0;
+		}
 	};
 
 
@@ -297,6 +314,8 @@ actor {
 		});
 		publishingFiles.put(publishingId, Buffer.Buffer(10));
 
+		publishingPackageFileStats.put(publishingId, _defaultPackageFileStats());
+
 		#ok(publishingId);
 	};
 
@@ -350,11 +369,35 @@ actor {
 		};
 		pubFiles.add(pubFile);
 
+		// file stats
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				if (docsTgz) {
+					publishingPackageFileStats.put(publishingId, {
+						fileStats with
+						docsCount = 1;
+						docsSize = firstChunk.size();
+					});
+				}
+				else {
+					publishingPackageFileStats.put(publishingId, {
+						fileStats with
+						sourceFiles = fileStats.sourceFiles + 1;
+						sourceSize = fileStats.sourceSize + firstChunk.size();
+					});
+				};
+			};
+			case (null) {
+				Debug.trap("File stats not found");
+			};
+		};
+
 		#ok(fileId);
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
+		Debug.trap("chunked upload temporarily disabled");
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
 		assert(publishing.user == caller);
@@ -415,8 +458,16 @@ actor {
 			storage = publishing.storage;
 		});
 
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				packageFileStats.put(packageId, fileStats);
+			};
+			case (null) {};
+		};
+
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
+		publishingPackageFileStats.delete(publishingId);
 
 		#ok;
 	};
@@ -863,6 +914,7 @@ actor {
 	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
+	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -873,6 +925,7 @@ actor {
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
+		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -893,6 +946,9 @@ actor {
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
+
+		packageFileStats := TrieMap.fromEntries<PackageId, PackageFileStats>(packageFileStatsStable.vals(), Text.equal, Text.hash);
+		packageFileStatsStable := [];
 
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
