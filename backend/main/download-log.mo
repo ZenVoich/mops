@@ -19,19 +19,19 @@ import DateBase "mo:chronosphere/Base";
 import Itertools "mo:itertools/Iter";
 import Deiter "mo:itertools/Deiter";
 
-import Version "./version";
 import Utils "../utils";
 import Types "./types";
 
 module {
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
-	public type PackageName = Text.Text;
-	public type PackageId = Text.Text;
+	public type PackageName = Types.PackageName;
+	public type PackageId = Types.PackageId;
+	public type PackageVersion = Types.PackageVersion;
 
 	public type Record = {
 		time : Time.Time;
 		name : PackageName;
-		version : Version.Version;
+		version : PackageVersion;
 		downloader : Principal;
 	};
 

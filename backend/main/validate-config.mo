@@ -6,7 +6,7 @@ import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 
 import Types "./types";
-import Version "./version";
+import Semver "./semver";
 import {isLowerCaseLetter} "./is-letter";
 import {validateLicense} "./validate-license";
 
@@ -119,7 +119,7 @@ module {
 			return #err("invalid config: version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
 		};
 
-		let versionValid = Version.validate(config.version);
+		let versionValid = Semver.validate(config.version);
 		if (Result.isErr(versionValid)) {
 			return versionValid;
 		};
@@ -195,7 +195,7 @@ module {
 			};
 
 			if (dep.repo.size() == 0) {
-				let versionValid = Version.validate(dep.version);
+				let versionValid = Semver.validate(dep.version);
 				if (Result.isErr(versionValid)) {
 					return versionValid;
 				};
@@ -214,7 +214,7 @@ module {
 			};
 
 			if (dep.repo.size() == 0) {
-				let versionValid = Version.validate(dep.version);
+				let versionValid = Semver.validate(dep.version);
 				if (Result.isErr(versionValid)) {
 					return versionValid;
 				};
