@@ -275,7 +275,7 @@ actor {
 		// check devDependencies
 		for (dep in config.devDependencies.vals()) {
 			let packageId = dep.name # "@" # dep.version;
-			if (packageConfigs.get(packageId) == null) {
+			if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
 				return #err("Dev Dependency " # packageId # " not found in registry");
 			};
 		};
