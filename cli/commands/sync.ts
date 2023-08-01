@@ -81,9 +81,7 @@ export async function sync() {
 	}
 
 	let missing = await getMissingPackages();
-	console.time('unused');
 	let unused = await getUnusedPackages();
-	console.timeEnd('unused');
 
 	missing.length && console.log(`${chalk.yellow('Missing packages:')} ${missing.join(', ')}`);
 	unused.length && console.log(`${chalk.yellow('Unused packages:')} ${unused.join(', ')}`);

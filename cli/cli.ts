@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
-import {program} from 'commander';
+import {program, Argument} from 'commander';
 import chalk from 'chalk';
 import {Principal} from '@dfinity/principal';
 
@@ -167,8 +167,9 @@ program
 
 // cache
 program
-	.command('cache [sub-command]')
+	.command('cache')
 	.description('Manage cache')
+	.addArgument(new Argument('<sub>').choices(['size', 'clean']))
 	.action(async (sub) => {
 		if (sub == 'clean') {
 			await cleanCache();
@@ -177,9 +178,6 @@ program
 		else if (sub == 'size') {
 			let size = await cacheSize();
 			console.log('Cache size is ' + size);
-		}
-		else {
-			console.log('Unknown sub command. Available sub commands: clean, size');
 		}
 	});
 
@@ -237,7 +235,10 @@ program
 
 // user
 program
-	.command('user set|get <prop> [value]')
+	.command('user')
+	.addArgument(new Argument('<sub>').choices(['set', 'get']))
+	.addArgument(new Argument('<prop>').choices(['name', 'site', 'email', 'github', 'twitter']))
+	.addArgument(new Argument('[value]'))
 	.description('User settings')
 	.action(async (sub, prop, value) => {
 		if (sub == 'get') {
@@ -249,9 +250,6 @@ program
 				return;
 			}
 			await setUserProp(prop, value);
-		}
-		else {
-			console.log('Unknown sub command. Available sub commands: set, get');
 		}
 	});
 
@@ -289,10 +287,13 @@ program
 
 // bump
 program
-	.command('bump [major|minor|patch]')
+	.command('bump')
+	.option('--major')
+	.option('--minor')
+	.option('--patch')
 	.description('Bump current package version')
-	.action(async (part) => {
-		bump(part);
+	.action(async (options) => {
+		bump(Object.keys(options)[0] || '');
 	});
 
 // sync
@@ -300,7 +301,7 @@ program
 	.command('sync')
 	.description('Add missing packages and remove unused packages')
 	.action(async () => {
-		sync();
+		await sync();
 	});
 
 program.parse();
