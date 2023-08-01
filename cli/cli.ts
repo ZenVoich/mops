@@ -287,13 +287,10 @@ program
 
 // bump
 program
-	.command('bump')
-	.option('--major')
-	.option('--minor')
-	.option('--patch')
+	.command('bump [major|minor|patch]')
 	.description('Bump current package version')
-	.action(async (options) => {
-		bump(Object.keys(options)[0] || '');
+	.action(async (part) => {
+		bump(part);
 	});
 
 // sync
