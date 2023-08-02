@@ -65,6 +65,9 @@ export async function init() {
 		],
 	}, promptsConfig);
 
+	let addTest = false;
+	let copyrightOwner = '';
+
 	// package details
 	if (type === 'package') {
 		let res = await prompts([
@@ -84,25 +87,49 @@ export async function init() {
 				type: 'text',
 				name: 'repository',
 				message: 'Enter package repository url:',
-				hint: 'https://github.com/ZenVoich/mops',
 				initial: '',
 			},
 			{
 				type: 'text',
 				name: 'keywords',
 				message: 'Enter keywords separated by spaces:',
-				hint: 'lib http',
 				initial: '',
-			}
+			},
+			{
+				type: 'select',
+				name: 'license',
+				message: 'Choose a license:',
+				choices: [
+					{title: 'MIT', value: 'MIT'},
+					{title: 'Apache-2.0', value: 'Apache-2.0'},
+				],
+				initial: 0,
+			},
+			{
+				type: 'text',
+				name: 'copyrightOwner',
+				message: 'Enter license copyright owner:',
+				initial: '',
+			},
+			{
+				type: 'confirm',
+				name: 'addTest',
+				message: `Add example test file? ${chalk.dim('(test/lib.test.mo)')}`,
+				initial: true,
+			},
 		], promptsConfig);
 
 		config.package = {
 			name: (res.name || '').trim(),
-			version: '0.1.0',
+			version: '1.0.0',
 			description: (res.description || '').trim(),
 			repository: (res.repository || '').trim(),
 			keywords: [...new Set(res.keywords.split(' ').filter(Boolean))] as string[],
+			license: (res.license || '').trim(),
 		};
+
+		addTest = res.addTest;
+		copyrightOwner = res.copyrightOwner;
 	}
 
 	// GitHub workflow
@@ -112,11 +139,6 @@ export async function init() {
 		message: `Setup GitHub workflow? ${chalk.dim('(run `mops test` on push)')}`,
 		initial: true,
 	}, promptsConfig);
-
-	// apply GitHub workflow
-	if (setupWorkflow) {
-		await template('github-workflow:mops-test');
-	}
 
 	// set packtool in dfx.json
 	let dfxJson = path.resolve(process.cwd(), 'dfx.json');
@@ -130,17 +152,6 @@ export async function init() {
 		dfxJsonData.defaults.build.packtool = 'mops sources';
 		let indent = dfxJsonText.match(/([ \t]+)"/)?.[1] || '  ';
 		writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
-	}
-
-	// add .mops to .gitignore
-	{
-		console.log('Adding .mops to .gitignore...');
-		let gitignore = path.join(process.cwd(), '.gitignore');
-		let gitignoreData = existsSync(gitignore) ? readFileSync(gitignore).toString() : '';
-		let lf = gitignoreData.endsWith('\n') ? '\n' : '';
-		if (!gitignoreData.includes('.mops')) {
-			writeFileSync(gitignore, `${gitignoreData}\n.mops${lf}`.trimStart());
-		}
 	}
 
 	// get default packages
@@ -177,6 +188,37 @@ export async function init() {
 
 	// save config
 	writeConfig(config, configFile);
+
+	// add .mops to .gitignore
+	{
+		console.log('Adding .mops to .gitignore...');
+		let gitignore = path.join(process.cwd(), '.gitignore');
+		let gitignoreData = existsSync(gitignore) ? readFileSync(gitignore).toString() : '';
+		let lf = gitignoreData.endsWith('\n') ? '\n' : '';
+		if (!gitignoreData.includes('.mops')) {
+			writeFileSync(gitignore, `${gitignoreData}\n.mops${lf}`.trimStart());
+		}
+	}
+
+	// add src/lib.mo
+	if (type === 'package' && !existsSync(path.join(process.cwd(), 'src'))) {
+		await template('lib.mo');
+	}
+
+	// add src/lib.test.mo
+	if (addTest && !existsSync(path.join(process.cwd(), 'test'))) {
+		await template('lib.test.mo');
+	}
+
+	// add license
+	if (config.package?.license) {
+		await template(`license:${config.package.license}`, {copyrightOwner});
+	}
+
+	// add GitHub workflow
+	if (setupWorkflow) {
+		await template('github-workflow:mops-test');
+	}
 
 	// install deps
 	if (Object.keys(config.dependencies || {}).length) {
