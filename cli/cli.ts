@@ -34,8 +34,13 @@ program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version')
 program
 	.command('init [name]')
 	.description('Create mops.toml')
+	.option('-y, --yes', 'Accept all defaults')
 	.action(async (name: string) => {
-		await init(name);
+		if (name) {
+			console.log(chalk.yellow('The name argument is deprecated.'));
+			return;
+		}
+		await init();
 	});
 
 // add
