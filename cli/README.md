@@ -17,28 +17,16 @@ npm i -g ic-mops
 
 ## Install Packages
 
-### 1. Configure dfx.json
-Add `mops` as a packtool to your `dfx.json`
-
-```json
-{
-  "defaults": {
-    "build": {
-      "packtool": "mops sources"
-    }
-  }
-}
-```
-
-### 2. Initialize
+### 1. Initialize
 Run this command in the root directory of your project (where is `dfx.json` placed)
+
 If there are Vessel config files, mops will migrate packages from `vessel.dhall` to `mops.toml`
 
 ```
 mops init
 ```
 
-### 3. Install Motoko Packages
+### 2. Install Motoko Packages
 Use `mops add <package_name>` to install a specific package and save it to `mops.toml`
 
 ```
@@ -65,7 +53,7 @@ Use `mops install` to install all packages specified in `mops.toml`
 mops install
 ```
 
-### 4. Import Package
+### 3. Import Package
 Now you can import installed packages in your Motoko code
 
 ```motoko
