@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import {getRootDir} from '../mops.js';
+import camelCase from 'camelcase';
+import {getRootDir, readConfig} from '../mops.js';
 
 export async function template(templateName?: string, options: any = {}) {
 	if (!templateName) {
@@ -11,6 +12,11 @@ export async function template(templateName?: string, options: any = {}) {
 			name: 'value',
 			message: 'Select template:',
 			choices: [
+				{title: 'README.md', value: 'readme'},
+				{title: 'src/lib.mo', value: 'lib.mo'},
+				{title: 'test/lib.test.mo', value: 'lib.test.mo'},
+				{title: 'License MIT', value: 'license:MIT'},
+				{title: 'License Apache-2.0', value: 'license:Apache-2.0'},
 				{title: 'GitHub Workflow to run \'mops test\'', value: 'github-workflow:mops-test'},
 				{title: '× Cancel', value: ''},
 			],
@@ -62,5 +68,25 @@ export async function template(templateName?: string, options: any = {}) {
 		fs.mkdirSync(path.join(getRootDir(), 'test'), {recursive: true});
 		fs.copyFileSync(new URL('../templates/test/lib.test.mo', import.meta.url), path.resolve(getRootDir(), 'test/lib.test.mo'));
 		console.log(chalk.green('Test file created:'), path.relative(getRootDir(), 'test/lib.test.mo'));
+	}
+	else if (templateName === 'readme') {
+		let dest = path.resolve(getRootDir(), 'README.md');
+		if (fs.existsSync(dest)) {
+			console.log(chalk.yellow('README.md already exists'));
+			return;
+		}
+		fs.copyFileSync(new URL('../templates/README.md', import.meta.url), dest);
+
+		let config = readConfig();
+
+		let data = fs.readFileSync(dest).toString();
+		data = data.replace(/<year>/g, new Date().getFullYear().toString());
+		if (config.package?.name) {
+			data = data.replace(/<name>/g, config.package.name);
+			data = data.replace(/<import-name>/g, camelCase(config.package.name, {pascalCase: true}));
+		}
+		fs.writeFileSync(dest, data);
+
+		console.log(chalk.green('File created:'), path.relative(getRootDir(), 'README.md'));
 	}
 }

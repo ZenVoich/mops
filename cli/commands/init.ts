@@ -215,6 +215,9 @@ export async function init() {
 		await template(`license:${config.package.license}`, {copyrightOwner});
 	}
 
+	// add readme
+	await template('readme');
+
 	// add GitHub workflow
 	if (setupWorkflow) {
 		await template('github-workflow:mops-test');
