@@ -5,7 +5,8 @@
 			"type": "motoko",
 			"main": "backend/main/main-canister.mo",
 			"declarations": {
-				"output": "cli/declarations/main/"
+				"output": "cli/declarations/main/",
+				"node_compatibility": true
 			}
 		},
 		"assets": {
@@ -21,7 +22,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.14.1",
+	"dfx": "0.14.3",
 	"networks": {
 		"staging": {
 			"type": "persistent",

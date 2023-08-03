@@ -94,6 +94,7 @@ export interface PackageSummary__1 {
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
+export type PackageVersion = string;
 export type PageCount = bigint;
 export type PublishingErr = string;
 export type PublishingId = string;
@@ -107,7 +108,7 @@ export type Result_3 = { 'ok' : null } |
   { 'err' : string };
 export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
-export type Result_5 = { 'ok' : Ver } |
+export type Result_5 = { 'ok' : PackageVersion } |
   { 'err' : Err };
 export type Result_6 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
@@ -144,22 +145,17 @@ export interface User__1 {
   'githubVerified' : boolean,
   'github' : string,
 }
-export type Ver = string;
-export type Version = string;
 export interface _SERVICE {
-  'backup' : ActorMethod<[], Principal>,
+  'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
-  'getAllPackages' : ActorMethod<
-    [bigint, bigint],
-    [Array<PackageSummary>, PageCount]
-  >,
   'getApiVersion' : ActorMethod<[], Text>,
+  'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName__1, Version]>
+    Array<[PackageName__1, PackageVersion]>
   >,
   'getDownloadTrendByPackageId' : ActorMethod<
     [PackageId],
@@ -169,18 +165,22 @@ export interface _SERVICE {
     [PackageName__1],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_6>,
+  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion], Result_6>,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_4>,
+  'getPackageDetails' : ActorMethod<[PackageName__1, PackageVersion], Result_4>,
+  'getPackagesByCategory' : ActorMethod<
+    [],
+    Array<[string, Array<PackageSummary>]>
+  >,
   'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
-  'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
+  'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
   'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],

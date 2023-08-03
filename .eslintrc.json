@@ -4,11 +4,15 @@
         "es2022": true
     },
     "extends": [
-        "eslint:recommended"
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
     "ignorePatterns": [
         "node_modules/",
-        "declarations/"
+        "declarations/",
+        "dist/"
     ],
     "rules": {
         "indent": [
@@ -43,6 +47,9 @@
             "error",
             "never"
         ],
+        "prefer-const": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "space-before-blocks": [
             "error",
             "always"
@@ -67,7 +74,8 @@
                 "after": true
             }
         ],
-        "no-unused-vars": [
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
             "error",
             {
                 "argsIgnorePattern": "^_"

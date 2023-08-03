@@ -15,6 +15,7 @@
 	import PackageReadme from './PackageReadme.svelte';
 	import PackageDocs from './PackageDocs.svelte';
 	import PackageRightPanel from './PackageRightPanel.svelte';
+	import githubImg from '/img/github.svg';
 
 	let pkgName: string;
 	$: pkgName = $routeParams.packageName;
@@ -206,7 +207,7 @@
 										{#each githubDeps as dep}
 											<div class="github-dep">
 												<a class="github-dep-repo" href="{dep.repo}" target="_blank">
-													<img class="github-icon" src="/img/github.svg" alt="GitHub logo" loading="lazy" />
+													<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
 													<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
 												</a>
 												<div class="github-dep-tag">{dep.repo.split('#')[1] || ''}</div>

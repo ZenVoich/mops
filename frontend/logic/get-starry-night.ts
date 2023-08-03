@@ -4,7 +4,7 @@ import moGrammar from '@wooorm/starry-night/lang/source.mo';
 type StarryNight = Awaited<ReturnType<typeof createStarryNight>>;
 
 declare global {
-	// eslint-disable-next-line no-unused-vars
+	// eslint-disable-next-line no-unused-vars, no-var
 	var starryNight: StarryNight;
 }
 

@@ -1,12 +1,11 @@
 import {Principal} from '@dfinity/principal';
-import {auth} from './auth';
 import {createActor as createMainActor, canisterId as mainCanisterId} from '/declarations/main';
 import {createActor as createStorageActor} from '/declarations/storage';
 
 let getOptions = () => {
 	return {
 		agentOptions: {
-			identity: process.env.NODE_ENV === 'production' && auth.identity,
+			host: process.env.NODE_ENV === 'production' ? 'https://icp-api.io' : undefined,
 		}
 	};
 };
@@ -20,7 +19,7 @@ export let storageActor = (storageId: string | Principal) => {
 };
 
 declare global {
-	// eslint-disable-next-line no-unused-vars
+	// eslint-disable-next-line no-unused-vars, no-var
 	var getStoragesStats: () => void;
 }
 

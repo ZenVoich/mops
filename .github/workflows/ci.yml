@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         moc-version: [0.9.3, 0.9.7]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.12, ic-mops@0.14]
+        mops-version: [./cli, ic-mops@latest, ic-mops@0.12]
         node-version: [16, 18, 20]
 
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
 
       - uses: aviate-labs/setup-dfx@v0.2.6
         with:
-          dfx-version: 0.14.1
+          dfx-version: 0.14.3
 
       - name: Cache mops packages
         uses: actions/cache@v3
@@ -40,11 +40,15 @@ jobs:
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
 
-      - name: Install mops
-        run: npm i -g ${{ matrix.mops-version }}
-
       - name: Install npm packages
         run: npm install
+
+      - name: Build local cli
+        if: ${{ matrix.mops-version == './cli' }}
+        run: cd cli && npm run prepare
+
+      - name: Install mops
+        run: npm i -g ${{ matrix.mops-version }}
 
       - name: Install mops packages
         run: mops install
