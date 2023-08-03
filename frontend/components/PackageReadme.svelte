@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {micromark} from 'micromark';
 	import {gfmTable, gfmTableHtml} from 'micromark-extension-gfm-table';
+	import {gfmAutolinkLiteral, gfmAutolinkLiteralHtml} from 'micromark-extension-gfm-autolink-literal';
 	import {toHtml} from 'hast-util-to-html';
 	import '@wooorm/starry-night/style/light.css';
 	import {getStarryNight} from '/logic/get-starry-night';
@@ -12,8 +13,8 @@
 	let render = async (readme: string) => {
 		let div = document.createElement('div');
 		div.innerHTML = micromark(readme, {
-			extensions: [gfmTable],
-			htmlExtensions: [gfmTableHtml],
+			extensions: [gfmTable(), gfmAutolinkLiteral()],
+			htmlExtensions: [gfmTableHtml(), gfmAutolinkLiteralHtml()],
 		});
 
 		// replace relative url to github absolute url
