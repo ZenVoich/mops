@@ -900,7 +900,7 @@ actor {
 		await backup.finishBackup();
 	};
 
-	ignore backupManager.setTimer(#minutes(1), _backup);
+	ignore backupManager.setTimer(#hours(1), _backup);
 
 	// RESTORE
 	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
