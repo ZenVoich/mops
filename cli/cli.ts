@@ -32,15 +32,11 @@ program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version')
 
 // init
 program
-	.command('init [name]')
-	.description('Create mops.toml')
+	.command('init')
+	.description('Initialize a new project or package in the current directory')
 	.option('-y, --yes', 'Accept all defaults')
-	.action(async (name: string) => {
-		if (name) {
-			console.log(chalk.yellow('The name argument is deprecated.'));
-			return;
-		}
-		await init();
+	.action(async (options) => {
+		await init(options);
 	});
 
 // add
@@ -116,7 +112,7 @@ program
 program
 	.command('set-network <network>')
 	.alias('sn')
-	.description('Set network local|dev|ic')
+	.description('Set network local|staging|ic')
 	.action(async (network) => {
 		await setNetwork(network);
 		console.log(`Selected '${network}' network`);

@@ -1,6 +1,6 @@
 import {execSync} from 'node:child_process';
 import path from 'node:path';
-import fs, {existsSync, readFileSync, writeFileSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import chalk from 'chalk';
 import prompts from 'prompts';
 
@@ -10,23 +10,34 @@ import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {Config, Dependencies} from '../types.js';
 import {template} from './template.js';
 
-export async function init() {
+export async function init({yes = false} = {}) {
 	let configFile = path.join(process.cwd(), 'mops.toml');
-	let exists = fs.existsSync(configFile);
+	let exists = existsSync(configFile);
 	if (exists) {
 		console.log(chalk.yellow('mops.toml already exists'));
-		// return;
+		return;
 	}
 
 	console.log('Initializing...');
 
 	let config: Config = {};
 
+	if (yes) {
+		await applyInit({
+			type: 'project',
+			config,
+			setupWorkflow: true,
+			addTest: false,
+			copyrightOwner: '',
+		});
+		return;
+	}
+
 	// migrate from vessel
 	let vesselFile = path.join(process.cwd(), 'vessel.dhall');
 	let vesselConfig: VesselConfig = {dependencies: [], 'dev-dependencies': []};
 
-	if (fs.existsSync(vesselFile)) {
+	if (existsSync(vesselFile)) {
 		console.log('Reading vessel.dhall file');
 		let res = await readVesselConfig(process.cwd(), {cache: false});
 		if (res) {
@@ -140,18 +151,39 @@ export async function init() {
 		initial: true,
 	}, promptsConfig);
 
+	await applyInit({
+		type,
+		config,
+		setupWorkflow,
+		addTest,
+		copyrightOwner,
+	});
+}
+
+type ApplyInitOptions = {
+	type: 'project' | 'package';
+	config: Config;
+	setupWorkflow: boolean;
+	addTest: boolean;
+	copyrightOwner: string;
+}
+
+async function applyInit({type, config, setupWorkflow, addTest, copyrightOwner} : ApplyInitOptions) {
 	// set packtool in dfx.json
 	let dfxJson = path.resolve(process.cwd(), 'dfx.json');
 	let dfxJsonData;
 	if (existsSync(dfxJson)) {
-		let dfxJsonText = fs.readFileSync(dfxJson).toString();
+		let dfxJsonText = readFileSync(dfxJson).toString();
 		dfxJsonData = JSON.parse(dfxJsonText);
 		console.log('Setting packtool in dfx.json...');
 		dfxJsonData.defaults = dfxJsonData.defaults || {};
 		dfxJsonData.defaults.build = dfxJsonData.defaults.build || {};
-		dfxJsonData.defaults.build.packtool = 'mops sources';
-		let indent = dfxJsonText.match(/([ \t]+)"/)?.[1] || '  ';
-		writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
+		if (dfxJsonData.defaults.build.packtool !== 'mops sources') {
+			dfxJsonData.defaults.build.packtool = 'mops sources';
+			let indent = dfxJsonText.match(/([ \t]+)"/)?.[1] || '  ';
+			writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
+			console.log(chalk.green('packtool set to "mops sources"'));
+		}
 	}
 
 	// get default packages
@@ -187,18 +219,9 @@ export async function init() {
 	}
 
 	// save config
+	let configFile = path.join(process.cwd(), 'mops.toml');
 	writeConfig(config, configFile);
-
-	// add .mops to .gitignore
-	{
-		console.log('Adding .mops to .gitignore...');
-		let gitignore = path.join(process.cwd(), '.gitignore');
-		let gitignoreData = existsSync(gitignore) ? readFileSync(gitignore).toString() : '';
-		let lf = gitignoreData.endsWith('\n') ? '\n' : '';
-		if (!gitignoreData.includes('.mops')) {
-			writeFileSync(gitignore, `${gitignoreData}\n.mops${lf}`.trimStart());
-		}
-	}
+	console.log(chalk.green('Created'), 'mops.toml');
 
 	// add src/lib.mo
 	if (type === 'package' && !existsSync(path.join(process.cwd(), 'src'))) {
@@ -216,11 +239,24 @@ export async function init() {
 	}
 
 	// add readme
-	await template('readme');
+	if (type === 'package') {
+		await template('readme');
+	}
 
 	// add GitHub workflow
 	if (setupWorkflow) {
 		await template('github-workflow:mops-test');
+	}
+
+	// add .mops to .gitignore
+	{
+		let gitignore = path.join(process.cwd(), '.gitignore');
+		let gitignoreData = existsSync(gitignore) ? readFileSync(gitignore).toString() : '';
+		let lf = gitignoreData.endsWith('\n') ? '\n' : '';
+		if (!gitignoreData.includes('.mops')) {
+			writeFileSync(gitignore, `${gitignoreData}\n.mops${lf}`.trimStart());
+			console.log(chalk.green('Added'), '.mops to .gitignore');
+		}
 	}
 
 	// install deps
@@ -229,5 +265,5 @@ export async function init() {
 		await installAll({verbose: true});
 	}
 
-	console.log(chalk.green('mops.toml has been created'));
+	console.log(chalk.green('Done!'));
 }
