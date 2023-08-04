@@ -80,10 +80,10 @@ mops import-identity -- "$(dfx identity export mops)"
 ```
 
 ### 2. Initialize
-Run this command in your package root
+Run this command in your package root and select type "Package"
 
 ```
-mops init <your_package_name>
+mops init
 ```
 
 Edit `description` and `repository` fields in `mops.toml` file.
