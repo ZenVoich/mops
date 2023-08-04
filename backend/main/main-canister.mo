@@ -24,7 +24,7 @@ import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
 
-import Backup "../backup";
+import Backup "mo:backup";
 
 import Utils "../utils";
 import Semver "./semver";
