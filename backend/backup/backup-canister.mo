@@ -13,6 +13,7 @@ import Iter "mo:base/Iter";
 import Principal "mo:base/Principal";
 import ExperimentalStableMemory "mo:base/ExperimentalStableMemory";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
+import Prim "mo:prim";
 
 import DateTime "mo:motoko-datetime/DateTime";
 import LinkedList "mo:linked-list";
@@ -247,6 +248,7 @@ actor class BackupCanister(whitelist : [Principal]) {
 		var body = "";
 		body #= "Total backups:\t\t" # Nat.toText(Map.size(backups)) # "\n\n";
 		body #= "Total size:\t\t" # formatSize(totalSize, ["b", "B"]) # "\n\n";
+		body #= "Allocated memory:\t" # formatSize(Prim.rts_memory_size(), ["b", "B"]) # "\n\n";
 		body #= "Cycles balance:\t\t" # formatSize(ExperimentalCycles.balance(), ["cycles", "C"]) # "\n\n";
 		body #= "\n\n\n";
 		body #= "ID\t\tStart Time\t\t\tSize\t\tDuration\tChunks\t\tBiggest Chunk\t\tTag\n";

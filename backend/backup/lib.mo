@@ -41,6 +41,9 @@ module {
 		};
 
 		func _createBackupCanister() : async Principal {
+			if (ExperimentalCycles.balance() < 2_000_000_000_000) {
+				Debug.trap("Not enough cycles to create backup canister");
+			};
 			ExperimentalCycles.add(1_000_000_000_000); // 1 TC
 			// let backupCanister = await BackupCanister.BackupCanister([]);
 			let backupCanister = await (system BackupCanister.BackupCanister)(#new {
