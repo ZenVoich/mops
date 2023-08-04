@@ -24,26 +24,13 @@
 		<br>
 		<div>This command will install cli tool <code class="inline">mops</code></div>
 
-		<h3>2. Configure dfx.json</h3>
-		<div>Add <code class="inline">mops</code> as a packtool to your <code class="inline">dfx.json</code></div>
-		<br>
-		<code>
-			<div>...</div>
-			<div>"defaults": &lbrace;</div>
-			<div>&nbsp;&nbsp;"build": &lbrace;</div>
-			<div>&nbsp;&nbsp;&nbsp;&nbsp;"packtool": "mops sources"</div>
-			<div>&nbsp;&nbsp;&rbrace;</div>
-			<div>&rbrace;,</div>
-			<div>...</div>
-		</code>
-
-		<h3>3. Initialize</h3>
+		<h3>2. Initialize</h3>
 		<div>Run this command in the root directory of your project (where is <code class="inline">dfx.json</code> placed)</div>
 		<div>If there are Vessel config files, mops will migrate packages from <code class="inline">vessel.dhall</code> to <code class="inline">mops.toml</code></div>
 		<br>
 		<code>mops init</code>
 
-		<h3>4. Install Motoko Packages</h3>
+		<h3>3. Install Motoko Packages</h3>
 		<div>Use <code class="inline">mops add &lt;package_name&gt;</code> to install a specific package and save it to <code class="inline">mops.toml</code></div>
 		<br>
 		<code>mops add base</code>
@@ -68,7 +55,7 @@
 		<br>
 		<code>mops install</code>
 
-		<h3>5. Import Package</h3>
+		<h3>4. Import Package</h3>
 		<div>Now you can import installed packages in your Motoko code</div>
 		<br>
 		<code>import PackageName "mo:&lt;package_name&gt;";</code>
@@ -76,11 +63,6 @@
 		<div>for example</div>
 		<br>
 		<code>import Itertools "mo:itertools/Iter";</code>
-
-		<!-- <h3>6. Gitignore cache files</h3>
-		<div>Add following line into the <code class="inline">.gitignore</code> file</div>
-		<br>
-		<code>.mops/</code> -->
 	</div>
 </div>
 

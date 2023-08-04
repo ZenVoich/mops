@@ -15,6 +15,7 @@
 		"deploy-local": "NODE_ENV=development IDENTITY=default NETWORK=local npm run deploy",
 		"deploy-staging": "NODE_ENV=production IDENTITY=mops NETWORK=staging npm run deploy",
 		"deploy-ic": "NODE_ENV=production IDENTITY=mops NETWORK=ic npm run deploy",
+		"prepare-cli": "cd cli && npm run prepare",
 		"prepare": "husky install",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)",
 		"test": "mops test"
