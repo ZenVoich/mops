@@ -15,6 +15,7 @@
 		"build:prod": "NODE_ENV=production dfx build --network ic",
 		"deploy:prod": "NODE_ENV=production dfx deploy --network ic --no-wallet --identity mops",
 		"deploy:staging": "NODE_ENV=production dfx deploy --network staging --no-wallet --identity mops",
+		"prepare-cli": "cd cli && npm run prepare",
 		"prepare": "husky install",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)",
 		"test": "mops test"
