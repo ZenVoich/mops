@@ -17,8 +17,6 @@ import Hash "mo:base/Hash";
 import TrieSet "mo:base/TrieSet";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 import Prim "mo:prim";
-import Timer "mo:base/Timer";
-import Blob "mo:base/Blob";
 
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
@@ -548,7 +546,7 @@ actor {
 	};
 
 	func _toLowerCase(text : Text) : Text {
-		Text.map(text , Prim.charToLower);
+		Text.map(text, Prim.charToLower);
 	};
 
 	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
