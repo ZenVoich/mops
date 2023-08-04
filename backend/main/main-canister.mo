@@ -22,6 +22,8 @@ import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
 
+import Backup "mo:backup";
+
 import Utils "../utils";
 import Semver "./semver";
 import Types "./types";
@@ -544,7 +546,7 @@ actor {
 	};
 
 	func _toLowerCase(text : Text) : Text {
-		Text.map(text , Prim.charToLower);
+		Text.map(text, Prim.charToLower);
 	};
 
 	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
@@ -853,6 +855,93 @@ actor {
 			case ("twitter") users.setTwitter(caller, value);
 			case (_) #err("unknown property");
 		};
+	};
+
+	// BACKUP
+	stable let backupState = Backup.init(null);
+	let backupManager = Backup.BackupManager(backupState);
+
+	type BackupChunk = {
+		#v1 : {
+			#packagePublications : [(PackageId, PackagePublication)];
+			#packageVersions : [(PackageName, [PackageVersion])];
+			#packageOwners : [(PackageName, Principal)];
+			#packageConfigs : [(PackageId, PackageConfigV2)];
+			#highestConfigs : [(PackageName, PackageConfigV2)];
+			#fileIdsByPackage : [(PackageId, [FileId])];
+			#downloadLog : DownloadLog.Stable;
+			#storageManager : StorageManager.Stable;
+			#users : Users.Stable;
+		};
+	};
+
+	public shared ({caller}) func backup() : async () {
+		assert(Utils.isAdmin(caller));
+		await _backup();
+	};
+
+	public query ({caller}) func getBackupCanisterId() : async Principal {
+		assert(Utils.isAdmin(caller));
+		backupManager.getCanisterId();
+	};
+
+	func _backup() : async () {
+		let backup = backupManager.NewBackup("v1");
+		await backup.startBackup();
+		await backup.uploadChunk(to_candid(#v1(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v1(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.finishBackup();
+	};
+
+	ignore backupManager.setTimer(#hours(1), _backup);
+
+	// RESTORE
+	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
+		assert(false); // restore disabled
+		assert(Utils.isAdmin(caller));
+
+		await backupManager.restore(backupId, func(blob : Blob) {
+			let ?#v1(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+
+			switch (chunk) {
+				case (#packagePublications(packagePublicationsStable)) {
+					packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageVersions(packageVersionsStable)) {
+					packageVersions := TrieMap.fromEntries<PackageName, [PackageVersion]>(packageVersionsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageOwners(packageOwnersStable)) {
+					packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
+				};
+				case (#fileIdsByPackage(fileIdsByPackageStable)) {
+					fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
+				};
+				case (#downloadLog(downloadLogStable)) {
+					downloadLog.cancelTimers();
+					downloadLog.loadStable(downloadLogStable);
+					downloadLog.setTimers();
+				};
+				case (#storageManager(storageManagerStable)) {
+					storageManager.loadStable(storageManagerStable);
+				};
+				case (#users(usersStable)) {
+					users.loadStable(usersStable);
+				};
+				case (#highestConfigs(highestConfigsStable)) {
+					highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageConfigs(packageConfigsStable)) {
+					packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStable.vals(), Text.equal, Text.hash);
+				};
+			};
+		});
 	};
 
 	// SYSTEM

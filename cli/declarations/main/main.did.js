@@ -137,11 +137,13 @@ export const idlFactory = ({ IDL }) => {
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
   return IDL.Service({
+    'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
     'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
+    'getBackupCanisterId' : IDL.Func([], [IDL.Principal], ['query']),
     'getDefaultPackages' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion))],
@@ -202,6 +204,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         ['oneway'],
       ),
+    'restore' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
     'search' : IDL.Func(
         [Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
         [IDL.Vec(PackageSummary), PageCount],

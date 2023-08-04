@@ -146,11 +146,13 @@ export interface User__1 {
   'github' : string,
 }
 export interface _SERVICE {
+  'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
   'getApiVersion' : ActorMethod<[], Text>,
+  'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
     Array<[PackageName__1, PackageVersion]>
@@ -179,6 +181,7 @@ export interface _SERVICE {
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
+  'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]

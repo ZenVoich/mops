@@ -56,5 +56,5 @@ jobs:
       - name: Build and Deploy
         run: |
             npm run replica
-            npm run deploy
+            npm run deploy-local
             npm run build

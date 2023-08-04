@@ -5,6 +5,7 @@ itertools = "0.1.1"
 chronosphere = "https://github.com/enzoh/chronosphere#master"
 map = "8.1.0"
 ic = "0.2.0"
+backup = "1.0.0"
 
 [dev-dependencies]
 test = "1.0.0"
