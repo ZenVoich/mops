@@ -753,6 +753,7 @@ actor {
 					"ic",
 					"ledger-types",
 					"ckbtc-types",
+					"http-types",
 					"canistergeek",
 					"icrc1",
 					"origyn-nft",
@@ -769,6 +770,7 @@ actor {
 					"server",
 					"http-parser",
 					"web-io",
+					"http-types",
 				], limit)
 			),
 			(
