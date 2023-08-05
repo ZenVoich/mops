@@ -902,8 +902,6 @@ actor {
 		await backup.finishBackup();
 	};
 
-	ignore backupManager.setTimer(#hours(1), _backup);
-
 	// RESTORE
 	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
 		assert(false); // restore disabled
@@ -1001,5 +999,7 @@ actor {
 
 		highestConfigsStableV2 := [];
 		packageConfigsStableV2 := [];
+
+		ignore backupManager.setTimer(#hours(1), _backup);
 	};
 };
