@@ -1000,6 +1000,8 @@ actor {
 		highestConfigsStableV2 := [];
 		packageConfigsStableV2 := [];
 
-		ignore backupManager.setTimer(#hours(1), _backup);
+		backupManager.setTimer(#hours(1), _backup);
 	};
+
+	backupManager.setTimer(#hours(1), _backup);
 };
