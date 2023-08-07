@@ -11,7 +11,7 @@
 		"lint:frontend": "eslint frontend --ext .svelte,.ts",
 		"decl:cli": "dfx generate main",
 		"decl:frontend": "cp -r cli/declarations frontend",
-		"deploy": "DFX_MOC_PATH=$(mocv bin 0.9.3)/moc dfx canister stop main --identity ${IDENTITY} --network ${NETWORK} && dfx deploy main --no-wallet --identity ${IDENTITY} --network ${NETWORK} && dfx canister start main --identity ${IDENTITY} --network ${NETWORK}",
+		"deploy": "DFX_MOC_PATH=$(mocv bin 0.9.3)/moc dfx canister stop main --identity ${IDENTITY} --network ${NETWORK} && dfx deploy --no-wallet --identity ${IDENTITY} --network ${NETWORK} && dfx canister start main --identity ${IDENTITY} --network ${NETWORK}",
 		"deploy-local": "NODE_ENV=development IDENTITY=default NETWORK=local npm run deploy",
 		"deploy-staging": "NODE_ENV=production IDENTITY=mops NETWORK=staging npm run deploy",
 		"deploy-ic": "NODE_ENV=production IDENTITY=mops NETWORK=ic npm run deploy",
