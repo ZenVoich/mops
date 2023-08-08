@@ -33,15 +33,29 @@ type StorageStats =
    memorySize: nat;
  };
 type StorageId = principal;
+type SemverPart = 
+ variant {
+   major;
+   minor;
+   patch;
+ };
 type Script = 
  record {
    name: text;
    value: text;
  };
-type Result_6 = 
+type Result_7 = 
  variant {
    err: Err;
    ok: vec FileId;
+ };
+type Result_6 = 
+ variant {
+   err: Err;
+   ok: vec record {
+             PackageName__1;
+             PackageVersion;
+           };
  };
 type Result_5 = 
  variant {
@@ -196,7 +210,13 @@ service : {
    (vec DownloadsSnapshot__1) query;
   getDownloadTrendByPackageName: (PackageName__1) ->
    (vec DownloadsSnapshot__1) query;
-  getFileIds: (PackageName__1, PackageVersion) -> (Result_6) query;
+  getFileIds: (PackageName__1, PackageVersion) -> (Result_7) query;
+  getHighestSemverBatch:
+   (vec record {
+          PackageName__1;
+          PackageVersion;
+          SemverPart;
+        }) -> (Result_6) query;
   getHighestVersion: (PackageName__1) -> (Result_5) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;
   getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;

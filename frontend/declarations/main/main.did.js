@@ -13,7 +13,16 @@ export const idlFactory = ({ IDL }) => {
     'downloads' : IDL.Nat,
   });
   const FileId = IDL.Text;
-  const Result_6 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
+  const Result_7 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
+  const SemverPart = IDL.Variant({
+    'major' : IDL.Null,
+    'minor' : IDL.Null,
+    'patch' : IDL.Null,
+  });
+  const Result_6 = IDL.Variant({
+    'ok' : IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion)),
+    'err' : Err,
+  });
   const Result_5 = IDL.Variant({ 'ok' : PackageVersion, 'err' : Err });
   const User = IDL.Record({
     'id' : IDL.Principal,
@@ -161,6 +170,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getFileIds' : IDL.Func(
         [PackageName__1, PackageVersion],
+        [Result_7],
+        ['query'],
+      ),
+    'getHighestSemverBatch' : IDL.Func(
+        [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion, SemverPart))],
         [Result_6],
         ['query'],
       ),
