@@ -16,6 +16,7 @@
 	import PackageDocs from './PackageDocs.svelte';
 	import PackageRightPanel from './PackageRightPanel.svelte';
 	import githubImg from '/img/github.svg';
+	import {compareVersions} from '/logic/compare-versions';
 
 	let pkgName: string;
 	$: pkgName = $routeParams.packageName;
@@ -30,12 +31,19 @@
 	let installHovered = false;
 	let copiedToClipboard = false;
 
+	function getHighestVersion() {
+		return packageDetails?.versionHistory.map(a => a.config.version).sort(compareVersions).at(-1);
+	}
+
 	$: githubDeps = packageDetails?.config.dependencies.filter(dep => dep.repo);
 
 	let load = debounce(10, async () => {
-		if (!pkgName || loaded && pkgName === packageDetails?.config.name && (!pkgVersion || pkgVersion === packageDetails?.config.version)) {
+		console.log(pkgName, loaded, pkgName === packageDetails?.config.name, !pkgVersion, pkgVersion === packageDetails?.config.version)
+		let sameVersion = (pkgVersion || getHighestVersion()) === packageDetails?.config.version;
+		if (!pkgName || loaded && pkgName === packageDetails?.config.name && sameVersion) {
 			return;
 		}
+		console.log('re')
 		loaded = false;
 
 		let ver = pkgVersion || 'highest';
@@ -121,11 +129,7 @@
 </script>
 
 <svelte:head>
-	{#if packageDetails}
-		<title>{packageDetails.config.name}  &nbsp;&bull;&nbsp; Motoko Package</title>
-	{:else}
-		<title>Motoko Package</title>
-	{/if}
+	<title>{packageDetails ? `${packageDetails.config.name}⠀•⠀Motoko Package` : 'Motoko Package'}</title>
 </svelte:head>
 
 <Header></Header>
@@ -137,6 +141,11 @@
 				<div class="header-content">
 					<div class="name">{packageDetails.config.name}</div>
 					<div class="version">{packageDetails.config.version} published <Date date="{Number(packageDetails.publication.time / 1000000n)}"></Date></div>
+					{#if getHighestVersion() !== packageDetails.config.version}
+						<div>
+							<a class="new-version-available" href="/{pkgName}" use:link>Newer version available: {getHighestVersion()}</a>
+						</div>
+					{/if}
 
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">

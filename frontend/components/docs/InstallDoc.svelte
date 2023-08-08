@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Mops &nbsp;&bull;&nbsp; Install</title>
+	<title>Mops⠀•⠀Install</title>
 </svelte:head>
 
 <Header></Header>
