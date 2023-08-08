@@ -1,6 +1,6 @@
 {
 	"name": "ic-mops",
-	"version": "0.24.0",
+	"version": "0.25.0",
 	"type": "module",
 	"bin": {
 		"mops": "dist/cli.js"
