@@ -22,6 +22,8 @@ import {remove} from './commands/remove.js';
 import {getUserProp, setUserProp} from './commands/user.js';
 import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
+import {outdated} from './commands/outdated.js';
+import {update} from './commands/update.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -291,7 +293,7 @@ program
 	.command('bump [major|minor|patch]')
 	.description('Bump current package version')
 	.action(async (part) => {
-		bump(part);
+		await bump(part);
 	});
 
 // sync
@@ -300,6 +302,22 @@ program
 	.description('Add missing packages and remove unused packages')
 	.action(async () => {
 		await sync();
+	});
+
+// outdated
+program
+	.command('outdated')
+	.description('Print outdated dependencies specified in mops.toml')
+	.action(async () => {
+		await outdated();
+	});
+
+// update
+program
+	.command('update [pkg]')
+	.description('Update dependencies specified in mops.toml')
+	.action(async (pkg) => {
+		await update(pkg);
 	});
 
 program.parse();

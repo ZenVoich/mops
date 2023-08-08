@@ -110,9 +110,14 @@ export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
 export type Result_5 = { 'ok' : PackageVersion } |
   { 'err' : Err };
-export type Result_6 = { 'ok' : Array<FileId> } |
+export type Result_6 = { 'ok' : Array<[PackageName__1, PackageVersion]> } |
+  { 'err' : Err };
+export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
+export type SemverPart = { 'major' : null } |
+  { 'minor' : null } |
+  { 'patch' : null };
 export type StorageId = Principal;
 export interface StorageStats {
   'fileCount' : bigint,
@@ -165,7 +170,11 @@ export interface _SERVICE {
     [PackageName__1],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion], Result_6>,
+  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion], Result_7>,
+  'getHighestSemverBatch' : ActorMethod<
+    [Array<[PackageName__1, PackageVersion, SemverPart]>],
+    Result_6
+  >,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,

@@ -50,6 +50,7 @@ actor {
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
 	public type PageCount = Nat;
+	public type SemverPart = Types.SemverPart;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
@@ -517,6 +518,53 @@ actor {
 
 	public shared query ({caller}) func getHighestVersion(name : PackageName) : async Result.Result<PackageVersion, Err> {
 		Result.fromOption(_getHighestVersion(name), "Package '" # name # "' not found");
+	};
+
+	func _getHighestSemver(name : PackageName, currentVersion : PackageVersion, semverPart : SemverPart) : Result.Result<PackageVersion, Err> {
+		if (packageConfigs.get(name # "@" # currentVersion) == null) {
+			return #err("Package '" # name # "@" # currentVersion # "' not found");
+		};
+		let ?versions = packageVersions.get(name) else return #err("Package '" # name # "' not found");
+
+		var max = currentVersion;
+		for (ver in versions.vals()) {
+			switch (semverPart) {
+				case (#major) {
+					if (Semver.major(ver) > Semver.major(max) or Semver.major(ver) > Semver.major(max) or Semver.patch(ver) > Semver.patch(max)) {
+						max := ver;
+					};
+				};
+				case (#minor) {
+					if (Semver.major(ver) == Semver.major(max) and (Semver.major(ver) > Semver.major(max) or Semver.patch(ver) > Semver.patch(max))) {
+						max := ver;
+					};
+				};
+				case (#patch) {
+					if (Semver.major(ver) == Semver.major(max) and Semver.minor(ver) == Semver.minor(max) and Semver.patch(ver) > Semver.patch(max)) {
+						max := ver;
+					};
+				};
+			};
+		};
+
+		#ok(max);
+	};
+
+	public shared query ({caller}) func getHighestSemverBatch(list : [(PackageName, PackageVersion, SemverPart)]) : async Result.Result<[(PackageName, PackageVersion)], Err> {
+		assert(list.size() < 100);
+
+		let buf = Buffer.Buffer<(PackageName, PackageVersion)>(list.size());
+		for ((name, currentVersion, semverPart) in list.vals()) {
+			switch (_getHighestSemver(name, currentVersion, semverPart)) {
+				case (#ok(ver)) {
+					buf.add((name, ver));
+				};
+				case (#err(err)) {
+					return #err(err);
+				};
+			};
+		};
+		#ok(Buffer.toArray(buf));
 	};
 
 	public shared query ({caller}) func getPackageDetails(name : PackageName, version : PackageVersion) : async Result.Result<PackageDetails, Err> {
