@@ -16,7 +16,8 @@ export async function update(pkg?: string) {
 	}
 	else {
 		for (let dep of available) {
-			await add(`${dep[0]}@${dep[2]}`);
+			let dev = !!config['dev-dependencies']?.[dep[0]];
+			await add(`${dep[0]}@${dep[2]}`, {dev});
 		}
 	}
 }
