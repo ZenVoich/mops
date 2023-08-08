@@ -528,19 +528,23 @@ actor {
 
 		var max = currentVersion;
 		for (ver in versions.vals()) {
+			let patchBigger = Semver.major(ver) == Semver.major(max) and Semver.minor(ver) == Semver.minor(max) and Semver.patch(ver) > Semver.patch(max);
+			let minorBigger = Semver.major(ver) == Semver.major(max) and Semver.minor(ver) > Semver.minor(max) or patchBigger;
+			let majorBigger = Semver.major(ver) > Semver.major(max) or minorBigger or patchBigger;
+
 			switch (semverPart) {
 				case (#major) {
-					if (Semver.major(ver) > Semver.major(max) or Semver.major(ver) > Semver.major(max) or Semver.patch(ver) > Semver.patch(max)) {
+					if (majorBigger) {
 						max := ver;
 					};
 				};
 				case (#minor) {
-					if (Semver.major(ver) == Semver.major(max) and (Semver.major(ver) > Semver.major(max) or Semver.patch(ver) > Semver.patch(max))) {
+					if (minorBigger) {
 						max := ver;
 					};
 				};
 				case (#patch) {
-					if (Semver.major(ver) == Semver.major(max) and Semver.minor(ver) == Semver.minor(max) and Semver.patch(ver) > Semver.patch(max)) {
+					if (patchBigger) {
 						max := ver;
 					};
 				};
