@@ -310,7 +310,9 @@ actor {
 		assert(publishing.user == caller);
 
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
-		assert(pubFiles.size() < 100);
+		if (pubFiles.size() >= 300) {
+			Debug.trap("Maximum number of package files: 300");
+		};
 
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
 		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
