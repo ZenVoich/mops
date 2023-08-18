@@ -38,12 +38,10 @@
 	$: githubDeps = packageDetails?.config.dependencies.filter(dep => dep.repo);
 
 	let load = debounce(10, async () => {
-		console.log(pkgName, loaded, pkgName === packageDetails?.config.name, !pkgVersion, pkgVersion === packageDetails?.config.version)
 		let sameVersion = (pkgVersion || getHighestVersion()) === packageDetails?.config.version;
 		if (!pkgName || loaded && pkgName === packageDetails?.config.name && sameVersion) {
 			return;
 		}
-		console.log('re')
 		loaded = false;
 
 		let ver = pkgVersion || 'highest';
