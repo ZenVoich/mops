@@ -770,6 +770,7 @@ actor {
 			(
 				"Utilities",
 				_summariesFromNames([
+					"datetime",
 					"itertools",
 					"xtended-text",
 					"xtended-numbers",
