@@ -10,8 +10,10 @@ import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
 import {DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
 import {Dependency} from '../types.js';
+import {testWithReporter} from './test/test.js';
+import {SilentReporter} from './test/reporters/silent-reporter.js';
 
-export async function publish({noDocs = false} = {}) {
+export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -19,24 +21,26 @@ export async function publish({noDocs = false} = {}) {
 	let rootDir = getRootDir();
 	let config = readConfig();
 
+	console.log(`Publishing ${config.package?.name}@${config.package?.version}`);
+
 	// validate
 	for (let key of Object.keys(config)) {
 		if (!['package', 'dependencies', 'dev-dependencies', 'scripts'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
-			return;
+			process.exit(1);
 		}
 	}
 
 	// required fields
 	if (!config.package) {
 		console.log(chalk.red('Error: ') + 'Please specify [package] section in your mops.toml');
-		return;
+		process.exit(1);
 	}
 	for (let key of ['name', 'version']) {
 		// @ts-ignore
 		if (!config.package[key]) {
 			console.log(chalk.red('Error: ') + `Please specify "${key}" in [config] section in your mops.toml`);
-			return;
+			process.exit(1);
 		}
 	}
 
@@ -74,7 +78,7 @@ export async function publish({noDocs = false} = {}) {
 	for (let key of Object.keys(config.package)) {
 		if (!packageKeys.includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config key 'package.${key}'`);
-			return;
+			process.exit(1);
 		}
 	}
 
@@ -100,20 +104,20 @@ export async function publish({noDocs = false} = {}) {
 		// @ts-ignore
 		if (config.package[key] && config.package[key].length > max) {
 			console.log(chalk.red('Error: ') + `package.${key} value max length is ${max}`);
-			return;
+			process.exit(1);
 		}
 	}
 
 	if (config.dependencies) {
 		if (Object.keys(config.dependencies).length > 100) {
 			console.log(chalk.red('Error: ') + 'max dependencies is 100');
-			return;
+			process.exit(1);
 		}
 
 		for (let dep of Object.values(config.dependencies)) {
 			if (dep.path) {
 				console.log(chalk.red('Error: ') + 'you can\'t publish packages with local dependencies');
-				return;
+				process.exit(1);
 			}
 			delete dep.path;
 		}
@@ -122,13 +126,13 @@ export async function publish({noDocs = false} = {}) {
 	if (config['dev-dependencies']) {
 		if (Object.keys(config['dev-dependencies']).length > 100) {
 			console.log(chalk.red('Error: ') + 'max dev-dependencies is 100');
-			return;
+			process.exit(1);
 		}
 
 		for (let dep of Object.values(config['dev-dependencies'])) {
 			if (dep.path) {
 				console.log(chalk.red('Error: ') + 'you can\'t publish packages with local dev-dependencies');
-				return;
+				process.exit(1);
 			}
 			delete dep.path;
 		}
@@ -197,7 +201,8 @@ export async function publish({noDocs = false} = {}) {
 
 	// generate docs
 	let docsFile = path.join(rootDir, '.mops/.docs/docs.tgz');
-	if (!noDocs) {
+	if (options.docs) {
+		console.log('Generating documentation...');
 		await docs({silent: true});
 		if (fs.existsSync(docsFile)) {
 			files.unshift(docsFile);
@@ -207,19 +212,31 @@ export async function publish({noDocs = false} = {}) {
 	// check required files
 	if (!files.includes('mops.toml')) {
 		console.log(chalk.red('Error: ') + ' please add mops.toml file');
-		return;
+		process.exit(1);
 	}
 	if (!files.includes('README.md')) {
 		console.log(chalk.red('Error: ') + ' please add README.md file');
-		return;
+		process.exit(1);
 	}
 
 	// check allowed exts
 	for (let file of files) {
 		if (!minimatch(file, '**/*.{mo,did,md,toml}') && !file.toLowerCase().endsWith('license') && !file.toLowerCase().endsWith('notice') && file !== docsFile) {
 			console.log(chalk.red('Error: ') + `file ${file} has unsupported extension. Allowed: .mo, .did, .md, .toml`);
-			return;
+			process.exit(1);
 		}
+	}
+
+	// test
+	if (options.test) {
+		console.log('Running tests...');
+		let reporter = new SilentReporter;
+		await testWithReporter(reporter);
+		if (reporter.failed > 0) {
+			console.log(chalk.red('Error: ') + 'tests failed');
+			process.exit(1);
+		}
+		// console.log(reporter.passedNamesFlat);
 	}
 
 	// progress
@@ -227,7 +244,7 @@ export async function publish({noDocs = false} = {}) {
 	let step = 0;
 	function progress() {
 		step++;
-		logUpdate(`Publishing ${config.package?.name}@${config.package?.version} ${progressBar(step, total)}`);
+		logUpdate(`Uploading files ${progressBar(step, total)}`);
 	}
 
 	// upload config
@@ -277,11 +294,11 @@ export async function publish({noDocs = false} = {}) {
 
 	// finish
 	progress();
-	let res = await actor.finishPublish(puiblishingId);
-	if ('err' in res) {
-		console.log(chalk.red('Error: ') + res.err);
-		return;
-	}
+	// let res = await actor.finishPublish(puiblishingId);
+	// if ('err' in res) {
+	// 	console.log(chalk.red('Error: ') + res.err);
+	// 	return;
+	// }
 
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);
 }

@@ -9,6 +9,7 @@ type TestStatus = 'pass' | 'fail' | 'skip';
 type MessageType = 'pass' | 'fail' | 'skip' | 'suite' | 'stdout';
 
 export class MMF1 {
+	file: string;
 	stack: string[] = [];
 	currSuite: string = '';
 	failed = 0;
@@ -19,9 +20,16 @@ export class MMF1 {
 		type: MessageType;
 		message: string;
 	}[] = [];
+	nestingSymbol = ' › ';
+	// or <file>
+	// or <file> › <test>
+	// or <file> › <suite> › <test>
+	// or <file> › <suite> › <test> › <nested-test>...
+	passedNamesFlat: string[] = [];
 
-	constructor(srategy: Strategy) {
+	constructor(srategy: Strategy, file: string) {
 		this.srategy = srategy;
+		this.file = file;
 	}
 
 	_log(type: MessageType,  ...args: string[]) {
@@ -90,6 +98,7 @@ export class MMF1 {
 			}
 			this.passed++;
 			this._log(status, ' '.repeat(this.stack.length * 2), chalk.green('✓'), name);
+			this.passedNamesFlat.push([this.file, ...this.stack, name].join(this.nestingSymbol));
 		}
 		else if (status === 'fail') {
 			this.failed++;

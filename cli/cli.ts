@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
-import {program, Argument} from 'commander';
+import {program, Argument, Option} from 'commander';
 import chalk from 'chalk';
 import {Principal} from '@dfinity/principal';
 
@@ -100,6 +100,7 @@ program
 	.command('publish')
 	.description('Publish package to the mops registry')
 	.option('--no-docs', 'Do not generate docs')
+	.option('--no-test', 'Do not run tests')
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -188,14 +189,10 @@ program
 program
 	.command('test [filter]')
 	.description('Run tests')
-	.option('-r, --reporter <reporter>', 'Choose reporter: verbose, compact, files')
+	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
+	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
-	.option('--mode <mode>', 'Test mode: \'interpreter\' or \'wasi\' (default \'interpreter\'')
 	.action(async (filter, options) => {
-		if (options.mode && !['interpreter', 'wasi'].includes(options.mode)) {
-			console.log(`Unknown --mode value '${options.mode}'. Allowed: interpreter, wasi`);
-			process.exit(1);
-		}
 		await test(filter, options);
 	});
 

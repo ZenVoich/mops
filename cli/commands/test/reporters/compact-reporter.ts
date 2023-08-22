@@ -32,6 +32,10 @@ export class CompactReporter implements Reporter {
 			this.failed += mmf.failed;
 			this.skipped += mmf.skipped;
 
+			if (mmf.passed === 0 && mmf.failed === 0) {
+				this.passed++;
+			}
+
 			this.passedFiles += Number(mmf.failed === 0);
 			this.failedFiles += Number(mmf.failed !== 0);
 
