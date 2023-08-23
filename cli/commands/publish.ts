@@ -228,15 +228,14 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	}
 
 	// test
+	let reporter = new SilentReporter;
 	if (options.test) {
 		console.log('Running tests...');
-		let reporter = new SilentReporter;
 		await testWithReporter(reporter);
 		if (reporter.failed > 0) {
 			console.log(chalk.red('Error: ') + 'tests failed');
 			process.exit(1);
 		}
-		// console.log(reporter.passedNamesFlat);
 	}
 
 	// progress
@@ -257,6 +256,14 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		return;
 	}
 	let puiblishingId = publishing.ok;
+
+	// upload test stats
+	if (options.test) {
+		await actor.uploadTestStats(puiblishingId, {
+			passed: BigInt(reporter.passed),
+			passedNames: reporter.passedNamesFlat,
+		});
+	}
 
 	// upload files
 	await parallel(8, files, async (file: string) => {
@@ -294,11 +301,11 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 
 	// finish
 	progress();
-	// let res = await actor.finishPublish(puiblishingId);
-	// if ('err' in res) {
-	// 	console.log(chalk.red('Error: ') + res.err);
-	// 	return;
-	// }
+	let res = await actor.finishPublish(puiblishingId);
+	if ('err' in res) {
+		console.log(chalk.red('Error: ') + res.err);
+		return;
+	}
 
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);
 }
