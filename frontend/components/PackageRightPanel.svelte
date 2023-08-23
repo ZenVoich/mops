@@ -25,12 +25,6 @@
 			</a>
 		</div>
 	{/if}
-	{#if packageDetails.config.documentation}
-		<div class="detail">
-			<div class="label">Documentation</div>
-			<a class="value" href="{packageDetails.config.documentation}" target="_blank">{packageDetails.config.documentation.replace(/https?:\/\/(www\.)?/, '')}</a>
-		</div>
-	{/if}
 	{#if packageDetails.config.license}
 		<div class="detail">
 			<div class="label">License</div>
