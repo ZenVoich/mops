@@ -36,6 +36,10 @@ export const idlFactory = ({ IDL }) => {
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
   });
+  const TestStats__1 = IDL.Record({
+    'passedNames' : IDL.Vec(IDL.Text),
+    'passed' : IDL.Nat,
+  });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName = IDL.Text;
   const DependencyV2 = IDL.Record({
@@ -69,6 +73,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'testStats' : TestStats__1,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
@@ -78,6 +83,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'testStats' : TestStats__1,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
@@ -93,6 +99,7 @@ export const idlFactory = ({ IDL }) => {
     'ownerInfo' : User,
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
+    'testStats' : TestStats__1,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadTrend' : IDL.Vec(DownloadsSnapshot),
@@ -145,6 +152,10 @@ export const idlFactory = ({ IDL }) => {
   });
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
+  const TestStats = IDL.Record({
+    'passedNames' : IDL.Vec(IDL.Text),
+    'passed' : IDL.Nat,
+  });
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
@@ -237,6 +248,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'uploadTestStats' : IDL.Func([PublishingId, TestStats], [Result], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

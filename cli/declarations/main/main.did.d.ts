@@ -58,6 +58,7 @@ export interface PackageDetails {
   'ownerInfo' : User,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,
+  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
@@ -79,6 +80,7 @@ export interface PackagePublication {
 export interface PackageSummary {
   'ownerInfo' : User,
   'owner' : Principal,
+  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -88,6 +90,7 @@ export interface PackageSummary {
 export interface PackageSummary__1 {
   'ownerInfo' : User,
   'owner' : Principal,
+  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -123,6 +126,11 @@ export interface StorageStats {
   'fileCount' : bigint,
   'cyclesBalance' : bigint,
   'memorySize' : bigint,
+}
+export interface TestStats { 'passedNames' : Array<string>, 'passed' : bigint }
+export interface TestStats__1 {
+  'passedNames' : Array<string>,
+  'passed' : bigint,
 }
 export type Text = string;
 export type Time = bigint;
@@ -206,4 +214,5 @@ export interface _SERVICE {
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
   >,
+  'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
 }
