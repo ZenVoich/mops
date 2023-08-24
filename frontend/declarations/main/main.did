@@ -110,7 +110,6 @@ type PackageSummary__1 =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
-   testStats: TestStats__1;
  };
 type PackageSummary = 
  record {
@@ -121,7 +120,6 @@ type PackageSummary =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
-   testStats: TestStats__1;
  };
 type PackagePublication = 
  record {

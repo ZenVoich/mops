@@ -80,7 +80,6 @@ export interface PackagePublication {
 export interface PackageSummary {
   'ownerInfo' : User,
   'owner' : Principal,
-  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -90,7 +89,6 @@ export interface PackageSummary {
 export interface PackageSummary__1 {
   'ownerInfo' : User,
   'owner' : Principal,
-  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
