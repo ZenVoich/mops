@@ -87,11 +87,17 @@ module {
 		devDeps : [PackageSummary];
 		dependents : [PackageSummary];
 		downloadTrend : [DownloadsSnapshot];
+		testStats : TestStats;
 	};
 
 	public type DownloadsSnapshot = {
 		startTime : Time.Time;
 		endTime : Time.Time;
 		downloads : Nat;
+	};
+
+	public type TestStats = {
+		passed : Nat;
+		passedNames : [Text];
 	};
 };

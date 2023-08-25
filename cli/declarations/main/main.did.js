@@ -84,6 +84,10 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
+  const TestStats__1 = IDL.Record({
+    'passedNames' : IDL.Vec(IDL.Text),
+    'passed' : IDL.Nat,
+  });
   const DownloadsSnapshot = IDL.Record({
     'startTime' : Time,
     'endTime' : Time,
@@ -93,6 +97,7 @@ export const idlFactory = ({ IDL }) => {
     'ownerInfo' : User,
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
+    'testStats' : TestStats__1,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadTrend' : IDL.Vec(DownloadsSnapshot),
@@ -145,6 +150,10 @@ export const idlFactory = ({ IDL }) => {
   });
   const PublishingErr = IDL.Text;
   const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
+  const TestStats = IDL.Record({
+    'passedNames' : IDL.Vec(IDL.Text),
+    'passed' : IDL.Nat,
+  });
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
@@ -237,6 +246,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'uploadTestStats' : IDL.Func([PublishingId, TestStats], [Result], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

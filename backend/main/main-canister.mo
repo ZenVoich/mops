@@ -51,18 +51,18 @@ actor {
 	public type User = Types.User;
 	public type PageCount = Nat;
 	public type SemverPart = Types.SemverPart;
+	public type TestStats = Types.TestStats;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-
-	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
-
-	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
-	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
+	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
+	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	downloadLog.setTimers();
@@ -86,6 +86,7 @@ actor {
 	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
+	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -141,7 +142,6 @@ actor {
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
-				versionDownloadsTotal = downloadLog.getTotalDownloadsByPackageId(packageId);
 			};
 		};
 	};
@@ -159,6 +159,7 @@ actor {
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
+				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
 			};
 		};
 	};
@@ -367,6 +368,16 @@ actor {
 		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
 	};
 
+	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
+		assert(Utils.isAuthorized(caller));
+
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
+		assert(publishing.user == caller);
+
+		publishingTestStats.put(publishingId, testStats);
+		#ok;
+	};
+
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
@@ -420,8 +431,16 @@ actor {
 			storage = publishing.storage;
 		});
 
+		switch (publishingTestStats.get(publishingId)) {
+			case (?testStats) {
+				packageTestStats.put(packageId, testStats);
+			};
+			case (null) {};
+		};
+
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
+		publishingTestStats.delete(publishingId);
 
 		#ok;
 	};
@@ -919,13 +938,14 @@ actor {
 	let backupManager = Backup.BackupManager(backupState);
 
 	type BackupChunk = {
-		#v1 : {
+		#v2 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
 			#packageConfigs : [(PackageId, PackageConfigV2)];
 			#highestConfigs : [(PackageName, PackageConfigV2)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
+			#packageTestStats : [(PackageId, TestStats)];
 			#downloadLog : DownloadLog.Stable;
 			#storageManager : StorageManager.Stable;
 			#users : Users.Stable;
@@ -943,17 +963,18 @@ actor {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v1");
+		let backup = backupManager.NewBackup("v2");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v1(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v1(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -963,7 +984,7 @@ actor {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v1(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v2(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -977,6 +998,9 @@ actor {
 				};
 				case (#fileIdsByPackage(fileIdsByPackageStable)) {
 					fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageTestStats(packageTestStatsStable)) {
+					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 				};
 				case (#downloadLog(downloadLogStable)) {
 					downloadLog.cancelTimers();
@@ -1007,6 +1031,7 @@ actor {
 	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
+	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -1017,6 +1042,7 @@ actor {
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
+		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -1037,6 +1063,9 @@ actor {
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
+
+		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
+		packageTestStatsStable := [];
 
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);

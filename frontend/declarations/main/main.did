@@ -26,6 +26,16 @@ type User =
  };
 type Time = int;
 type Text = text;
+type TestStats__1 = 
+ record {
+   passed: nat;
+   passedNames: vec text;
+ };
+type TestStats = 
+ record {
+   passed: nat;
+   passedNames: vec text;
+ };
 type StorageStats = 
  record {
    cyclesBalance: nat;
@@ -133,6 +143,7 @@ type PackageDetails =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   testStats: TestStats__1;
    versionHistory: vec PackageSummary__1;
  };
 type PackageConfigV2__1 = 
@@ -242,4 +253,5 @@ service : {
   startPublish: (PackageConfigV2) -> (Result_1);
   takeAirdropSnapshot: () -> () oneway;
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
+  uploadTestStats: (PublishingId, TestStats) -> (Result);
 }

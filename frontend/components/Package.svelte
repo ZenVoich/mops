@@ -168,6 +168,7 @@
 				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')}>Versions ({packageDetails.versionHistory.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')}>Dependents ({packageDetails.dependents.length})</div>
+				<div class="tab" class:selected={isTabSelected('tests', selectedTab)} on:click={() => selectTab('tests')}>Tests ({packageDetails.testStats.passed})</div>
 			</div>
 
 			<div class="body">
@@ -226,6 +227,12 @@
 								<div class="packages">
 									{#each packageDetails.dependents as pkg}
 										<PackageCard {pkg} showDownloads={true} />
+									{/each}
+								</div>
+							{:else if selectedTab == 'tests'}
+								<div class="tests">
+									{#each packageDetails.testStats.passedNames as stat}
+										<div><span style="color: green">✓</span> {stat}</div>
 									{/each}
 								</div>
 							{/if}
