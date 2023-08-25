@@ -23,7 +23,7 @@ if (!global.fetch) {
 // (!) make changes in pair with backend
 export let apiVersion = '1.2';
 
-let networkFile = new URL('./network.txt', import.meta.url);
+let networkFile = globalThis.__dirname ? path.resolve(globalThis.__dirname, 'network.txt') : new URL('./network.txt', import.meta.url);
 
 export let globalConfigDir = '';
 export let globalCacheDir = '';
