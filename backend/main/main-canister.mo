@@ -434,6 +434,10 @@ actor {
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
+		if (testStats.passedNames.size() > 10_000) {
+			return #err("Max number of test names is 10_000");
+		};
+
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
