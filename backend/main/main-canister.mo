@@ -402,6 +402,13 @@ actor {
 			};
 		};
 
+		switch (_checkPublishingPackageSize(publishingId)) {
+			case (#err(err)) {
+				return #err(err);
+			};
+			case (#ok) {};
+		};
+
 		#ok(fileId);
 	};
 
@@ -426,6 +433,11 @@ actor {
 			case (null) {
 				Debug.trap("File stats not found");
 			};
+		};
+
+		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
+		if (Result.isErr(pkgSizeRes)) {
+			return pkgSizeRes;
 		};
 
 		#ok;
@@ -473,6 +485,11 @@ actor {
 			return #err("Missing required file README.md");
 		};
 
+		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
+		if (Result.isErr(pkgSizeRes)) {
+			return pkgSizeRes;
+		};
+
 		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file : PublishingFile) : Text.Text {
 			file.id;
 		});
@@ -501,6 +518,10 @@ actor {
 		switch (publishingPackageFileStats.get(publishingId)) {
 			case (?fileStats) {
 				packageFileStats.put(packageId, fileStats);
+
+				if (fileStats.sourceSize + fileStats.docsSize > 1024 * 1024 * 50) {
+					return #err("Max package size is 50MB");
+				};
 			};
 			case (null) {};
 		};
@@ -518,6 +539,20 @@ actor {
 		publishingTestStats.delete(publishingId);
 
 		#ok;
+	};
+
+	func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), Err> {
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				if (fileStats.sourceSize + fileStats.docsSize > 1024 * 1024 * 50) {
+					return #err("Max package size is 50MB");
+				};
+				#ok;
+			};
+			case (null) {
+				#err("File stats not found");
+			}
+		};
 	};
 
 	// AIRDROP
