@@ -23,9 +23,9 @@ if (!global.fetch) {
 // (!) make changes in pair with backend
 export let apiVersion = '1.2';
 
-let networkFile = '';
+let networkFile: string | URL = '';
 try {
-	networkFile = new URL('./network.txt', import.meta.url).toString();
+	networkFile = new URL('./network.txt', import.meta.url);
 }
 catch {
 	networkFile = path.join(__dirname, 'network.txt');
