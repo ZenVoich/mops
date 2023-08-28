@@ -132,7 +132,6 @@ type PackageName = text;
 type PackageId = text;
 type PackageFileStatsPublic = 
  record {
-   docsSize: nat;
    sourceFiles: nat;
    sourceSize: nat;
  };

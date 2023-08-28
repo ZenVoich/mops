@@ -95,7 +95,6 @@ export const idlFactory = ({ IDL }) => {
   });
   const PackageFileStatsPublic = IDL.Record({
     'sourceFiles' : IDL.Nat,
-    'docsSize' : IDL.Nat,
     'sourceSize' : IDL.Nat,
   });
   const PackageDetails = IDL.Record({

@@ -154,6 +154,7 @@ actor {
 
 		do ? {
 			let summary = _getPackageSummary(name, version)!;
+			let fileStats = Option.get(packageFileStats.get(packageId), _defaultPackageFileStats());
 
 			return ?{
 				summary with
@@ -162,7 +163,10 @@ actor {
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
-				fileStats = Option.get(publishingPackageFileStats.get(packageId), _defaultPackageFileStats());
+				fileStats = {
+					sourceFiles = fileStats.sourceFiles;
+					sourceSize = fileStats.sourceSize;
+				};
 				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
 			};
 		};
@@ -403,12 +407,28 @@ actor {
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
-		Debug.trap("chunked upload temporarily disabled");
 
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
 		assert(publishing.user == caller);
 
-		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
+		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
+		let #ok = uploadRes else return uploadRes;
+
+		// file stats
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				publishingPackageFileStats.put(publishingId, {
+					fileStats with
+					sourceFiles = fileStats.sourceFiles + 1;
+					sourceSize = fileStats.sourceSize + chunk.size();
+				});
+			};
+			case (null) {
+				Debug.trap("File stats not found");
+			};
+		};
+
+		#ok;
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {

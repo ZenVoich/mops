@@ -24,6 +24,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^2.29.3",
     "events": "^3.3.0",
+    "filesize": "^10.0.12",
     "hast-util-to-html": "^8.0.4",
     "js-untar": "^2.0.0",
     "micromark": "^4.0.0",

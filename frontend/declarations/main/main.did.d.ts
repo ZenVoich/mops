@@ -72,7 +72,6 @@ export interface PackageDetails {
 }
 export interface PackageFileStatsPublic {
   'sourceFiles' : bigint,
-  'docsSize' : bigint,
   'sourceSize' : bigint,
 }
 export type PackageId = string;

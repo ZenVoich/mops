@@ -100,18 +100,17 @@ module {
 	public type PackageFileStats = {
 		sourceFiles : Nat;
 		sourceSize : Nat;
-		docsCount : Nat;
+		docsCount : Nat; // always 1
 		docsSize : Nat;
-		testFiles : Nat;
-		testSize : Nat;
-		benchFiles : Nat;
-		benchSize : Nat;
+		testFiles : Nat; // unused
+		testSize : Nat; // unused
+		benchFiles : Nat; // unused
+		benchSize : Nat; // unused
 	};
 
 	public type PackageFileStatsPublic = {
 		sourceFiles : Nat;
 		sourceSize : Nat;
-		docsSize : Nat;
 	};
 
 	public type TestStats = {

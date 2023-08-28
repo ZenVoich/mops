@@ -8,7 +8,7 @@
 
 	import Header from './Header.svelte';
 	import Loader from './Loader.svelte';
-	import PackageCard from './PackageCard.svelte';
+	import PackageCard from './package/PackageCard.svelte';
 	import NotFound from './NotFound.svelte';
 	import Footer from './Footer.svelte';
 

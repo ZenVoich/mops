@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {link} from 'svelte-spa-history-router';
-	import Date from './Date.svelte';
+	import Date from '../Date.svelte';
 
 	import {PackageSummary} from '/declarations/main/main.did.js';
 

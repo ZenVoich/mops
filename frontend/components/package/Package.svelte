@@ -6,11 +6,11 @@
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
 
-	import Header from './Header.svelte';
-	import Loader from './Loader.svelte';
-	import Date from './Date.svelte';
-	import NotFound from './NotFound.svelte';
-	import Footer from './Footer.svelte';
+	import Header from '../Header.svelte';
+	import Loader from '../Loader.svelte';
+	import Date from '../Date.svelte';
+	import NotFound from '../NotFound.svelte';
+	import Footer from '../Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
 	import PackageReadme from './PackageReadme.svelte';
 	import PackageDocs from './PackageDocs.svelte';

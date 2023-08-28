@@ -1,7 +1,8 @@
 <script lang="ts">
 	import {link} from 'svelte-spa-history-router';
+	import {filesize} from 'filesize';
 	import {PackageDetails} from '/declarations/main/main.did.js';
-	import DownloadTrend from './DownloadTrend.svelte';
+	import DownloadTrend from '../DownloadTrend.svelte';
 	import githubImg from '/img/github.svg';
 	import twitterImg from '/img/twitter.svg';
 
@@ -31,6 +32,16 @@
 			<a class="value" href="https://spdx.org/licenses/{packageDetails.config.license}.html" target="_blank">{packageDetails.config.license}</a>
 		</div>
 	{/if}
+	<div class="detail-row">
+		<div class="detail">
+			<div class="label">Total Size</div>
+			{filesize(Number(packageDetails.fileStats.sourceSize))}
+		</div>
+		<div class="detail">
+			<div class="label">Total Files</div>
+			{packageDetails.fileStats.sourceFiles}
+		</div>
+	</div>
 	{#if packageDetails.ownerInfo.name}
 		<div class="detail">
 			<div class="label">Owner</div>
@@ -73,6 +84,11 @@
 		display: flex;
 		align-items: flex-end;
 		gap: 5px;
+		justify-content: space-between;
+	}
+
+	.detail-row {
+		display: flex;
 		justify-content: space-between;
 	}
 
