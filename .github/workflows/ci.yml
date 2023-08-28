@@ -11,9 +11,9 @@ jobs:
   build:
     strategy:
       matrix:
-        moc-version: [0.9.3, 0.9.7]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.12]
-        node-version: [16, 18, 20]
+        moc-version: [0.9.3]
+        mops-version: [./cli, ic-mops@latest, ic-mops@0.19]
+        node-version: [20]
 
     runs-on: ubuntu-latest
     name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
@@ -35,7 +35,6 @@ jobs:
           key: mops-packages-${{ hashFiles('mops.toml') }}
           path: |
             ~/.cache/mops
-            ~/mops
 
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
@@ -50,11 +49,14 @@ jobs:
       - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
 
+      - name: Install mocv
+        run: npm i -g mocv
+
       - name: Install mops packages
         run: mops install
 
       - name: Build and Deploy
         run: |
             npm run replica
-            npm run deploy
+            npm run deploy-local
             npm run build

@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>Mops &nbsp;&bull;&nbsp; Motoko Package Manager</title>
+	<title>Mops⠀•⠀Motoko Package Manager</title>
 </svelte:head>
 
 <div class="main">

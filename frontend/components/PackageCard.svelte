@@ -38,10 +38,6 @@
 </div>
 
 <style>
-	/* .package:hover {
-		box-shadow: -0 1px 5px #c1c1c1;
-	} */
-
 	.package {
 		display: flex;
 		flex-direction: column;
@@ -50,8 +46,7 @@
 		width: 600px;
 		max-width: 100%;
 		gap: 10px;
-		box-shadow: 0 1px 3px #c1c1c1;
-		border-radius: 3px;
+		border-bottom: 1px solid var(--color-primary);
 	}
 
 	.summary {

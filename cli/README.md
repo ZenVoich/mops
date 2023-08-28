@@ -32,6 +32,7 @@ Add `mops` as a packtool to your `dfx.json`
 
 ### 2. Initialize
 Run this command in the root directory of your project (where is `dfx.json` placed)
+
 If there are Vessel config files, mops will migrate packages from `vessel.dhall` to `mops.toml`
 
 ```
@@ -92,10 +93,10 @@ mops import-identity -- "$(dfx identity export mops)"
 ```
 
 ### 2. Initialize
-Run this command in your package root
+Run this command in your package root and select type "Package"
 
 ```
-mops init <your_package_name>
+mops init
 ```
 
 Edit `description` and `repository` fields in `mops.toml` file.

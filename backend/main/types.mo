@@ -6,6 +6,12 @@ module {
 	public type PackageVersion = Text; // 1.2.3
 	public type Err = Text;
 
+	public type SemverPart = {
+		#major;
+		#minor;
+		#patch;
+	};
+
 	public type User = {
 		id : Principal;
 		name : Text; // max 30 (e.g. "zen")
@@ -82,6 +88,7 @@ module {
 		dependents : [PackageSummary];
 		downloadTrend : [DownloadsSnapshot];
 		fileStats : PackageFileStatsPublic;
+		testStats : TestStats;
 	};
 
 	public type DownloadsSnapshot = {
@@ -105,5 +112,10 @@ module {
 		sourceFiles : Nat;
 		sourceSize : Nat;
 		docsSize : Nat;
+	};
+
+	public type TestStats = {
+		passed : Nat;
+		passedNames : [Text];
 	};
 };

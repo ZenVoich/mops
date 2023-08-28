@@ -22,6 +22,8 @@ import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
 
+import Backup "mo:backup";
+
 import Utils "../utils";
 import Semver "./semver";
 import Types "./types";
@@ -49,19 +51,20 @@ actor {
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
 	public type PageCount = Nat;
+	public type SemverPart = Types.SemverPart;
+	public type TestStats = Types.TestStats;
 
 	let apiVersion = "1.2"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-
-	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
-
-	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
-	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
+	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
-	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
+	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
+	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
+	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	downloadLog.setTimers();
@@ -86,6 +89,7 @@ actor {
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
 	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
+	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -141,7 +145,6 @@ actor {
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
-				versionDownloadsTotal = downloadLog.getTotalDownloadsByPackageId(packageId);
 			};
 		};
 	};
@@ -160,6 +163,7 @@ actor {
 				dependents = _getPackageDependents(name);
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
 				fileStats = Option.get(publishingPackageFileStats.get(packageId), _defaultPackageFileStats());
+				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
 			};
 		};
 	};
@@ -326,7 +330,9 @@ actor {
 		assert(publishing.user == caller);
 
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
-		assert(pubFiles.size() < 100);
+		if (pubFiles.size() >= 300) {
+			Debug.trap("Maximum number of package files: 300");
+		};
 
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
 		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
@@ -405,6 +411,16 @@ actor {
 		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
 	};
 
+	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
+		assert(Utils.isAuthorized(caller));
+
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
+		assert(publishing.user == caller);
+
+		publishingTestStats.put(publishingId, testStats);
+		#ok;
+	};
+
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
@@ -465,9 +481,17 @@ actor {
 			case (null) {};
 		};
 
+		switch (publishingTestStats.get(publishingId)) {
+			case (?testStats) {
+				packageTestStats.put(packageId, testStats);
+			};
+			case (null) {};
+		};
+
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
 		publishingPackageFileStats.delete(publishingId);
+		publishingTestStats.delete(publishingId);
 
 		#ok;
 	};
@@ -568,6 +592,57 @@ actor {
 		Result.fromOption(_getHighestVersion(name), "Package '" # name # "' not found");
 	};
 
+	func _getHighestSemver(name : PackageName, currentVersion : PackageVersion, semverPart : SemverPart) : Result.Result<PackageVersion, Err> {
+		if (packageConfigs.get(name # "@" # currentVersion) == null) {
+			return #err("Package '" # name # "@" # currentVersion # "' not found");
+		};
+		let ?versions = packageVersions.get(name) else return #err("Package '" # name # "' not found");
+
+		var max = currentVersion;
+		for (ver in versions.vals()) {
+			let patchBigger = Semver.major(ver) == Semver.major(max) and Semver.minor(ver) == Semver.minor(max) and Semver.patch(ver) > Semver.patch(max);
+			let minorBigger = Semver.major(ver) == Semver.major(max) and Semver.minor(ver) > Semver.minor(max) or patchBigger;
+			let majorBigger = Semver.major(ver) > Semver.major(max) or minorBigger or patchBigger;
+
+			switch (semverPart) {
+				case (#major) {
+					if (majorBigger) {
+						max := ver;
+					};
+				};
+				case (#minor) {
+					if (minorBigger) {
+						max := ver;
+					};
+				};
+				case (#patch) {
+					if (patchBigger) {
+						max := ver;
+					};
+				};
+			};
+		};
+
+		#ok(max);
+	};
+
+	public shared query ({caller}) func getHighestSemverBatch(list : [(PackageName, PackageVersion, SemverPart)]) : async Result.Result<[(PackageName, PackageVersion)], Err> {
+		assert(list.size() < 100);
+
+		let buf = Buffer.Buffer<(PackageName, PackageVersion)>(list.size());
+		for ((name, currentVersion, semverPart) in list.vals()) {
+			switch (_getHighestSemver(name, currentVersion, semverPart)) {
+				case (#ok(ver)) {
+					buf.add((name, ver));
+				};
+				case (#err(err)) {
+					return #err(err);
+				};
+			};
+		};
+		#ok(Buffer.toArray(buf));
+	};
+
 	public shared query ({caller}) func getPackageDetails(name : PackageName, version : PackageVersion) : async Result.Result<PackageDetails, Err> {
 		let packageDetails = do ? {
 			let ver = _resolveVersion(name, version)!;
@@ -595,7 +670,7 @@ actor {
 	};
 
 	func _toLowerCase(text : Text) : Text {
-		Text.map(text , Prim.charToLower);
+		Text.map(text, Prim.charToLower);
 	};
 
 	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
@@ -765,6 +840,7 @@ actor {
 			(
 				"Utilities",
 				_summariesFromNames([
+					"datetime",
 					"itertools",
 					"xtended-text",
 					"xtended-numbers",
@@ -802,6 +878,7 @@ actor {
 					"ic",
 					"ledger-types",
 					"ckbtc-types",
+					"http-types",
 					"canistergeek",
 					"icrc1",
 					"origyn-nft",
@@ -818,6 +895,7 @@ actor {
 					"server",
 					"http-parser",
 					"web-io",
+					"http-types",
 				], limit)
 			),
 			(
@@ -906,6 +984,96 @@ actor {
 		};
 	};
 
+	// BACKUP
+	stable let backupState = Backup.init(null);
+	let backupManager = Backup.BackupManager(backupState);
+
+	type BackupChunk = {
+		#v2 : {
+			#packagePublications : [(PackageId, PackagePublication)];
+			#packageVersions : [(PackageName, [PackageVersion])];
+			#packageOwners : [(PackageName, Principal)];
+			#packageConfigs : [(PackageId, PackageConfigV2)];
+			#highestConfigs : [(PackageName, PackageConfigV2)];
+			#fileIdsByPackage : [(PackageId, [FileId])];
+			#packageTestStats : [(PackageId, TestStats)];
+			#downloadLog : DownloadLog.Stable;
+			#storageManager : StorageManager.Stable;
+			#users : Users.Stable;
+		};
+	};
+
+	public shared ({caller}) func backup() : async () {
+		assert(Utils.isAdmin(caller));
+		await _backup();
+	};
+
+	public query ({caller}) func getBackupCanisterId() : async Principal {
+		assert(Utils.isAdmin(caller));
+		backupManager.getCanisterId();
+	};
+
+	func _backup() : async () {
+		let backup = backupManager.NewBackup("v2");
+		await backup.startBackup();
+		await backup.uploadChunk(to_candid(#v2(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v2(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.finishBackup();
+	};
+
+	// RESTORE
+	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
+		assert(false); // restore disabled
+		assert(Utils.isAdmin(caller));
+
+		await backupManager.restore(backupId, func(blob : Blob) {
+			let ?#v2(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+
+			switch (chunk) {
+				case (#packagePublications(packagePublicationsStable)) {
+					packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageVersions(packageVersionsStable)) {
+					packageVersions := TrieMap.fromEntries<PackageName, [PackageVersion]>(packageVersionsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageOwners(packageOwnersStable)) {
+					packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
+				};
+				case (#fileIdsByPackage(fileIdsByPackageStable)) {
+					fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageTestStats(packageTestStatsStable)) {
+					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#downloadLog(downloadLogStable)) {
+					downloadLog.cancelTimers();
+					downloadLog.loadStable(downloadLogStable);
+					downloadLog.setTimers();
+				};
+				case (#storageManager(storageManagerStable)) {
+					storageManager.loadStable(storageManagerStable);
+				};
+				case (#users(usersStable)) {
+					users.loadStable(usersStable);
+				};
+				case (#highestConfigs(highestConfigsStable)) {
+					highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageConfigs(packageConfigsStable)) {
+					packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStable.vals(), Text.equal, Text.hash);
+				};
+			};
+		});
+	};
+
 	// SYSTEM
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable : [(PackageName, [PackageVersion])] = [];
@@ -915,6 +1083,7 @@ actor {
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
 	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
+	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -926,6 +1095,7 @@ actor {
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
+		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -950,6 +1120,9 @@ actor {
 		packageFileStats := TrieMap.fromEntries<PackageId, PackageFileStats>(packageFileStatsStable.vals(), Text.equal, Text.hash);
 		packageFileStatsStable := [];
 
+		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
+		packageTestStatsStable := [];
+
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
 		downloadLog.setTimers();
@@ -966,5 +1139,9 @@ actor {
 
 		highestConfigsStableV2 := [];
 		packageConfigsStableV2 := [];
+
+		backupManager.setTimer(#hours(1), _backup);
 	};
+
+	backupManager.setTimer(#hours(1), _backup);
 };

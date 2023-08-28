@@ -13,10 +13,11 @@ import {parallel} from '../../parallel.js';
 
 import {MMF1} from './mmf1.js';
 import {absToRel} from './utils.js';
+import {Reporter} from './reporters/reporter.js';
 import {VerboseReporter} from './reporters/verbose-reporter.js';
 import {FilesReporter} from './reporters/files-reporter.js';
 import {CompactReporter} from './reporters/compact-reporter.js';
-import {Reporter} from './reporters/reporter.js';
+import {SilentReporter} from './reporters/silent-reporter.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -30,9 +31,10 @@ let globConfig = {
 	ignore: ignore,
 };
 
+type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
 type TestMode = 'interpreter' | 'wasi';
 
-export async function test(filter = '', {watch = false, reporter = 'verbose', mode = 'interpreter' as TestMode} = {}) {
+export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
 	let rootDir = getRootDir();
 
 	if (watch) {
@@ -41,7 +43,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose', mo
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(filter, reporter);
+			await runAll(reporter, filter, mode);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -61,7 +63,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose', mo
 		run();
 	}
 	else {
-		let passed = await runAll(filter, reporter, mode);
+		let passed = await runAll(reporter, filter, mode);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -70,7 +72,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose', mo
 
 let mocPath = process.env.DFX_MOC_PATH;
 
-export async function runAll(filter = '', reporterName = 'verbose', mode: TestMode = 'interpreter') {
+export async function runAll(reporterName: ReporterName = 'verbose', filter = '', mode: TestMode = 'interpreter'): Promise<boolean> {
 	let reporter: Reporter;
 	if (reporterName == 'compact') {
 		reporter = new CompactReporter;
@@ -78,10 +80,17 @@ export async function runAll(filter = '', reporterName = 'verbose', mode: TestMo
 	else if (reporterName == 'files') {
 		reporter = new FilesReporter;
 	}
+	else if (reporterName == 'silent') {
+		reporter = new SilentReporter;
+	}
 	else {
 		reporter = new VerboseReporter;
 	}
+	let done = await testWithReporter(reporter, filter, mode);
+	return done;
+}
 
+export async function testWithReporter(reporter: Reporter, filter = '', mode: TestMode = 'interpreter'): Promise<boolean> {
 	let rootDir = getRootDir();
 	let files: string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -98,11 +107,11 @@ export async function runAll(filter = '', reporterName = 'verbose', mode: TestMo
 	if (!files.length) {
 		if (filter) {
 			console.log(`No test files found for filter '${filter}'`);
-			return;
+			return false;
 		}
 		console.log('No test files found');
 		console.log('Put your tests in \'test\' directory in *.test.mo files');
-		return;
+		return false;
 	}
 
 	reporter.addFiles(files);
@@ -117,7 +126,7 @@ export async function runAll(filter = '', reporterName = 'verbose', mode: TestMo
 	fs.mkdirSync(wasmDir, {recursive: true});
 
 	await parallel(os.cpus().length, files, async (file: string) => {
-		let mmf = new MMF1('store');
+		let mmf = new MMF1('store', absToRel(file));
 		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
 		let promise = new Promise<void>((resolve) => {

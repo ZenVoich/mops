@@ -58,6 +58,7 @@ export interface PackageDetails {
   'ownerInfo' : User,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,
+  'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
@@ -94,6 +95,7 @@ export interface PackageSummary__1 {
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
 }
+export type PackageVersion = string;
 export type PageCount = bigint;
 export type PublishingErr = string;
 export type PublishingId = string;
@@ -107,16 +109,26 @@ export type Result_3 = { 'ok' : null } |
   { 'err' : string };
 export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
-export type Result_5 = { 'ok' : Ver } |
+export type Result_5 = { 'ok' : PackageVersion } |
   { 'err' : Err };
-export type Result_6 = { 'ok' : Array<FileId> } |
+export type Result_6 = { 'ok' : Array<[PackageName__1, PackageVersion]> } |
+  { 'err' : Err };
+export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
+export type SemverPart = { 'major' : null } |
+  { 'minor' : null } |
+  { 'patch' : null };
 export type StorageId = Principal;
 export interface StorageStats {
   'fileCount' : bigint,
   'cyclesBalance' : bigint,
   'memorySize' : bigint,
+}
+export interface TestStats { 'passedNames' : Array<string>, 'passed' : bigint }
+export interface TestStats__1 {
+  'passedNames' : Array<string>,
+  'passed' : bigint,
 }
 export type Text = string;
 export type Time = bigint;
@@ -144,17 +156,17 @@ export interface User__1 {
   'githubVerified' : boolean,
   'github' : string,
 }
-export type Ver = string;
-export type Version = string;
 export interface _SERVICE {
+  'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
   'getApiVersion' : ActorMethod<[], Text>,
+  'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName__1, Version]>
+    Array<[PackageName__1, PackageVersion]>
   >,
   'getDownloadTrendByPackageId' : ActorMethod<
     [PackageId],
@@ -164,12 +176,16 @@ export interface _SERVICE {
     [PackageName__1],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileIds' : ActorMethod<[PackageName__1, Ver], Result_6>,
+  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion], Result_7>,
+  'getHighestSemverBatch' : ActorMethod<
+    [Array<[PackageName__1, PackageVersion, SemverPart]>],
+    Result_6
+  >,
   'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName__1, Ver], Result_4>,
+  'getPackageDetails' : ActorMethod<[PackageName__1, PackageVersion], Result_4>,
   'getPackagesByCategory' : ActorMethod<
     [],
     Array<[string, Array<PackageSummary>]>
@@ -179,7 +195,8 @@ export interface _SERVICE {
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
-  'notifyInstall' : ActorMethod<[PackageName__1, Ver], undefined>,
+  'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
+  'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]
@@ -195,4 +212,5 @@ export interface _SERVICE {
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
   >,
+  'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
 }

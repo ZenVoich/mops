@@ -25,6 +25,10 @@ export class VerboseReporter implements Reporter {
 			this.failed += mmf.failed;
 			this.skipped += mmf.skipped;
 
+			if (mmf.passed === 0 && mmf.failed === 0) {
+				this.passed++;
+			}
+
 			this.#curFileIndex++ && console.log('-'.repeat(50));
 			console.log(`Running ${chalk.gray(absToRel(file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
 			mmf.flush();

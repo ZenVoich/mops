@@ -16,7 +16,8 @@ module {
 
 	public func isAdmin(principal : Principal) : Bool {
 		let principalText = Principal.toText(principal);
-		Array.find<Text>(admins, func(id : Text) = id == principalText) != null;
+		let admin = Array.find<Text>(admins, func(id : Text) = id == principalText) != null;
+		admin or Principal.isController(principal);
 	};
 
 	public func anonymousPrincipal() : Principal {

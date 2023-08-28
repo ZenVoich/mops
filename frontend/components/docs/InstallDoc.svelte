@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Mops &nbsp;&bull;&nbsp; Install</title>
+	<title>Mops⠀•⠀Install</title>
 </svelte:head>
 
 <Header></Header>
@@ -76,11 +76,6 @@
 		<div>for example</div>
 		<br>
 		<code>import Itertools "mo:itertools/Iter";</code>
-
-		<!-- <h3>6. Gitignore cache files</h3>
-		<div>Add following line into the <code class="inline">.gitignore</code> file</div>
-		<br>
-		<code>.mops/</code> -->
 	</div>
 </div>
 

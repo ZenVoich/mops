@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
-import {program} from 'commander';
+import {program, Argument, Option} from 'commander';
 import chalk from 'chalk';
 import {Principal} from '@dfinity/principal';
 
@@ -21,6 +21,9 @@ import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
 import {getUserProp, setUserProp} from './commands/user.js';
 import {bump} from './commands/bump.js';
+import {sync} from './commands/sync.js';
+import {outdated} from './commands/outdated.js';
+import {update} from './commands/update.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -31,10 +34,11 @@ program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version')
 
 // init
 program
-	.command('init [name]')
-	.description('Create mops.toml')
-	.action(async (name: string) => {
-		await init(name);
+	.command('init')
+	.description('Initialize a new project or package in the current directory')
+	.option('-y, --yes', 'Accept all defaults')
+	.action(async (options) => {
+		await init(options);
 	});
 
 // add
@@ -96,6 +100,7 @@ program
 	.command('publish')
 	.description('Publish package to the mops registry')
 	.option('--no-docs', 'Do not generate docs')
+	.option('--no-test', 'Do not run tests')
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -110,7 +115,7 @@ program
 program
 	.command('set-network <network>')
 	.alias('sn')
-	.description('Set network local|dev|ic')
+	.description('Set network local|staging|ic')
 	.action(async (network) => {
 		await setNetwork(network);
 		console.log(`Selected '${network}' network`);
@@ -166,8 +171,9 @@ program
 
 // cache
 program
-	.command('cache [sub-command]')
+	.command('cache')
 	.description('Manage cache')
+	.addArgument(new Argument('<sub>').choices(['size', 'clean']))
 	.action(async (sub) => {
 		if (sub == 'clean') {
 			await cleanCache();
@@ -177,23 +183,16 @@ program
 			let size = await cacheSize();
 			console.log('Cache size is ' + size);
 		}
-		else {
-			console.log('Unknown sub command. Available sub commands: clean, size');
-		}
 	});
 
 // test
 program
 	.command('test [filter]')
 	.description('Run tests')
-	.option('-r, --reporter <reporter>', 'Choose reporter: verbose, compact, files')
+	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
+	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
-	.option('--mode <mode>', 'Test mode: \'interpreter\' or \'wasi\' (default \'interpreter\'')
 	.action(async (filter, options) => {
-		if (options.mode && !['interpreter', 'wasi'].includes(options.mode)) {
-			console.log(`Unknown --mode value '${options.mode}'. Allowed: interpreter, wasi`);
-			process.exit(1);
-		}
 		await test(filter, options);
 	});
 
@@ -236,7 +235,10 @@ program
 
 // user
 program
-	.command('user set|get <prop> [value]')
+	.command('user')
+	.addArgument(new Argument('<sub>').choices(['set', 'get']))
+	.addArgument(new Argument('<prop>').choices(['name', 'site', 'email', 'github', 'twitter']))
+	.addArgument(new Argument('[value]'))
 	.description('User settings')
 	.action(async (sub, prop, value) => {
 		if (sub == 'get') {
@@ -248,9 +250,6 @@ program
 				return;
 			}
 			await setUserProp(prop, value);
-		}
-		else {
-			console.log('Unknown sub command. Available sub commands: set, get');
 		}
 	});
 
@@ -291,7 +290,31 @@ program
 	.command('bump [major|minor|patch]')
 	.description('Bump current package version')
 	.action(async (part) => {
-		bump(part);
+		await bump(part);
+	});
+
+// sync
+program
+	.command('sync')
+	.description('Add missing packages and remove unused packages')
+	.action(async () => {
+		await sync();
+	});
+
+// outdated
+program
+	.command('outdated')
+	.description('Print outdated dependencies specified in mops.toml')
+	.action(async () => {
+		await outdated();
+	});
+
+// update
+program
+	.command('update [pkg]')
+	.description('Update dependencies specified in mops.toml')
+	.action(async (pkg) => {
+		await update(pkg);
 	});
 
 program.parse();

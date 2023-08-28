@@ -77,7 +77,7 @@ export async function remove(name: string, {dev = false, verbose = false, dryRun
 			pkgDir = formatDir(dep.name, dep.version);
 		}
 		if (pkgDir && fs.existsSync(pkgDir)) {
-			dryRun || deleteSync([`${pkgDir}`]);
+			dryRun || deleteSync([`${pkgDir}`], {force: true});
 			verbose && console.log(`Removed local cache ${pkgDir}`);
 		}
 	}

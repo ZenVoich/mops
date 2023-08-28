@@ -10,10 +10,11 @@ on:
 jobs:
   test:
     strategy:
+      max-parallel: 3
       matrix:
         moc-version: [0.9.3, 0.9.7]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.12]
-        node-version: [16, 18, 20]
+        mops-version: [./cli, ic-mops@latest, ic-mops@0.19]
+        node-version: [16, 20]
 
     runs-on: ubuntu-latest
     name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
@@ -31,7 +32,6 @@ jobs:
           key: mops-packages-${{ hashFiles('mops.toml') }}
           path: |
             ~/.cache/mops
-            ~/mops
 
       - name: Select moc version
         run: npx mocv use ${{ matrix.moc-version }}
