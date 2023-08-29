@@ -32,16 +32,18 @@
 			<a class="value" href="https://spdx.org/licenses/{packageDetails.config.license}.html" target="_blank">{packageDetails.config.license}</a>
 		</div>
 	{/if}
-	<div class="detail-row">
-		<div class="detail">
-			<div class="label">Total Size</div>
-			{filesize(Number(packageDetails.fileStats.sourceSize), {standard: 'jedec', round: 1})}
+	{#if packageDetails.fileStats.sourceSize}
+		<div class="detail-row">
+			<div class="detail">
+				<div class="label">Size</div>
+				{filesize(Number(packageDetails.fileStats.sourceSize), {standard: 'iec', round: 1})}
+			</div>
+			<div class="detail">
+				<div class="label">Files</div>
+				{packageDetails.fileStats.sourceFiles}
+			</div>
 		</div>
-		<div class="detail">
-			<div class="label">Total Files</div>
-			{packageDetails.fileStats.sourceFiles}
-		</div>
-	</div>
+	{/if}
 	{#if packageDetails.ownerInfo.name}
 		<div class="detail">
 			<div class="label">Owner</div>
@@ -89,7 +91,7 @@
 
 	.detail-row {
 		display: flex;
-		justify-content: space-between;
+		gap: 50px;
 	}
 
 	.detail {
