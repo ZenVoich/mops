@@ -35,7 +35,7 @@
 	<div class="detail-row">
 		<div class="detail">
 			<div class="label">Total Size</div>
-			{filesize(Number(packageDetails.fileStats.sourceSize))}
+			{filesize(Number(packageDetails.fileStats.sourceSize), {standard: 'jedec', round: 1})}
 		</div>
 		<div class="detail">
 			<div class="label">Total Files</div>
