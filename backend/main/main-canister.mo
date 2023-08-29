@@ -517,6 +517,13 @@ actor {
 			storage = publishing.storage;
 		});
 
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				packageFileStats.put(packageId, fileStats);
+			};
+			case (null) {};
+		};
+
 		switch (publishingTestStats.get(publishingId)) {
 			case (?testStats) {
 				packageTestStats.put(packageId, testStats);
