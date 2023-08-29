@@ -54,7 +54,9 @@ actor {
 	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
 
-	let apiVersion = "1.2"; // (!) make changes in pair with cli
+	let API_VERSION = "1.2"; // (!) make changes in pair with cli
+	let MAX_PACKAGE_FILES = 300;
+	let MAX_PACKAGE_SIZE = 1024 * 1024 * 50; // 50MB
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
@@ -334,7 +336,7 @@ actor {
 		assert(publishing.user == caller);
 
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
-		if (pubFiles.size() >= 300) {
+		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
 			Debug.trap("Maximum number of package files: 300");
 		};
 
@@ -515,17 +517,6 @@ actor {
 			storage = publishing.storage;
 		});
 
-		switch (publishingPackageFileStats.get(publishingId)) {
-			case (?fileStats) {
-				packageFileStats.put(packageId, fileStats);
-
-				if (fileStats.sourceSize + fileStats.docsSize > 1024 * 1024 * 50) {
-					return #err("Max package size is 50MB");
-				};
-			};
-			case (null) {};
-		};
-
 		switch (publishingTestStats.get(publishingId)) {
 			case (?testStats) {
 				packageTestStats.put(packageId, testStats);
@@ -544,14 +535,14 @@ actor {
 	func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), Err> {
 		switch (publishingPackageFileStats.get(publishingId)) {
 			case (?fileStats) {
-				if (fileStats.sourceSize + fileStats.docsSize > 1024 * 1024 * 50) {
+				if (fileStats.sourceSize + fileStats.docsSize > MAX_PACKAGE_SIZE) {
 					return #err("Max package size is 50MB");
 				};
 				#ok;
 			};
 			case (null) {
 				#err("File stats not found");
-			}
+			};
 		};
 	};
 
@@ -617,7 +608,7 @@ actor {
 
 	// QUERY
 	public shared query ({caller}) func getApiVersion() : async Text.Text {
-		apiVersion;
+		API_VERSION;
 	};
 
 	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
