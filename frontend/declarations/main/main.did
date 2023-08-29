@@ -130,6 +130,11 @@ type PackagePublication =
 type PackageName__1 = text;
 type PackageName = text;
 type PackageId = text;
+type PackageFileStatsPublic = 
+ record {
+   sourceFiles: nat;
+   sourceSize: nat;
+ };
 type PackageDetails = 
  record {
    config: PackageConfigV2__1;
@@ -140,6 +145,7 @@ type PackageDetails =
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
+   fileStats: PackageFileStatsPublic;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;

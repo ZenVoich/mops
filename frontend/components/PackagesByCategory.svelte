@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {onMount} from 'svelte';
 	import Loader from './Loader.svelte';
-	import PackageCard from './PackageCard.svelte';
+	import PackageCard from './package/PackageCard.svelte';
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 

@@ -47,13 +47,16 @@ actor {
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummary = Types.PackageSummary;
+	public type PackageFileStats = Types.PackageFileStats;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
 	public type PageCount = Nat;
 	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
 
-	let apiVersion = "1.2"; // (!) make changes in pair with cli
+	let API_VERSION = "1.2"; // (!) make changes in pair with cli
+	let MAX_PACKAGE_FILES = 300;
+	let MAX_PACKAGE_SIZE = 1024 * 1024 * 50; // 50MB
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
@@ -62,6 +65,7 @@ actor {
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
@@ -86,6 +90,7 @@ actor {
 	};
 	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
+	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
 	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
 
 	// PRIVATE
@@ -151,6 +156,7 @@ actor {
 
 		do ? {
 			let summary = _getPackageSummary(name, version)!;
+			let fileStats = Option.get(packageFileStats.get(packageId), _defaultPackageFileStats());
 
 			return ?{
 				summary with
@@ -159,6 +165,10 @@ actor {
 				devDeps = _getPackageDevDependencies(name, version);
 				dependents = _getPackageDependents(name);
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
+				fileStats = {
+					sourceFiles = fileStats.sourceFiles;
+					sourceSize = fileStats.sourceSize;
+				};
 				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
 			};
 		};
@@ -222,6 +232,19 @@ actor {
 		});
 
 		Iter.toArray(sorted);
+	};
+
+	func _defaultPackageFileStats() : PackageFileStats {
+		{
+			sourceFiles = 0;
+			sourceSize = 0;
+			docsCount = 0;
+			docsSize = 0;
+			testFiles = 0;
+			testSize = 0;
+			benchFiles = 0;
+			benchSize = 0;
+		}
 	};
 
 
@@ -301,6 +324,8 @@ actor {
 		});
 		publishingFiles.put(publishingId, Buffer.Buffer(10));
 
+		publishingPackageFileStats.put(publishingId, _defaultPackageFileStats());
+
 		#ok(publishingId);
 	};
 
@@ -311,7 +336,7 @@ actor {
 		assert(publishing.user == caller);
 
 		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
-		if (pubFiles.size() >= 300) {
+		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
 			Debug.trap("Maximum number of package files: 300");
 		};
 
@@ -356,6 +381,36 @@ actor {
 		};
 		pubFiles.add(pubFile);
 
+		// file stats
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				if (docsTgz) {
+					publishingPackageFileStats.put(publishingId, {
+						fileStats with
+						docsCount = 1;
+						docsSize = firstChunk.size();
+					});
+				}
+				else {
+					publishingPackageFileStats.put(publishingId, {
+						fileStats with
+						sourceFiles = fileStats.sourceFiles + 1;
+						sourceSize = fileStats.sourceSize + firstChunk.size();
+					});
+				};
+			};
+			case (null) {
+				Debug.trap("File stats not found");
+			};
+		};
+
+		switch (_checkPublishingPackageSize(publishingId)) {
+			case (#err(err)) {
+				return #err(err);
+			};
+			case (#ok) {};
+		};
+
 		#ok(fileId);
 	};
 
@@ -365,11 +420,37 @@ actor {
 		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
 		assert(publishing.user == caller);
 
-		await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
+		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
+		let #ok = uploadRes else return uploadRes;
+
+		// file stats
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				publishingPackageFileStats.put(publishingId, {
+					fileStats with
+					sourceFiles = fileStats.sourceFiles + 1;
+					sourceSize = fileStats.sourceSize + chunk.size();
+				});
+			};
+			case (null) {
+				Debug.trap("File stats not found");
+			};
+		};
+
+		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
+		if (Result.isErr(pkgSizeRes)) {
+			return pkgSizeRes;
+		};
+
+		#ok;
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
+
+		if (testStats.passedNames.size() > 10_000) {
+			return #err("Max number of test names is 10_000");
+		};
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -406,6 +487,11 @@ actor {
 			return #err("Missing required file README.md");
 		};
 
+		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
+		if (Result.isErr(pkgSizeRes)) {
+			return pkgSizeRes;
+		};
+
 		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file : PublishingFile) : Text.Text {
 			file.id;
 		});
@@ -440,9 +526,24 @@ actor {
 
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
+		publishingPackageFileStats.delete(publishingId);
 		publishingTestStats.delete(publishingId);
 
 		#ok;
+	};
+
+	func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), Err> {
+		switch (publishingPackageFileStats.get(publishingId)) {
+			case (?fileStats) {
+				if (fileStats.sourceSize + fileStats.docsSize > MAX_PACKAGE_SIZE) {
+					return #err("Max package size is 50MB");
+				};
+				#ok;
+			};
+			case (null) {
+				#err("File stats not found");
+			};
+		};
 	};
 
 	// AIRDROP
@@ -507,7 +608,7 @@ actor {
 
 	// QUERY
 	public shared query ({caller}) func getApiVersion() : async Text.Text {
-		apiVersion;
+		API_VERSION;
 	};
 
 	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
@@ -1031,6 +1132,7 @@ actor {
 	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
+	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
@@ -1042,6 +1144,7 @@ actor {
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
+		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
@@ -1063,6 +1166,9 @@ actor {
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
+
+		packageFileStats := TrieMap.fromEntries<PackageId, PackageFileStats>(packageFileStatsStable.vals(), Text.equal, Text.hash);
+		packageFileStatsStable := [];
 
 		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 		packageTestStatsStable := [];

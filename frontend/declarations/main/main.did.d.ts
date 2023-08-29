@@ -62,12 +62,17 @@ export interface PackageDetails {
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
+  'fileStats' : PackageFileStatsPublic,
   'versionHistory' : Array<PackageSummary__1>,
   'dependents' : Array<PackageSummary__1>,
   'devDeps' : Array<PackageSummary__1>,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
   'publication' : PackagePublication,
+}
+export interface PackageFileStatsPublic {
+  'sourceFiles' : bigint,
+  'sourceSize' : bigint,
 }
 export type PackageId = string;
 export type PackageName = string;

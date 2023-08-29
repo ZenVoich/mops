@@ -93,6 +93,10 @@ export const idlFactory = ({ IDL }) => {
     'endTime' : Time,
     'downloads' : IDL.Nat,
   });
+  const PackageFileStatsPublic = IDL.Record({
+    'sourceFiles' : IDL.Nat,
+    'sourceSize' : IDL.Nat,
+  });
   const PackageDetails = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
@@ -101,6 +105,7 @@ export const idlFactory = ({ IDL }) => {
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadTrend' : IDL.Vec(DownloadsSnapshot),
+    'fileStats' : PackageFileStatsPublic,
     'versionHistory' : IDL.Vec(PackageSummary__1),
     'dependents' : IDL.Vec(PackageSummary__1),
     'devDeps' : IDL.Vec(PackageSummary__1),
