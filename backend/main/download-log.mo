@@ -16,8 +16,6 @@ import Debug "mo:base/Debug";
 import {MINUTE; DAY} "mo:time-consts";
 import Date "mo:chronosphere/Date";
 import DateBase "mo:chronosphere/Base";
-import Itertools "mo:itertools/Iter";
-import Deiter "mo:itertools/Deiter";
 
 import Utils "../utils";
 import Types "./types";
@@ -109,8 +107,7 @@ module {
 		func _getTrend(snapshotsOpt : ?Buffer.Buffer<DownloadsSnapshot>, max : Nat) : [DownloadsSnapshot] {
 			switch (snapshotsOpt) {
 				case (?snapshots) {
-					let deiter = Deiter.fromArray(Buffer.toArray(snapshots));
-					Array.reverse(Iter.toArray(Itertools.take(Deiter.reverse(deiter), max)));
+					Utils.arrayTake(Buffer.toArray(snapshots), max);
 				};
 				case (null) {
 					[];
@@ -130,9 +127,9 @@ module {
 			_getTrend(dailySnapshotsByPackageId.get(packageId), 14);
 		};
 
-		public func takeSnapshotsIfNeeded() {
+		public func takeSnapshotsIfNeeded(now : Time.Time) {
 			// start of current day
-			let dateNow = Time.now() / 86400000000000;
+			let dateNow = now / 86400000000000;
 
 			let dateParts = Date.unpack(#Date(Int32.fromInt(dateNow)));
 			let weekDay = dateParts.wday;
@@ -337,7 +334,7 @@ module {
 		public func setTimers() {
 			cancelTimers();
 			timerId := Timer.recurringTimer(#nanoseconds(5 * MINUTE), func() : async () {
-				takeSnapshotsIfNeeded();
+				takeSnapshotsIfNeeded(Time.now());
 			});
 		};
 
@@ -414,7 +411,7 @@ module {
 					curSnapshotWeekDay := data.curSnapshotWeekDay;
 					timerId := data.timerId;
 
-					takeSnapshotsIfNeeded();
+					takeSnapshotsIfNeeded(Time.now());
 				};
 				case (null) {};
 			};

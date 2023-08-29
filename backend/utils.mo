@@ -6,6 +6,7 @@ import Prelude "mo:base/Prelude";
 import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
+import Int "mo:base/Int";
 
 module {
 	let admins = ["hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"];
@@ -60,5 +61,11 @@ module {
 			_getPageItems(items, pageIndex, limit),
 			items.size() / limit + (if (items.size() % limit == 0) 0 else 1),
 		);
+	};
+
+	public func arrayTake<T>(ar : [T], n : Int) : [T] {
+		let resSize = Nat.min(Int.abs(n), ar.size());
+		let start = if (n > 0) 0 else ar.size() - resSize;
+		Array.subArray(ar, 0, resSize);
 	};
 }
