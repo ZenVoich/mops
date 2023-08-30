@@ -55,6 +55,8 @@
 		"globby": "^13.2.2",
 		"got": "13.0.0",
 		"log-update": "^5.0.1",
+		"mdast-util-from-markdown": "^2.0.0",
+		"mdast-util-to-markdown": "^2.1.0",
 		"minimatch": "^9.0.3",
 		"ncp": "^2.0.0",
 		"node-fetch": "^3.3.2",

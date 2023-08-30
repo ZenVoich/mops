@@ -5,6 +5,9 @@ import logUpdate from 'log-update';
 import {globbySync} from 'globby';
 import {minimatch} from 'minimatch';
 import prompts from 'prompts';
+import {fromMarkdown} from 'mdast-util-from-markdown';
+import {toMarkdown} from 'mdast-util-to-markdown';
+
 import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
@@ -227,6 +230,10 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		}
 	}
 
+	// parse changelog
+	console.log('Parsing CHANGELOG.md...');
+	let changelog = parseChangelog(config.package.version);
+
 	// test
 	let reporter = new SilentReporter;
 	if (options.test) {
@@ -308,4 +315,60 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	}
 
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);
+}
+
+function parseChangelog(version: string): string {
+	let rootDir = getRootDir();
+	let changelogFile = '';
+
+	let files = ['CHANGELOG.md', 'Changelog.md', 'changelog.md'];
+
+	for (let file of files) {
+		if (fs.existsSync(path.join(rootDir, file))) {
+			changelogFile = path.join(rootDir, file);
+			break;
+		}
+	}
+	if (!changelogFile) {
+		console.log(chalk.yellow('CHANGELOG.md not found'));
+		return '';
+	}
+
+	let str = fs.readFileSync(changelogFile, 'utf-8');
+	let changelog = findChangelogEntry(str, version);
+
+	if (changelog) {
+		console.log('Changelog:');
+		console.log(chalk.gray(changelog));
+	}
+	else {
+		console.log(chalk.yellow('No changelog entry found'));
+	}
+
+	return changelog || '';
+}
+
+function findChangelogEntry(changelog: string, version: string): string {
+	let tree = fromMarkdown(changelog);
+	let found = false;
+	let nodes = [];
+
+	for (let node of tree.children) {
+		if (found) {
+			if (node.type === 'heading') {
+				break;
+			}
+			else {
+				nodes.push(node);
+			}
+		}
+		else if (node.type === 'heading' && toMarkdown(node).match(new RegExp(`\\b${version}\\b`))) {
+			found = true;
+		}
+	}
+
+	return toMarkdown({
+		type: 'root',
+		children: nodes,
+	});
 }
