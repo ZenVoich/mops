@@ -11,8 +11,6 @@ let ignore = [
 	'**/.vessel/**',
 	'**/.git/**',
 	'**/.mops/**',
-	'**/test/**',
-	'**/*.test.mo',
 ];
 
 let mocPath = '';
@@ -67,7 +65,7 @@ async function getMissingPackages(): Promise<string[]> {
 
 async function getUnusedPackages(): Promise<string[]> {
 	let config = readConfig();
-	let allDeps = new Set([...Object.keys(config.dependencies || {})]);
+	let allDeps = new Set([...Object.keys(config.dependencies || {}), ...Object.keys(config['dev-dependencies'] || {})]);
 	let used = await getUsedPackages();
 	for (let pkg of used) {
 		allDeps.delete(pkg);
@@ -86,6 +84,10 @@ export async function sync() {
 	missing.length && console.log(`${chalk.yellow('Missing packages:')} ${missing.join(', ')}`);
 	unused.length && console.log(`${chalk.yellow('Unused packages:')} ${unused.join(', ')}`);
 
+	let config = readConfig();
+	let deps = new Set(Object.keys(config.dependencies || {}));
+	let devDeps = new Set(Object.keys(config['dev-dependencies'] || {}));
+
 	// add missing packages
 	for (let pkg of missing) {
 		await add(pkg);
@@ -93,6 +95,7 @@ export async function sync() {
 
 	// remove unused packages
 	for (let pkg of unused) {
-		await remove(pkg);
+		let dev = devDeps.has(pkg) && !deps.has(pkg);
+		await remove(pkg, {dev});
 	}
 }
