@@ -45,12 +45,12 @@ module {
 		let size = end - start;
 
 		if (size == 0) {
-		return [];
+			return [];
 		};
 
 		let buf = Buffer.Buffer<T>(size);
 		for (i in Iter.range(start, end - 1)) {
-		buf.add(items[i]);
+			buf.add(items[i]);
 		};
 
 		Buffer.toArray(buf);
@@ -66,6 +66,6 @@ module {
 	public func arrayTake<T>(ar : [T], n : Int) : [T] {
 		let resSize = Nat.min(Int.abs(n), ar.size());
 		let start = if (n > 0) 0 else ar.size() - resSize;
-		Array.subArray(ar, 0, resSize);
+		Array.subArray(ar, start, resSize);
 	};
 }
