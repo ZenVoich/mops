@@ -27,7 +27,7 @@ jobs:
 
       - uses: aviate-labs/setup-dfx@v0.2.6
         with:
-          dfx-version: 0.14.3
+          dfx-version: 0.14.4
 
       - name: Cache mops packages
         uses: actions/cache@v3
