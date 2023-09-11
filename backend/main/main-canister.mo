@@ -53,6 +53,9 @@ actor {
 	public type PageCount = Nat;
 	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
+	public type PackageChanges = Types.PackageChanges;
+	public type TestsChanges = Types.TestsChanges;
+	public type DepChange = Types.DepChange;
 
 	let API_VERSION = "1.2"; // (!) make changes in pair with cli
 	let MAX_PACKAGE_FILES = 300;
@@ -67,6 +70,7 @@ actor {
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
+	var packageChanges = TrieMap.TrieMap<PackageId, PackageChanges>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	downloadLog.setTimers();
@@ -92,6 +96,7 @@ actor {
 	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
 	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
 	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
+	let publishingNotes = TrieMap.TrieMap<PublishingId, Text>(Text.equal, Text.hash);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -126,7 +131,7 @@ actor {
 			case (null) {
 				highestConfigs.put(config.name, config);
 			};
-		}
+		};
 	};
 
 	func _getPackageSummary(name : PackageName, version : PackageVersion) : ?PackageSummary {
@@ -459,6 +464,20 @@ actor {
 		#ok;
 	};
 
+	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
+		assert(Utils.isAuthorized(caller));
+
+		if (notes.size() > 10_000) {
+			return #err("Max changelog size is 10_000");
+		};
+
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
+		assert(publishing.user == caller);
+
+		publishingNotes.put(publishingId, notes);
+		#ok;
+	};
+
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
@@ -508,9 +527,11 @@ actor {
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));
 
+		let prevHighestConfig = Option.get(highestConfigs.get(publishing.config.name), publishing.config);
+
 		packageConfigs.put(packageId, publishing.config);
 		packageOwners.put(publishing.config.name, caller);
-		highestConfigs.put(publishing.config.name, publishing.config);
+		_updateHighestConfig(publishing.config);
 		packagePublications.put(packageId, {
 			user = caller;
 			time = Time.now();
@@ -531,10 +552,29 @@ actor {
 			case (null) {};
 		};
 
+		let testsChanges = switch () {
+			case () {};
+			case () {};
+		};
+
+		switch (publishingNotes.get(publishingId)) {
+			case (?notes) {
+				let prevHighestId = prevHighestConfig.name # "@" # prevHighestConfig.version;
+				packageChanges.put(packageId, {
+					notes = notes;
+					tests = _computeTestsChangesBetween(prevHighestId, packageId);
+					deps = _computeDepsChangesBetween(prevHighestId, packageId);
+					devDeps = _computeDevDepsChangesBetween(prevHighestId, packageId);
+				});
+			};
+			case (null) {};
+		};
+
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
 		publishingPackageFileStats.delete(publishingId);
 		publishingTestStats.delete(publishingId);
+		publishingNotes.delete(publishingId);
 
 		#ok;
 	};
@@ -551,6 +591,79 @@ actor {
 				#err("File stats not found");
 			};
 		};
+	};
+
+	func _computeTestsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : TestsChanges {
+		let oldTestStats = Option.get(packageTestStats.get(oldPackageId), { passed = 0; passedNames = []; });
+		let newTestStats = Option.get(packageTestStats.get(newPackageId), { passed = 0; passedNames = []; });
+
+		let addedNames = Array.filter<Text.Text>(newTestStats.passedNames, func(name) {
+			Array.find<Text.Text>(oldTestStats.passedNames, func(x) = x == name) == null;
+		});
+
+		let removedNames = Array.filter<Text.Text>(oldTestStats.passedNames, func(name) {
+			Array.find<Text.Text>(newTestStats.passedNames, func(x) = x == name) == null;
+		});
+
+		{
+			addedNames;
+			removedNames;
+		}
+	};
+
+	func _computeDepsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : [DepChange] {
+		let oldDeps = switch (packageConfigs.get(oldPackageId)) {
+			case (?config) config.dependencies;
+			case (null) [];
+		};
+		let newDeps = switch (packageConfigs.get(newPackageId)) {
+			case (?config) config.dependencies;
+			case (null) [];
+		};
+		_computeDepsChanges(oldDeps, newDeps);
+	};
+
+	func _computeDevDepsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : [DepChange] {
+		let oldDeps = switch (packageConfigs.get(oldPackageId)) {
+			case (?config) config.devDependencies;
+			case (null) [];
+		};
+		let newDeps = switch (packageConfigs.get(newPackageId)) {
+			case (?config) config.devDependencies;
+			case (null) [];
+		};
+		_computeDepsChanges(oldDeps, newDeps);
+	};
+
+	func _computeDepsChanges(oldDeps : [DependencyV2], newDeps : [DependencyV2]) : [DepChange] {
+		let buf = Buffer.Buffer<DepChange>(newDeps.size());
+
+		// added and updated deps
+		for (newDep in newDeps.vals()) {
+			let oldDepOpt = Array.find<DependencyV2>(oldDeps, func(oldDep) = oldDep.name == newDep.name);
+			buf.add({
+				name = newDep.name;
+				oldVersion = switch (oldDepOpt) {
+					case (?oldDep) oldDep.version;
+					case (null) "";
+				};
+				newVersion = newDep.version;
+			});
+		};
+
+		// removed deps
+		for (oldDep in oldDeps.vals()) {
+			let newDepOpt = Array.find<DependencyV2>(newDeps, func(newDep) = newDep.name == oldDep.name);
+			if (newDepOpt == null) {
+				buf.add({
+					name = oldDep.name;
+					oldVersion = oldDep.version;
+					newVersion = "";
+				});
+			};
+		};
+
+		Buffer.toArray(buf);
 	};
 
 	// AIRDROP

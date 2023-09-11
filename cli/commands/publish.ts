@@ -272,6 +272,11 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		});
 	}
 
+	// upload changelog
+	if (changelog) {
+		await actor.uploadNotes(puiblishingId, changelog);
+	}
+
 	// upload files
 	await parallel(8, files, async (file: string) => {
 		progress();
