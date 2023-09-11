@@ -60,7 +60,7 @@ export class CompactReporter implements Reporter {
 		return this.failed === 0;
 	}
 
-	#timerId: NodeJS.Timer | null = null;
+	#timerId: NodeJS.Timeout | null = null;
 	#startTimer() {
 		this.#timerId = setInterval(() => this.#log(), 55);
 	}
