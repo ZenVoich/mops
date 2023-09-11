@@ -847,7 +847,7 @@ actor {
 		let limit = Option.get(limitOpt, 20);
 		let pageIndex = Option.get(pageIndexOpt, 0);
 
-		assert(limit <= 100);
+		assert(limit <= 200);
 		assert(pageIndex <= 1_000_000);
 		assert(searchText.size() <= 100);
 
