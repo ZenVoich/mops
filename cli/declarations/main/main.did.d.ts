@@ -217,5 +217,6 @@ export interface _SERVICE {
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
   >,
+  'uploadNotes' : ActorMethod<[PublishingId, string], Result>,
   'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
 }

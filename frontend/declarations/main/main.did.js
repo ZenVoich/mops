@@ -251,6 +251,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'uploadNotes' : IDL.Func([PublishingId, IDL.Text], [Result], []),
     'uploadTestStats' : IDL.Func([PublishingId, TestStats], [Result], []),
   });
 };

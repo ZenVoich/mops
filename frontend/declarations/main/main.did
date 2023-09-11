@@ -259,5 +259,6 @@ service : {
   startPublish: (PackageConfigV2) -> (Result_1);
   takeAirdropSnapshot: () -> () oneway;
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
+  uploadNotes: (PublishingId, text) -> (Result);
   uploadTestStats: (PublishingId, TestStats) -> (Result);
 }
