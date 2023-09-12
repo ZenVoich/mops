@@ -23,6 +23,7 @@
 	$: pkgName = $routeParams.packageName;
 	$: pkgVersion = $routeParams.version;
 	$: $currentURL && load();
+	$: command = `mops add ${packageDetails?.config.name}${getHighestVersion() !== packageDetails?.config.version ? '@' + packageDetails?.config.version : ''}`;
 
 
 	let readme: string;
@@ -99,7 +100,7 @@
 
 	let resetIconTimer: any;
 	function copyCommand() {
-		navigator.clipboard.writeText(`mops add ${packageDetails.config.name}`);
+		navigator.clipboard.writeText(command);
 		copiedToClipboard = true;
 		installHovered = true;
 		clearTimeout(resetIconTimer);
@@ -149,7 +150,7 @@
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
 							<div class="text" on:click="{copyCommand}">Install</div>
-							<div class="command" on:click="{copyCommand}">mops add {packageDetails.config.name}</div>
+							<div class="command" on:click="{copyCommand}">{command}</div>
 						</div>
 						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>
