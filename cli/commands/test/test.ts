@@ -147,7 +147,7 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 						return;
 					}
 					// run
-					let proc = spawn('wasmtime', [wasmFile]);
+					let proc = spawn('wasmtime', ['--max-wasm-stack=2000000', wasmFile]);
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
 					fs.rmSync(wasmFile, {force: true});
