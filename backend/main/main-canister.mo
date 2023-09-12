@@ -548,14 +548,15 @@ actor {
 			not Text.endsWith(fileId, #text("docs.tgz"));
 		}));
 
+		let prevHighestConfig = Option.get(highestConfigs.get(publishing.config.name), publishing.config);
+
+		_updateHighestConfig(publishing.config);
+
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
 		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));
 
-		let prevHighestConfig = Option.get(highestConfigs.get(publishing.config.name), publishing.config);
-
 		packageConfigs.put(packageId, publishing.config);
 		packageOwners.put(publishing.config.name, caller);
-		_updateHighestConfig(publishing.config);
 		packagePublications.put(packageId, {
 			user = caller;
 			time = Time.now();
@@ -669,14 +670,19 @@ actor {
 		// added and updated deps
 		for (newDep in newDeps.vals()) {
 			let oldDepOpt = Array.find<DependencyV2>(oldDeps, func(oldDep) = oldDep.name == newDep.name);
-			buf.add({
-				name = newDep.name;
-				oldVersion = switch (oldDepOpt) {
-					case (?oldDep) oldDep.version;
-					case (null) "";
-				};
-				newVersion = newDep.version;
-			});
+			let oldVersion = switch (oldDepOpt) {
+				case (?oldDep) oldDep.version;
+				case (null) "";
+			};
+
+			if (oldVersion != newDep.version) {
+				buf.add({
+					name = newDep.name;
+					oldVersion = oldVersion;
+					newVersion = newDep.version;
+				});
+			};
+
 		};
 
 		// removed deps
