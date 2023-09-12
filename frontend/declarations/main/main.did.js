@@ -1,4 +1,19 @@
 export const idlFactory = ({ IDL }) => {
+  const TestsChanges = IDL.Record({
+    'addedNames' : IDL.Vec(IDL.Text),
+    'removedNames' : IDL.Vec(IDL.Text),
+  });
+  const DepChange = IDL.Record({
+    'oldVersion' : IDL.Text,
+    'name' : IDL.Text,
+    'newVersion' : IDL.Text,
+  });
+  const PackageChanges__1 = IDL.Record({
+    'tests' : TestsChanges,
+    'deps' : IDL.Vec(DepChange),
+    'notes' : IDL.Text,
+    'devDeps' : IDL.Vec(DepChange),
+  });
   const PublishingId = IDL.Text;
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
@@ -97,6 +112,22 @@ export const idlFactory = ({ IDL }) => {
     'sourceFiles' : IDL.Nat,
     'sourceSize' : IDL.Nat,
   });
+  const PackageChanges = IDL.Record({
+    'tests' : TestsChanges,
+    'deps' : IDL.Vec(DepChange),
+    'notes' : IDL.Text,
+    'devDeps' : IDL.Vec(DepChange),
+  });
+  const PackageSummaryWithChanges__1 = IDL.Record({
+    'ownerInfo' : User,
+    'owner' : IDL.Principal,
+    'downloadsTotal' : IDL.Nat,
+    'downloadsInLast30Days' : IDL.Nat,
+    'downloadsInLast7Days' : IDL.Nat,
+    'config' : PackageConfigV2__1,
+    'changes' : PackageChanges,
+    'publication' : PackagePublication,
+  });
   const PackageDetails = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
@@ -106,14 +137,25 @@ export const idlFactory = ({ IDL }) => {
     'downloadsInLast30Days' : IDL.Nat,
     'downloadTrend' : IDL.Vec(DownloadsSnapshot),
     'fileStats' : PackageFileStatsPublic,
-    'versionHistory' : IDL.Vec(PackageSummary__1),
+    'versionHistory' : IDL.Vec(PackageSummaryWithChanges__1),
     'dependents' : IDL.Vec(PackageSummary__1),
     'devDeps' : IDL.Vec(PackageSummary__1),
     'downloadsInLast7Days' : IDL.Nat,
     'config' : PackageConfigV2__1,
+    'changes' : PackageChanges,
     'publication' : PackagePublication,
   });
   const Result_4 = IDL.Variant({ 'ok' : PackageDetails, 'err' : Err });
+  const PackageSummaryWithChanges = IDL.Record({
+    'ownerInfo' : User,
+    'owner' : IDL.Principal,
+    'downloadsTotal' : IDL.Nat,
+    'downloadsInLast30Days' : IDL.Nat,
+    'downloadsInLast7Days' : IDL.Nat,
+    'config' : PackageConfigV2__1,
+    'changes' : PackageChanges,
+    'publication' : PackagePublication,
+  });
   const StorageId = IDL.Principal;
   const StorageStats = IDL.Record({
     'fileCount' : IDL.Nat,
@@ -162,6 +204,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
+    'diff' : IDL.Func([IDL.Text, IDL.Text], [PackageChanges__1], ['query']),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
     'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),
@@ -216,7 +259,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getRecentlyUpdatedPackages' : IDL.Func(
         [],
-        [IDL.Vec(PackageSummary)],
+        [IDL.Vec(PackageSummaryWithChanges)],
         ['query'],
       ),
     'getStoragesStats' : IDL.Func(

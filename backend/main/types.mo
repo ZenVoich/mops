@@ -81,8 +81,12 @@ module {
 		downloadsInLast7Days : Nat;
 	};
 
-	public type PackageDetails = PackageSummary and {
-		versionHistory : [PackageSummary];
+	public type PackageSummaryWithChanges = PackageSummary and {
+		changes : PackageChanges;
+	};
+
+	public type PackageDetails = PackageSummaryWithChanges and {
+		versionHistory : [PackageSummaryWithChanges];
 		deps : [PackageSummary];
 		devDeps : [PackageSummary];
 		dependents : [PackageSummary];

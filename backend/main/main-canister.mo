@@ -47,6 +47,7 @@ actor {
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummary = Types.PackageSummary;
+	public type PackageSummaryWithChanges = Types.PackageSummaryWithChanges;
 	public type PackageFileStats = Types.PackageFileStats;
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
 	public type User = Types.User;
@@ -156,6 +157,14 @@ actor {
 		};
 	};
 
+	func _getPackageSummaryWithChanges(name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
+		let ?packageSummary = _getPackageSummary(name, version) else return null;
+		?{
+			packageSummary with
+			changes = _getPackageChanges(name, version);
+		};
+	};
+
 	func _getPackageDetails(name : PackageName, version : PackageVersion) : ?PackageDetails {
 		let packageId = name # "@" # version;
 
@@ -175,14 +184,15 @@ actor {
 					sourceSize = fileStats.sourceSize;
 				};
 				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
+				changes = _getPackageChanges(name, version);
 			};
 		};
 	};
 
-	func _getPackageVersionHistory(name : PackageName) : [PackageSummary] {
+	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
 		let versions = Utils.unwrap(packageVersions.get(name));
-		Array.reverse(Array.map<PackageVersion, PackageSummary>(versions, func(version) {
-			Utils.unwrap(_getPackageSummary(name, version));
+		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
+			Utils.unwrap(_getPackageSummaryWithChanges(name, version));
 		}));
 	};
 
@@ -252,10 +262,24 @@ actor {
 		}
 	};
 
+	func _getPackageChanges(name : PackageName, version : PackageVersion) : PackageChanges {
+		Option.get(packageChanges.get(name # "@" # version), {
+			notes = "";
+			tests = {
+				addedNames = [];
+				removedNames = [];
+			};
+			deps = [];
+			devDeps = [];
+		});
+	};
+
 
 	// PUBLIC
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		assert(Utils.isAuthorized(caller));
+		if (not Utils.isAuthorized(caller)) {
+			return #err("Unauthorized");
+		};
 
 		// validate config
 		switch (validateConfig(config)) {
@@ -557,18 +581,13 @@ actor {
 			case () {};
 		};
 
-		switch (publishingNotes.get(publishingId)) {
-			case (?notes) {
-				let prevHighestId = prevHighestConfig.name # "@" # prevHighestConfig.version;
-				packageChanges.put(packageId, {
-					notes = notes;
-					tests = _computeTestsChangesBetween(prevHighestId, packageId);
-					deps = _computeDepsChangesBetween(prevHighestId, packageId);
-					devDeps = _computeDevDepsChangesBetween(prevHighestId, packageId);
-				});
-			};
-			case (null) {};
-		};
+		let prevHighestId = prevHighestConfig.name # "@" # prevHighestConfig.version;
+		packageChanges.put(packageId, {
+			notes = Option.get(publishingNotes.get(publishingId), "");
+			tests = _computeTestsChangesBetween(prevHighestId, packageId);
+			deps = _computeDepsChangesBetween(prevHighestId, packageId);
+			devDeps = _computeDevDepsChangesBetween(prevHighestId, packageId);
+		});
 
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
@@ -577,6 +596,15 @@ actor {
 		publishingNotes.delete(publishingId);
 
 		#ok;
+	};
+
+	public query func diff(a : Text, b : Text) : async PackageChanges {
+		{
+			notes = Option.get(null, "");
+			tests = _computeTestsChangesBetween(a, b);
+			deps = _computeDepsChangesBetween(a, b);
+			devDeps = _computeDevDepsChangesBetween(a, b);
+		};
 	};
 
 	func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), Err> {
@@ -925,9 +953,9 @@ actor {
 		(summaries, page.1);
 	};
 
-	public query func getRecentlyUpdatedPackages() : async [PackageSummary] {
+	public query func getRecentlyUpdatedPackages() : async [PackageSummaryWithChanges] {
 		let max = 5;
-		let packages = Buffer.Buffer<PackageSummary>(max);
+		let packages = Buffer.Buffer<PackageSummaryWithChanges>(max);
 
 		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
 			Int.compare(b.1.time, a.1.time);
@@ -936,7 +964,7 @@ actor {
 		label l for ((packageId, _) in pubsSorted.vals()) {
 			ignore do ? {
 				let config = packageConfigs.get(packageId)!;
-				let packageSummary = _getPackageSummary(config.name, config.version)!;
+				let packageSummaryWithChanges = _getPackageSummaryWithChanges(config.name, config.version)!;
 
 				var has = false;
 				label find for (details in packages.vals()) {
@@ -947,7 +975,7 @@ actor {
 				};
 
 				if (not has) {
-					packages.add(packageSummary);
+					packages.add(packageSummaryWithChanges);
 				};
 
 				if (packages.size() >= max) {
@@ -1159,7 +1187,7 @@ actor {
 	let backupManager = Backup.BackupManager(backupState);
 
 	type BackupChunk = {
-		#v2 : {
+		#v3 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
@@ -1167,6 +1195,7 @@ actor {
 			#highestConfigs : [(PackageName, PackageConfigV2)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
 			#packageTestStats : [(PackageId, TestStats)];
+			#packageChanges : [(PackageId, PackageChanges)];
 			#downloadLog : DownloadLog.Stable;
 			#storageManager : StorageManager.Stable;
 			#users : Users.Stable;
@@ -1184,18 +1213,19 @@ actor {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v2");
+		let backup = backupManager.NewBackup("v3");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v2(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v2(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageChanges(Iter.toArray(packageChanges.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -1205,7 +1235,7 @@ actor {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v2(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v3(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -1222,6 +1252,9 @@ actor {
 				};
 				case (#packageTestStats(packageTestStatsStable)) {
 					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageChanges(packageChangesStable)) {
+					packageChanges := TrieMap.fromEntries<PackageId, PackageChanges>(packageChangesStable.vals(), Text.equal, Text.hash);
 				};
 				case (#downloadLog(downloadLogStable)) {
 					downloadLog.cancelTimers();
@@ -1254,6 +1287,7 @@ actor {
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
 	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
+	stable var packageChangesStable : [(PackageId, PackageChanges)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -1266,6 +1300,7 @@ actor {
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
+		packageChangesStable := Iter.toArray(packageChanges.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -1292,6 +1327,9 @@ actor {
 
 		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 		packageTestStatsStable := [];
+
+		packageChanges := TrieMap.fromEntries<PackageId, PackageChanges>(packageChangesStable.vals(), Text.equal, Text.hash);
+		packageChangesStable := [];
 
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);

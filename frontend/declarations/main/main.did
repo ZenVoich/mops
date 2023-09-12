@@ -26,6 +26,11 @@ type User =
  };
 type Time = int;
 type Text = text;
+type TestsChanges = 
+ record {
+   addedNames: vec text;
+   removedNames: vec text;
+ };
 type TestStats__1 = 
  record {
    passed: nat;
@@ -111,6 +116,28 @@ type PackageSummary__1 =
    ownerInfo: User;
    publication: PackagePublication;
  };
+type PackageSummaryWithChanges__1 = 
+ record {
+   changes: PackageChanges;
+   config: PackageConfigV2__1;
+   downloadsInLast30Days: nat;
+   downloadsInLast7Days: nat;
+   downloadsTotal: nat;
+   owner: principal;
+   ownerInfo: User;
+   publication: PackagePublication;
+ };
+type PackageSummaryWithChanges = 
+ record {
+   changes: PackageChanges;
+   config: PackageConfigV2__1;
+   downloadsInLast30Days: nat;
+   downloadsInLast7Days: nat;
+   downloadsTotal: nat;
+   owner: principal;
+   ownerInfo: User;
+   publication: PackagePublication;
+ };
 type PackageSummary = 
  record {
    config: PackageConfigV2__1;
@@ -137,6 +164,7 @@ type PackageFileStatsPublic =
  };
 type PackageDetails = 
  record {
+   changes: PackageChanges;
    config: PackageConfigV2__1;
    dependents: vec PackageSummary__1;
    deps: vec PackageSummary__1;
@@ -150,7 +178,7 @@ type PackageDetails =
    ownerInfo: User;
    publication: PackagePublication;
    testStats: TestStats__1;
-   versionHistory: vec PackageSummary__1;
+   versionHistory: vec PackageSummaryWithChanges__1;
  };
 type PackageConfigV2__1 = 
  record {
@@ -190,6 +218,20 @@ type PackageConfigV2 =
    scripts: vec Script;
    version: text;
  };
+type PackageChanges__1 = 
+ record {
+   deps: vec DepChange;
+   devDeps: vec DepChange;
+   notes: text;
+   tests: TestsChanges;
+ };
+type PackageChanges = 
+ record {
+   deps: vec DepChange;
+   devDeps: vec DepChange;
+   notes: text;
+   tests: TestsChanges;
+ };
 type FileId = text;
 type Err = text;
 type DownloadsSnapshot__1 = 
@@ -210,9 +252,16 @@ type DependencyV2 =
    repo: text;
    version: text;
  };
+type DepChange = 
+ record {
+   name: text;
+   newVersion: text;
+   oldVersion: text;
+ };
 service : {
   backup: () -> ();
   claimAirdrop: (principal) -> (text);
+  diff: (text, text) -> (PackageChanges__1) query;
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
   getAirdropAmountAll: () -> (nat) query;
@@ -243,7 +292,7 @@ service : {
                                       text;
                                       vec PackageSummary;
                                     }) query;
-  getRecentlyUpdatedPackages: () -> (vec PackageSummary) query;
+  getRecentlyUpdatedPackages: () -> (vec PackageSummaryWithChanges) query;
   getStoragesStats: () -> (vec record {
                                  StorageId;
                                  StorageStats;
