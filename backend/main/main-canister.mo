@@ -71,7 +71,7 @@ actor {
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
-	var packageChanges = TrieMap.TrieMap<PackageId, PackageChanges>(Text.equal, Text.hash);
+	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
 
 	let downloadLog = DownloadLog.DownloadLog();
 	downloadLog.setTimers();
@@ -111,6 +111,16 @@ actor {
 			};
 		};
 		return null;
+	};
+
+	func _getPrevVersion(name : PackageName, version : PackageVersion) : ?PackageVersion {
+		let ?versions = packageVersions.get(name) else return null;
+		let verSorted = Array.sort(versions, Semver.compare);
+		let ?curIndex = Array.indexOf(version, versions, Semver.equal) else return null;
+		if (curIndex > 0) {
+			return ?verSorted[curIndex - 1];
+		};
+		null;
 	};
 
 	func _resolveVersion(name : PackageName, version : PackageVersion) : ?PackageVersion {
@@ -161,7 +171,7 @@ actor {
 		let ?packageSummary = _getPackageSummary(name, version) else return null;
 		?{
 			packageSummary with
-			changes = _getPackageChanges(name, version);
+			changes = _computePackageChanges(name, version);
 		};
 	};
 
@@ -184,7 +194,7 @@ actor {
 					sourceSize = fileStats.sourceSize;
 				};
 				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
-				changes = _getPackageChanges(name, version);
+				changes = _computePackageChanges(name, version);
 			};
 		};
 	};
@@ -262,8 +272,8 @@ actor {
 		}
 	};
 
-	func _getPackageChanges(name : PackageName, version : PackageVersion) : PackageChanges {
-		Option.get(packageChanges.get(name # "@" # version), {
+	func _defaultPackageChanges() : PackageChanges {
+		{
 			notes = "";
 			tests = {
 				addedNames = [];
@@ -271,7 +281,23 @@ actor {
 			};
 			deps = [];
 			devDeps = [];
-		});
+		};
+	};
+
+	func _computePackageChanges(name : PackageName, version : PackageVersion) : PackageChanges {
+		let curId = name # "@" # version;
+
+		let ?prevVersion = _getPrevVersion(name, version) else return _defaultPackageChanges();
+		let prevId = name # "@" # prevVersion;
+
+		let ?prevConfig = packageConfigs.get(prevId) else return _defaultPackageChanges();
+
+		{
+			notes = Option.get(packageNotes.get(curId), "");
+			tests = _computeTestsChangesBetween(prevId, curId);
+			deps = _computeDepsChangesBetween(prevId, curId);
+			devDeps = _computeDevDepsChangesBetween(prevId, curId);
+		};
 	};
 
 
@@ -548,8 +574,6 @@ actor {
 			not Text.endsWith(fileId, #text("docs.tgz"));
 		}));
 
-		let prevHighestConfig = Option.get(highestConfigs.get(publishing.config.name), publishing.config);
-
 		_updateHighestConfig(publishing.config);
 
 		let versions = Option.get(packageVersions.get(publishing.config.name), []);
@@ -577,18 +601,7 @@ actor {
 			case (null) {};
 		};
 
-		let testsChanges = switch () {
-			case () {};
-			case () {};
-		};
-
-		let prevHighestId = prevHighestConfig.name # "@" # prevHighestConfig.version;
-		packageChanges.put(packageId, {
-			notes = Option.get(publishingNotes.get(publishingId), "");
-			tests = _computeTestsChangesBetween(prevHighestId, packageId);
-			deps = _computeDepsChangesBetween(prevHighestId, packageId);
-			devDeps = _computeDevDepsChangesBetween(prevHighestId, packageId);
-		});
+		packageNotes.put(packageId, Option.get(publishingNotes.get(publishingId), ""));
 
 		publishingFiles.delete(publishingId);
 		publishingPackages.delete(publishingId);
@@ -1201,7 +1214,7 @@ actor {
 			#highestConfigs : [(PackageName, PackageConfigV2)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
 			#packageTestStats : [(PackageId, TestStats)];
-			#packageChanges : [(PackageId, PackageChanges)];
+			#packageNotes : [(PackageId, Text)];
 			#downloadLog : DownloadLog.Stable;
 			#storageManager : StorageManager.Stable;
 			#users : Users.Stable;
@@ -1226,7 +1239,7 @@ actor {
 		await backup.uploadChunk(to_candid(#v3(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageChanges(Iter.toArray(packageChanges.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#downloadLog(downloadLog.toStable())) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#storageManager(storageManager.toStable())) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#users(users.toStable())) : BackupChunk));
@@ -1259,8 +1272,8 @@ actor {
 				case (#packageTestStats(packageTestStatsStable)) {
 					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 				};
-				case (#packageChanges(packageChangesStable)) {
-					packageChanges := TrieMap.fromEntries<PackageId, PackageChanges>(packageChangesStable.vals(), Text.equal, Text.hash);
+				case (#packageNotes(packageNotesStable)) {
+					packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
 				};
 				case (#downloadLog(downloadLogStable)) {
 					downloadLog.cancelTimers();
@@ -1293,7 +1306,7 @@ actor {
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
 	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
-	stable var packageChangesStable : [(PackageId, PackageChanges)] = [];
+	stable var packageNotesStable : [(PackageId, Text)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -1306,7 +1319,7 @@ actor {
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
-		packageChangesStable := Iter.toArray(packageChanges.entries());
+		packageNotesStable := Iter.toArray(packageNotes.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -1334,8 +1347,8 @@ actor {
 		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 		packageTestStatsStable := [];
 
-		packageChanges := TrieMap.fromEntries<PackageId, PackageChanges>(packageChangesStable.vals(), Text.equal, Text.hash);
-		packageChangesStable := [];
+		packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
+		packageNotesStable := [];
 
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);

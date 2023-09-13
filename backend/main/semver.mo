@@ -67,6 +67,10 @@ module {
 		};
 	};
 
+	public func equal(x : Version, y : Version) : Bool {
+		compare(x, y) == #equal;
+	};
+
 	// TODO: support 1.2.3-pre.1
 	public func validate(ver : Version) : Result.Result<(), Err> {
 		var dots = 0;
