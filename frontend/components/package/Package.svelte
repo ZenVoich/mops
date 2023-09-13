@@ -17,11 +17,13 @@
 	import PackageRightPanel from './PackageRightPanel.svelte';
 	import githubImg from '/img/github.svg';
 	import {compareVersions} from '/logic/compare-versions';
+	import PackageVersionSummary from './PackageVersionSummary.svelte';
 
 	let pkgName: string;
 	$: pkgName = $routeParams.packageName;
 	$: pkgVersion = $routeParams.version;
 	$: $currentURL && load();
+	$: command = `mops add ${packageDetails?.config.name}${getHighestVersion() !== packageDetails?.config.version ? '@' + packageDetails?.config.version : ''}`;
 
 
 	let readme: string;
@@ -98,7 +100,7 @@
 
 	let resetIconTimer: any;
 	function copyCommand() {
-		navigator.clipboard.writeText(`mops add ${packageDetails.config.name}`);
+		navigator.clipboard.writeText(command);
 		copiedToClipboard = true;
 		installHovered = true;
 		clearTimeout(resetIconTimer);
@@ -148,7 +150,7 @@
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
 							<div class="text" on:click="{copyCommand}">Install</div>
-							<div class="command" on:click="{copyCommand}">mops add {packageDetails.config.name}</div>
+							<div class="command" on:click="{copyCommand}">{command}</div>
 						</div>
 						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>
@@ -188,10 +190,7 @@
 							{:else if selectedTab == 'versions'}
 								<div class="packages">
 									{#each packageDetails.versionHistory as versionSummary}
-										<div class="version-summary">
-											<a href="/{pkgName}@{versionSummary.config.version}" use:link>{versionSummary.config.version}</a>
-											<div class="version-published"><Date date="{Number(versionSummary.publication.time / 1000000n)}"></Date></div>
-										</div>
+										<PackageVersionSummary summary={versionSummary}></PackageVersionSummary>
 									{/each}
 								</div>
 							{:else if selectedTab == 'dependencies'}
@@ -368,13 +367,6 @@
 
 	.tab.selected {
 		background: var(--color-secondary);
-	}
-
-	.version-summary {
-		display: flex;
-		justify-content: space-between;
-		padding-bottom: 3px;
-		border-bottom: 1.5px dashed lightgray;
 	}
 
 	.packages {

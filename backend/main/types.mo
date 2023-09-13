@@ -20,9 +20,9 @@ module {
 		email : Text; // max 50 (e.g. "zen.voich@gmail.com")
 		github : Text; // max 30 (e.g. "ZenVoich")
 		twitter : Text; // max 30 (e.g. "mops_one")
-		emailVerified : Bool;
-		twitterVerified : Bool;
-		githubVerified : Bool;
+		emailVerified : Bool; // unused
+		twitterVerified : Bool; // unused
+		githubVerified : Bool; // unused
 	};
 
 	public type Access = {
@@ -81,8 +81,12 @@ module {
 		downloadsInLast7Days : Nat;
 	};
 
-	public type PackageDetails = PackageSummary and {
-		versionHistory : [PackageSummary];
+	public type PackageSummaryWithChanges = PackageSummary and {
+		changes : PackageChanges;
+	};
+
+	public type PackageDetails = PackageSummaryWithChanges and {
+		versionHistory : [PackageSummaryWithChanges];
 		deps : [PackageSummary];
 		devDeps : [PackageSummary];
 		dependents : [PackageSummary];
@@ -116,5 +120,23 @@ module {
 	public type TestStats = {
 		passed : Nat;
 		passedNames : [Text];
+	};
+
+	public type TestsChanges = {
+		addedNames : [Text];
+		removedNames : [Text];
+	};
+
+	public type DepChange = {
+		name : Text;
+		oldVersion : Text;
+		newVersion : Text;
+	};
+
+	public type PackageChanges = {
+		notes : Text;
+		tests : TestsChanges;
+		deps : [DepChange];
+		devDeps : [DepChange];
 	};
 };

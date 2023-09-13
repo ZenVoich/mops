@@ -1,6 +1,11 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
+export interface DepChange {
+  'oldVersion' : string,
+  'name' : string,
+  'newVersion' : string,
+}
 export interface DependencyV2 {
   'name' : PackageName,
   'repo' : string,
@@ -18,6 +23,18 @@ export interface DownloadsSnapshot__1 {
 }
 export type Err = string;
 export type FileId = string;
+export interface PackageChanges {
+  'tests' : TestsChanges,
+  'deps' : Array<DepChange>,
+  'notes' : string,
+  'devDeps' : Array<DepChange>,
+}
+export interface PackageChanges__1 {
+  'tests' : TestsChanges,
+  'deps' : Array<DepChange>,
+  'notes' : string,
+  'devDeps' : Array<DepChange>,
+}
 export interface PackageConfigV2 {
   'dfx' : string,
   'moc' : string,
@@ -63,11 +80,12 @@ export interface PackageDetails {
   'downloadsInLast30Days' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
   'fileStats' : PackageFileStatsPublic,
-  'versionHistory' : Array<PackageSummary__1>,
+  'versionHistory' : Array<PackageSummaryWithChanges__1>,
   'dependents' : Array<PackageSummary__1>,
   'devDeps' : Array<PackageSummary__1>,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
+  'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
 export interface PackageFileStatsPublic {
@@ -89,6 +107,26 @@ export interface PackageSummary {
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV2__1,
+  'publication' : PackagePublication,
+}
+export interface PackageSummaryWithChanges {
+  'ownerInfo' : User,
+  'owner' : Principal,
+  'downloadsTotal' : bigint,
+  'downloadsInLast30Days' : bigint,
+  'downloadsInLast7Days' : bigint,
+  'config' : PackageConfigV2__1,
+  'changes' : PackageChanges,
+  'publication' : PackagePublication,
+}
+export interface PackageSummaryWithChanges__1 {
+  'ownerInfo' : User,
+  'owner' : Principal,
+  'downloadsTotal' : bigint,
+  'downloadsInLast30Days' : bigint,
+  'downloadsInLast7Days' : bigint,
+  'config' : PackageConfigV2__1,
+  'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
 export interface PackageSummary__1 {
@@ -135,6 +173,10 @@ export interface TestStats__1 {
   'passedNames' : Array<string>,
   'passed' : bigint,
 }
+export interface TestsChanges {
+  'addedNames' : Array<string>,
+  'removedNames' : Array<string>,
+}
 export type Text = string;
 export type Time = bigint;
 export interface User {
@@ -164,6 +206,7 @@ export interface User__1 {
 export interface _SERVICE {
   'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
+  'diff' : ActorMethod<[string, string], PackageChanges__1>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,
@@ -195,7 +238,10 @@ export interface _SERVICE {
     [],
     Array<[string, Array<PackageSummary>]>
   >,
-  'getRecentlyUpdatedPackages' : ActorMethod<[], Array<PackageSummary>>,
+  'getRecentlyUpdatedPackages' : ActorMethod<
+    [],
+    Array<PackageSummaryWithChanges>
+  >,
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
@@ -217,5 +263,6 @@ export interface _SERVICE {
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
   >,
+  'uploadNotes' : ActorMethod<[PublishingId, string], Result>,
   'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
 }
