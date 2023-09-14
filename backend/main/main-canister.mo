@@ -1087,6 +1087,7 @@ actor {
 					"merkle-patricia-trie",
 					"evm-txs",
 					"ic-certification",
+					"evm-proof-verifier",
 				], limit)
 			),
 			(
@@ -1113,6 +1114,7 @@ actor {
 					"http-parser",
 					"web-io",
 					"http-types",
+					"motoko-certified-assets",
 				], limit)
 			),
 			(
