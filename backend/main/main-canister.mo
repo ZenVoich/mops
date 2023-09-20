@@ -680,19 +680,28 @@ actor {
 	func _computeDepsChanges(oldDeps : [DependencyV2], newDeps : [DependencyV2]) : [DepChange] {
 		let buf = Buffer.Buffer<DepChange>(newDeps.size());
 
+		func _getDepVer(dep : DependencyV2) : Text {
+			if (dep.version != "") {
+				dep.version;
+			}
+			else {
+				dep.repo;
+			};
+		};
+
 		// added and updated deps
 		for (newDep in newDeps.vals()) {
 			let oldDepOpt = Array.find<DependencyV2>(oldDeps, func(oldDep) = oldDep.name == newDep.name);
 			let oldVersion = switch (oldDepOpt) {
-				case (?oldDep) oldDep.version;
+				case (?oldDep) _getDepVer(oldDep);
 				case (null) "";
 			};
 
-			if (oldVersion != newDep.version) {
+			if (oldVersion != _getDepVer(newDep)) {
 				buf.add({
 					name = newDep.name;
 					oldVersion = oldVersion;
-					newVersion = newDep.version;
+					newVersion = _getDepVer(newDep);
 				});
 			};
 
@@ -704,7 +713,7 @@ actor {
 			if (newDepOpt == null) {
 				buf.add({
 					name = oldDep.name;
-					oldVersion = oldDep.version;
+					oldVersion = _getDepVer(oldDep);
 					newVersion = "";
 				});
 			};
