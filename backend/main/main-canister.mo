@@ -1032,7 +1032,7 @@ actor {
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
 		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
-		_summariesFromNames(downloadLog.getMostDownloadedPackageNames(), 5);
+		_summariesFromNames(packageNames, 5);
 	};
 
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
