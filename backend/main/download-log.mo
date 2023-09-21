@@ -14,8 +14,8 @@ import Nat32 "mo:base/Nat32";
 import Debug "mo:base/Debug";
 
 import {MINUTE; DAY} "mo:time-consts";
-import Date "mo:chronosphere/Date";
-import DateBase "mo:chronosphere/Base";
+import DateTime "mo:datetime/DateTime";
+import DateComponents "mo:datetime/Components";
 
 import Utils "../utils";
 import Types "./types";
@@ -50,7 +50,7 @@ module {
 			dailyTempRecords : [Record];
 			weeklyTempRecords : [Record];
 			curSnapshotDay : Nat;
-			curSnapshotWeekDay : DateBase.DayOfWeek;
+			curSnapshotWeekDay : DateComponents.DayOfWeek;
 			timerId : Nat;
 		};
 	};
@@ -72,7 +72,7 @@ module {
 		var dailyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to daily snapshots
 		var weeklyTempRecords = Buffer.Buffer<Record>(1000); // records not yet added to weekly snapshots
 		var curSnapshotDay = 0;
-		var curSnapshotWeekDay : DateBase.DayOfWeek = #Monday;
+		var curSnapshotWeekDay : DateComponents.DayOfWeek = #monday;
 		var timerId = 0;
 
 		public func add(record : Record) {
@@ -128,17 +128,16 @@ module {
 		};
 
 		public func takeSnapshotsIfNeeded(now : Time.Time) {
-			// start of current day
-			let dateNow = now / 86400000000000;
-
-			let dateParts = Date.unpack(#Date(Int32.fromInt(dateNow)));
-			let weekDay = dateParts.wday;
-			let (#Day day) = dateParts.day;
+			let startOfDay = now / 86_400_000_000_000 * 86_400_000_000_000;
+			let date = DateTime.fromTime(startOfDay);
+			let dateComponents = DateComponents.fromTime(startOfDay);
+			let weekDay = DateComponents.dayOfWeek(dateComponents);
+			let day = dateComponents.day;
 
 			// daily snapshots
 			if (curSnapshotDay != Int.abs(day)) {
-				let startOfPrevDay = dateNow * 86400000000000 - 1 * DAY;
-				let endOfPrevDay = dateNow * 86400000000000 - 1;
+				let startOfPrevDay = startOfDay - 1 * DAY;
+				let endOfPrevDay = startOfDay - 1;
 
 				var dailyDownloads = 0;
 
@@ -203,9 +202,9 @@ module {
 			};
 
 			// weekly snapshots
-			if (curSnapshotWeekDay != weekDay and weekDay == #Monday) {
-				let startOfPrevWeek = dateNow * 86400000000000 - 7 * DAY;
-				let endOfPrevWeek = dateNow * 86400000000000 - 1;
+			if (curSnapshotWeekDay != weekDay and weekDay == #monday) {
+				let startOfPrevWeek = startOfDay - 7 * DAY;
+				let endOfPrevWeek = startOfDay - 1;
 
 				var weeklyDownloads = 0;
 
@@ -273,13 +272,13 @@ module {
 			curSnapshotWeekDay := weekDay;
 		};
 
-		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time) : Nat {
+		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time, now : Time.Time) : Nat {
 			if (duration < 1 * DAY - 100) {
 				Debug.trap("duration cannot be less than 1 day");
 			};
 
 			var total = 0;
-			let from = Time.now() - duration;
+			let from = now - duration;
 			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<DownloadsSnapshot>(0));
 			let snapshotsRev = Array.reverse(Buffer.toArray(snapshots));
 
@@ -316,10 +315,10 @@ module {
 			});
 		};
 
-		public func getMostDownloadedPackageNamesIn(duration : Time.Time) : [PackageName] {
+		public func getMostDownloadedPackageNamesIn(duration : Time.Time, now : Time.Time) : [PackageName] {
 			var arr = Iter.toArray(downloadsByPackageName.entries());
 			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item : (PackageName, Nat)) {
-				(item.0, getDownloadsByPackageNameIn(item.0, duration));
+				(item.0, getDownloadsByPackageNameIn(item.0, duration, now));
 			});
 
 			let sorted = Array.sort(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {

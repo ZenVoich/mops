@@ -160,8 +160,8 @@ actor {
 				ownerInfo = users.getUser(owner);
 				config = config;
 				publication = publication;
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 			};
 		};
@@ -1041,7 +1041,7 @@ actor {
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now());
 		_summariesFromNames(packageNames, 5);
 	};
 
