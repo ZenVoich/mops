@@ -230,10 +230,10 @@ actor {
 	func _getPackageDependents(name : PackageName) : [PackageSummary] {
 		func isDependent(config : PackageConfigV2) : Bool {
 			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
-				dep.name == name;
+				dep.name == name and dep.repo == "";
 			}));
 			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
-				dep.name == name;
+				dep.name == name and dep.repo == "";
 			}));
 			dependent or devDependent;
 		};
