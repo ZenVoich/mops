@@ -1213,6 +1213,20 @@ actor {
 		};
 	};
 
+	public shared ({caller}) func transferOwnership(packageName : PackageName, newOwner : Principal) : async Result.Result<(), Text> {
+		let ?oldOwner = packageOwners.get(packageName) else return #err("Package not found");
+
+		if (oldOwner != caller) {
+			return #err("Only owner can transfer ownership");
+		};
+		if (newOwner == caller) {
+			return #err("You can't transfer ownership to yourself");
+		};
+
+		packageOwners.put(packageName, newOwner);
+		#ok;
+	};
+
 	// BACKUP
 	stable let backupState = Backup.init(null);
 	let backupManager = Backup.BackupManager(backupState);
