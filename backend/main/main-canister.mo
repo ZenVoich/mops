@@ -21,8 +21,8 @@ import Prim "mo:prim";
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
-
 import Backup "mo:backup";
+import Sha256 "mo:sha2/Sha256";
 
 import Utils "../utils";
 import Semver "./semver";
@@ -69,6 +69,7 @@ actor {
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
+	var hashByFileId = TrieMap.TrieMap<FileId, Blob>(Text.equal, Text.hash);
 	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
@@ -98,6 +99,7 @@ actor {
 	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
 	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
 	let publishingNotes = TrieMap.TrieMap<PublishingId, Text>(Text.equal, Text.hash);
+	let publishingFileHashers = TrieMap.TrieMap<FileId, Sha256.Digest>(Text.equal, Text.hash);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -419,6 +421,10 @@ actor {
 			case (_) {};
 		};
 
+		// add temp hasher
+		let hasher = Sha256.Digest(#sha256);
+		publishingFileHashers.put(fileId, hasher);
+
 		// upload first chunk
 		if (chunkCount != 0) {
 			let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, 0, firstChunk);
@@ -428,6 +434,9 @@ actor {
 				};
 				case (_) {};
 			};
+
+			// compute hash of the first chunk
+			hasher.writeBlob(firstChunk);
 		};
 
 		let pubFile : PublishingFile = {
@@ -497,6 +506,9 @@ actor {
 			return pkgSizeRes;
 		};
 
+		let ?hasher = publishingFileHashers.get(fileId) else return #err("Hasher not found");
+		hasher.writeBlob(chunk);
+
 		#ok;
 	};
 
@@ -565,14 +577,23 @@ actor {
 			file.id;
 		});
 
+		let publicFileIds = Array.filter(fileIds, func(fileId : Text.Text) : Bool {
+			not Text.endsWith(fileId, #text("docs.tgz"));
+		});
+
+		fileIdsByPackage.put(packageId, publicFileIds);
+
+		// store file hashes
+		for (fileId in publicFileIds.vals()) {
+			let ?hasher = publishingFileHashers.get(fileId) else return #err("Hasher not found");
+			hashByFileId.put(fileId, hasher.sum());
+		};
+
+		// finish uploads
 		let res = await storageManager.finishUploads(publishing.storage, fileIds);
 		if (Result.isErr(res)) {
 			return res;
 		};
-
-		fileIdsByPackage.put(packageId, Array.filter(fileIds, func(fileId : Text.Text) : Bool {
-			not Text.endsWith(fileId, #text("docs.tgz"));
-		}));
 
 		_updateHighestConfig(publishing.config);
 
@@ -881,6 +902,18 @@ actor {
 	public shared query ({caller}) func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
 		let packageId = name # "@" # version;
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
+	};
+
+	public shared ({caller}) func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
+		let packageId = name # "@" # version;
+		let ?fileIds = fileIdsByPackage.get(packageId) else return #err("Package '" # packageId # "' not found");
+
+		let buf = Buffer.Buffer<(FileId, Blob)>(fileIds.size());
+		for (fileId in fileIds.vals()) {
+			let ?hash = hashByFileId.get(fileId) else return #err("File hash not found for " # fileId);
+			buf.add((fileId, hash));
+		};
+		#ok(Buffer.toArray(buf));
 	};
 
 	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
@@ -1225,6 +1258,7 @@ actor {
 			#packageConfigs : [(PackageId, PackageConfigV2)];
 			#highestConfigs : [(PackageName, PackageConfigV2)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
+			#hashByFileId : [(FileId, Blob)];
 			#packageTestStats : [(PackageId, TestStats)];
 			#packageNotes : [(PackageId, Text)];
 			#downloadLog : DownloadLog.Stable;
@@ -1250,6 +1284,7 @@ actor {
 		await backup.uploadChunk(to_candid(#v3(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v3(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
 		await backup.uploadChunk(to_candid(#v3(#downloadLog(downloadLog.toStable())) : BackupChunk));
@@ -1280,6 +1315,9 @@ actor {
 				};
 				case (#fileIdsByPackage(fileIdsByPackageStable)) {
 					fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
+				};
+				case (#hashByFileId(hashByFileIdStable)) {
+					hashByFileId := TrieMap.fromEntries<FileId, Blob>(hashByFileIdStable.vals(), Text.equal, Text.hash);
 				};
 				case (#packageTestStats(packageTestStatsStable)) {
 					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
@@ -1316,6 +1354,7 @@ actor {
 	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
+	stable var hashByFileIdStable : [(FileId, Blob)] = [];
 	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
 	stable var packageNotesStable : [(PackageId, Text)] = [];
@@ -1329,6 +1368,7 @@ actor {
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
+		hashByFileIdStable := Iter.toArray(hashByFileId.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
 		packageNotesStable := Iter.toArray(packageNotes.entries());
@@ -1352,6 +1392,9 @@ actor {
 
 		fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
 		fileIdsByPackageStable := [];
+
+		hashByFileId := TrieMap.fromEntries<FileId, Blob>(hashByFileIdStable.vals(), Text.equal, Text.hash);
+		hashByFileIdStable := [];
 
 		packageFileStats := TrieMap.fromEntries<PackageId, PackageFileStats>(packageFileStatsStable.vals(), Text.equal, Text.hash);
 		packageFileStatsStable := [];

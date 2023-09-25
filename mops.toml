@@ -5,6 +5,7 @@ chronosphere = "https://github.com/enzoh/chronosphere#master"
 map = "8.1.0"
 ic = "0.2.0"
 backup = "1.1.0"
+sha2 = "0.0.4"
 
 [dev-dependencies]
 test = "1.0.0"
