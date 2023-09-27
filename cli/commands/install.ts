@@ -69,7 +69,15 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 		// download files
 		let filesData = new Map;
-		await parallel(16, filesIds, async (fileId: string) => {
+		let threads = 16;
+
+		// GitHub Actions fails with "fetch failed" if there are multiple concurrent actions
+		if (process.env.GITHUB_ENV) {
+			console.log('Running in GitHub Actions, reducing threads to 4');
+			threads = 4;
+		}
+
+		await parallel(threads, filesIds, async (fileId: string) => {
 			let fileMetaRes = await storage.getFileMeta(fileId);
 			if ('err' in fileMetaRes) {
 				console.log(chalk.red('ERR: ') + fileMetaRes.err);
