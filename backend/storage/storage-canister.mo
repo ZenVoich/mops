@@ -104,8 +104,8 @@ shared({caller = parent}) actor class Storage() {
 		};
 
 		for (fileId in fileIds.vals()) {
-			let fileMeta = Utils.unwrap(activeUploadsMeta.get(fileId));
-			let chunks = Utils.unwrap(activeUploadsChunks.get(fileId));
+			let fileMeta = Option.unwrap(activeUploadsMeta.get(fileId));
+			let chunks = Option.unwrap(activeUploadsChunks.get(fileId));
 
 			filesMeta.put(fileId, fileMeta);
 			filesChunks.put(fileId, Array.freeze<Chunk>(chunks));
@@ -190,7 +190,7 @@ shared({caller = parent}) actor class Storage() {
 			case (#ok(_)) {};
 		};
 
-		let chunks = Utils.unwrap(filesChunks.get(fileId));
+		let chunks = Option.unwrap(filesChunks.get(fileId));
 		if (chunkIndex < 0 or chunkIndex >= chunks.size()) {
 			return #err("Invalid chunk index '" # Nat.toText(chunkIndex) # "' for file '" # fileId # "'");
 		};

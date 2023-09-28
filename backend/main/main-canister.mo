@@ -103,7 +103,7 @@ actor {
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
 		let versionsMaybe = packageVersions.get(name);
 		if (Option.isSome(versionsMaybe)) {
-			let versions = Utils.unwrap(versionsMaybe);
+			let versions = Option.unwrap(versionsMaybe);
 			let verSorted = Array.sort(versions, Semver.compare);
 
 			if (verSorted.size() != 0) {
@@ -200,9 +200,9 @@ actor {
 	};
 
 	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let versions = Utils.unwrap(packageVersions.get(name));
+		let versions = Option.unwrap(packageVersions.get(name));
 		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			Utils.unwrap(_getPackageSummaryWithChanges(name, version));
+			Option.unwrap(_getPackageSummaryWithChanges(name, version));
 		}));
 	};
 
@@ -211,7 +211,7 @@ actor {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
+			Option.unwrap(_getPackageSummary(dep.name, dep.version));
 		});
 	};
 
@@ -249,7 +249,7 @@ actor {
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
 
 		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			Utils.unwrap(_getPackageSummary(config.name, config.version));
+			Option.unwrap(_getPackageSummary(config.name, config.version));
 		});
 
 		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
@@ -978,7 +978,7 @@ actor {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			Utils.unwrap(_getPackageSummary(config.config.name, config.config.version));
+			Option.unwrap(_getPackageSummary(config.config.name, config.config.version));
 		});
 
 		(summaries, page.1);

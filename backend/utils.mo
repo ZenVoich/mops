@@ -24,13 +24,6 @@ module {
 		Principal.fromText("2vxsx-fae")
 	};
 
-	public func unwrap<T>(option : ?T) : T {
-		switch (option) {
-			case (?val) val;
-			case (null) Prelude.unreachable();
-		};
-	};
-
 	func _getPageItems<T>(items : [T], pageIndex : Nat, limit : Nat) : [T] {
 		let start = pageIndex * limit;
 		let end = Nat.min(start + limit, items.size());
