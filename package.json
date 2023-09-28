@@ -17,7 +17,7 @@
 		"deploy-ic": "NODE_ENV=production IDENTITY=mops NETWORK=ic npm run deploy",
 		"prepare-cli": "cd cli && npm run prepare",
 		"prepare": "husky install",
-		"postinstall": "(cd frontend && npm install) && (cd cli && npm install)",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
 		"test": "mops test"
 	},
 	"devDependencies": {

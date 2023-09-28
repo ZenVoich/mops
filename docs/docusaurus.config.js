@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
 	title: 'MOPS - Motoko Package Manager',
 	tagline: 'The most supercharged package manager ever!',
-	favicon: 'img/favicon.ico',
+	favicon: 'img/logo.svg',
 
 	// Set the production url of your site here
 	url: 'https://docs.mops.one',
@@ -77,8 +77,8 @@ const config = {
 					},
 					// {to: '/blog', label: 'Blog', position: 'left'},
 					{
-						href: 'https://github.com/ZenVoich/mops',
-						label: 'GitHub',
+						href: 'https://mops.one',
+						label: 'mops.one',
 						position: 'right',
 					},
 				],
@@ -90,17 +90,25 @@ const config = {
 						title: 'More',
 						items: [
 							{
-								label: 'Registry',
+								label: 'mops.one',
 								href: 'https://mops.one',
 							},
 							{
 								label: 'GitHub',
 								href: 'https://github.com/ZenVoich/mops',
 							},
+							{
+								label: 'Twitter',
+								href: 'https://twitter.com/mops_one',
+							},
+							{
+								label: 'Discord',
+								href: 'https://discord.com/invite/9HNsJwaU3T',
+							},
 						],
 					},
 				],
-				copyright: `Copyright © ${new Date().getFullYear()} MOPS.`,
+				copyright: `Copyright © ${new Date().getFullYear()} MOPS`,
 			},
 			prism: {
 				theme: lightCodeTheme,
