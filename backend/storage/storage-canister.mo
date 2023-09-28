@@ -10,7 +10,6 @@ import Text "mo:base/Text";
 import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
 
-import Utils "../utils";
 import Types "./types";
 
 shared({caller = parent}) actor class Storage() {
@@ -104,8 +103,8 @@ shared({caller = parent}) actor class Storage() {
 		};
 
 		for (fileId in fileIds.vals()) {
-			let fileMeta = Option.unwrap(activeUploadsMeta.get(fileId));
-			let chunks = Option.unwrap(activeUploadsChunks.get(fileId));
+			let ?fileMeta = activeUploadsMeta.get(fileId) else return #err("File '" # fileId # "' is not uploading");
+			let ?chunks = activeUploadsChunks.get(fileId) else return #err("File '" # fileId # "' is not uploading");
 
 			filesMeta.put(fileId, fileMeta);
 			filesChunks.put(fileId, Array.freeze<Chunk>(chunks));
@@ -190,7 +189,7 @@ shared({caller = parent}) actor class Storage() {
 			case (#ok(_)) {};
 		};
 
-		let chunks = Option.unwrap(filesChunks.get(fileId));
+		let ?chunks = filesChunks.get(fileId) else return #err("File '" # fileId # "' not found");
 		if (chunkIndex < 0 or chunkIndex >= chunks.size()) {
 			return #err("Invalid chunk index '" # Nat.toText(chunkIndex) # "' for file '" # fileId # "'");
 		};

@@ -101,14 +101,11 @@ actor {
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
-		let versionsMaybe = packageVersions.get(name);
-		if (Option.isSome(versionsMaybe)) {
-			let versions = Option.unwrap(versionsMaybe);
-			let verSorted = Array.sort(versions, Semver.compare);
+		let ?versions = packageVersions.get(name) else return null;
+		let verSorted = Array.sort(versions, Semver.compare);
 
-			if (verSorted.size() != 0) {
-				return ?verSorted[verSorted.size() - 1];
-			};
+		if (verSorted.size() != 0) {
+			return ?verSorted[verSorted.size() - 1];
 		};
 		return null;
 	};
@@ -152,7 +149,7 @@ actor {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
 
-			let owner = Option.unwrap(packageOwners.get(name));
+			let owner = packageOwners.get(name)!;
 			users.ensureUser(owner);
 
 			return ?{
@@ -200,9 +197,10 @@ actor {
 	};
 
 	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let versions = Option.unwrap(packageVersions.get(name));
+		let ?versions = packageVersions.get(name) else Debug.trap("Package'" # name # "' not found");
 		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			Option.unwrap(_getPackageSummaryWithChanges(name, version));
+			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		}));
 	};
 
@@ -211,7 +209,8 @@ actor {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			Option.unwrap(_getPackageSummary(dep.name, dep.version));
+			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package'" # dep.name # "' not found");
+			summary;
 		});
 	};
 
@@ -249,7 +248,8 @@ actor {
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
 
 		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			Option.unwrap(_getPackageSummary(config.name, config.version));
+			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		});
 
 		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
@@ -978,7 +978,8 @@ actor {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			Option.unwrap(_getPackageSummary(config.config.name, config.config.version));
+			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package'" # config.config.name # "' not found");
+			summary;
 		});
 
 		(summaries, page.1);
