@@ -27,7 +27,7 @@ module {
 	func _getPageItems<T>(items : [T], pageIndex : Nat, limit : Nat) : [T] {
 		let start = pageIndex * limit;
 		let end = Nat.min(start + limit, items.size());
-		let size = end - start;
+		let size : Nat = end - start;
 
 		if (size == 0) {
 			return [];
@@ -50,7 +50,7 @@ module {
 
 	public func arrayTake<T>(ar : [T], n : Int) : [T] {
 		let resSize = Nat.min(Int.abs(n), ar.size());
-		let start = if (n > 0) 0 else ar.size() - resSize;
+		let start : Nat = if (n > 0) 0 else ar.size() - resSize;
 		Array.subArray(ar, start, resSize);
 	};
 }
