@@ -1,5 +1,4 @@
 import Principal "mo:base/Principal";
-import Debug "mo:base/Debug";
 import Option "mo:base/Option";
 import Array "mo:base/Array";
 import Prelude "mo:base/Prelude";
@@ -23,13 +22,6 @@ module {
 
 	public func anonymousPrincipal() : Principal {
 		Principal.fromText("2vxsx-fae")
-	};
-
-	public func expect<T>(option : ?T, trapText : Text) : T {
-		switch (option) {
-			case (?val) val;
-			case (null) Debug.trap(trapText);
-		};
 	};
 
 	public func unwrap<T>(option : ?T) : T {

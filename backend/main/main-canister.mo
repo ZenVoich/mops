@@ -387,12 +387,12 @@ actor {
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
-			Debug.trap("Maximum number of package files: 300");
+			return #err("Maximum number of package files: 300");
 		};
 
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
@@ -401,7 +401,7 @@ actor {
 		let notice = Text.endsWith(path, #text("NOTICE")) or Text.endsWith(path, #text("NOTICE.md")) or Text.endsWith(path, #text("notice"));
 		let docsTgz = path == "docs.tgz";
 		if (not (moMd or didToml or license or notice or docsTgz)) {
-			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
+			return #err("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
 
 		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
@@ -430,12 +430,6 @@ actor {
 			};
 		};
 
-		let pubFile : PublishingFile = {
-			id = fileId;
-			path = path;
-		};
-		pubFiles.add(pubFile);
-
 		// file stats
 		switch (publishingPackageFileStats.get(publishingId)) {
 			case (?fileStats) {
@@ -455,7 +449,7 @@ actor {
 				};
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -466,13 +460,19 @@ actor {
 			case (#ok) {};
 		};
 
+		let pubFile : PublishingFile = {
+			id = fileId;
+			path = path;
+		};
+		pubFiles.add(pubFile);
+
 		#ok(fileId);
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
@@ -488,7 +488,7 @@ actor {
 				});
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -531,11 +531,11 @@ actor {
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let packageId = publishing.config.name # "@" # publishing.config.version;
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 
 		var mopsToml = false;
 		var readmeMd = false;
@@ -886,7 +886,9 @@ actor {
 	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
 		let packageId = name # "@" # version;
 
-		ignore Utils.expect(packageConfigs.get(packageId), "Package not found");
+		if (packageConfigs.get(packageId) == null) {
+			Debug.trap("Package '" # packageId # "' not found");
+		};
 
 		downloadLog.add({
 			time = Time.now();
