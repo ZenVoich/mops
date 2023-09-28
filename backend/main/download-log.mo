@@ -274,7 +274,7 @@ module {
 		};
 
 		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time) : Nat {
-			if (duration < 1 * DAY - 100) {
+			if (duration + 100 < 1 * DAY) {
 				Debug.trap("duration cannot be less than 1 day");
 			};
 

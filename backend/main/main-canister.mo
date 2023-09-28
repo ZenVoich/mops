@@ -101,14 +101,11 @@ actor {
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
-		let versionsMaybe = packageVersions.get(name);
-		if (Option.isSome(versionsMaybe)) {
-			let versions = Utils.unwrap(versionsMaybe);
-			let verSorted = Array.sort(versions, Semver.compare);
+		let ?versions = packageVersions.get(name) else return null;
+		let verSorted = Array.sort(versions, Semver.compare);
 
-			if (verSorted.size() != 0) {
-				return ?verSorted[verSorted.size() - 1];
-			};
+		if (verSorted.size() != 0) {
+			return ?verSorted[verSorted.size() - 1];
 		};
 		return null;
 	};
@@ -152,7 +149,7 @@ actor {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
 
-			let owner = Option.unwrap(packageOwners.get(name));
+			let owner = packageOwners.get(name)!;
 			users.ensureUser(owner);
 
 			return ?{
@@ -200,9 +197,10 @@ actor {
 	};
 
 	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let versions = Utils.unwrap(packageVersions.get(name));
+		let ?versions = packageVersions.get(name) else Debug.trap("Package'" # name # "' not found");
 		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			Utils.unwrap(_getPackageSummaryWithChanges(name, version));
+			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		}));
 	};
 
@@ -211,7 +209,8 @@ actor {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
+			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package'" # dep.name # "' not found");
+			summary;
 		});
 	};
 
@@ -249,7 +248,8 @@ actor {
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
 
 		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			Utils.unwrap(_getPackageSummary(config.name, config.version));
+			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		});
 
 		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
@@ -387,12 +387,12 @@ actor {
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
-			Debug.trap("Maximum number of package files: 300");
+			return #err("Maximum number of package files: 300");
 		};
 
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
@@ -401,7 +401,7 @@ actor {
 		let notice = Text.endsWith(path, #text("NOTICE")) or Text.endsWith(path, #text("NOTICE.md")) or Text.endsWith(path, #text("notice"));
 		let docsTgz = path == "docs.tgz";
 		if (not (moMd or didToml or license or notice or docsTgz)) {
-			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
+			return #err("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
 
 		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
@@ -430,12 +430,6 @@ actor {
 			};
 		};
 
-		let pubFile : PublishingFile = {
-			id = fileId;
-			path = path;
-		};
-		pubFiles.add(pubFile);
-
 		// file stats
 		switch (publishingPackageFileStats.get(publishingId)) {
 			case (?fileStats) {
@@ -455,7 +449,7 @@ actor {
 				};
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -466,13 +460,19 @@ actor {
 			case (#ok) {};
 		};
 
+		let pubFile : PublishingFile = {
+			id = fileId;
+			path = path;
+		};
+		pubFiles.add(pubFile);
+
 		#ok(fileId);
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
@@ -488,7 +488,7 @@ actor {
 				});
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -531,11 +531,11 @@ actor {
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		assert(Utils.isAuthorized(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let packageId = publishing.config.name # "@" # publishing.config.version;
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 
 		var mopsToml = false;
 		var readmeMd = false;
@@ -886,7 +886,9 @@ actor {
 	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
 		let packageId = name # "@" # version;
 
-		ignore Utils.expect(packageConfigs.get(packageId), "Package not found");
+		if (packageConfigs.get(packageId) == null) {
+			Debug.trap("Package '" # packageId # "' not found");
+		};
 
 		downloadLog.add({
 			time = Time.now();
@@ -976,7 +978,8 @@ actor {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			Utils.unwrap(_getPackageSummary(config.config.name, config.config.version));
+			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package'" # config.config.name # "' not found");
+			summary;
 		});
 
 		(summaries, page.1);
