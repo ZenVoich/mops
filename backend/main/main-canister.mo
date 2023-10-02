@@ -1050,11 +1050,17 @@ actor {
 	};
 
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+			Array.sort<PackageSummary>(summaries, func(a, b) {
+				Int.compare(b.publication.time, a.publication.time);
+			});
+		};
+
 		let limit = 10;
 		[
 			(
 				"Data Structures",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"bitbuffer",
 					"enumeration",
 					"buffer-deque",
@@ -1066,11 +1072,11 @@ actor {
 					"linked-list",
 					"map",
 					"merkle-patricia-trie",
-				], limit)
+				], limit))
 			),
 			(
 				"Utilities",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"datetime",
 					"itertools",
 					"xtended-text",
@@ -1079,22 +1085,22 @@ actor {
 					"fuzz",
 					"test",
 					"time-consts",
-				], limit)
+				], limit))
 			),
 			(
 				"Encoding",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"deflate",
 					"serde",
 					"xml",
 					"cbor",
 					"candy",
 					"candid",
-				], limit)
+				], limit))
 			),
 			(
 				"Cryptography",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"sha2",
 					"sha3",
 					"libsecp256k1",
@@ -1102,11 +1108,11 @@ actor {
 					"evm-txs",
 					"ic-certification",
 					"evm-proof-verifier",
-				], limit)
+				], limit))
 			),
 			(
 				"Types/Interfaces",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"ic",
 					"ledger-types",
 					"ckbtc-types",
@@ -1115,11 +1121,11 @@ actor {
 					"icrc1",
 					"origyn-nft",
 					"kyc",
-				], limit)
+				], limit))
 			),
 			(
 				"HTTP",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"certified-http",
 					"certified-cache",
 					"ic-certification",
@@ -1129,22 +1135,22 @@ actor {
 					"web-io",
 					"http-types",
 					"motoko-certified-assets",
-				], limit)
+				], limit))
 			),
 			(
 				"Async Data Flow",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"star",
 					"maf",
 					"rxmo",
-				], limit)
+				], limit))
 			),
 			(
 				"Databases",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"candb",
 					"rxmodb",
-				], limit)
+				], limit))
 			),
 		];
 	};
