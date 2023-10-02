@@ -21,8 +21,8 @@ import Prim "mo:prim";
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
-
 import Backup "mo:backup";
+import HttpTypes "mo:http-types";
 
 import Utils "../utils";
 import Semver "./semver";
@@ -31,6 +31,7 @@ import DownloadLog "./download-log";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
 import Users "./users";
+import Badge "./badge";
 import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
@@ -1215,6 +1216,40 @@ actor {
 			case (_) #err("unknown property");
 		};
 	};
+
+	// BADGES
+	// let router = Router.Router();
+	// router.get("/badge/:packageName/version", func(req : Router.Request, res : Router.ResponseBuilder) {
+	// });
+
+	public query func http_request(request : HttpTypes.Request) : async HttpTypes.Response {
+		// let ?packageName = req.params.get("packageName") else {
+		// 	ignore res.status(400).html("Package name is required");
+		// 	return;
+		// };
+
+		// let ?highestVersion = _getHighestVersion(packageName) else {
+		// 	ignore res.status(404);
+		// 	ignore res.html("Package not found");
+		// 	return;
+		// };
+
+		let badge = Badge.mops("0.10.0");
+
+		return {
+			status_code = 200;
+			headers = [
+				("Content-Type", "image/svg+xml"),
+			];
+			body = Text.encodeUtf8(badge);
+			streaming_strategy = null;
+			upgrade = null;
+		};
+	};
+
+	// public func http_request_update(req : Router.HttpRequest) : async Router.HttpResponse {
+	// 	router.process_request_update((req, null));
+	// };
 
 	// BACKUP
 	stable let backupState = Backup.init(null);

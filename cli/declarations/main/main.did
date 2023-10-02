@@ -41,6 +41,20 @@ type TestStats =
    passed: nat;
    passedNames: vec text;
  };
+type StreamingToken = blob;
+type StreamingStrategy = variant {
+                           Callback:
+                            record {
+                              callback: StreamingCallback;
+                              token: StreamingToken;
+                            };};
+type StreamingCallbackResponse = 
+ record {
+   body: blob;
+   token: opt StreamingToken;
+ };
+type StreamingCallback = func (StreamingToken) ->
+                          (opt StreamingCallbackResponse) query;
 type StorageStats = 
  record {
    cyclesBalance: nat;
@@ -101,6 +115,22 @@ type Result =
  variant {
    err: Err;
    ok;
+ };
+type Response = 
+ record {
+   body: blob;
+   headers: vec Header;
+   status_code: nat16;
+   streaming_strategy: opt StreamingStrategy;
+   upgrade: opt bool;
+ };
+type Request = 
+ record {
+   body: blob;
+   certificate_version: opt nat16;
+   headers: vec Header;
+   method: text;
+   url: text;
  };
 type PublishingId = text;
 type PublishingErr = text;
@@ -232,6 +262,11 @@ type PackageChanges =
    notes: text;
    tests: TestsChanges;
  };
+type Header = 
+ record {
+   text;
+   text;
+ };
 type FileId = text;
 type Err = text;
 type DownloadsSnapshot__1 = 
@@ -300,6 +335,7 @@ service : {
   getTotalDownloads: () -> (nat) query;
   getTotalPackages: () -> (nat) query;
   getUser: (principal) -> (opt User__1) query;
+  http_request: (Request) -> (Response) query;
   notifyInstall: (PackageName__1, PackageVersion) -> () oneway;
   restore: (nat, nat) -> ();
   search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;

@@ -23,6 +23,7 @@ export interface DownloadsSnapshot__1 {
 }
 export type Err = string;
 export type FileId = string;
+export type Header = [string, string];
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
@@ -142,6 +143,20 @@ export type PackageVersion = string;
 export type PageCount = bigint;
 export type PublishingErr = string;
 export type PublishingId = string;
+export interface Request {
+  'url' : string,
+  'method' : string,
+  'body' : Uint8Array | number[],
+  'headers' : Array<Header>,
+  'certificate_version' : [] | [number],
+}
+export interface Response {
+  'body' : Uint8Array | number[],
+  'headers' : Array<Header>,
+  'upgrade' : [] | [boolean],
+  'streaming_strategy' : [] | [StreamingStrategy],
+  'status_code' : number,
+}
 export type Result = { 'ok' : null } |
   { 'err' : Err };
 export type Result_1 = { 'ok' : PublishingId } |
@@ -168,6 +183,18 @@ export interface StorageStats {
   'cyclesBalance' : bigint,
   'memorySize' : bigint,
 }
+export type StreamingCallback = ActorMethod<
+  [StreamingToken],
+  [] | [StreamingCallbackResponse]
+>;
+export interface StreamingCallbackResponse {
+  'token' : [] | [StreamingToken],
+  'body' : Uint8Array | number[],
+}
+export type StreamingStrategy = {
+    'Callback' : { 'token' : StreamingToken, 'callback' : StreamingCallback }
+  };
+export type StreamingToken = Uint8Array | number[];
 export interface TestStats { 'passedNames' : Array<string>, 'passed' : bigint }
 export interface TestStats__1 {
   'passedNames' : Array<string>,
@@ -246,6 +273,7 @@ export interface _SERVICE {
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
+  'http_request' : ActorMethod<[Request], Response>,
   'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
   'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<
