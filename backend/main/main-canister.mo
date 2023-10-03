@@ -16,6 +16,7 @@ import Char "mo:base/Char";
 import Hash "mo:base/Hash";
 import TrieSet "mo:base/TrieSet";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
+import Blob "mo:base/Blob";
 import Prim "mo:prim";
 
 import {DAY} "mo:time-consts";
@@ -1224,23 +1225,39 @@ actor {
 	};
 
 	// BADGES
-	// let router = Router.Router();
-	// router.get("/badge/:packageName/version", func(req : Router.Request, res : Router.ResponseBuilder) {
-	// });
-
 	public query func http_request(request : HttpTypes.Request) : async HttpTypes.Response {
-		// let ?packageName = req.params.get("packageName") else {
-		// 	ignore res.status(400).html("Package name is required");
-		// 	return;
-		// };
+		let r404 : HttpTypes.Response = {
+			status_code = 404;
+			headers = [];
+			body = Blob.fromArray([]);
+			streaming_strategy = null;
+			upgrade = null;
+		};
 
-		// let ?highestVersion = _getHighestVersion(packageName) else {
-		// 	ignore res.status(404);
-		// 	ignore res.html("Package not found");
-		// 	return;
-		// };
+		let path = Iter.toArray(Text.split(request.url, #text("?")))[0];
+		let parts = Iter.toArray(Text.split(path, #text("/")));
+		let badgePath = parts[1];
+		let badgeName = parts[2];
+		let packageName = if (parts.size() > 3) parts[3] else "";
 
-		let badge = Badge.mops("0.10.0");
+		if (badgePath != "badge") {
+			return r404;
+		};
+
+		let badge = switch (badgeName) {
+			case ("documentation") {
+				Badge.documentation();
+			};
+			case ("mops") {
+				let ?highestVersion = _getHighestVersion(packageName) else {
+					return r404;
+				};
+				Badge.mops(highestVersion);
+			};
+			case (_) {
+				return r404;
+			};
+		};
 
 		return {
 			status_code = 200;
@@ -1252,10 +1269,6 @@ actor {
 			upgrade = null;
 		};
 	};
-
-	// public func http_request_update(req : Router.HttpRequest) : async Router.HttpResponse {
-	// 	router.process_request_update((req, null));
-	// };
 
 	// BACKUP
 	stable let backupState = Backup.init(null);
