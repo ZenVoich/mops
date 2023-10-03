@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        moc-version: [0.9.3]
+        moc-version: [0.10.0]
         mops-version: [./cli, ic-mops@latest, ic-mops@0.19]
         node-version: [20]
 
