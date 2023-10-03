@@ -303,7 +303,7 @@ actor {
 
 	// PUBLIC
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		if (not Utils.isAuthorized(caller)) {
+		if (Principal.isAnonymous(caller)) {
 			return #err("Unauthorized");
 		};
 
@@ -385,7 +385,7 @@ actor {
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -470,7 +470,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -501,7 +501,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (testStats.passedNames.size() > 10_000) {
 			return #err("Max number of test names is 10_000");
@@ -515,7 +515,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (notes.size() > 10_000) {
 			return #err("Max changelog size is 10_000");
@@ -529,7 +529,7 @@ actor {
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
