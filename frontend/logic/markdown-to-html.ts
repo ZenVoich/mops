@@ -20,7 +20,7 @@ export let markdownToHtml = async (markdown: string, repositoryUrl?: string) => 
 	// replace relative url to github absolute url
 	if (repositoryUrl) {
 		let relToAbs = (url: string) => {
-			if (url && !url.startsWith('http')) {
+			if (url && !url.startsWith('http') && !url.startsWith('#')) {
 				let sep = url.startsWith('/') ? '' : '/';
 				// todo: master branch?
 				return repositoryUrl + sep + 'raw/main/' + url;
@@ -34,6 +34,22 @@ export let markdownToHtml = async (markdown: string, repositoryUrl?: string) => 
 			a.href = relToAbs(a.getAttribute('href'));
 		});
 	}
+
+	// add anchors to headings
+	let anchors = new Set;
+	div.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((el) => {
+		let id = el.textContent.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s/g, '-');
+		if (anchors.has(id)) {
+			let i = 1;
+			while (anchors.has(id + '-' + i)) {
+				i++;
+			}
+			id += '-' + i;
+		}
+		anchors.add(id);
+		el.innerHTML = `<a name="${id}" href="#${id}">#</a> ${el.innerHTML}`;
+		el.id = id;
+	});
 
 	// syntax highlight
 	let starryNight = await getStarryNight();
