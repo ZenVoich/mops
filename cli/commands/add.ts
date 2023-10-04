@@ -4,6 +4,7 @@ import logUpdate from 'log-update';
 import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
+import {notifyInstalls} from '../notify-installs.js';
 
 export async function add(name: string, {verbose = false, dev = false} = {}) {
 	if (!checkConfigFile()) {
@@ -66,14 +67,17 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 		};
 	}
 
+	let installedPackages = {};
+
 	if (pkgDetails.repo) {
 		await installFromGithub(pkgDetails.name, pkgDetails.repo, {verbose: verbose});
 	}
 	else if (!pkgDetails.path) {
-		let ok = await install(pkgDetails.name, pkgDetails.version, {verbose: verbose});
-		if (!ok) {
+		let res = await install(pkgDetails.name, pkgDetails.version, {verbose: verbose});
+		if (res === false) {
 			return;
 		}
+		installedPackages = {...installedPackages, ...res};
 	}
 
 	const depsProp = dev ? 'dev-dependencies' : 'dependencies';
@@ -84,7 +88,9 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 	else {
 		throw Error(`Invalid config file: [${depsProp}] not found`);
 	}
+
 	writeConfig(config);
+	notifyInstalls(Object.keys(installedPackages));
 
 	logUpdate.clear();
 	console.log(chalk.green('Package installed ') + `${pkgDetails.name} = "${pkgDetails.repo || pkgDetails.path || pkgDetails.version}"`);

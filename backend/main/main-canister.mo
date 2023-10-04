@@ -883,7 +883,7 @@ actor {
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {
 		let packageId = name # "@" # version;
 
 		if (packageConfigs.get(packageId) == null) {
@@ -892,10 +892,23 @@ actor {
 
 		downloadLog.add({
 			time = Time.now();
-			name = name;
-			version = version;
-			downloader = caller;
+			name;
+			version;
+			downloader;
 		});
+	};
+
+	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+		_notifyInstall(name, version, caller);
+	};
+
+	public shared ({caller}) func notifyInstalls(installs : [(PackageName, PackageVersion)]) {
+		if (installs.size() > 100) {
+			return;
+		};
+		for ((name, version) in installs.vals()) {
+			_notifyInstall(name, version, caller);
+		};
 	};
 
 	func _toLowerCase(text : Text) : Text {
