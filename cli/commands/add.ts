@@ -90,7 +90,7 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 	}
 
 	writeConfig(config);
-	notifyInstalls(Object.keys(installedPackages));
+	await notifyInstalls(Object.keys(installedPackages));
 
 	logUpdate.clear();
 	console.log(chalk.green('Package installed ') + `${pkgDetails.name} = "${pkgDetails.repo || pkgDetails.path || pkgDetails.version}"`);

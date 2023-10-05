@@ -29,7 +29,7 @@ export async function installAll({verbose = false, silent = false} = {}) {
 		}
 	}
 
-	notifyInstalls(Object.keys(installedPackages));
+	await notifyInstalls(Object.keys(installedPackages));
 
 	if (!silent) {
 		logUpdate.clear();
