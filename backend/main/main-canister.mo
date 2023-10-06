@@ -887,7 +887,8 @@ actor {
 		let packageId = name # "@" # version;
 
 		if (packageConfigs.get(packageId) == null) {
-			Debug.trap("Package '" # packageId # "' not found");
+			// Debug.trap("Package '" # packageId # "' not found");
+			return;
 		};
 
 		downloadLog.add({
