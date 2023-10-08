@@ -150,6 +150,21 @@ module {
 					};
 				};
 
+				// existing package names
+				for ((packageName, snapshots) in dailySnapshotsByPackageName.entries()) {
+					let downloads = switch (byPackageName.get(packageName)) {
+						case (?downloads) downloads;
+						case (null) 0;
+					};
+					byPackageName.delete(packageName); // remove to leave only new package names
+					snapshots.add({
+						startTime = startOfPrevDay;
+						endTime = endOfPrevDay;
+						downloads = downloads;
+					});
+				};
+
+				// new package names
 				for ((name, downloads) in byPackageName.entries()) {
 					let snapshots = switch (dailySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
@@ -175,6 +190,21 @@ module {
 					};
 				};
 
+				// existing package ids
+				for ((packageId, snapshots) in dailySnapshotsByPackageId.entries()) {
+					let downloads = switch (byPackageId.get(packageId)) {
+						case (?downloads) downloads;
+						case (null) 0;
+					};
+					byPackageId.delete(packageId); // remove to leave only new package ids
+					snapshots.add({
+						startTime = startOfPrevDay;
+						endTime = endOfPrevDay;
+						downloads = downloads;
+					});
+				};
+
+				// new package ids
 				for ((packageId, downloads) in byPackageId.entries()) {
 					let snapshots = switch (dailySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
@@ -217,6 +247,21 @@ module {
 					};
 				};
 
+				// existing package names
+				for ((packageName, snapshots) in weeklySnapshotsByPackageName.entries()) {
+					let downloads = switch (byPackageName.get(packageName)) {
+						case (?downloads) downloads;
+						case (null) 0;
+					};
+					byPackageName.delete(packageName); // remove to leave only new package names
+					snapshots.add({
+						startTime = startOfPrevWeek;
+						endTime = endOfPrevWeek;
+						downloads = downloads;
+					});
+				};
+
+				// new package names
 				for ((name, downloads) in byPackageName.entries()) {
 					let snapshots = switch (weeklySnapshotsByPackageName.get(name)) {
 						case (?snapshots) snapshots;
@@ -242,6 +287,21 @@ module {
 					};
 				};
 
+				// existing package ids
+				for ((packageId, snapshots) in weeklySnapshotsByPackageId.entries()) {
+					let downloads = switch (byPackageId.get(packageId)) {
+						case (?downloads) downloads;
+						case (null) 0;
+					};
+					byPackageId.delete(packageId); // remove to leave only new package ids
+					snapshots.add({
+						startTime = startOfPrevWeek;
+						endTime = endOfPrevWeek;
+						downloads = downloads;
+					});
+				};
+
+				// new package ids
 				for ((packageId, downloads) in byPackageId.entries()) {
 					let snapshots = switch (weeklySnapshotsByPackageId.get(packageId)) {
 						case (?snapshots) snapshots;
