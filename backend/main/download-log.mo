@@ -16,6 +16,7 @@ import Debug "mo:base/Debug";
 import {MINUTE; DAY} "mo:time-consts";
 import DateTime "mo:datetime/DateTime";
 import DateComponents "mo:datetime/Components";
+import DateBase "mo:chronosphere/Base";
 
 import Utils "../utils";
 import Types "./types";
@@ -38,6 +39,22 @@ module {
 	public type Stable = ?{
 		#v1 : ([Record], ByPackageNameStable, ByPackageIdStable);
 		#v2 : {
+			totalDownloads : Nat;
+			downloadsByPackageName : [(Text.Text, Nat)];
+			downloadsByPackageId : [(Text.Text, Nat)];
+			dailySnapshots : [DownloadsSnapshot];
+			weeklySnapshots : [DownloadsSnapshot];
+			dailySnapshotsByPackageName : [(Text.Text, [DownloadsSnapshot])];
+			dailySnapshotsByPackageId : [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageName : [(Text.Text, [DownloadsSnapshot])];
+			weeklySnapshotsByPackageId : [(Text.Text, [DownloadsSnapshot])];
+			dailyTempRecords : [Record];
+			weeklyTempRecords : [Record];
+			curSnapshotDay : Nat;
+			curSnapshotWeekDay : DateBase.DayOfWeek;
+			timerId : Nat;
+		};
+		#v3 : {
 			totalDownloads : Nat;
 			downloadsByPackageName : [(Text.Text, Nat)];
 			downloadsByPackageId : [(Text.Text, Nat)];
@@ -413,7 +430,7 @@ module {
 				);
 			};
 
-			?#v2({
+			?#v3({
 				totalDownloads;
 				downloadsByPackageName = Iter.toArray(downloadsByPackageName.entries());
 				downloadsByPackageId = Iter.toArray(downloadsByPackageId.entries());
@@ -432,25 +449,52 @@ module {
 		};
 
 		public func loadStable(stab : Stable) {
-			switch (stab) {
-				case (?#v1(records, byName, byId)) {
-					dailyTempRecords := Buffer.fromArray<Record>(records);
-					weeklyTempRecords := Buffer.fromArray<Record>(records);
-					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(byName.vals(), Text.equal, Text.hash);
-					downloadsByPackageId := TrieMap.fromEntries<PackageId, Nat>(byId.vals(), Text.equal, Text.hash);
-					recalcTotalDownloads();
-				};
-				case (?#v2(data)) {
-					func snapshotsFromStable(snapshotsMapStable : [(Text.Text, [DownloadsSnapshot])]) : TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>> {
-						let iter = Iter.map<(Text.Text, [DownloadsSnapshot]), (Text.Text, Buffer.Buffer<DownloadsSnapshot>)>(
-							snapshotsMapStable.vals(),
-							func((key, buf)) {
-								(key, Buffer.fromArray(buf));
-							}
-						);
-						TrieMap.fromEntries(iter, Text.equal, Text.hash);
-					};
+			func snapshotsFromStable(snapshotsMapStable : [(Text.Text, [DownloadsSnapshot])]) : TrieMap.TrieMap<Text.Text, Buffer.Buffer<DownloadsSnapshot>> {
+				let iter = Iter.map<(Text.Text, [DownloadsSnapshot]), (Text.Text, Buffer.Buffer<DownloadsSnapshot>)>(
+					snapshotsMapStable.vals(),
+					func((key, buf)) {
+						(key, Buffer.fromArray(buf));
+					}
+				);
+				TrieMap.fromEntries(iter, Text.equal, Text.hash);
+			};
 
+			switch (stab) {
+				// v1
+				case (?#v1(data)) { Debug.trap("stable v1 is not supported"); };
+				// v2 -> v3
+				case (?#v2(data)) {
+					totalDownloads := data.totalDownloads;
+
+					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageName.vals(), Text.equal, Text.hash);
+					downloadsByPackageId := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageId.vals(), Text.equal, Text.hash);
+
+					dailySnapshots := Buffer.fromArray<DownloadsSnapshot>(data.dailySnapshots);
+					weeklySnapshots := Buffer.fromArray<DownloadsSnapshot>(data.weeklySnapshots);
+
+					dailySnapshotsByPackageName := snapshotsFromStable(data.dailySnapshotsByPackageName);
+					dailySnapshotsByPackageId := snapshotsFromStable(data.dailySnapshotsByPackageId);
+					weeklySnapshotsByPackageName := snapshotsFromStable(data.weeklySnapshotsByPackageName);
+					weeklySnapshotsByPackageId := snapshotsFromStable(data.weeklySnapshotsByPackageId);
+
+					dailyTempRecords := Buffer.fromArray<Record>(data.dailyTempRecords);
+					weeklyTempRecords := Buffer.fromArray<Record>(data.weeklyTempRecords);
+					curSnapshotDay := data.curSnapshotDay;
+					curSnapshotWeekDay := switch (data.curSnapshotWeekDay) {
+						case (#Sunday) #sunday;
+						case (#Monday) #monday;
+						case (#Tuesday) #tuesday;
+						case (#Wednesday) #wednesday;
+						case (#Thursday) #thursday;
+						case (#Friday) #friday;
+						case (#Saturday) #saturday;
+					};
+					timerId := data.timerId;
+
+					takeSnapshotsIfNeeded(Time.now());
+				};
+				// v3
+				case (?#v3(data)) {
 					totalDownloads := data.totalDownloads;
 
 					downloadsByPackageName := TrieMap.fromEntries<PackageName, Nat>(data.downloadsByPackageName.vals(), Text.equal, Text.hash);
