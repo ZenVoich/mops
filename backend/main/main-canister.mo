@@ -101,14 +101,11 @@ actor {
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
-		let versionsMaybe = packageVersions.get(name);
-		if (Option.isSome(versionsMaybe)) {
-			let versions = Utils.unwrap(versionsMaybe);
-			let verSorted = Array.sort(versions, Semver.compare);
+		let ?versions = packageVersions.get(name) else return null;
+		let verSorted = Array.sort(versions, Semver.compare);
 
-			if (verSorted.size() != 0) {
-				return ?verSorted[verSorted.size() - 1];
-			};
+		if (verSorted.size() != 0) {
+			return ?verSorted[verSorted.size() - 1];
 		};
 		return null;
 	};
@@ -152,7 +149,7 @@ actor {
 			let config = packageConfigs.get(name # "@" # version)!;
 			let publication = packagePublications.get(packageId)!;
 
-			let owner = Option.unwrap(packageOwners.get(name));
+			let owner = packageOwners.get(name)!;
 			users.ensureUser(owner);
 
 			return ?{
@@ -200,9 +197,10 @@ actor {
 	};
 
 	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let versions = Utils.unwrap(packageVersions.get(name));
+		let ?versions = packageVersions.get(name) else Debug.trap("Package'" # name # "' not found");
 		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			Utils.unwrap(_getPackageSummaryWithChanges(name, version));
+			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		}));
 	};
 
@@ -211,7 +209,8 @@ actor {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			Utils.unwrap(_getPackageSummary(dep.name, dep.version));
+			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package'" # dep.name # "' not found");
+			summary;
 		});
 	};
 
@@ -230,10 +229,10 @@ actor {
 	func _getPackageDependents(name : PackageName) : [PackageSummary] {
 		func isDependent(config : PackageConfigV2) : Bool {
 			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
-				dep.name == name;
+				dep.name == name and dep.repo == "";
 			}));
 			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
-				dep.name == name;
+				dep.name == name and dep.repo == "";
 			}));
 			dependent or devDependent;
 		};
@@ -249,7 +248,8 @@ actor {
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
 
 		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			Utils.unwrap(_getPackageSummary(config.name, config.version));
+			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package'" # name # "' not found");
+			summary;
 		});
 
 		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
@@ -303,7 +303,7 @@ actor {
 
 	// PUBLIC
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		if (not Utils.isAuthorized(caller)) {
+		if (Principal.isAnonymous(caller)) {
 			return #err("Unauthorized");
 		};
 
@@ -385,14 +385,14 @@ actor {
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
-			Debug.trap("Maximum number of package files: 300");
+			return #err("Maximum number of package files: 300");
 		};
 
 		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
@@ -401,7 +401,7 @@ actor {
 		let notice = Text.endsWith(path, #text("NOTICE")) or Text.endsWith(path, #text("NOTICE.md")) or Text.endsWith(path, #text("notice"));
 		let docsTgz = path == "docs.tgz";
 		if (not (moMd or didToml or license or notice or docsTgz)) {
-			Debug.trap("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
+			return #err("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
 		};
 
 		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
@@ -430,12 +430,6 @@ actor {
 			};
 		};
 
-		let pubFile : PublishingFile = {
-			id = fileId;
-			path = path;
-		};
-		pubFiles.add(pubFile);
-
 		// file stats
 		switch (publishingPackageFileStats.get(publishingId)) {
 			case (?fileStats) {
@@ -455,7 +449,7 @@ actor {
 				};
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -466,13 +460,19 @@ actor {
 			case (#ok) {};
 		};
 
+		let pubFile : PublishingFile = {
+			id = fileId;
+			path = path;
+		};
+		pubFiles.add(pubFile);
+
 		#ok(fileId);
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
@@ -488,7 +488,7 @@ actor {
 				});
 			};
 			case (null) {
-				Debug.trap("File stats not found");
+				return #err("File stats not found");
 			};
 		};
 
@@ -501,7 +501,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (testStats.passedNames.size() > 10_000) {
 			return #err("Max number of test names is 10_000");
@@ -515,7 +515,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (notes.size() > 10_000) {
 			return #err("Max changelog size is 10_000");
@@ -529,13 +529,13 @@ actor {
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
-		let publishing = Utils.expect(publishingPackages.get(publishingId), "Publishing package not found");
+		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
 
 		let packageId = publishing.config.name # "@" # publishing.config.version;
-		let pubFiles = Utils.expect(publishingFiles.get(publishingId), "Publishing files not found");
+		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 
 		var mopsToml = false;
 		var readmeMd = false;
@@ -883,17 +883,33 @@ actor {
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {
 		let packageId = name # "@" # version;
 
-		ignore Utils.expect(packageConfigs.get(packageId), "Package not found");
+		if (packageConfigs.get(packageId) == null) {
+			// Debug.trap("Package '" # packageId # "' not found");
+			return;
+		};
 
 		downloadLog.add({
 			time = Time.now();
-			name = name;
-			version = version;
-			downloader = caller;
+			name;
+			version;
+			downloader;
 		});
+	};
+
+	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+		_notifyInstall(name, version, caller);
+	};
+
+	public shared ({caller}) func notifyInstalls(installs : [(PackageName, PackageVersion)]) {
+		if (installs.size() > 100) {
+			return;
+		};
+		for ((name, version) in installs.vals()) {
+			_notifyInstall(name, version, caller);
+		};
 	};
 
 	func _toLowerCase(text : Text) : Text {
@@ -976,7 +992,8 @@ actor {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			Utils.unwrap(_getPackageSummary(config.config.name, config.config.version));
+			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package'" # config.config.name # "' not found");
+			summary;
 		});
 
 		(summaries, page.1);
@@ -1046,11 +1063,17 @@ actor {
 	};
 
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+			Array.sort<PackageSummary>(summaries, func(a, b) {
+				Int.compare(b.publication.time, a.publication.time);
+			});
+		};
+
 		let limit = 10;
 		[
 			(
 				"Data Structures",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"bitbuffer",
 					"enumeration",
 					"buffer-deque",
@@ -1062,11 +1085,11 @@ actor {
 					"linked-list",
 					"map",
 					"merkle-patricia-trie",
-				], limit)
+				], limit))
 			),
 			(
 				"Utilities",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"datetime",
 					"itertools",
 					"xtended-text",
@@ -1075,22 +1098,22 @@ actor {
 					"fuzz",
 					"test",
 					"time-consts",
-				], limit)
+				], limit))
 			),
 			(
 				"Encoding",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"deflate",
 					"serde",
 					"xml",
 					"cbor",
 					"candy",
 					"candid",
-				], limit)
+				], limit))
 			),
 			(
 				"Cryptography",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"sha2",
 					"sha3",
 					"libsecp256k1",
@@ -1098,11 +1121,11 @@ actor {
 					"evm-txs",
 					"ic-certification",
 					"evm-proof-verifier",
-				], limit)
+				], limit))
 			),
 			(
 				"Types/Interfaces",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"ic",
 					"ledger-types",
 					"ckbtc-types",
@@ -1111,11 +1134,11 @@ actor {
 					"icrc1",
 					"origyn-nft",
 					"kyc",
-				], limit)
+				], limit))
 			),
 			(
 				"HTTP",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"certified-http",
 					"certified-cache",
 					"ic-certification",
@@ -1125,22 +1148,22 @@ actor {
 					"web-io",
 					"http-types",
 					"motoko-certified-assets",
-				], limit)
+				], limit))
 			),
 			(
 				"Async Data Flow",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"star",
 					"maf",
 					"rxmo",
-				], limit)
+				], limit))
 			),
 			(
 				"Databases",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"candb",
 					"rxmodb",
-				], limit)
+				], limit))
 			),
 		];
 	};
