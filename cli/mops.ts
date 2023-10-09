@@ -221,6 +221,21 @@ export function parseGithubURL(href: string) {
 	return {org, gitName, branch};
 }
 
+export function getDependencyType(version: string) {
+	if (!version || typeof version !== 'string') {
+		throw Error(`Invalid dependency value "${version}"`);
+	}
+	if (version.startsWith('https://github.com/')) {
+		return 'github';
+	}
+	else if (version.match(/^(\.?\.)?\//)) {
+		return 'local';
+	}
+	else {
+		return 'mops';
+	}
+}
+
 export function readConfig(configFile = getClosestConfigFile()): Config {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
@@ -230,10 +245,11 @@ export function readConfig(configFile = getClosestConfigFile()): Config {
 			if (!data || typeof data !== 'string') {
 				throw Error(`Invalid dependency value ${name} = "${data}"`);
 			}
-			if (data.startsWith('https://github.com/')) {
+			let depType = getDependencyType(data);
+			if (depType === 'github') {
 				deps[name] = {name, repo: data, version: ''};
 			}
-			else if (data.match(/^(\.?\.)?\//)) {
+			else if (depType === 'local') {
 				deps[name] = {name, repo: '', path: data, version: ''};
 			}
 			else {

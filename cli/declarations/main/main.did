@@ -301,6 +301,10 @@ service : {
   getTotalPackages: () -> (nat) query;
   getUser: (principal) -> (opt User__1) query;
   notifyInstall: (PackageName__1, PackageVersion) -> () oneway;
+  notifyInstalls: (vec record {
+                         PackageName__1;
+                         PackageVersion;
+                       }) -> () oneway;
   restore: (nat, nat) -> ();
   search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
   setUserProp: (text, text) -> (Result_3);

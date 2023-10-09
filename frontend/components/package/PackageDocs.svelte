@@ -436,6 +436,10 @@
 		transition: background-color cubic-bezier(0, 0.79, 0.76, 0.5) 700ms;
 	}
 
+	:global(h1 a[name], h2 a[name], h3 a[name], h4 a[name], h5, a[name] h6 a[name]) {
+		display: none;
+	}
+
 	:global(h2.highlight, h3.highlight) {
 		background: rgb(236 238 0 / 30%);
 	}

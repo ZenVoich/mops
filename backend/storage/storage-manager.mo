@@ -6,8 +6,8 @@ import TrieMap "mo:base/TrieMap";
 import Cycles "mo:base/ExperimentalCycles";
 import Result "mo:base/Result";
 import Principal "mo:base/Principal";
+import Debug "mo:base/Debug";
 
-import Utils "../utils";
 import Types "./types";
 import Storage "./storage-canister";
 
@@ -138,14 +138,16 @@ module {
 		};
 
 		public func getStorageOfFile(fileId : FileId) : StorageId {
-			Utils.expect(storageByFileId.get(fileId), "Storage canister not found for file id '" # fileId # "'");
+			let ?storageId = storageByFileId.get(fileId) else Debug.trap("Storage canister not found for file id '" # fileId # "'");
+			storageId;
 		};
 
 		public func getStoragesForDownload(fileIds : [FileId]) : [StorageId] {
 			assert(fileIds.size() < 1000);
 
 			Array.map<FileId, Principal>(fileIds, func(fileId) {
-				Utils.expect(storageByFileId.get(fileId), "Storage canister not found for file id '" # fileId # "'");
+				let ?storageId = storageByFileId.get(fileId) else Debug.trap("Storage canister not found for file id '" # fileId # "'");
+				storageId;
 			});
 		};
 
