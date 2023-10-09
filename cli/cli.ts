@@ -24,6 +24,7 @@ import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
+import {bench} from './commands/bench.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -194,6 +195,15 @@ program
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		await test(filter, options);
+	});
+
+// bench
+program
+	.command('bench [filter]')
+	.description('Run benchmarks')
+	.addOption(new Option('--mode <mode>', 'Benchmark mode').choices(['replica', 'wasi']).default('replica'))
+	.action(async (filter, options) => {
+		await bench(filter, options.mode);
 	});
 
 // template

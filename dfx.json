@@ -15,6 +15,20 @@
 				"entrypoint": "frontend/dist/index.html"
 			},
 			"source": ["frontend/dist/"]
+		},
+		"bench": {
+			"type": "motoko",
+			"main": "cli/commands/bench/bench-canister.mo",
+			"declarations": {
+				"output": "cli/declarations/bench/",
+				"node_compatibility": true
+			},
+			"remote": {
+				"id": {
+					"ic": "2222s-4iaaa-aaaaf-ax2uq-cai",
+					"staging": "2222s-4iaaa-aaaaf-ax2uq-cai"
+				}
+			}
 		}
 	},
 	"defaults": {

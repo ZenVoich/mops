@@ -9,7 +9,7 @@
 		"lint": "npm run lint:cli && npm run lint:frontend",
 		"lint:cli": "eslint cli --ext .ts",
 		"lint:frontend": "eslint frontend --ext .svelte,.ts",
-		"decl:cli": "dfx generate main",
+		"decl:cli": "dfx generate main && dfx generate bench",
 		"decl:frontend": "cp -r cli/declarations frontend",
 		"deploy": "DFX_MOC_PATH=$(mocv bin 0.9.3)/moc dfx deploy --no-wallet --identity ${IDENTITY} --network ${NETWORK}",
 		"deploy-local": "NODE_ENV=development IDENTITY=default NETWORK=local npm run deploy && npm run decl",
