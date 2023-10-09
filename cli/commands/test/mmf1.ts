@@ -63,6 +63,9 @@ export class MMF1 {
 		else if (line.startsWith('mops:1:skip ')) {
 			this._testSkip(line.split('mops:1:skip ')[1] || '');
 		}
+		else if (line.startsWith('mops:')) {
+			// ignore unknown mops messages
+		}
 		else {
 			this._log('stdout', ' '.repeat(this.stack.length * 2), chalk.gray('stdout'), line);
 		}

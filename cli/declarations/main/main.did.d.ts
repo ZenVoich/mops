@@ -247,6 +247,10 @@ export interface _SERVICE {
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
+  'notifyInstalls' : ActorMethod<
+    [Array<[PackageName__1, PackageVersion]>],
+    undefined
+  >,
   'restore' : ActorMethod<[bigint, bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
