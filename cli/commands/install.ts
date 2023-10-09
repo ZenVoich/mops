@@ -7,7 +7,7 @@ import {parallel} from '../parallel.js';
 import {installFromGithub} from '../vessel.js';
 import {addCache, copyCache, isCached} from '../cache.js';
 
-export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}) {
+export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}): Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -32,14 +32,15 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 	let dir = formatDir(pkg, version);
 	let actor = await mainActor();
+	let alreadyInstalled = false;
 
 	// already installed
 	if (fs.existsSync(dir)) {
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (already installed)`);
+		alreadyInstalled = true;
 	}
 	// copy from cache
 	else if (isCached(`${pkg}@${version}`)) {
-		actor.notifyInstall(pkg, version);
 		await copyCache(`${pkg}@${version}`, dir);
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
 	}
@@ -65,15 +66,12 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 		let storage = await storageActor(packageDetails.publication.storage);
 
-		actor.notifyInstall(pkg, version);
-
 		// download files
 		let filesData = new Map;
 		let threads = 16;
 
 		// GitHub Actions fails with "fetch failed" if there are multiple concurrent actions
 		if (process.env.GITHUB_ENV) {
-			console.log('Running in GitHub Actions, reducing threads to 4');
 			threads = 4;
 		}
 
@@ -119,17 +117,28 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 	let ok = true;
 	let config = readConfig(path.join(dir, 'mops.toml'));
 	let deps = Object.values(config.dependencies || {});
+	let installedDeps = {};
 	for (const {name, repo, version} of deps) {
 		if (repo) {
 			await installFromGithub(name, repo, {silent, verbose});
 		}
 		else {
 			let res = await install(name, version, {silent, verbose});
-			if (!res) {
+			if (res) {
+				installedDeps = {...installedDeps, ...res};
+			}
+			else {
 				ok = false;
 			}
 		}
 	}
 
-	return ok;
+	if (!alreadyInstalled) {
+		installedDeps = {...installedDeps, [pkg]: version};
+	}
+
+	if (ok) {
+		return installedDeps;
+	}
+	return false;
 }

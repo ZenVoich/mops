@@ -233,6 +233,14 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	// parse changelog
 	console.log('Parsing CHANGELOG.md...');
 	let changelog = parseChangelog(config.package.version);
+	if (!changelog && config.package.repository) {
+		console.log('Fetching release notes from GitHub...');
+		changelog = await fetchGitHubReleaseNotes(config.package.repository, config.package.version);
+	}
+	if (changelog) {
+		console.log('Changelog:');
+		console.log(chalk.gray(changelog));
+	}
 
 	// test
 	let reporter = new SilentReporter;
@@ -342,15 +350,29 @@ function parseChangelog(version: string): string {
 	let str = fs.readFileSync(changelogFile, 'utf-8');
 	let changelog = findChangelogEntry(str, version);
 
-	if (changelog) {
-		console.log('Changelog:');
-		console.log(chalk.gray(changelog));
-	}
-	else {
+	if (!changelog) {
 		console.log(chalk.yellow('No changelog entry found'));
 	}
 
 	return changelog || '';
+}
+
+async function fetchGitHubReleaseNotes(repo: string, version: string): Promise<string> {
+	let repoPath = new URL(repo).pathname;
+	let res = await fetch(`https://api.github.com/repos${repoPath}/releases/tags/${version}`);
+	let release = await res.json();
+
+	if (release.message === 'Not Found') {
+		res = await fetch(`https://api.github.com/repos${repoPath}/releases/tags/v${version}`);
+		release = await res.json();
+
+		if (release.message === 'Not Found') {
+			console.log(chalk.yellow(`No GitHub release found with name ${version} or v${version}`));
+			return '';
+		}
+	}
+
+	return release.body;
 }
 
 function findChangelogEntry(changelog: string, version: string): string {

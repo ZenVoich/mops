@@ -303,7 +303,7 @@ actor {
 
 	// PUBLIC
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		if (not Utils.isAuthorized(caller)) {
+		if (Principal.isAnonymous(caller)) {
 			return #err("Unauthorized");
 		};
 
@@ -385,7 +385,7 @@ actor {
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -470,7 +470,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -501,7 +501,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (testStats.passedNames.size() > 10_000) {
 			return #err("Max number of test names is 10_000");
@@ -515,7 +515,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (notes.size() > 10_000) {
 			return #err("Max changelog size is 10_000");
@@ -529,7 +529,7 @@ actor {
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -883,19 +883,33 @@ actor {
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {
 		let packageId = name # "@" # version;
 
 		if (packageConfigs.get(packageId) == null) {
-			Debug.trap("Package '" # packageId # "' not found");
+			// Debug.trap("Package '" # packageId # "' not found");
+			return;
 		};
 
 		downloadLog.add({
 			time = Time.now();
-			name = name;
-			version = version;
-			downloader = caller;
+			name;
+			version;
+			downloader;
 		});
+	};
+
+	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+		_notifyInstall(name, version, caller);
+	};
+
+	public shared ({caller}) func notifyInstalls(installs : [(PackageName, PackageVersion)]) {
+		if (installs.size() > 100) {
+			return;
+		};
+		for ((name, version) in installs.vals()) {
+			_notifyInstall(name, version, caller);
+		};
 	};
 
 	func _toLowerCase(text : Text) : Text {
@@ -1049,11 +1063,17 @@ actor {
 	};
 
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+			Array.sort<PackageSummary>(summaries, func(a, b) {
+				Int.compare(b.publication.time, a.publication.time);
+			});
+		};
+
 		let limit = 10;
 		[
 			(
 				"Data Structures",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"bitbuffer",
 					"enumeration",
 					"buffer-deque",
@@ -1065,11 +1085,11 @@ actor {
 					"linked-list",
 					"map",
 					"merkle-patricia-trie",
-				], limit)
+				], limit))
 			),
 			(
 				"Utilities",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"datetime",
 					"itertools",
 					"xtended-text",
@@ -1078,22 +1098,22 @@ actor {
 					"fuzz",
 					"test",
 					"time-consts",
-				], limit)
+				], limit))
 			),
 			(
 				"Encoding",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"deflate",
 					"serde",
 					"xml",
 					"cbor",
 					"candy",
 					"candid",
-				], limit)
+				], limit))
 			),
 			(
 				"Cryptography",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"sha2",
 					"sha3",
 					"libsecp256k1",
@@ -1101,11 +1121,11 @@ actor {
 					"evm-txs",
 					"ic-certification",
 					"evm-proof-verifier",
-				], limit)
+				], limit))
 			),
 			(
 				"Types/Interfaces",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"ic",
 					"ledger-types",
 					"ckbtc-types",
@@ -1114,11 +1134,11 @@ actor {
 					"icrc1",
 					"origyn-nft",
 					"kyc",
-				], limit)
+				], limit))
 			),
 			(
 				"HTTP",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"certified-http",
 					"certified-cache",
 					"ic-certification",
@@ -1128,22 +1148,22 @@ actor {
 					"web-io",
 					"http-types",
 					"motoko-certified-assets",
-				], limit)
+				], limit))
 			),
 			(
 				"Async Data Flow",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"star",
 					"maf",
 					"rxmo",
-				], limit)
+				], limit))
 			),
 			(
 				"Databases",
-				_summariesFromNames([
+				_sortByUpdated(_summariesFromNames([
 					"candb",
 					"rxmodb",
-				], limit)
+				], limit))
 			),
 		];
 	};
