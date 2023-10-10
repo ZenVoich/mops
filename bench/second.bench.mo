@@ -32,10 +32,6 @@ module {
 				};
 			};
 		});
-
-		// bench.table(["Vector", "Buffer"], ["10", "10000", "1000000"], func(row, col) {
-		// });
-
 		bench;
 	};
 };

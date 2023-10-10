@@ -25,7 +25,7 @@ let globConfig = {
 	ignore: ignore,
 };
 
-export async function bench(filter = '', {verbose = false, save = false} = {}): Promise<boolean> {
+export async function bench(filter = '', {verbose = false, save = false, compare = false} = {}): Promise<boolean> {
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
 	if (filter) {
@@ -64,7 +64,7 @@ export async function bench(filter = '', {verbose = false, save = false} = {}): 
 		console.log('\n' + '—'.repeat(50));
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 		console.log('');
-		let {schema, results} = await runBenchFile(file, verbose);
+		let {schema, results} = await runBenchFile(file, verbose, compare);
 		resultsByName.set(schema.name || absToRel(file), results);
 	});
 
@@ -76,7 +76,7 @@ export async function bench(filter = '', {verbose = false, save = false} = {}): 
 		});
 		fs.writeFileSync(path.join(rootDir, 'mops.bench.json'), JSON.stringify(json, (_, val) => {
 			if (typeof val === 'bigint') {
-				return `${String(val)}`;
+				return Number(val);
 			}
 			else {
 				return val;
@@ -133,8 +133,9 @@ type RunBenchFileResult = {
 	results: Map<string, BenchResult>,
 };
 
-async function runBenchFile(file: string, verbose = false): Promise<RunBenchFileResult> {
-	let tempDir = path.join(getRootDir(), '.mops/.bench/', path.parse(file).name);
+async function runBenchFile(file: string, verbose = false, compare = false): Promise<RunBenchFileResult> {
+	let rootDir = getRootDir();
+	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	fs.mkdirSync(tempDir, {recursive: true});
 
 	let canisterName = Date.now().toString(36);
@@ -156,6 +157,17 @@ async function runBenchFile(file: string, verbose = false): Promise<RunBenchFile
 
 	let schema = await actor.init();
 
+	let prevResults: Map<string, BenchResult> | undefined;
+	if (compare) {
+		let prevResultsJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'mops.bench.json')).toString());
+		if (prevResultsJson[schema.name]) {
+			prevResults = new Map(prevResultsJson[schema.name]);
+		}
+		else {
+			console.log(chalk.yellow(`No previous results found for benchmark with name "${schema.name}"`));
+		}
+	}
+
 	let results = new Map<string, BenchResult>();
 
 	let formatNumber = (n: bigint | number): string => {
@@ -171,7 +183,25 @@ async function runBenchFile(file: string, verbose = false): Promise<RunBenchFile
 			for (let [_colIndex, col] of schema.cols.entries()) {
 				let res = results.get(`${row}:${col}`);
 				if (res) {
-					curRow.push(formatNumber(res[prop]));
+
+					// compare with previous results
+					let diff = '';
+					if (compare && prevResults) {
+						let prevRes = prevResults.get(`${row}:${col}`);
+						if (prevRes) {
+							let percent = (Number(res[prop]) - Number(prevRes[prop])) / Number(prevRes[prop]) * 100;
+							let sign = percent > 0 ? '+' : '';
+							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
+							// diff = ' (' + (percent > 0 ? chalk.red(percentText) : chalk.green(percentText)) + ')'; // alignment is broken
+							diff = ' (' + percentText + ')';
+						}
+						else {
+							diff = chalk.yellow(' (no previous results)');
+						}
+					}
+
+					// add to table
+					curRow.push(formatNumber(res[prop]) + diff);
 				}
 				else {
 					curRow.push('');
