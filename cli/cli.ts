@@ -201,9 +201,9 @@ program
 program
 	.command('bench [filter]')
 	.description('Run benchmarks')
-	.addOption(new Option('--mode <mode>', 'Benchmark mode').choices(['replica', 'wasi']).default('replica'))
+	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
-		await bench(filter, options.mode);
+		await bench(filter, options.verbose);
 	});
 
 // template
