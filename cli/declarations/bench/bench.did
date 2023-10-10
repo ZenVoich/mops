@@ -1,7 +1,9 @@
 type anon_class_9_1 = 
  service {
+   getStats: () -> (BenchResult) query;
    init: () -> (BenchSchema);
-   runCell: (nat, nat) -> (BenchResult);
+   runCellQuery: (nat, nat) -> (BenchResult) query;
+   runCellUpdate: (nat, nat) -> (BenchResult);
  };
 type BenchSchema = 
  record {

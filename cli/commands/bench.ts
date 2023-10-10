@@ -1,15 +1,14 @@
 import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
-import os from 'node:os';
+// import os from 'node:os';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 
-// import {sources} from './sources.js';
 import {getRootDir} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {createActor} from '../declarations/bench/index.js';
-import {BenchResult, _SERVICE} from '../declarations/bench/bench.did.js';
+import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.did.js';
 import {markdownTable} from 'markdown-table';
 import logUpdate from 'log-update';
 import {absToRel} from './test/utils.js';
@@ -26,12 +25,7 @@ let globConfig = {
 	ignore: ignore,
 };
 
-// type BenchReporterName = 'md';
-type BenchMode = 'replica' | 'wasi';
-
-let mocPath = process.env.DFX_MOC_PATH;
-
-export async function bench(filter = '', verbose = false): Promise<boolean> {
+export async function bench(filter = '', {verbose = false, save = false} = {}): Promise<boolean> {
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
 	if (filter) {
@@ -60,20 +54,40 @@ export async function bench(filter = '', verbose = false): Promise<boolean> {
 	console.log('');
 	console.log('='.repeat(50));
 
-	// console.log('Starting dfx replica...');
-	// startDfx();
+	console.log('Starting dfx replica...');
+	startDfx(verbose);
+
+	let resultsByName = new Map<string, Map<string, BenchResult>>();
 
 	// await parallel(os.cpus().length, files, async (file: string) => {
 	await parallel(1, files, async (file: string) => {
-		files.indexOf(file) !== 0 && console.log('\n' + '—'.repeat(50));
+		console.log('\n' + '—'.repeat(50));
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
-		await runBenchFile(file, verbose);
+		console.log('');
+		let {schema, results} = await runBenchFile(file, verbose);
+		resultsByName.set(schema.name || absToRel(file), results);
 	});
 
-	// console.log('Stopping dfx replica...');
-	// stopDfx();
+	if (save) {
+		console.log('Saving results to mops.bench.json...');
+		let json: Record<any, any> = {};
+		resultsByName.forEach((results, name) => {
+			json[name] = Array.from(results.entries());
+		});
+		fs.writeFileSync(path.join(rootDir, 'mops.bench.json'), JSON.stringify(json, (_, val) => {
+			if (typeof val === 'bigint') {
+				return `${String(val)}`;
+			}
+			else {
+				return val;
+			}
+		}, 2));
+	}
 
-	// fs.rmSync(benchDir, {recursive: true, force: true});
+	console.log('Stopping dfx replica...');
+	stopDfx(verbose);
+
+	fs.rmSync(benchDir, {recursive: true, force: true});
 
 	return true;
 }
@@ -93,108 +107,102 @@ function dfxJson(canisterName: string) {
 				packtool: 'mops sources',
 			},
 		},
-		// networks: {
-		// 	local: {
-		// 		type: 'ephemeral',
-		// 		bind: '127.0.0.1:4944',
-		// 	},
-		// },
+		networks: {
+			local: {
+				type: 'ephemeral',
+				bind: '127.0.0.1:4944',
+			},
+		},
 	};
 }
 
-// function startDfx() {
-// 	stopDfx();
-// 	let dir = path.join(getRootDir(), '.mops/.bench');
-// 	fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(dfxJson(''), null, 2));
-// 	execSync('dfx start --background --clean', {cwd: dir});
-// }
+function startDfx(verbose = false) {
+	stopDfx(verbose);
+	let dir = path.join(getRootDir(), '.mops/.bench');
+	fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(dfxJson(''), null, 2));
+	execSync('dfx start --background --clean', {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
+}
 
-// function stopDfx() {
-// 	let dir = path.join(getRootDir(), '.mops/.bench');
-// 	execSync('dfx stop', {cwd: dir});
-// }
+function stopDfx(verbose = false) {
+	let dir = path.join(getRootDir(), '.mops/.bench');
+	execSync('dfx stop', {cwd: dir, stdio: ['pipe', verbose ? 'inherit' : 'ignore', 'pipe']});
+}
 
-async function runBenchFile(file: string, verbose = false, mode: BenchMode = 'replica') {
+type RunBenchFileResult = {
+	schema: BenchSchema,
+	results: Map<string, BenchResult>,
+};
+
+async function runBenchFile(file: string, verbose = false): Promise<RunBenchFileResult> {
 	let tempDir = path.join(getRootDir(), '.mops/.bench/', path.parse(file).name);
 	fs.mkdirSync(tempDir, {recursive: true});
 
-	if (fs.readFileSync(file, 'utf8').startsWith('// @benchmode wasi')) {
-		mode = 'wasi';
-	}
-	if (!mocPath) {
-		mocPath = execSync('dfx cache show').toString().trim() + '/moc';
-	}
-	if (!mocPath) {
-		mocPath = 'moc';
-	}
+	let canisterName = Date.now().toString(36);
 
-	// replica mode
-	if (mode === 'replica') {
-		let canisterName = Date.now().toString(36);
+	// prepare temp files
+	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName), null, 2));
+	fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
+	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
 
-		fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName), null, 2));
-		fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
-		fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
+	// deploy canister
+	execSync(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
 
-		execSync(`dfx deploy ${canisterName} --mode reinstall --yes`, {cwd: tempDir, stdio: ['pipe', verbose ? 'pipe' : 'ignore', 'pipe']});
+	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
+	let actor: _SERVICE = await createActor(canisterId, {
+		agentOptions: {
+			host: 'http://127.0.0.1:4944',
+		},
+	});
 
-		let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
-		let actor: _SERVICE = await createActor(canisterId, {
-			agentOptions: {
-				host: 'http://127.0.0.1:4943',
-			},
-		});
-		let schema = await actor.init();
+	let schema = await actor.init();
 
-		let results = new Map<string, BenchResult>();
+	let results = new Map<string, BenchResult>();
 
-		let formatNumber = (n: bigint | number): string => {
-			return n.toLocaleString('en-US').replaceAll(',', '_');
-		};
+	let formatNumber = (n: bigint | number): string => {
+		return n.toLocaleString('en-US').replaceAll(',', '_');
+	};
 
-		let getTable = (prop: keyof BenchResult): string => {
-			let resArr = [['', ...schema.cols]];
+	let getTable = (prop: keyof BenchResult): string => {
+		let resArr = [['', ...schema.cols]];
 
-			for (let [rowIndex, row] of schema.rows.entries()) {
-				let curRow = [row];
+		for (let [_rowIndex, row] of schema.rows.entries()) {
+			let curRow = [row];
 
-				for (let [colIndex, _col] of schema.cols.entries()) {
-					let res = results.get(`${rowIndex}:${colIndex}`);
-					if (res) {
-						curRow.push(formatNumber(res[prop]));
-					}
-					else {
-						curRow.push('');
-					}
+			for (let [_colIndex, col] of schema.cols.entries()) {
+				let res = results.get(`${row}:${col}`);
+				if (res) {
+					curRow.push(formatNumber(res[prop]));
 				}
-				resArr.push(curRow);
+				else {
+					curRow.push('');
+				}
 			}
-
-			return markdownTable(resArr, {align: ['l', ...'r'.repeat(schema.cols.length)]});
-		};
-
-		let printResults = () => {
-			logUpdate(`
-				\n${chalk.bold(schema.name)}
-				${schema.description ? '\n' + chalk.gray(schema.description) : ''}
-				\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
-				\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
-			`);
-		};
-
-		printResults();
-
-		for (let [rowIndex, _row] of schema.rows.entries()) {
-			for (let [colIndex, _col] of schema.cols.entries()) {
-				let res = await actor.runCell(BigInt(rowIndex), BigInt(colIndex));
-				results.set(`${rowIndex}:${colIndex}`, res);
-				printResults();
-			}
+			resArr.push(curRow);
 		}
-		logUpdate.done();
+
+		return markdownTable(resArr, {align: ['l', ...'r'.repeat(schema.cols.length)]});
+	};
+
+	let printResults = () => {
+		logUpdate(`
+			\n${chalk.bold(schema.name)}
+			${schema.description ? '\n' + chalk.gray(schema.description) : ''}
+			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
+			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
+		`);
+	};
+
+	printResults();
+
+	// run all cells
+	for (let [rowIndex, row] of schema.rows.entries()) {
+		for (let [colIndex, col] of schema.cols.entries()) {
+			let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
+			results.set(`${row}:${col}`, res);
+			printResults();
+		}
 	}
-	// wasi mode
-	else if (mode === 'wasi') {
-		throw new Error('WASI mode is not implemented yet');
-	}
+	logUpdate.done();
+
+	return {schema, results};
 }

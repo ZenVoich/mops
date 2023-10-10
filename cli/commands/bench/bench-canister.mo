@@ -15,16 +15,20 @@ actor class() {
 		bench.getSchema();
 	};
 
-	// public composite query func noop() : async () {};
+	func _getStats() : Bench.BenchResult {
+		{
+			instructions = 0;
+			rts_heap_size = Prim.rts_heap_size();
+			rts_memory_size = Prim.rts_memory_size();
+			rts_total_allocation = Prim.rts_total_allocation();
+			rts_mutator_instructions = Prim.rts_mutator_instructions();
+			rts_collector_instructions = Prim.rts_collector_instructions();
+		}
+	};
 
-	public func runCell(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
+	func _runCell(rowIndex : Nat, colIndex : Nat) : Bench.BenchResult {
 		let ?bench = benchOpt else Debug.trap("bench not initialized");
-
-		let rts_heap_size_before = Prim.rts_heap_size();
-		let rts_memory_size_before = Prim.rts_memory_size();
-		let rts_total_allocation_before = Prim.rts_total_allocation();
-		let rts_mutator_instructions_before = Prim.rts_mutator_instructions();
-		let rts_collector_instructions_before = Prim.rts_collector_instructions();
+		let statsBefore = _getStats();
 
 		let mode : Bench.BenchMode = #replica;
 		let instructions = switch(mode) {
@@ -39,17 +43,29 @@ actor class() {
 			};
 		};
 
-		// await noop();
-
 		// await (func() : async () {})();
+
+		let statsAfter = _getStats();
 
 		{
 			instructions = Nat64.toNat(instructions);
-			rts_heap_size = Prim.rts_heap_size() - rts_heap_size_before;
-			rts_memory_size = Prim.rts_memory_size() - rts_memory_size_before;
-			rts_total_allocation = Prim.rts_total_allocation() - rts_total_allocation_before;
-			rts_mutator_instructions = Prim.rts_mutator_instructions() - rts_mutator_instructions_before;
-			rts_collector_instructions = Prim.rts_collector_instructions() - rts_collector_instructions_before;
+			rts_heap_size = statsAfter.rts_heap_size - statsBefore.rts_heap_size;
+			rts_memory_size = statsAfter.rts_memory_size - statsBefore.rts_memory_size;
+			rts_total_allocation = statsAfter.rts_total_allocation - statsBefore.rts_total_allocation;
+			rts_mutator_instructions = statsAfter.rts_mutator_instructions - statsBefore.rts_mutator_instructions;
+			rts_collector_instructions = statsAfter.rts_collector_instructions - statsBefore.rts_collector_instructions;
 		}
+	};
+
+	public query func getStats() : async Bench.BenchResult {
+		_getStats();
+	};
+
+	public query func runCellQuery(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
+		_runCell(rowIndex, colIndex);
+	};
+
+	public func runCellUpdate(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
+		_runCell(rowIndex, colIndex);
 	};
 };

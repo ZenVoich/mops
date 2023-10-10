@@ -202,8 +202,9 @@ program
 	.command('bench [filter]')
 	.description('Run benchmarks')
 	.addOption(new Option('--verbose', 'Show more information'))
+	.addOption(new Option('--save', 'Save benchmark results to mops.bench.json'))
 	.action(async (filter, options) => {
-		await bench(filter, options.verbose);
+		await bench(filter, options);
 	});
 
 // template
