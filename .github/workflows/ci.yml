@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - uses: dfinity/setup-dfx
+      - uses: dfinity/setup-dfx@main
         with:
           dfx-version: 0.15.0
 
