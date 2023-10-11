@@ -14,7 +14,7 @@ const FeatureList: FeatureItem[] = [
 		Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
 		description: (
 			<>
-				Internet Computer blockchain can host websites, so this site and the package registry frontend <a href="https://mops.one">https://mops.one</a> are hosted on-chain.
+				<a href="https://internetcomputer.org/" target="_blank">Internet Computer</a> blockchain can host websites, so this site and the package registry frontend <a href="https://mops.one" target="_blank">https://mops.one</a> are hosted on-chain.
 			</>
 		),
 	},
@@ -23,7 +23,7 @@ const FeatureList: FeatureItem[] = [
 		Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
 		description: (
 			<>
-				All package metadata and sources files are stored on-chain, so you can be sure that the data is always available.
+				All package metadata and source files are stored on-chain, so you can be sure that the data is always available.
 			</>
 		),
 	},

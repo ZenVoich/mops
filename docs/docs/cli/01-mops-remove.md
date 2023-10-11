@@ -8,3 +8,7 @@ sidebar_label: 'mops remove'
 Alias `mops rm`
 
 Remove package and update mops.toml
+
+```
+mops remove <package_name>
+```

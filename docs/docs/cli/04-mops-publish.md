@@ -6,6 +6,9 @@ sidebar_label: 'mops publish'
 # CLI command `mops publish`
 
 Publish package to the mops registry
+```
+mops publish
+```
 
 ## Options
 
