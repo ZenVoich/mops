@@ -1,5 +1,6 @@
 ---
-# sidebar_position: 0
+# sidebar_position: 0.2
+slug: /cli/mops-add
 sidebar_label: 'mops add'
 ---
 

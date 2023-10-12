@@ -6,7 +6,7 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: hsl(87 29% 24% / 1);
+  --ifm-color-primary: hsl(73 30% 44% / 1);
   --ifm-color-primary-dark: #29784c;
   --ifm-color-primary-darker: #277148;
   --ifm-color-primary-darkest: #205d3b;
@@ -31,4 +31,21 @@
 
 .footer--dark {
 	--ifm-footer-background-color: #242526;
+}
+
+.theme-doc-sidebar-item-category:not(:first-child) {
+	margin-top: 10px;
+}
+
+.theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible:hover {
+	background: none;
+}
+.theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link {
+	/* font-weight: 400; */
+	opacity: 0.8;
+	cursor: default;
+}
+
+.theme-doc-sidebar-item-category-level-2>.menu__list-item-collapsible>.menu__link--active {
+	color: var(--ifm-menu-color);
 }

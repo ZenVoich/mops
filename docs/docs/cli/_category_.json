@@ -1,6 +1,6 @@
 {
-  "label": "CLI",
   "position": 1,
+  "label": "CLI",
   "link": {
     "type": "generated-index"
   }
