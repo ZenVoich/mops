@@ -32,6 +32,7 @@
     "micromark-extension-gfm-table": "^2.0.0",
     "pako": "^2.1.0",
     "svelte-chartjs": "^3.1.2",
+    "svelte-simple-modal": "1.6.1",
     "svelte-spa-history-router": "^2.1.0",
     "throttle-debounce": "^3.0.1"
   },

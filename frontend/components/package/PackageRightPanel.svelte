@@ -5,8 +5,15 @@
 	import DownloadTrend from '../DownloadTrend.svelte';
 	import githubImg from '/img/github.svg';
 	import twitterImg from '/img/twitter.svg';
+	import BadgesModal from './BadgesModal.svelte';
 
 	export let packageDetails: PackageDetails;
+	let badgesModalActive = false;
+
+	function showBadgesModal(e: MouseEvent) {
+		e.preventDefault();
+		badgesModalActive = true;
+	}
 </script>
 
 <div class="right-panel">
@@ -72,7 +79,11 @@
 			<div class="value">{packageDetails.owner}</div>
 		</div>
 	{/if}
+
+	<a class="badges-button" on:click={showBadgesModal}>Badges</a>
 </div>
+
+<BadgesModal bind:active={badgesModalActive} packageName={packageDetails.config.name}></BadgesModal>
 
 <style>
 	.right-panel {
@@ -128,6 +139,10 @@
 		width: 20px;
 		height: 20px;
 		filter: hue-rotate(45deg) contrast(0.6);
+	}
+
+	.badges-button {
+		cursor: pointer;
 	}
 
 	@media (max-width: 750px) {
