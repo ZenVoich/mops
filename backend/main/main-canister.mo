@@ -159,8 +159,8 @@ actor {
 				ownerInfo = users.getUser(owner);
 				config = config;
 				publication = publication;
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 			};
 		};
@@ -305,7 +305,7 @@ actor {
 
 	// PUBLIC
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		if (not Utils.isAuthorized(caller)) {
+		if (Principal.isAnonymous(caller)) {
 			return #err("Unauthorized");
 		};
 
@@ -387,7 +387,7 @@ actor {
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -472,7 +472,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -503,7 +503,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (testStats.passedNames.size() > 10_000) {
 			return #err("Max number of test names is 10_000");
@@ -517,7 +517,7 @@ actor {
 	};
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		if (notes.size() > 10_000) {
 			return #err("Max changelog size is 10_000");
@@ -531,7 +531,7 @@ actor {
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		assert(Utils.isAuthorized(caller));
+		assert(not Principal.isAnonymous(caller));
 
 		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 		assert(publishing.user == caller);
@@ -885,19 +885,33 @@ actor {
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {
 		let packageId = name # "@" # version;
 
 		if (packageConfigs.get(packageId) == null) {
-			Debug.trap("Package '" # packageId # "' not found");
+			// Debug.trap("Package '" # packageId # "' not found");
+			return;
 		};
 
 		downloadLog.add({
 			time = Time.now();
-			name = name;
-			version = version;
-			downloader = caller;
+			name;
+			version;
+			downloader;
 		});
+	};
+
+	public shared ({caller}) func notifyInstall(name : PackageName, version : PackageVersion) {
+		_notifyInstall(name, version, caller);
+	};
+
+	public shared ({caller}) func notifyInstalls(installs : [(PackageName, PackageVersion)]) {
+		if (installs.size() > 100) {
+			return;
+		};
+		for ((name, version) in installs.vals()) {
+			_notifyInstall(name, version, caller);
+		};
 	};
 
 	func _toLowerCase(text : Text) : Text {
@@ -1046,7 +1060,7 @@ actor {
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now());
 		_summariesFromNames(packageNames, 5);
 	};
 

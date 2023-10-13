@@ -307,6 +307,11 @@ export const idlFactory = ({ IDL }) => {
         [],
         ['oneway'],
       ),
+    'notifyInstalls' : IDL.Func(
+        [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion))],
+        [],
+        ['oneway'],
+      ),
     'restore' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
     'search' : IDL.Func(
         [Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
