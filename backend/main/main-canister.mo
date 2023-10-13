@@ -1248,6 +1248,16 @@ actor {
 			upgrade = null;
 		};
 
+		if (request.url == "/.well-known/ic-domains") {
+			return {
+				status_code = 200;
+				headers = [];
+				body = Text.encodeUtf8("registry.mops.one");
+				streaming_strategy = null;
+				upgrade = null;
+			};
+		};
+
 		let path = Iter.toArray(Text.split(request.url, #text("?")))[0];
 		let parts = Iter.toArray(Text.split(path, #text("/")));
 		let badgePath = parts[1];

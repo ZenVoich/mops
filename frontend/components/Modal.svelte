@@ -6,7 +6,7 @@
 	export let popup = false;
 	export let valid = true;
 
-	let resolve: (ok: boolean) => void;
+	let resolve: (ok: boolean) => void = () => {};
 
 	export function open() {
 		active = true;
@@ -49,7 +49,9 @@
 
 <div class="container" class:active="{active}" data-size="{size}" data-theme="{theme}">
 	<div class="dialog">
-		<div class="title">{title}</div>
+		{#if title}
+			<div class="title">{title}</div>
+		{/if}
 
 		<div class="content">
 			<slot></slot>

@@ -2,15 +2,15 @@ import Nat "mo:base/Nat";
 
 module {
 	public func documentation() : Text {
-"<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='98' height='20' role='img' aria-label='documentation'>
+"<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='100' height='20' role='img' aria-label='documentation'>
 <title>documentation</title><linearGradient id='s' x2='0' y2='100%'><stop offset='0' stop-color='#bbb' stop-opacity='.1'/><stop offset='1' stop-opacity='.1'/></linearGradient>
-<clipPath id='r'><rect width='98' height='20' rx='3' fill='#fff'/></clipPath>
+<clipPath id='r'><rect width='100' height='20' rx='3' fill='#fff'/></clipPath>
 <g clip-path='url(#r)'>
-<rect width='98' height='20' fill='#007ec6'/>
-<rect width='98' height='20' fill='url(#s)'/></g>
+<rect width='100' height='20' fill='#007ec6'/>
+<rect width='100' height='20' fill='url(#s)'/></g>
 <g fill='#fff' text-anchor='middle' font-family='Verdana,Geneva,DejaVu Sans,sans-serif' text-rendering='geometricPrecision' font-size='110'>
-<text x='485' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='850' aria-hidden='true'>documentation</text>
-<text x='485' y='140' transform='scale(.1)' fill='#fff' textLength='850'>documentation</text></g></svg>"
+<text x='490' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='880' aria-hidden='true'>documentation</text>
+<text x='490' y='140' transform='scale(.1)' fill='#fff' textLength='880'>documentation</text></g></svg>"
 	};
 
 	public func mops(version : Text) : Text {
