@@ -143,6 +143,8 @@
 
 	.badges-button {
 		cursor: pointer;
+		text-decoration: underline dotted;
+		margin-top: 20px;
 	}
 
 	@media (max-width: 750px) {
