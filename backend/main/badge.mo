@@ -9,8 +9,8 @@ module {
 <rect width='100' height='20' fill='#007ec6'/>
 <rect width='100' height='20' fill='url(#s)'/></g>
 <g fill='#fff' text-anchor='middle' font-family='Verdana,Geneva,DejaVu Sans,sans-serif' text-rendering='geometricPrecision' font-size='110'>
-<text x='490' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='880' aria-hidden='true'>documentation</text>
-<text x='490' y='140' transform='scale(.1)' fill='#fff' textLength='880'>documentation</text></g></svg>"
+<text x='495' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='875' aria-hidden='true'>documentation</text>
+<text x='495' y='140' transform='scale(.1)' fill='#fff' textLength='875'>documentation</text></g></svg>"
 	};
 
 	public func mops(version : Text) : Text {
