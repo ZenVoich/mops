@@ -4,14 +4,16 @@ import fs from 'node:fs';
 // import os from 'node:os';
 import chalk from 'chalk';
 import {globSync} from 'glob';
+import {markdownTable} from 'markdown-table';
+import logUpdate from 'log-update';
 
 import {getRootDir} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {createActor} from '../declarations/bench/index.js';
 import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.did.js';
-import {markdownTable} from 'markdown-table';
-import logUpdate from 'log-update';
 import {absToRel} from './test/utils.js';
+import {getMocVersion} from '../helpers/get-moc-version.js';
+import {getDfxVersion} from '../helpers/get-dfx-version.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -25,7 +27,16 @@ let globConfig = {
 	ignore: ignore,
 };
 
-export async function bench(filter = '', {verbose = false, save = false, compare = false} = {}): Promise<boolean> {
+type BenchOptions = {
+	verbose?: boolean,
+	save?: boolean,
+	compare?: boolean,
+	dfx?: string,
+	moc?: string,
+	gc?: 'copying' | 'compacting' | 'generational' | 'incremental' | 'none',
+};
+
+export async function bench(filter = '', options: BenchOptions = {}): Promise<boolean> {
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
 	if (filter) {
@@ -45,6 +56,7 @@ export async function bench(filter = '', {verbose = false, save = false, compare
 	files.sort();
 
 	let benchDir = `${getRootDir()}/.mops/.bench/`;
+	fs.rmSync(benchDir, {recursive: true, force: true});
 	fs.mkdirSync(benchDir, {recursive: true});
 
 	console.log('Benchmark files:');
@@ -55,7 +67,7 @@ export async function bench(filter = '', {verbose = false, save = false, compare
 	console.log('='.repeat(50));
 
 	console.log('Starting dfx replica...');
-	startDfx(verbose);
+	startDfx(options.verbose);
 
 	let resultsByName = new Map<string, Map<string, BenchResult>>();
 
@@ -64,15 +76,28 @@ export async function bench(filter = '', {verbose = false, save = false, compare
 		console.log('\n' + '—'.repeat(50));
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 		console.log('');
-		let {schema, results} = await runBenchFile(file, verbose, compare);
-		resultsByName.set(schema.name || absToRel(file), results);
+		try {
+			let {schema, results} = await runBenchFile(file, options);
+			resultsByName.set(schema.name || absToRel(file), results);
+		}
+		catch (err) {
+			console.error('Unexpected error. Stopping dfx replica...');
+			stopDfx(options.verbose);
+			throw err;
+		}
 	});
 
-	if (save) {
+	if (options.save) {
 		console.log('Saving results to mops.bench.json...');
-		let json: Record<any, any> = {};
+		let json: Record<any, any> = {
+			version: 1,
+			moc: options.moc || getMocVersion(),
+			dfx: options.dfx || getDfxVersion(),
+			gc: options.gc || 'incremental',
+			results: {},
+		};
 		resultsByName.forEach((results, name) => {
-			json[name] = Array.from(results.entries());
+			json.results[name] = Array.from(results.entries());
 		});
 		fs.writeFileSync(path.join(rootDir, 'mops.bench.json'), JSON.stringify(json, (_, val) => {
 			if (typeof val === 'bigint') {
@@ -85,7 +110,7 @@ export async function bench(filter = '', {verbose = false, save = false, compare
 	}
 
 	console.log('Stopping dfx replica...');
-	stopDfx(verbose);
+	stopDfx(options.verbose);
 
 	fs.rmSync(benchDir, {recursive: true, force: true});
 
@@ -110,7 +135,7 @@ function dfxJson(canisterName: string) {
 		networks: {
 			local: {
 				type: 'ephemeral',
-				bind: '127.0.0.1:4944',
+				bind: '127.0.0.1:4947',
 			},
 		},
 	};
@@ -133,7 +158,7 @@ type RunBenchFileResult = {
 	results: Map<string, BenchResult>,
 };
 
-async function runBenchFile(file: string, verbose = false, compare = false): Promise<RunBenchFileResult> {
+async function runBenchFile(file: string, options: BenchOptions = {}): Promise<RunBenchFileResult> {
 	let rootDir = getRootDir();
 	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	fs.mkdirSync(tempDir, {recursive: true});
@@ -146,22 +171,23 @@ async function runBenchFile(file: string, verbose = false, compare = false): Pro
 	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
 
 	// deploy canister
-	execSync(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	execSync(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
 
 	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
 	let actor: _SERVICE = await createActor(canisterId, {
 		agentOptions: {
-			host: 'http://127.0.0.1:4944',
+			host: 'http://127.0.0.1:4947',
 		},
 	});
 
 	let schema = await actor.init();
 
+	// load previous results
 	let prevResults: Map<string, BenchResult> | undefined;
-	if (compare) {
+	if (options.compare) {
 		let prevResultsJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'mops.bench.json')).toString());
-		if (prevResultsJson[schema.name]) {
-			prevResults = new Map(prevResultsJson[schema.name]);
+		if (prevResultsJson.results[schema.name]) {
+			prevResults = new Map(prevResultsJson.results[schema.name]);
 		}
 		else {
 			console.log(chalk.yellow(`No previous results found for benchmark with name "${schema.name}"`));
@@ -186,7 +212,7 @@ async function runBenchFile(file: string, verbose = false, compare = false): Pro
 
 					// compare with previous results
 					let diff = '';
-					if (compare && prevResults) {
+					if (options.compare && prevResults) {
 						let prevRes = prevResults.get(`${row}:${col}`);
 						if (prevRes) {
 							let percent = (Number(res[prop]) - Number(prevRes[prop])) / Number(prevRes[prop]) * 100;
@@ -227,7 +253,8 @@ async function runBenchFile(file: string, verbose = false, compare = false): Pro
 	// run all cells
 	for (let [rowIndex, row] of schema.rows.entries()) {
 		for (let [colIndex, col] of schema.cols.entries()) {
-			let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
+			// let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
+			let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
 			printResults();
 		}

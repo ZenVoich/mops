@@ -8,10 +8,10 @@ module {
 	public func init() : Bench.Bench {
 		let bench = Bench.Bench();
 
-		bench.name("Add (second)");
-		bench.description("Add items one-by-one (second)");
+		bench.name("Add");
+		bench.description("Add items one-by-one");
 
-		bench.rows(["Buffer", "Vector"]);
+		bench.rows(["Vector", "Buffer"]);
 		bench.cols(["10", "10000", "1000000"]);
 
 		bench.runner(func(row, col) {
@@ -32,6 +32,7 @@ module {
 				};
 			};
 		});
+
 		bench;
 	};
 };

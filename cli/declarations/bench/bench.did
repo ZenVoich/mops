@@ -1,4 +1,4 @@
-type anon_class_9_1 = 
+type anon_class_10_1 = 
  service {
    getStats: () -> (BenchResult) query;
    init: () -> (BenchSchema);
@@ -14,11 +14,11 @@ type BenchSchema =
  };
 type BenchResult = 
  record {
-   instructions: nat;
-   rts_collector_instructions: nat;
-   rts_heap_size: nat;
-   rts_memory_size: nat;
-   rts_mutator_instructions: nat;
-   rts_total_allocation: nat;
+   instructions: int;
+   rts_collector_instructions: int;
+   rts_heap_size: int;
+   rts_memory_size: int;
+   rts_mutator_instructions: int;
+   rts_total_allocation: int;
  };
-service : () -> anon_class_9_1
+service : () -> anon_class_10_1

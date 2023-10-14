@@ -8,10 +8,10 @@ module {
 	public func init() : Bench.Bench {
 		let bench = Bench.Bench();
 
-		bench.name("Add");
-		bench.description("Add items one-by-one");
+		bench.name("Add (second)");
+		bench.description("Add items one-by-one (second)");
 
-		bench.rows(["Vector", "Buffer"]);
+		bench.rows(["Buffer", "Vector"]);
 		bench.cols(["10", "10000", "1000000"]);
 
 		bench.runner(func(row, col) {
@@ -23,6 +23,7 @@ module {
 				for (i in Iter.range(1, n)) {
 					vec.add(i);
 				};
+				bench.heap.add(vec);
 			}
 			// Buffer
 			else if (row == "Buffer") {
@@ -30,11 +31,9 @@ module {
 				for (i in Iter.range(1, n)) {
 					buf.add(i);
 				};
+				bench.heap.add(buf);
 			};
 		});
-
-		// bench.table(["Vector", "Buffer"], ["10", "10000", "1000000"], func(row, col) {
-		// });
 
 		bench;
 	};

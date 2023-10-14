@@ -1,4 +1,5 @@
 import Nat64 "mo:base/Nat64";
+import Nat "mo:base/Nat";
 import Debug "mo:base/Debug";
 import ExperimentalInternetComputer "mo:base/ExperimentalInternetComputer";
 import Prim "mo:prim";
@@ -30,20 +31,33 @@ actor class() {
 		let ?bench = benchOpt else Debug.trap("bench not initialized");
 		let statsBefore = _getStats();
 
-		let mode : Bench.BenchMode = #replica;
-		let instructions = switch(mode) {
-			case (#replica) {
-				ExperimentalInternetComputer.countInstructions(func() {
-					bench.runCell(rowIndex, colIndex);
-				});
-			};
-			case (#wasi) {
-				bench.runCell(rowIndex, colIndex);
-				0 : Nat64;
-			};
-		};
+		let instructions = ExperimentalInternetComputer.countInstructions(func() {
+			bench.runCell(rowIndex, colIndex);
+		});
 
 		// await (func() : async () {})();
+
+		let statsAfter = _getStats();
+
+		{
+			instructions = Nat64.toNat(instructions);
+			rts_heap_size = statsAfter.rts_heap_size - statsBefore.rts_heap_size;
+			rts_memory_size = statsAfter.rts_memory_size - statsBefore.rts_memory_size;
+			rts_total_allocation = statsAfter.rts_total_allocation - statsBefore.rts_total_allocation;
+			rts_mutator_instructions = statsAfter.rts_mutator_instructions - statsBefore.rts_mutator_instructions;
+			rts_collector_instructions = statsAfter.rts_collector_instructions - statsBefore.rts_collector_instructions;
+		}
+	};
+
+	func _runCellAwait(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
+		let ?bench = benchOpt else Debug.trap("bench not initialized");
+		let statsBefore = _getStats();
+
+		let instructions = ExperimentalInternetComputer.countInstructions(func() {
+			bench.runCell(rowIndex, colIndex);
+		});
+
+		await (func() : async () {})();
 
 		let statsAfter = _getStats();
 
@@ -66,6 +80,6 @@ actor class() {
 	};
 
 	public func runCellUpdate(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
-		_runCell(rowIndex, colIndex);
+		await _runCellAwait(rowIndex, colIndex);
 	};
 };

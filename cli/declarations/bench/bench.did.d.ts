@@ -15,10 +15,10 @@ export interface BenchSchema {
   'rows' : Array<string>,
   'description' : string,
 }
-export interface anon_class_9_1 {
+export interface anon_class_10_1 {
   'getStats' : ActorMethod<[], BenchResult>,
   'init' : ActorMethod<[], BenchSchema>,
   'runCellQuery' : ActorMethod<[bigint, bigint], BenchResult>,
   'runCellUpdate' : ActorMethod<[bigint, bigint], BenchResult>,
 }
-export interface _SERVICE extends anon_class_9_1 {}
+export interface _SERVICE extends anon_class_10_1 {}

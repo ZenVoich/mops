@@ -19,12 +19,32 @@ module {
 	};
 
 	public type BenchResult = {
-		instructions : Nat;
-		rts_heap_size : Nat;
-		rts_memory_size : Nat;
-		rts_total_allocation : Nat;
-		rts_mutator_instructions : Nat;
-		rts_collector_instructions : Nat;
+		instructions : Int;
+		rts_mutator_instructions : Int;
+		rts_collector_instructions : Int;
+		rts_heap_size : Int;
+		rts_memory_size : Int;
+		rts_total_allocation : Int;
+	};
+
+	public class BenchHeap() {
+		type List = {
+			value : Any;
+			var next : ?List;
+		};
+
+		let list : List = {
+			value = null;
+			var next = null;
+		};
+
+		var last = list;
+
+		public func add(value : Any) {
+			let next : List = {value = value; var next = null};
+			last.next := ?next;
+			last := next;
+		};
 	};
 
 	public class Bench() {
@@ -33,6 +53,8 @@ module {
 		var _rows = Buffer.Buffer<Text>(0);
 		var _cols = Buffer.Buffer<Text>(0);
 		var _runner = func(row : Text, col : Text) {};
+
+		public let heap : BenchHeap = BenchHeap();
 
 		public func name(value : Text) {
 			_name := value;
