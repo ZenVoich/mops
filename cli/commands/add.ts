@@ -38,6 +38,7 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 	else if (name.startsWith('https://github.com') || name.split('/').length > 1) {
 		let {org, gitName, branch, commitHash} = parseGithubURL(name);
 
+		// fetch latest commit hash of branch if not specified
 		if (!commitHash) {
 			let commit = await getGithubCommit(`${org}/${gitName}`, branch);
 			if (!commit.sha) {
