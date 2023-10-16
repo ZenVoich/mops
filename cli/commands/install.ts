@@ -36,13 +36,13 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 	// already installed
 	if (fs.existsSync(dir)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (already installed)`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (local cache)`);
 		alreadyInstalled = true;
 	}
 	// copy from cache
 	else if (isCached(`${pkg}@${version}`)) {
 		await copyCache(`${pkg}@${version}`, dir);
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (global cache)`);
 	}
 	// download
 	else {
