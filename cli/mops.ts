@@ -225,7 +225,13 @@ export function parseGithubURL(href: string) {
 
 export async function getGithubCommit(repo: string, ref: string): Promise<any> {
 	let res = await fetch(`https://api.github.com/repos/${repo}/commits/${ref}`);
-	let json = await res.json();
+	let json: any = await res.json();
+
+	// try on main branch
+	if (json.message && ref === 'master') {
+		res = await fetch(`https://api.github.com/repos/${repo}/commits/main`);
+		json = await res.json();
+	}
 	return json;
 }
 

@@ -27,7 +27,7 @@ export async function update(pkg?: string) {
 		let dev = !!config['dev-dependencies']?.[dep.name];
 		let commit = await getGithubCommit(`${org}/${gitName}`, branch);
 		if (commit.sha !== commitHash) {
-			await add(`https://github.com/${org}/${gitName}#${branch}@${commitHash}`, {dev});
+			await add(`https://github.com/${org}/${gitName}#${branch}@${commit.sha}`, {dev});
 		}
 	}
 
