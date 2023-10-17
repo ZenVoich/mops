@@ -808,6 +808,7 @@ actor {
 			case ("0.14.3") [("base", "0.9.3")];
 			case ("0.14.4") [("base", "0.9.3")];
 			case ("0.15.0") [("base", "0.9.7")];
+			case ("0.15.1") [("base", "0.9.7")];
 			case (_) {
 				switch (_getHighestVersion("base")) {
 					case (?ver) [("base", ver)];
@@ -1236,6 +1237,20 @@ actor {
 			case ("twitter") users.setTwitter(caller, value);
 			case (_) #err("unknown property");
 		};
+	};
+
+	public shared ({caller}) func transferOwnership(packageName : PackageName, newOwner : Principal) : async Result.Result<(), Text> {
+		let ?oldOwner = packageOwners.get(packageName) else return #err("Package not found");
+
+		if (oldOwner != caller) {
+			return #err("Only owner can transfer ownership");
+		};
+		if (newOwner == caller) {
+			return #err("You can't transfer ownership to yourself");
+		};
+
+		packageOwners.put(packageName, newOwner);
+		#ok;
 	};
 
 	// BADGES
