@@ -176,6 +176,11 @@ async function applyInit({type, config, setupWorkflow, addTest, copyrightOwner} 
 		let dfxJsonText = readFileSync(dfxJson).toString();
 		try {
 			dfxJsonData = JSON.parse(dfxJsonText);
+		}
+		catch (err) {
+			console.log(chalk.yellow('Failed to parse dfx.json'));
+		}
+		if (dfxJsonData) {
 			console.log('Setting packtool in dfx.json...');
 			dfxJsonData.defaults = dfxJsonData.defaults || {};
 			dfxJsonData.defaults.build = dfxJsonData.defaults.build || {};
@@ -185,9 +190,6 @@ async function applyInit({type, config, setupWorkflow, addTest, copyrightOwner} 
 				writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
 				console.log(chalk.green('packtool set to "mops sources"'));
 			}
-		}
-		catch (err) {
-			console.log(chalk.yellow('Failed to parse dfx.json'));
 		}
 	}
 
