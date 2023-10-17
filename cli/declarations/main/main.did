@@ -82,7 +82,7 @@ type Result_6 =
  variant {
    err: Err;
    ok: vec record {
-             PackageName__1;
+             PackageName;
              PackageVersion;
            };
  };
@@ -98,18 +98,18 @@ type Result_4 =
  };
 type Result_3 = 
  variant {
-   err: text;
-   ok;
- };
-type Result_2 = 
- variant {
    err: Err;
    ok: FileId;
  };
-type Result_1 = 
+type Result_2 = 
  variant {
    err: PublishingErr;
    ok: PublishingId;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok;
  };
 type Result = 
  variant {
@@ -223,7 +223,7 @@ type PackageConfigV2__1 =
    keywords: vec text;
    license: text;
    moc: text;
-   name: PackageName;
+   name: PackageName__1;
    readme: text;
    repository: text;
    scripts: vec Script;
@@ -242,7 +242,7 @@ type PackageConfigV2 =
    keywords: vec text;
    license: text;
    moc: text;
-   name: PackageName;
+   name: PackageName__1;
    readme: text;
    repository: text;
    scripts: vec Script;
@@ -283,7 +283,7 @@ type DownloadsSnapshot =
  };
 type DependencyV2 = 
  record {
-   name: PackageName;
+   name: PackageName__1;
    repo: text;
    version: text;
  };
@@ -304,25 +304,25 @@ service : {
   getBackupCanisterId: () -> (principal) query;
   getDefaultPackages: (text) ->
    (vec record {
-          PackageName__1;
+          PackageName;
           PackageVersion;
         }) query;
   getDownloadTrendByPackageId: (PackageId) ->
    (vec DownloadsSnapshot__1) query;
-  getDownloadTrendByPackageName: (PackageName__1) ->
+  getDownloadTrendByPackageName: (PackageName) ->
    (vec DownloadsSnapshot__1) query;
-  getFileIds: (PackageName__1, PackageVersion) -> (Result_7) query;
+  getFileIds: (PackageName, PackageVersion) -> (Result_7) query;
   getHighestSemverBatch:
    (vec record {
-          PackageName__1;
+          PackageName;
           PackageVersion;
           SemverPart;
         }) -> (Result_6) query;
-  getHighestVersion: (PackageName__1) -> (Result_5) query;
+  getHighestVersion: (PackageName) -> (Result_5) query;
   getMostDownloadedPackages: () -> (vec PackageSummary) query;
   getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
   getNewPackages: () -> (vec PackageSummary) query;
-  getPackageDetails: (PackageName__1, PackageVersion) -> (Result_4) query;
+  getPackageDetails: (PackageName, PackageVersion) -> (Result_4) query;
   getPackagesByCategory: () -> (vec record {
                                       text;
                                       vec PackageSummary;
@@ -336,17 +336,18 @@ service : {
   getTotalPackages: () -> (nat) query;
   getUser: (principal) -> (opt User__1) query;
   http_request: (Request) -> (Response) query;
-  notifyInstall: (PackageName__1, PackageVersion) -> () oneway;
+  notifyInstall: (PackageName, PackageVersion) -> () oneway;
   notifyInstalls: (vec record {
-                         PackageName__1;
+                         PackageName;
                          PackageVersion;
                        }) -> () oneway;
   restore: (nat, nat) -> ();
   search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
-  setUserProp: (text, text) -> (Result_3);
-  startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
-  startPublish: (PackageConfigV2) -> (Result_1);
+  setUserProp: (text, text) -> (Result_1);
+  startFileUpload: (PublishingId, Text, nat, blob) -> (Result_3);
+  startPublish: (PackageConfigV2) -> (Result_2);
   takeAirdropSnapshot: () -> () oneway;
+  transferOwnership: (PackageName, principal) -> (Result_1);
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
   uploadNotes: (PublishingId, text) -> (Result);
   uploadTestStats: (PublishingId, TestStats) -> (Result);
