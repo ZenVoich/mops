@@ -10,9 +10,10 @@ on:
 jobs:
   build:
     strategy:
+      max-parallel: 2
       matrix:
-        moc-version: [0.9.3]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.19]
+        moc-version: [0.10.0]
+        mops-version: [./cli, ic-mops@latest, ic-mops@0.27.1]
         node-version: [20]
 
     runs-on: ubuntu-latest

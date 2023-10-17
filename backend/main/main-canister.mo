@@ -16,13 +16,14 @@ import Char "mo:base/Char";
 import Hash "mo:base/Hash";
 import TrieSet "mo:base/TrieSet";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
+import Blob "mo:base/Blob";
 import Prim "mo:prim";
 
 import {DAY} "mo:time-consts";
 import {ic} "mo:ic";
 import Map "mo:map/Map";
-
 import Backup "mo:backup";
+import HttpTypes "mo:http-types";
 
 import Utils "../utils";
 import Semver "./semver";
@@ -31,6 +32,7 @@ import DownloadLog "./download-log";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
 import Users "./users";
+import Badge "./badge";
 import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
@@ -157,8 +159,8 @@ actor {
 				ownerInfo = users.getUser(owner);
 				config = config;
 				publication = publication;
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY);
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY);
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 			};
 		};
@@ -1058,7 +1060,7 @@ actor {
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY);
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now());
 		_summariesFromNames(packageNames, 5);
 	};
 
@@ -1248,6 +1250,62 @@ actor {
 
 		packageOwners.put(packageName, newOwner);
 		#ok;
+	};
+
+	// BADGES
+	public query func http_request(request : HttpTypes.Request) : async HttpTypes.Response {
+		let r404 : HttpTypes.Response = {
+			status_code = 404;
+			headers = [];
+			body = Blob.fromArray([]);
+			streaming_strategy = null;
+			upgrade = null;
+		};
+
+		if (request.url == "/.well-known/ic-domains") {
+			return {
+				status_code = 200;
+				headers = [];
+				body = Text.encodeUtf8("registry.mops.one");
+				streaming_strategy = null;
+				upgrade = null;
+			};
+		};
+
+		let path = Iter.toArray(Text.split(request.url, #text("?")))[0];
+		let parts = Iter.toArray(Text.split(path, #text("/")));
+		let badgePath = parts[1];
+		let badgeName = parts[2];
+		let packageName = if (parts.size() > 3) parts[3] else "";
+
+		if (badgePath != "badge") {
+			return r404;
+		};
+
+		let badge = switch (badgeName) {
+			case ("documentation") {
+				Badge.documentation();
+			};
+			case ("mops") {
+				let ?highestVersion = _getHighestVersion(packageName) else {
+					return r404;
+				};
+				Badge.mops(highestVersion);
+			};
+			case (_) {
+				return r404;
+			};
+		};
+
+		return {
+			status_code = 200;
+			headers = [
+				("Content-Type", "image/svg+xml"),
+			];
+			body = Text.encodeUtf8(badge);
+			streaming_strategy = null;
+			upgrade = null;
+		};
 	};
 
 	// BACKUP
