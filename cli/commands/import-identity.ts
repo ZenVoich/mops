@@ -13,7 +13,7 @@ export async function importPem(data: string) {
 		}
 
 		let res = await prompts({
-			type: 'password',
+			type: 'invisible',
 			name: 'password',
 			message: 'Enter password to encrypt identity.pem',
 		});
