@@ -1348,7 +1348,7 @@ actor {
 	let backupManager = Backup.BackupManager(backupState);
 
 	type BackupChunk = {
-		#v3 : {
+		#v4 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
@@ -1375,20 +1375,20 @@ actor {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v3");
+		let backup = backupManager.NewBackup("v4");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v3(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v3(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v4(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -1398,7 +1398,7 @@ actor {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v3(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v4(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
