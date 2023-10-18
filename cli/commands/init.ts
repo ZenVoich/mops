@@ -174,15 +174,22 @@ async function applyInit({type, config, setupWorkflow, addTest, copyrightOwner} 
 	let dfxJsonData;
 	if (existsSync(dfxJson)) {
 		let dfxJsonText = readFileSync(dfxJson).toString();
-		dfxJsonData = JSON.parse(dfxJsonText);
-		console.log('Setting packtool in dfx.json...');
-		dfxJsonData.defaults = dfxJsonData.defaults || {};
-		dfxJsonData.defaults.build = dfxJsonData.defaults.build || {};
-		if (dfxJsonData.defaults.build.packtool !== 'mops sources') {
-			dfxJsonData.defaults.build.packtool = 'mops sources';
-			let indent = dfxJsonText.match(/([ \t]+)"/)?.[1] || '  ';
-			writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
-			console.log(chalk.green('packtool set to "mops sources"'));
+		try {
+			dfxJsonData = JSON.parse(dfxJsonText);
+		}
+		catch (err) {
+			console.log(chalk.yellow('Failed to parse dfx.json'));
+		}
+		if (dfxJsonData) {
+			console.log('Setting packtool in dfx.json...');
+			dfxJsonData.defaults = dfxJsonData.defaults || {};
+			dfxJsonData.defaults.build = dfxJsonData.defaults.build || {};
+			if (dfxJsonData.defaults.build.packtool !== 'mops sources') {
+				dfxJsonData.defaults.build.packtool = 'mops sources';
+				let indent = dfxJsonText.match(/([ \t]+)"/)?.[1] || '  ';
+				writeFileSync(path.join(process.cwd(), 'dfx.json'), JSON.stringify(dfxJsonData, null, indent));
+				console.log(chalk.green('packtool set to "mops sources"'));
+			}
 		}
 	}
 

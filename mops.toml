@@ -1,11 +1,13 @@
 [dependencies]
 base = "0.9.4"
 time-consts = "1.0.0"
-chronosphere = "https://github.com/enzoh/chronosphere#master"
 map = "8.1.0"
 ic = "0.2.0"
 backup = "1.1.0"
 sha2 = "0.0.4"
+http-types = "1.0.0"
+datetime = "0.1.0"
+chronosphere = "https://github.com/enzoh/chronosphere#master" # temp
 
 [dev-dependencies]
 test = "1.0.0"

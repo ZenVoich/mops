@@ -24,6 +24,7 @@ import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
+import {transferOwnership} from './commands/transfer-ownership.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -315,6 +316,14 @@ program
 	.description('Update dependencies specified in mops.toml')
 	.action(async (pkg) => {
 		await update(pkg);
+	});
+
+// transfer-ownership
+program
+	.command('transfer-ownership [to-principal]')
+	.description('Transfer ownership of the current package to another principal')
+	.action(async (toPrincipal) => {
+		await transferOwnership(toPrincipal);
 	});
 
 program.parse();
