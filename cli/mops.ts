@@ -121,7 +121,7 @@ export let getIdentity = async (): Promise<Identity | undefined> => {
 	let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 	if (fs.existsSync(identityPemEncrypted)) {
 		let res = await prompts({
-			type: 'password',
+			type: 'invisible',
 			name: 'value',
 			message: 'Enter password:'
 		});

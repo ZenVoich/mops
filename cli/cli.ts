@@ -135,8 +135,9 @@ program
 program
 	.command('import-identity <data>')
 	.description('Import .pem file data to use as identity')
-	.action(async (data) => {
-		await importPem(data);
+	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
+	.action(async (data, options) => {
+		await importPem(data, options);
 		await whoami();
 	});
 
