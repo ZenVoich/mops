@@ -1,5 +1,5 @@
 [dependencies]
-base = "0.9.4"
+base = "0.10.0"
 time-consts = "1.0.0"
 map = "8.1.0"
 ic = "0.2.0"
