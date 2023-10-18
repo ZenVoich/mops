@@ -908,16 +908,33 @@ actor {
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
-	public shared ({caller}) func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
-		let packageId = name # "@" # version;
+	func _getFileHashes(packageId : PackageId) : Result.Result<[(FileId, Blob)], Err> {
 		let ?fileIds = fileIdsByPackage.get(packageId) else return #err("Package '" # packageId # "' not found");
-
 		let buf = Buffer.Buffer<(FileId, Blob)>(fileIds.size());
 		for (fileId in fileIds.vals()) {
 			let ?hash = hashByFileId.get(fileId) else return #err("File hash not found for " # fileId);
 			buf.add((fileId, hash));
 		};
 		#ok(Buffer.toArray(buf));
+	};
+
+	public shared ({caller}) func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
+		let packageId = name # "@" # version;
+		_getFileHashes(packageId);
+	};
+
+	public shared ({caller}) func getFileHashesByPackageIds(packageIds : [PackageId]) : async [(PackageId, [(FileId, Blob)])] {
+		let buf = Buffer.Buffer<(PackageId, [(FileId, Blob)])>(packageIds.size());
+
+		for (packageId in packageIds.vals()) {
+			let hashes = switch (_getFileHashes(packageId)) {
+				case (#ok(hashes)) hashes;
+				case (#err(_)) [];
+			};
+			buf.add((packageId, hashes));
+		};
+
+		Buffer.toArray(buf);
 	};
 
 	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {

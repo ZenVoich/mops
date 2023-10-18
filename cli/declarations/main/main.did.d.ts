@@ -173,6 +173,8 @@ export type Result_6 = { 'ok' : Array<[PackageName, PackageVersion]> } |
   { 'err' : Err };
 export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
+export type Result_8 = { 'ok' : Array<[FileId, Uint8Array | number[]]> } |
+  { 'err' : Err };
 export interface Script { 'value' : string, 'name' : string }
 export type SemverPart = { 'major' : null } |
   { 'minor' : null } |
@@ -250,6 +252,11 @@ export interface _SERVICE {
   'getDownloadTrendByPackageName' : ActorMethod<
     [PackageName],
     Array<DownloadsSnapshot__1>
+  >,
+  'getFileHashes' : ActorMethod<[PackageName, PackageVersion], Result_8>,
+  'getFileHashesByPackageIds' : ActorMethod<
+    [Array<PackageId>],
+    Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
   'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
