@@ -239,6 +239,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
+    'computeHashesForExistingFiles' : IDL.Func([], [], []),
     'diff' : IDL.Func([IDL.Text, IDL.Text], [PackageChanges__1], ['query']),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),

@@ -304,6 +304,7 @@ type DepChange =
 service : {
   backup: () -> ();
   claimAirdrop: (principal) -> (text);
+  computeHashesForExistingFiles: () -> ();
   diff: (text, text) -> (PackageChanges__1) query;
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;

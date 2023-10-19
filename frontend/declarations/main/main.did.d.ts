@@ -235,6 +235,7 @@ export interface User__1 {
 export interface _SERVICE {
   'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
+  'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
   'diff' : ActorMethod<[string, string], PackageChanges__1>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
