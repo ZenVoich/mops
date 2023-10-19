@@ -746,6 +746,26 @@ actor {
 		Buffer.toArray(buf);
 	};
 
+	public shared ({caller}) func computeHashesForExistingFiles() : async () {
+		assert(Utils.isAdmin(caller));
+
+		for ((packageId, fileIds) in fileIdsByPackage.entries()) {
+			let ?publication = packagePublications.get(packageId) else Debug.trap("Package publication '" # packageId # "' not found");
+			let storage = actor(Principal.toText(publication.storage)) : Storage.Storage;
+
+			for (fileId in fileIds.vals()) {
+				let #ok(fileMeta) = await storage.getFileMeta(fileId) else Debug.trap("File meta '" # fileId # "' not found");
+
+				let hasher = Sha256.Digest(#sha256);
+				for (i in Iter.range(1, fileMeta.chunkCount)) {
+					let #ok(chunk) = await storage.downloadChunk(fileId, i) else Debug.trap("File chunk '" # fileId # "' not found");
+					hasher.writeBlob(chunk);
+				};
+				hashByFileId.put(fileId, hasher.sum());
+			};
+		};
+	};
+
 	// AIRDROP
 	let cyclesPerOwner = 15_000_000_000_000; // 15 TC
 	let cyclesPerPackage = 1_000_000_000_000; // 1 TC
