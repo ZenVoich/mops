@@ -28,15 +28,28 @@ let globConfig = {
 };
 
 type BenchOptions = {
-	verbose?: boolean,
-	save?: boolean,
-	compare?: boolean,
 	dfx?: string,
 	moc?: string,
-	gc?: 'copying' | 'compacting' | 'generational' | 'incremental' | 'none',
+	gc?: 'copying' | 'compacting' | 'generational' | 'incremental',
+	forceGc?: boolean,
+	save?: boolean,
+	compare?: boolean,
+	verbose?: boolean,
 };
 
 export async function bench(filter = '', options: BenchOptions = {}): Promise<boolean> {
+	let defaultOptions: BenchOptions = {
+		moc: getMocVersion(),
+		dfx: getDfxVersion(),
+		gc: 'incremental',
+		forceGc: true,
+		save: false,
+		compare: false,
+		verbose: false,
+	};
+
+	options = {...defaultOptions, ...options};
+
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
 	if (filter) {
@@ -49,7 +62,7 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 			return false;
 		}
 		console.log('No *.bench.mo files found');
-		console.log('Put your benchmark files in \'bench\' directory in *.bench.mo files');
+		console.log('Put your benchmark code in \'bench\' directory in *.bench.mo files');
 		return false;
 	}
 
@@ -65,11 +78,10 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	}
 	console.log('');
 	console.log('='.repeat(50));
+	console.log('');
 
 	console.log('Starting dfx replica...');
 	startDfx(options.verbose);
-
-	let resultsByName = new Map<string, Map<string, BenchResult>>();
 
 	// await parallel(os.cpus().length, files, async (file: string) => {
 	await parallel(1, files, async (file: string) => {
@@ -77,8 +89,7 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 		console.log('');
 		try {
-			let {schema, results} = await runBenchFile(file, options);
-			resultsByName.set(schema.name || absToRel(file), results);
+			await runBenchFile(file, options);
 		}
 		catch (err) {
 			console.error('Unexpected error. Stopping dfx replica...');
@@ -86,28 +97,6 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 			throw err;
 		}
 	});
-
-	if (options.save) {
-		console.log('Saving results to mops.bench.json...');
-		let json: Record<any, any> = {
-			version: 1,
-			moc: options.moc || getMocVersion(),
-			dfx: options.dfx || getDfxVersion(),
-			gc: options.gc || 'incremental',
-			results: {},
-		};
-		resultsByName.forEach((results, name) => {
-			json.results[name] = Array.from(results.entries());
-		});
-		fs.writeFileSync(path.join(rootDir, 'mops.bench.json'), JSON.stringify(json, (_, val) => {
-			if (typeof val === 'bigint') {
-				return Number(val);
-			}
-			else {
-				return val;
-			}
-		}, 2));
-	}
 
 	console.log('Stopping dfx replica...');
 	stopDfx(options.verbose);
@@ -117,14 +106,22 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	return true;
 }
 
-function dfxJson(canisterName: string) {
+function dfxJson(canisterName: string, options: BenchOptions = {}) {
+	let args = '';
+	if (options.forceGc) {
+		args += ' --force-gc';
+	}
+	if (options.gc) {
+		args += ` --${options.gc}-gc`;
+	}
+
 	return {
 		version: 1,
 		canisters: {
 			[canisterName]: {
 				type: 'motoko',
 				main: 'canister.mo',
-				args: '--force-gc --incremental-gc',
+				args: args,
 			}
 		},
 		defaults: {
@@ -145,12 +142,12 @@ function startDfx(verbose = false) {
 	stopDfx(verbose);
 	let dir = path.join(getRootDir(), '.mops/.bench');
 	fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(dfxJson(''), null, 2));
-	execSync('dfx start --background --clean', {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
+	execSync('dfx start --background --clean' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
 }
 
 function stopDfx(verbose = false) {
 	let dir = path.join(getRootDir(), '.mops/.bench');
-	execSync('dfx stop', {cwd: dir, stdio: ['pipe', verbose ? 'inherit' : 'ignore', 'pipe']});
+	execSync('dfx stop' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', verbose ? 'inherit' : 'ignore', 'pipe']});
 }
 
 type RunBenchFileResult = {
@@ -166,7 +163,7 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 	let canisterName = Date.now().toString(36);
 
 	// prepare temp files
-	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName), null, 2));
+	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName, options), null, 2));
 	fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
 	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
 
@@ -184,13 +181,14 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 
 	// load previous results
 	let prevResults: Map<string, BenchResult> | undefined;
+	let resultsJsonFile = path.join(rootDir, '.bench', `${path.parse(file).name}.json`);
 	if (options.compare) {
-		let prevResultsJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'mops.bench.json')).toString());
-		if (prevResultsJson.results[schema.name]) {
-			prevResults = new Map(prevResultsJson.results[schema.name]);
+		if (fs.existsSync(resultsJsonFile)) {
+			let prevResultsJson = JSON.parse(fs.readFileSync(resultsJsonFile).toString());
+			prevResults = new Map(prevResultsJson.results);
 		}
 		else {
-			console.log(chalk.yellow(`No previous results found for benchmark with name "${schema.name}"`));
+			console.log(chalk.yellow(`No previous results found "${resultsJsonFile}"`));
 		}
 	}
 
@@ -253,13 +251,34 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 	// run all cells
 	for (let [rowIndex, row] of schema.rows.entries()) {
 		for (let [colIndex, col] of schema.cols.entries()) {
-			// let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
-			let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
+			let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
+			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
 			printResults();
 		}
 	}
 	logUpdate.done();
+
+	// save results
+	if (options.save) {
+		console.log(`Saving results to ${chalk.gray(absToRel(resultsJsonFile))}`);
+		let json: Record<any, any> = {
+			version: 1,
+			moc: options.moc,
+			dfx: options.dfx,
+			gc: options.gc,
+			results: Array.from(results.entries()),
+		};
+		fs.mkdirSync(path.dirname(resultsJsonFile), {recursive: true});
+		fs.writeFileSync(resultsJsonFile, JSON.stringify(json, (_, val) => {
+			if (typeof val === 'bigint') {
+				return Number(val);
+			}
+			else {
+				return val;
+			}
+		}, 2));
+	}
 
 	return {schema, results};
 }
