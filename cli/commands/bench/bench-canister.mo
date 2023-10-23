@@ -16,6 +16,11 @@ actor class() {
 		bench.getSchema();
 	};
 
+	public query func getSchema() : async Bench.BenchSchema {
+		let ?bench = benchOpt else Debug.trap("bench not initialized");
+		bench.getSchema();
+	};
+
 	func _getStats() : Bench.BenchResult {
 		{
 			instructions = 0;
@@ -81,5 +86,9 @@ actor class() {
 
 	public func runCellUpdate(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
 		await _runCellAwait(rowIndex, colIndex);
+	};
+
+	public func runCellUpdateAwait(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
+		_runCell(rowIndex, colIndex);
 	};
 };

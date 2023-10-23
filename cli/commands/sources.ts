@@ -4,7 +4,7 @@ import {checkConfigFile, formatDir, formatGithubDir, getDependencyType, readConf
 import {resolvePackages} from '../resolve-packages.js';
 
 // TODO: resolve conflicts
-export async function sources({verbose = false} = {}) {
+export async function sources({verbose = false, cwd = process.cwd()} = {}) {
 	if (!checkConfigFile()) {
 		return [];
 	}
@@ -17,13 +17,13 @@ export async function sources({verbose = false} = {}) {
 
 		let pkgDir;
 		if (depType === 'local') {
-			pkgDir = path.relative(process.cwd(), version);
+			pkgDir = path.relative(cwd, version);
 		}
 		else if (depType === 'github') {
-			pkgDir = path.relative(process.cwd(), formatGithubDir(name, version));
+			pkgDir = path.relative(cwd, formatGithubDir(name, version));
 		}
 		else if (depType === 'mops') {
-			pkgDir = path.relative(process.cwd(), formatDir(name, version));
+			pkgDir = path.relative(cwd, formatDir(name, version));
 		}
 		else {
 			return;

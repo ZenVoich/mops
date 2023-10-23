@@ -1,7 +1,7 @@
 import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
-// import os from 'node:os';
+import os from 'node:os';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import {markdownTable} from 'markdown-table';
@@ -14,6 +14,9 @@ import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.di
 import {absToRel} from './test/utils.js';
 import {getMocVersion} from '../helpers/get-moc-version.js';
 import {getDfxVersion} from '../helpers/get-dfx-version.js';
+import {getMocPath} from '../helpers/get-moc-path.js';
+import {sources} from './sources.js';
+import {execaCommand} from 'execa';
 
 let ignore = [
 	'**/node_modules/**',
@@ -50,6 +53,8 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 
 	options = {...defaultOptions, ...options};
 
+	console.log(options);
+
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
 	if (filter) {
@@ -83,7 +88,11 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	console.log('Starting dfx replica...');
 	startDfx(options.verbose);
 
-	// await parallel(os.cpus().length, files, async (file: string) => {
+	console.log('Deploying canisters...');
+	await parallel(os.cpus().length, files, async (file: string) => {
+		await deployBenchFile(file, options);
+	});
+
 	await parallel(1, files, async (file: string) => {
 		console.log('\n' + '—'.repeat(50));
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
@@ -106,7 +115,7 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	return true;
 }
 
-function dfxJson(canisterName: string, options: BenchOptions = {}) {
+function getMocArgs(options: BenchOptions): string {
 	let args = '';
 	if (options.forceGc) {
 		args += ' --force-gc';
@@ -114,16 +123,24 @@ function dfxJson(canisterName: string, options: BenchOptions = {}) {
 	if (options.gc) {
 		args += ` --${options.gc}-gc`;
 	}
+	return args;
+}
+
+function dfxJson(canisterName: string, options: BenchOptions = {}) {
+	options || console.log(options);
+
+	let canisters: Record<string, any> = {};
+	if (canisterName) {
+		canisters[canisterName] = {
+			type: 'custom',
+			wasm: 'canister.wasm',
+			candid: 'canister.did',
+		};
+	}
 
 	return {
 		version: 1,
-		canisters: {
-			[canisterName]: {
-				type: 'motoko',
-				main: 'canister.mo',
-				args: args,
-			}
-		},
+		canisters,
 		defaults: {
 			build: {
 				packtool: 'mops sources',
@@ -150,6 +167,41 @@ function stopDfx(verbose = false) {
 	execSync('dfx stop' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', verbose ? 'inherit' : 'ignore', 'pipe']});
 }
 
+async function deployBenchFile(file: string, options: BenchOptions = {}): Promise<void> {
+	let rootDir = getRootDir();
+	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
+	let canisterName = path.parse(file).name;
+
+	// prepare temp files
+	fs.mkdirSync(tempDir, {recursive: true});
+	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName, options), null, 2));
+	fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
+	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
+
+	// build canister
+	let mocPath = getMocPath();
+	let mocArgs = getMocArgs(options);
+	options.verbose && console.time(`build ${canisterName}`);
+	await execaCommand(`${mocPath} -c --idl canister.mo ${mocArgs} ${(await sources({cwd: tempDir})).join(' ')}`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	options.verbose && console.timeEnd(`build ${canisterName}`);
+
+	// deploy canister
+	options.verbose && console.time(`deploy ${canisterName}`);
+	await execaCommand(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	options.verbose && console.timeEnd(`deploy ${canisterName}`);
+
+	// init bench
+	options.verbose && console.time(`init ${canisterName}`);
+	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
+	let actor: _SERVICE = await createActor(canisterId, {
+		agentOptions: {
+			host: 'http://127.0.0.1:4947',
+		},
+	});
+	await actor.init();
+	options.verbose && console.timeEnd(`init ${canisterName}`);
+}
+
 type RunBenchFileResult = {
 	schema: BenchSchema,
 	results: Map<string, BenchResult>,
@@ -158,17 +210,7 @@ type RunBenchFileResult = {
 async function runBenchFile(file: string, options: BenchOptions = {}): Promise<RunBenchFileResult> {
 	let rootDir = getRootDir();
 	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
-	fs.mkdirSync(tempDir, {recursive: true});
-
-	let canisterName = Date.now().toString(36);
-
-	// prepare temp files
-	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName, options), null, 2));
-	fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
-	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
-
-	// deploy canister
-	execSync(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	let canisterName = path.parse(file).name;
 
 	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
 	let actor: _SERVICE = await createActor(canisterId, {
@@ -177,7 +219,7 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 		},
 	});
 
-	let schema = await actor.init();
+	let schema = await actor.getSchema();
 
 	// load previous results
 	let prevResults: Map<string, BenchResult> | undefined;
@@ -253,6 +295,7 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 		for (let [colIndex, col] of schema.cols.entries()) {
 			let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
 			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
+			// let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
 			printResults();
 		}
@@ -267,6 +310,7 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 			moc: options.moc,
 			dfx: options.dfx,
 			gc: options.gc,
+			forceGc: options.forceGc,
 			results: Array.from(results.entries()),
 		};
 		fs.mkdirSync(path.dirname(resultsJsonFile), {recursive: true});

@@ -204,6 +204,8 @@ program
 	.addOption(new Option('--verbose', 'Show more information'))
 	.addOption(new Option('--save', 'Save benchmark results to mops.bench.json'))
 	.addOption(new Option('--compare', 'Run benchmark and compare results with mops.bench.json'))
+	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('incremental'))
+	.addOption(new Option('--force-gc', 'Force GC'))
 	.action(async (filter, options) => {
 		await bench(filter, options);
 	});

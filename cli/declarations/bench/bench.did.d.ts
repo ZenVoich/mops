@@ -16,9 +16,11 @@ export interface BenchSchema {
   'description' : string,
 }
 export interface anon_class_10_1 {
+  'getSchema' : ActorMethod<[], BenchSchema>,
   'getStats' : ActorMethod<[], BenchResult>,
   'init' : ActorMethod<[], BenchSchema>,
   'runCellQuery' : ActorMethod<[bigint, bigint], BenchResult>,
   'runCellUpdate' : ActorMethod<[bigint, bigint], BenchResult>,
+  'runCellUpdateAwait' : ActorMethod<[bigint, bigint], BenchResult>,
 }
 export interface _SERVICE extends anon_class_10_1 {}

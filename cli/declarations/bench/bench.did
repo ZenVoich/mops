@@ -1,9 +1,11 @@
 type anon_class_10_1 = 
  service {
+   getSchema: () -> (BenchSchema) query;
    getStats: () -> (BenchResult) query;
    init: () -> (BenchSchema);
    runCellQuery: (nat, nat) -> (BenchResult) query;
    runCellUpdate: (nat, nat) -> (BenchResult);
+   runCellUpdateAwait: (nat, nat) -> (BenchResult);
  };
 type BenchSchema = 
  record {
