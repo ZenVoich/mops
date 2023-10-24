@@ -23,7 +23,7 @@ module {
 				for (i in Iter.range(1, n)) {
 					vec.add(i);
 				};
-				bench.heap.add(vec);
+				// bench.heap.add(vec);
 			}
 			// Buffer
 			else if (row == "Buffer") {
@@ -31,7 +31,7 @@ module {
 				for (i in Iter.range(1, n)) {
 					buf.add(i);
 				};
-				bench.heap.add(buf);
+				// bench.heap.add(buf);
 			};
 		});
 

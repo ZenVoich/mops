@@ -6,11 +6,6 @@ import Prim "mo:prim";
 module {
 	let VERSION = 1;
 
-	public type BenchMode = {
-		#replica;
-		#wasi;
-	};
-
 	public type BenchSchema = {
 		name : Text;
 		description : Text;
@@ -27,7 +22,7 @@ module {
 		rts_total_allocation : Int;
 	};
 
-	public class BenchHeap() {
+	class BenchHeap() {
 		type List = {
 			value : Any;
 			var next : ?List;
@@ -54,7 +49,7 @@ module {
 		var _cols = Buffer.Buffer<Text>(0);
 		var _runner = func(row : Text, col : Text) {};
 
-		public let heap : BenchHeap = BenchHeap();
+		// public let heap : BenchHeap = BenchHeap();
 
 		public func name(value : Text) {
 			_name := value;

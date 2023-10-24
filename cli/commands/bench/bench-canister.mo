@@ -32,48 +32,41 @@ actor class() {
 		}
 	};
 
+	func _diffStats(before : Bench.BenchResult, after : Bench.BenchResult) : Bench.BenchResult {
+		{
+			instructions = after.instructions - before.instructions;
+			rts_heap_size = after.rts_heap_size - before.rts_heap_size;
+			rts_memory_size = after.rts_memory_size - before.rts_memory_size;
+			rts_total_allocation = after.rts_total_allocation - before.rts_total_allocation;
+			rts_mutator_instructions = after.rts_mutator_instructions - before.rts_mutator_instructions;
+			rts_collector_instructions = after.rts_collector_instructions - before.rts_collector_instructions;
+		}
+	};
+
 	func _runCell(rowIndex : Nat, colIndex : Nat) : Bench.BenchResult {
 		let ?bench = benchOpt else Debug.trap("bench not initialized");
 		let statsBefore = _getStats();
 
-		let instructions = ExperimentalInternetComputer.countInstructions(func() {
+		let instructions = Nat64.toNat(ExperimentalInternetComputer.countInstructions(func() {
 			bench.runCell(rowIndex, colIndex);
-		});
-
-		// await (func() : async () {})();
+		}));
 
 		let statsAfter = _getStats();
-
-		{
-			instructions = Nat64.toNat(instructions);
-			rts_heap_size = statsAfter.rts_heap_size - statsBefore.rts_heap_size;
-			rts_memory_size = statsAfter.rts_memory_size - statsBefore.rts_memory_size;
-			rts_total_allocation = statsAfter.rts_total_allocation - statsBefore.rts_total_allocation;
-			rts_mutator_instructions = statsAfter.rts_mutator_instructions - statsBefore.rts_mutator_instructions;
-			rts_collector_instructions = statsAfter.rts_collector_instructions - statsBefore.rts_collector_instructions;
-		}
+		_diffStats(statsBefore, { statsAfter with instructions });
 	};
 
 	func _runCellAwait(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
 		let ?bench = benchOpt else Debug.trap("bench not initialized");
 		let statsBefore = _getStats();
 
-		let instructions = ExperimentalInternetComputer.countInstructions(func() {
+		let instructions = Nat64.toNat(ExperimentalInternetComputer.countInstructions(func() {
 			bench.runCell(rowIndex, colIndex);
-		});
+		}));
 
 		await (func() : async () {})();
 
 		let statsAfter = _getStats();
-
-		{
-			instructions = Nat64.toNat(instructions);
-			rts_heap_size = statsAfter.rts_heap_size - statsBefore.rts_heap_size;
-			rts_memory_size = statsAfter.rts_memory_size - statsBefore.rts_memory_size;
-			rts_total_allocation = statsAfter.rts_total_allocation - statsBefore.rts_total_allocation;
-			rts_mutator_instructions = statsAfter.rts_mutator_instructions - statsBefore.rts_mutator_instructions;
-			rts_collector_instructions = statsAfter.rts_collector_instructions - statsBefore.rts_collector_instructions;
-		}
+		_diffStats(statsBefore, { statsAfter with instructions });
 	};
 
 	public query func getStats() : async Bench.BenchResult {
@@ -85,10 +78,10 @@ actor class() {
 	};
 
 	public func runCellUpdate(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
-		await _runCellAwait(rowIndex, colIndex);
+		_runCell(rowIndex, colIndex);
 	};
 
 	public func runCellUpdateAwait(rowIndex : Nat, colIndex : Nat) : async Bench.BenchResult {
-		_runCell(rowIndex, colIndex);
+		await _runCellAwait(rowIndex, colIndex);
 	};
 };

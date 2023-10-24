@@ -53,7 +53,7 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 
 	options = {...defaultOptions, ...options};
 
-	console.log(options);
+	options.verbose && console.log(options);
 
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
@@ -90,7 +90,14 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 
 	console.log('Deploying canisters...');
 	await parallel(os.cpus().length, files, async (file: string) => {
-		await deployBenchFile(file, options);
+		try {
+			await deployBenchFile(file, options);
+		}
+		catch (err) {
+			console.error('Unexpected error. Stopping dfx replica...');
+			stopDfx(options.verbose);
+			throw err;
+		}
 	});
 
 	await parallel(1, files, async (file: string) => {
@@ -149,7 +156,7 @@ function dfxJson(canisterName: string, options: BenchOptions = {}) {
 		networks: {
 			local: {
 				type: 'ephemeral',
-				bind: '127.0.0.1:4947',
+				bind: '127.0.0.1:4944',
 			},
 		},
 	};
@@ -195,7 +202,7 @@ async function deployBenchFile(file: string, options: BenchOptions = {}): Promis
 	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
 	let actor: _SERVICE = await createActor(canisterId, {
 		agentOptions: {
-			host: 'http://127.0.0.1:4947',
+			host: 'http://127.0.0.1:4944',
 		},
 	});
 	await actor.init();
@@ -215,7 +222,7 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
 	let actor: _SERVICE = await createActor(canisterId, {
 		agentOptions: {
-			host: 'http://127.0.0.1:4947',
+			host: 'http://127.0.0.1:4944',
 		},
 	});
 
@@ -293,9 +300,9 @@ async function runBenchFile(file: string, options: BenchOptions = {}): Promise<R
 	// run all cells
 	for (let [rowIndex, row] of schema.rows.entries()) {
 		for (let [colIndex, col] of schema.cols.entries()) {
-			let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
+			// let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
 			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
-			// let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
+			let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
 			printResults();
 		}

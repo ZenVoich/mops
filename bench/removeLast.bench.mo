@@ -21,14 +21,14 @@ module {
 		for (i in Iter.range(1, initN)) {
 			vec.add(i);
 		};
-		bench.heap.add(vec);
+		// bench.heap.add(vec);
 
 		// init Buffer
 		let buf = Buffer.Buffer<Nat>(0);
 		for (i in Iter.range(1, initN)) {
 			buf.add(i);
 		};
-		bench.heap.add(buf);
+		// bench.heap.add(buf);
 
 		bench.runner(func(row, col) {
 			// Vector
