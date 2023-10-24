@@ -34,6 +34,9 @@ jobs:
         uses: actions/cache@v3
         with:
           key: mops-packages-${{ hashFiles('mops.toml') }}
+          restore-keys: |
+            mops-packages-${{ hashFiles('mops.toml') }}
+            mops-packages-
           path: |
             ~/.cache/mops
 
