@@ -1,7 +1,7 @@
 import path from 'node:path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {checkConfigFile, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
+import {checkConfigFile, getGithubCommit, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
@@ -36,11 +36,20 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 	}
 	// github package
 	else if (name.startsWith('https://github.com') || name.split('/').length > 1) {
-		const {org, gitName, branch} = parseGithubURL(name);
+		let {org, gitName, branch, commitHash} = parseGithubURL(name);
+
+		// fetch latest commit hash of branch if not specified
+		if (!commitHash) {
+			let commit = await getGithubCommit(`${org}/${gitName}`, branch);
+			if (!commit.sha) {
+				throw Error(`Could not find commit hash for ${name}`);
+			}
+			commitHash = commit.sha;
+		}
 
 		pkgDetails = {
 			name: parseGithubURL(name).gitName,
-			repo: `https://github.com/${org}/${gitName}#${branch}`,
+			repo: `https://github.com/${org}/${gitName}#${branch}@${commitHash}`,
 			version: '',
 		};
 	}

@@ -7,7 +7,7 @@ export interface DepChange {
   'newVersion' : string,
 }
 export interface DependencyV2 {
-  'name' : PackageName,
+  'name' : PackageName__1,
   'repo' : string,
   'version' : string,
 }
@@ -23,6 +23,7 @@ export interface DownloadsSnapshot__1 {
 }
 export type Err = string;
 export type FileId = string;
+export type Header = [string, string];
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
@@ -41,7 +42,7 @@ export interface PackageConfigV2 {
   'scripts' : Array<Script>,
   'baseDir' : string,
   'documentation' : string,
-  'name' : PackageName,
+  'name' : PackageName__1,
   'homepage' : string,
   'description' : string,
   'version' : string,
@@ -59,7 +60,7 @@ export interface PackageConfigV2__1 {
   'scripts' : Array<Script>,
   'baseDir' : string,
   'documentation' : string,
-  'name' : PackageName,
+  'name' : PackageName__1,
   'homepage' : string,
   'description' : string,
   'version' : string,
@@ -142,19 +143,33 @@ export type PackageVersion = string;
 export type PageCount = bigint;
 export type PublishingErr = string;
 export type PublishingId = string;
+export interface Request {
+  'url' : string,
+  'method' : string,
+  'body' : Uint8Array | number[],
+  'headers' : Array<Header>,
+  'certificate_version' : [] | [number],
+}
+export interface Response {
+  'body' : Uint8Array | number[],
+  'headers' : Array<Header>,
+  'upgrade' : [] | [boolean],
+  'streaming_strategy' : [] | [StreamingStrategy],
+  'status_code' : number,
+}
 export type Result = { 'ok' : null } |
   { 'err' : Err };
-export type Result_1 = { 'ok' : PublishingId } |
-  { 'err' : PublishingErr };
-export type Result_2 = { 'ok' : FileId } |
-  { 'err' : Err };
-export type Result_3 = { 'ok' : null } |
+export type Result_1 = { 'ok' : null } |
   { 'err' : string };
+export type Result_2 = { 'ok' : PublishingId } |
+  { 'err' : PublishingErr };
+export type Result_3 = { 'ok' : FileId } |
+  { 'err' : Err };
 export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
 export type Result_5 = { 'ok' : PackageVersion } |
   { 'err' : Err };
-export type Result_6 = { 'ok' : Array<[PackageName__1, PackageVersion]> } |
+export type Result_6 = { 'ok' : Array<[PackageName, PackageVersion]> } |
   { 'err' : Err };
 export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
@@ -168,6 +183,18 @@ export interface StorageStats {
   'cyclesBalance' : bigint,
   'memorySize' : bigint,
 }
+export type StreamingCallback = ActorMethod<
+  [StreamingToken],
+  [] | [StreamingCallbackResponse]
+>;
+export interface StreamingCallbackResponse {
+  'token' : [] | [StreamingToken],
+  'body' : Uint8Array | number[],
+}
+export type StreamingStrategy = {
+    'Callback' : { 'token' : StreamingToken, 'callback' : StreamingCallback }
+  };
+export type StreamingToken = Uint8Array | number[];
 export interface TestStats { 'passedNames' : Array<string>, 'passed' : bigint }
 export interface TestStats__1 {
   'passedNames' : Array<string>,
@@ -214,26 +241,26 @@ export interface _SERVICE {
   'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName__1, PackageVersion]>
+    Array<[PackageName, PackageVersion]>
   >,
   'getDownloadTrendByPackageId' : ActorMethod<
     [PackageId],
     Array<DownloadsSnapshot__1>
   >,
   'getDownloadTrendByPackageName' : ActorMethod<
-    [PackageName__1],
+    [PackageName],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion], Result_7>,
+  'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
-    [Array<[PackageName__1, PackageVersion, SemverPart]>],
+    [Array<[PackageName, PackageVersion, SemverPart]>],
     Result_6
   >,
-  'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
+  'getHighestVersion' : ActorMethod<[PackageName], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName__1, PackageVersion], Result_4>,
+  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion], Result_4>,
   'getPackagesByCategory' : ActorMethod<
     [],
     Array<[string, Array<PackageSummary>]>
@@ -246,9 +273,10 @@ export interface _SERVICE {
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
-  'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion], undefined>,
+  'http_request' : ActorMethod<[Request], Response>,
+  'notifyInstall' : ActorMethod<[PackageName, PackageVersion], undefined>,
   'notifyInstalls' : ActorMethod<
-    [Array<[PackageName__1, PackageVersion]>],
+    [Array<[PackageName, PackageVersion]>],
     undefined
   >,
   'restore' : ActorMethod<[bigint, bigint], undefined>,
@@ -256,13 +284,14 @@ export interface _SERVICE {
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]
   >,
-  'setUserProp' : ActorMethod<[string, string], Result_3>,
+  'setUserProp' : ActorMethod<[string, string], Result_1>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array | number[]],
-    Result_2
+    Result_3
   >,
-  'startPublish' : ActorMethod<[PackageConfigV2], Result_1>,
+  'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
   'takeAirdropSnapshot' : ActorMethod<[], undefined>,
+  'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result

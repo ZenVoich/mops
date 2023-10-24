@@ -18,7 +18,7 @@ export const idlFactory = ({ IDL }) => {
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
   const Text = IDL.Text;
-  const PackageName__1 = IDL.Text;
+  const PackageName = IDL.Text;
   const PackageVersion = IDL.Text;
   const PackageId = IDL.Text;
   const Time = IDL.Int;
@@ -35,7 +35,7 @@ export const idlFactory = ({ IDL }) => {
     'patch' : IDL.Null,
   });
   const Result_6 = IDL.Variant({
-    'ok' : IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion)),
+    'ok' : IDL.Vec(IDL.Tuple(PackageName, PackageVersion)),
     'err' : Err,
   });
   const Result_5 = IDL.Variant({ 'ok' : PackageVersion, 'err' : Err });
@@ -52,9 +52,9 @@ export const idlFactory = ({ IDL }) => {
     'github' : IDL.Text,
   });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
-  const PackageName = IDL.Text;
+  const PackageName__1 = IDL.Text;
   const DependencyV2 = IDL.Record({
-    'name' : PackageName,
+    'name' : PackageName__1,
     'repo' : IDL.Text,
     'version' : IDL.Text,
   });
@@ -64,7 +64,7 @@ export const idlFactory = ({ IDL }) => {
     'scripts' : IDL.Vec(Script),
     'baseDir' : IDL.Text,
     'documentation' : IDL.Text,
-    'name' : PackageName,
+    'name' : PackageName__1,
     'homepage' : IDL.Text,
     'description' : IDL.Text,
     'version' : IDL.Text,
@@ -174,16 +174,47 @@ export const idlFactory = ({ IDL }) => {
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
   });
+  const Header = IDL.Tuple(IDL.Text, IDL.Text);
+  const Request = IDL.Record({
+    'url' : IDL.Text,
+    'method' : IDL.Text,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(Header),
+    'certificate_version' : IDL.Opt(IDL.Nat16),
+  });
+  const StreamingToken = IDL.Vec(IDL.Nat8);
+  const StreamingCallbackResponse = IDL.Record({
+    'token' : IDL.Opt(StreamingToken),
+    'body' : IDL.Vec(IDL.Nat8),
+  });
+  const StreamingCallback = IDL.Func(
+      [StreamingToken],
+      [IDL.Opt(StreamingCallbackResponse)],
+      ['query'],
+    );
+  const StreamingStrategy = IDL.Variant({
+    'Callback' : IDL.Record({
+      'token' : StreamingToken,
+      'callback' : StreamingCallback,
+    }),
+  });
+  const Response = IDL.Record({
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(Header),
+    'upgrade' : IDL.Opt(IDL.Bool),
+    'streaming_strategy' : IDL.Opt(StreamingStrategy),
+    'status_code' : IDL.Nat16,
+  });
   const PageCount = IDL.Nat;
-  const Result_3 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
-  const Result_2 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result_3 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
   const PackageConfigV2 = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
     'scripts' : IDL.Vec(Script),
     'baseDir' : IDL.Text,
     'documentation' : IDL.Text,
-    'name' : PackageName,
+    'name' : PackageName__1,
     'homepage' : IDL.Text,
     'description' : IDL.Text,
     'version' : IDL.Text,
@@ -196,7 +227,7 @@ export const idlFactory = ({ IDL }) => {
     'readme' : IDL.Text,
   });
   const PublishingErr = IDL.Text;
-  const Result_1 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
+  const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
@@ -212,7 +243,7 @@ export const idlFactory = ({ IDL }) => {
     'getBackupCanisterId' : IDL.Func([], [IDL.Principal], ['query']),
     'getDefaultPackages' : IDL.Func(
         [IDL.Text],
-        [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion))],
+        [IDL.Vec(IDL.Tuple(PackageName, PackageVersion))],
         ['query'],
       ),
     'getDownloadTrendByPackageId' : IDL.Func(
@@ -221,21 +252,21 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getDownloadTrendByPackageName' : IDL.Func(
-        [PackageName__1],
+        [PackageName],
         [IDL.Vec(DownloadsSnapshot__1)],
         ['query'],
       ),
     'getFileIds' : IDL.Func(
-        [PackageName__1, PackageVersion],
+        [PackageName, PackageVersion],
         [Result_7],
         ['query'],
       ),
     'getHighestSemverBatch' : IDL.Func(
-        [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion, SemverPart))],
+        [IDL.Vec(IDL.Tuple(PackageName, PackageVersion, SemverPart))],
         [Result_6],
         ['query'],
       ),
-    'getHighestVersion' : IDL.Func([PackageName__1], [Result_5], ['query']),
+    'getHighestVersion' : IDL.Func([PackageName], [Result_5], ['query']),
     'getMostDownloadedPackages' : IDL.Func(
         [],
         [IDL.Vec(PackageSummary)],
@@ -248,7 +279,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getNewPackages' : IDL.Func([], [IDL.Vec(PackageSummary)], ['query']),
     'getPackageDetails' : IDL.Func(
-        [PackageName__1, PackageVersion],
+        [PackageName, PackageVersion],
         [Result_4],
         ['query'],
       ),
@@ -270,13 +301,10 @@ export const idlFactory = ({ IDL }) => {
     'getTotalDownloads' : IDL.Func([], [IDL.Nat], ['query']),
     'getTotalPackages' : IDL.Func([], [IDL.Nat], ['query']),
     'getUser' : IDL.Func([IDL.Principal], [IDL.Opt(User__1)], ['query']),
-    'notifyInstall' : IDL.Func(
-        [PackageName__1, PackageVersion],
-        [],
-        ['oneway'],
-      ),
+    'http_request' : IDL.Func([Request], [Response], ['query']),
+    'notifyInstall' : IDL.Func([PackageName, PackageVersion], [], ['oneway']),
     'notifyInstalls' : IDL.Func(
-        [IDL.Vec(IDL.Tuple(PackageName__1, PackageVersion))],
+        [IDL.Vec(IDL.Tuple(PackageName, PackageVersion))],
         [],
         ['oneway'],
       ),
@@ -286,14 +314,19 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(PackageSummary), PageCount],
         ['query'],
       ),
-    'setUserProp' : IDL.Func([IDL.Text, IDL.Text], [Result_3], []),
+    'setUserProp' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
     'startFileUpload' : IDL.Func(
         [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],
-        [Result_2],
+        [Result_3],
         [],
       ),
-    'startPublish' : IDL.Func([PackageConfigV2], [Result_1], []),
+    'startPublish' : IDL.Func([PackageConfigV2], [Result_2], []),
     'takeAirdropSnapshot' : IDL.Func([], [], ['oneway']),
+    'transferOwnership' : IDL.Func(
+        [PackageName, IDL.Principal],
+        [Result_1],
+        [],
+      ),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],

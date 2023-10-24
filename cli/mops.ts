@@ -121,7 +121,7 @@ export let getIdentity = async (): Promise<Identity | undefined> => {
 	let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 	if (fs.existsSync(identityPemEncrypted)) {
 		let res = await prompts({
-			type: 'password',
+			type: 'invisible',
 			name: 'value',
 			message: 'Enter password:'
 		});
@@ -210,15 +210,29 @@ export async function getHighestVersion(pkgName: string) {
 
 export function parseGithubURL(href: string) {
 	const url = new URL(href);
-	const branch =  url.hash?.substring(1) || 'master';
-
+	let branchAndSha = url.hash?.substring(1).split('@');
+	let branch = branchAndSha[0] || 'master';
+	let commitHash = branchAndSha[1] || '';
 	let [org, gitName] = url.pathname.split('/').filter(path => !!path);
+	org = org || '';
+	gitName = gitName || '';
 
 	if (gitName?.endsWith('.git')) {
 		gitName = gitName.substring(0, gitName.length - 4);
 	}
+	return {org, gitName, branch, commitHash};
+}
 
-	return {org, gitName, branch};
+export async function getGithubCommit(repo: string, ref: string): Promise<any> {
+	let res = await fetch(`https://api.github.com/repos/${repo}/commits/${ref}`);
+	let json: any = await res.json();
+
+	// try on main branch
+	if (json.message && ref === 'master') {
+		res = await fetch(`https://api.github.com/repos/${repo}/commits/main`);
+		json = await res.json();
+	}
+	return json;
 }
 
 export function getDependencyType(version: string) {
@@ -289,8 +303,8 @@ export function formatDir(name: string, version: string) {
 }
 
 export function formatGithubDir(name: string, repo: string) {
-	const {branch} = parseGithubURL(repo);
-	return path.join(getRootDir(), '.mops/_github', `${name}@${branch}`);
+	const {branch, commitHash} = parseGithubURL(repo);
+	return path.join(getRootDir(), '.mops/_github', `${name}#${branch}` + (commitHash ? `@${commitHash}` : ''));
 }
 
 export function readDfxJson(): any {
