@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-	title: 'MOPS - Motoko Package Manager',
+	title: 'Mops Docs',
 	tagline: 'The most supercharged package manager ever!',
 	favicon: 'img/logo.svg',
 
@@ -65,18 +65,18 @@ const config = {
 			// Replace with your project's social card
 			image: 'img/docusaurus-social-card.jpg',
 			navbar: {
-				title: 'Mops',
+				title: 'Documentation',
 				logo: {
 					alt: 'My Site Logo',
 					src: 'img/logo.svg',
 				},
 				items: [
-					{
-						type: 'docSidebar',
-						sidebarId: 'tutorialSidebar',
-						position: 'left',
-						label: 'Documentation',
-					},
+					// {
+					// 	type: 'docSidebar',
+					// 	sidebarId: 'tutorialSidebar',
+					// 	position: 'left',
+					// 	label: 'Documentation',
+					// },
 					// {to: '/blog', label: 'Blog', position: 'left'},
 					{
 						href: 'https://mops.one',
@@ -110,7 +110,7 @@ const config = {
 						],
 					},
 				],
-				copyright: `Copyright © ${new Date().getFullYear()} MOPS`,
+				// copyright: `Copyright © ${new Date().getFullYear()} MOPS`,
 			},
 			prism: {
 				theme: lightCodeTheme,

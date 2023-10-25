@@ -1,9 +1,9 @@
 ---
 # sidebar_position: 0
-sidebar_label: 'mops publish'
+# sidebar_label: 'mops publish'
 ---
 
-# CLI command `mops publish`
+# `mops publish`
 
 Publish package to the mops registry
 ```

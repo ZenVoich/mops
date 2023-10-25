@@ -1,9 +1,10 @@
 ---
 # sidebar_position: 1
+slug: /cli/mops-update
 sidebar_label: 'mops update'
 ---
 
-# CLI command `mops update`
+# `mops update`
 
 Update all dependencies
 ```

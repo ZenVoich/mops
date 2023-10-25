@@ -1,9 +1,10 @@
 ---
 # sidebar_position: 0
+slug: /cli/mops-remove
 sidebar_label: 'mops remove'
 ---
 
-# CLI command `mops remove`
+# `mops remove`
 
 Alias `mops rm`
 

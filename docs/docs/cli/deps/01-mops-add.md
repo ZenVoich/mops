@@ -4,7 +4,7 @@ slug: /cli/mops-add
 sidebar_label: 'mops add'
 ---
 
-# CLI command `mops add`
+# `mops add`
 
 Install a specific package and save it to `mops.toml`
 ```

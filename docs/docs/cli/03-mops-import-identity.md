@@ -1,9 +1,9 @@
 ---
 # sidebar_position: 0
-sidebar_label: 'mops import-identity'
+# sidebar_label: 'mops import-identity'
 ---
 
-# CLI command `mops import-identity`
+# `mops import-identity`
 
 Import `.pem` file data to use as identity.
 

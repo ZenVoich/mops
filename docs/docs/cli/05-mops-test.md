@@ -1,9 +1,9 @@
 ---
 # sidebar_position: 0
-sidebar_label: 'mops test'
+# sidebar_label: 'mops test'
 ---
 
-# CLI command `mops test`
+# `mops test`
 
 Mops can run Motoko unit tests
 ```
