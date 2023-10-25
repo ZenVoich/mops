@@ -10,15 +10,15 @@ import {pipeline} from 'stream';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
 import {addCache, copyCache, isCached} from './cache.js';
 
-const dhallFileToJson = async (filePath: string) => {
+const dhallFileToJson = async (filePath: string, silent: boolean) => {
 	if (existsSync(filePath)) {
 		let cwd = new URL(path.dirname(import.meta.url)).pathname;
 		let res;
 		try {
 			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
 		}
-		catch (err) {
-			console.error('dhall-to-json error:', err);
+		catch (err: any) {
+			silent || console.error('dhall-to-json error:', err.message?.split('Message:')[0]);
 			return null;
 		}
 
@@ -45,7 +45,7 @@ export type VesselDependencies = Array<{
 	path?: string; // local package
 }>;
 
-export const readVesselConfig = async (dir: string, {cache = true} = {}): Promise<VesselConfig | null> => {
+export const readVesselConfig = async (dir: string, {cache = true, silent = false} = {}): Promise<VesselConfig | null> => {
 	const cachedFile = (dir || process.cwd()) + '/vessel.json';
 
 	if (existsSync(cachedFile)) {
@@ -54,8 +54,8 @@ export const readVesselConfig = async (dir: string, {cache = true} = {}): Promis
 	}
 
 	const [vessel, packageSetArray] = await Promise.all([
-		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall'),
-		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall')
+		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall', silent),
+		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall', silent)
 	]);
 
 	if (!vessel || !packageSetArray) {
@@ -90,6 +90,8 @@ export const downloadFromGithub = async (repo: string, dest: string, onProgress:
 
 	const promise = new Promise((resolve, reject) => {
 		readStream.on('error', (err) => {
+			console.error(chalk.red(`Error: failed to download from GitHub: ${zipFile}`));
+			console.error(err.message);
 			reject(err);
 		});
 
@@ -172,7 +174,7 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 		}
 		catch (err) {
 			deleteSync([dir]);
-			throw err;
+			process.exit(1);
 		}
 
 		// add to cache
@@ -183,7 +185,7 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 		silent || logUpdate.done();
 	}
 
-	const config = await readVesselConfig(dir);
+	const config = await readVesselConfig(dir, {silent});
 
 	if (config) {
 		for (const {name, repo} of config.dependencies) {
