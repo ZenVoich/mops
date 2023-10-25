@@ -12,6 +12,7 @@ import {validateLicense} "./validate-license";
 
 module {
 	type PackageConfigV2 = Types.PackageConfigV2;
+	type DependencyV2 = Types.DependencyV2;
 	type Err = Types.Err;
 
 	let CONFIG_MAX_SIZES = {
@@ -33,6 +34,7 @@ module {
 	};
 
 	let reservedNames = [
+		"prim",
 		"mops",
 		"doc",
 		"docs",
@@ -183,43 +185,46 @@ module {
 			};
 		};
 		for (dep in config.dependencies.vals()) {
-			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
-				return #err("invalid config: dependency name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
-			};
-			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
-				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
-			};
-
-			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
-				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
-			};
-
-			if (dep.repo.size() == 0) {
-				let versionValid = Semver.validate(dep.version);
-				if (Result.isErr(versionValid)) {
-					return versionValid;
-				};
+			let depValid = _validateDependency(dep);
+			if (Result.isErr(depValid)) {
+				return depValid;
 			};
 		};
 		for (dep in config.devDependencies.vals()) {
-			if (dep.name.size() > CONFIG_MAX_SIZES.name) {
-				return #err("invalid config: dependency name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
-			};
-			if (dep.version.size() > CONFIG_MAX_SIZES.version) {
-				return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
-			};
-
-			if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
-				return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
-			};
-
-			if (dep.repo.size() == 0) {
-				let versionValid = Semver.validate(dep.version);
-				if (Result.isErr(versionValid)) {
-					return versionValid;
-				};
+			let depValid = _validateDependency(dep);
+			if (Result.isErr(depValid)) {
+				return depValid;
 			};
 		};
+		#ok;
+	};
+
+	func _validateDependency(dep : DependencyV2) : Result.Result<(), Err> {
+		if (dep.name.size() > CONFIG_MAX_SIZES.name) {
+			return #err("invalid config: dependency name max length is " # Nat.toText(CONFIG_MAX_SIZES.name));
+		};
+
+		if (dep.version.size() > CONFIG_MAX_SIZES.version) {
+			return #err("invalid config: dependency version max length is " # Nat.toText(CONFIG_MAX_SIZES.version));
+		};
+
+		if (dep.repo.size() > CONFIG_MAX_SIZES.repository) {
+			return #err("invalid config: dependency repo url max length is " # Nat.toText(CONFIG_MAX_SIZES.repository));
+		};
+
+		if (dep.repo.size() == 0) {
+			let versionValid = Semver.validate(dep.version);
+			if (Result.isErr(versionValid)) {
+				return versionValid;
+			};
+		}
+		else {
+			let arr = Iter.toArray(Text.split(dep.repo, #text("@")));
+			if (arr.size() < 2 or arr[1].size() != 40) {
+				return #err("invalid config: dependency repo url must contain commit hash with 40 chars after '@'\nPlease run 'mops update " # dep.name # "' to fix it");
+			};
+		};
+
 		#ok;
 	};
 };

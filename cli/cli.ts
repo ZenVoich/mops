@@ -24,6 +24,8 @@ import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
+import {bench} from './commands/bench.js';
+import {transferOwnership} from './commands/transfer-ownership.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
@@ -134,8 +136,9 @@ program
 program
 	.command('import-identity <data>')
 	.description('Import .pem file data to use as identity')
-	.action(async (data) => {
-		await importPem(data);
+	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
+	.action(async (data, options) => {
+		await importPem(data, options);
 		await whoami();
 	});
 
@@ -194,6 +197,19 @@ program
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		await test(filter, options);
+	});
+
+// bench
+program
+	.command('bench [filter]')
+	.description('Run benchmarks')
+	.addOption(new Option('--save', 'Save benchmark results to .bench/<filename>.json'))
+	.addOption(new Option('--compare', 'Run benchmark and compare results with .bench/<filename>.json'))
+	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('incremental'))
+	// .addOption(new Option('--force-gc', 'Force GC'))
+	.addOption(new Option('--verbose', 'Show more information'))
+	.action(async (filter, options) => {
+		await bench(filter, options);
 	});
 
 // template
@@ -315,6 +331,14 @@ program
 	.description('Update dependencies specified in mops.toml')
 	.action(async (pkg) => {
 		await update(pkg);
+	});
+
+// transfer-ownership
+program
+	.command('transfer-ownership [to-principal]')
+	.description('Transfer ownership of the current package to another principal')
+	.action(async (toPrincipal) => {
+		await transferOwnership(toPrincipal);
 	});
 
 program.parse();

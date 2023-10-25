@@ -6,28 +6,36 @@ import {deleteSync} from 'del';
 import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
-export async function importPem(data: string) {
+type ImportIdentityOptions = {
+	encrypt: boolean;
+};
+
+export async function importPem(data: string, options: ImportIdentityOptions = {encrypt: true}) {
 	try {
 		if (!fs.existsSync(globalConfigDir)) {
 			fs.mkdirSync(globalConfigDir);
 		}
 
-		let res = await prompts({
-			type: 'password',
-			name: 'password',
-			message: 'Enter password to encrypt identity.pem',
-		});
-		let password = res.password;
+		let password = '';
 
-		if (!password) {
+		if (options.encrypt) {
 			let res = await prompts({
-				type: 'confirm',
-				name: 'ok',
-				message: 'Are you sure you don\'t want to protect your identity.pem with a password?',
+				type: 'invisible',
+				name: 'password',
+				message: 'Enter password to encrypt identity.pem',
 			});
-			if (!res.ok) {
-				console.log('aborted');
-				return;
+			password = res.password;
+
+			if (!password) {
+				let res = await prompts({
+					type: 'confirm',
+					name: 'ok',
+					message: 'Are you sure you don\'t want to protect your identity.pem with a password?',
+				});
+				if (!res.ok) {
+					console.log('aborted');
+					return;
+				}
 			}
 		}
 

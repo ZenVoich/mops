@@ -71,7 +71,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 
 			if (repo) {
 				const dir = formatGithubDir(name, repo);
-				nestedConfig = await readVesselConfig(dir) || {};
+				nestedConfig = await readVesselConfig(dir, {silent: true}) || {};
 			}
 			else if (!pkgDetails.path && version) {
 				const file = formatDir(name, version) + '/mops.toml';

@@ -197,6 +197,10 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		'!tests/**',
 		'!**/*.test.mo',
 		'!**/*.Test.mo',
+		'!bench/**',
+		'!benchmark/**',
+		'!**/*.bench.mo',
+		'!**/*.Bench.mo',
 	];
 	let files = config.package.files || ['**/*.mo'];
 	files = [...files, ...defaultFiles];
