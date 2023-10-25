@@ -10,6 +10,8 @@
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"noEmitOnError": false,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 		"declaration": true
 	}

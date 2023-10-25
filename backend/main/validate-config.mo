@@ -34,6 +34,7 @@ module {
 	};
 
 	let reservedNames = [
+		"prim",
 		"mops",
 		"doc",
 		"docs",
