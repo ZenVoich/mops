@@ -203,11 +203,11 @@ program
 program
 	.command('bench [filter]')
 	.description('Run benchmarks')
-	.addOption(new Option('--verbose', 'Show more information'))
-	.addOption(new Option('--save', 'Save benchmark results to mops.bench.json'))
-	.addOption(new Option('--compare', 'Run benchmark and compare results with mops.bench.json'))
+	.addOption(new Option('--save', 'Save benchmark results to .bench/<filename>.json'))
+	.addOption(new Option('--compare', 'Run benchmark and compare results with .bench/<filename>.json'))
 	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('incremental'))
-	.addOption(new Option('--force-gc', 'Force GC'))
+	// .addOption(new Option('--force-gc', 'Force GC'))
+	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
 		await bench(filter, options);
 	});
