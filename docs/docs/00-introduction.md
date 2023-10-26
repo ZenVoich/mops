@@ -5,45 +5,12 @@ slug: /
 
 # Introduction
 
-## 1. Prerequisites
-- [Node.js](https://nodejs.org/) >= 16.0.0
-- [DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart) >= 0.10.0
+Mops is a package manager for Motoko.
 
-## 2. Install Mops CLI
-```
-npm i -g ic-mops
-```
+All packages published to Mops registry are hosted on the [Internet Computer](https://internetcomputer.org/) blockchain.
 
-## 3. Initialize
-Run this command in the root directory of your project (where is `dfx.json` placed)
+You can observe packages on [mops.one](https://mops.one/).
 
-```
-mops init
-```
+Mops comes with a [test runner](/cli/mops-test) and [benchmarking tool](/cli/mops-bench).
 
-## 4. Configure dfx.json
-Add `mops` as a packtool to your `dfx.json`
-
-```json
-{
-  "defaults": {
-    "build": {
-      "packtool": "mops sources"
-    }
-  }
-}
-```
-
-## 5. Install Motoko Packages
-Use [`mops add`](/cli/mops-add) to install a specific package and save it to `mops.toml`
-
-```
-mops add base
-```
-
-## 6. Import Package
-Now you can import installed packages in your Motoko code
-
-```motoko
-import Array "mo:base/Iter";
-```
+Learn how to start using Mops in [Quick Start](/quick-start).

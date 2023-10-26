@@ -1,7 +1,6 @@
 ---
-# sidebar_position: 1
 slug: /cli/mops-sync
-sidebar_label: 'mops sync'
+sidebar_label: mops sync
 ---
 
 # `mops sync`

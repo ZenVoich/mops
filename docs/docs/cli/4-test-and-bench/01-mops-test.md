@@ -1,6 +1,6 @@
 ---
-# sidebar_position: 0
-# sidebar_label: 'mops test'
+slug: /cli/mops-test
+sidebar_label: mops test
 ---
 
 # `mops test`
@@ -11,6 +11,8 @@ mops test
 ```
 
 Put your tests in `test/*.test.mo` files.
+
+All tests run as quickly as possible thanks to parallel execution.
 
 See [test package](https://mops.one/test) to help you write tests.
 

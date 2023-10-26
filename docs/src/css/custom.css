@@ -42,11 +42,14 @@
 }
 .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link {
 	/* font-weight: 400; */
-	color: black;
 	opacity: 0.8;
 	cursor: default;
 }
 
-.theme-doc-sidebar-item-category-level-2>.menu__list-item-collapsible>.menu__link--active {
+:root[data-theme=light] .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link {
+	color: black !important;
+}
+
+.theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link--active {
 	color: var(--ifm-menu-color);
 }

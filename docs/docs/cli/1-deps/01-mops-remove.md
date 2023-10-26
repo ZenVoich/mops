@@ -1,7 +1,6 @@
 ---
-# sidebar_position: 0
 slug: /cli/mops-remove
-sidebar_label: 'mops remove'
+sidebar_label: mops remove
 ---
 
 # `mops remove`

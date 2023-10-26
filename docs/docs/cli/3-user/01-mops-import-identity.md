@@ -1,6 +1,6 @@
 ---
-# sidebar_position: 0
-# sidebar_label: 'mops import-identity'
+slug: /cli/mops-import-identity
+sidebar_label: mops import-identity
 ---
 
 # `mops import-identity`

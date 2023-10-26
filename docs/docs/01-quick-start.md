@@ -45,5 +45,5 @@ mops add base
 Now you can import installed packages in your Motoko code
 
 ```motoko
-import Array "mo:base/Iter";
+import Array "mo:base/Array";
 ```

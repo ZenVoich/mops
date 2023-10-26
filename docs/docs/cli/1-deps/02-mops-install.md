@@ -1,7 +1,6 @@
 ---
-# sidebar_position: 1
 slug: /cli/mops-install
-sidebar_label: 'mops install'
+sidebar_label: mops install
 ---
 
 # `mops install`

@@ -1,6 +1,6 @@
 ---
-# sidebar_position: 0.1
-# sidebar_label: 'mops init'
+slug: /cli/mops-init
+sidebar_label: mops init
 ---
 
 # `mops init`
