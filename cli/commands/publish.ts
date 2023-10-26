@@ -89,7 +89,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	let keysMax = {
 		name: 50,
 		version: 20,
-		keywords: 5,
+		keywords: 10,
 		description: 200,
 		repository: 300,
 		documentation: 300,
