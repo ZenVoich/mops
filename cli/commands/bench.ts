@@ -182,8 +182,10 @@ async function deployBenchFile(file: string, options: BenchOptions = {}): Promis
 	// prepare temp files
 	fs.mkdirSync(tempDir, {recursive: true});
 	fs.writeFileSync(path.join(tempDir, 'dfx.json'), JSON.stringify(dfxJson(canisterName, options), null, 2));
-	fs.cpSync(new URL('./bench/bench-canister.mo', import.meta.url), path.join(tempDir, 'canister.mo'));
-	fs.cpSync(file, path.join(tempDir, 'user-bench.mo'));
+
+	let benchCanisterData = fs.readFileSync(new URL('./bench/bench-canister.mo', import.meta.url), 'utf8');
+	benchCanisterData = benchCanisterData.replace('./user-bench', path.relative(tempDir, file).replace(/.mo$/g, ''));
+	fs.writeFileSync(path.join(tempDir, 'canister.mo'), benchCanisterData);
 
 	// build canister
 	let mocPath = getMocPath();

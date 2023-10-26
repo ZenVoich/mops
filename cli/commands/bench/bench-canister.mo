@@ -5,7 +5,7 @@ import ExperimentalInternetComputer "mo:base/ExperimentalInternetComputer";
 import Prim "mo:prim";
 import Bench "mo:bench";
 
-import UserBench "./user-bench";
+import UserBench "./user-bench"; // file path will be replaced with the *.bench.mo file path
 
 actor class() {
 	var benchOpt : ?Bench.Bench = null;
