@@ -16,6 +16,14 @@
 			},
 			"source": ["frontend/dist/"]
 		},
+		"docs": {
+			"type": "assets",
+			"build": ["npm run build-docs"],
+			"frontend": {
+				"entrypoint": "docs/build/index.html"
+			},
+			"source": ["docs/build/"]
+		},
 		"bench": {
 			"type": "motoko",
 			"main": "cli/commands/bench/bench-canister.mo",

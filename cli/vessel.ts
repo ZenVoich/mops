@@ -154,11 +154,11 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 	let cacheName = `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
 
 	if (existsSync(dir)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache)`);
 	}
 	else if (isCached(cacheName)) {
 		await copyCache(cacheName, dir);
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (global cache) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (global cache)`);
 	}
 	else {
 		mkdirSync(dir, {recursive: true});
