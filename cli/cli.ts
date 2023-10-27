@@ -49,6 +49,7 @@ program
 	.description('Install the package and save it to mops.toml')
 	.option('--dev')
 	.option('--verbose')
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -64,6 +65,7 @@ program
 	.option('--dev', 'Remove from dev-dependencies instead of dependencies')
 	.option('--verbose', 'Show more information')
 	.option('--dry-run', 'Do not actually remove anything')
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'check', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -77,6 +79,7 @@ program
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'check', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -313,8 +316,9 @@ program
 program
 	.command('sync')
 	.description('Add missing packages and remove unused packages')
-	.action(async () => {
-		await sync();
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.action(async (options) => {
+		await sync(options);
 	});
 
 // outdated
@@ -329,8 +333,9 @@ program
 program
 	.command('update [pkg]')
 	.description('Update dependencies specified in mops.toml')
-	.action(async (pkg) => {
-		await update(pkg);
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.action(async (pkg, options) => {
+		await update(pkg, options);
 	});
 
 // transfer-ownership

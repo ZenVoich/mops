@@ -5,8 +5,15 @@ import {checkConfigFile, getGithubCommit, getHighestVersion, parseGithubURL, rea
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
+import {checkIntegrity} from '../integrity.js';
 
-export async function add(name: string, {verbose = false, dev = false} = {}) {
+type AddOptions = {
+	verbose?: boolean;
+	dev?: boolean;
+	lockfile?: 'save' | 'ignore';
+};
+
+export async function add(name: string, {verbose = false, dev = false, lockfile}: AddOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -103,4 +110,6 @@ export async function add(name: string, {verbose = false, dev = false} = {}) {
 
 	logUpdate.clear();
 	console.log(chalk.green('Package installed ') + `${pkgDetails.name} = "${pkgDetails.repo || pkgDetails.path || pkgDetails.version}"`);
+
+	await checkIntegrity(lockfile);
 }

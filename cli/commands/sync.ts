@@ -5,6 +5,40 @@ import chalk from 'chalk';
 import {checkConfigFile, getRootDir, readConfig} from '../mops.js';
 import {add} from './add.js';
 import {remove} from './remove.js';
+import {checkIntegrity} from '../integrity.js';
+
+type SyncOptions = {
+	lockfile?: 'save' | 'ignore';
+};
+
+export async function sync({lockfile}: SyncOptions = {}) {
+	if (!checkConfigFile()) {
+		return;
+	}
+
+	let missing = await getMissingPackages();
+	let unused = await getUnusedPackages();
+
+	missing.length && console.log(`${chalk.yellow('Missing packages:')} ${missing.join(', ')}`);
+	unused.length && console.log(`${chalk.yellow('Unused packages:')} ${unused.join(', ')}`);
+
+	let config = readConfig();
+	let deps = new Set(Object.keys(config.dependencies || {}));
+	let devDeps = new Set(Object.keys(config['dev-dependencies'] || {}));
+
+	// add missing packages
+	for (let pkg of missing) {
+		await add(pkg);
+	}
+
+	// remove unused packages
+	for (let pkg of unused) {
+		let dev = devDeps.has(pkg) && !deps.has(pkg);
+		await remove(pkg, {dev});
+	}
+
+	await checkIntegrity(lockfile);
+}
 
 let ignore = [
 	'**/node_modules/**',
@@ -71,31 +105,4 @@ async function getUnusedPackages(): Promise<string[]> {
 		allDeps.delete(pkg);
 	}
 	return [...allDeps];
-}
-
-export async function sync() {
-	if (!checkConfigFile()) {
-		return;
-	}
-
-	let missing = await getMissingPackages();
-	let unused = await getUnusedPackages();
-
-	missing.length && console.log(`${chalk.yellow('Missing packages:')} ${missing.join(', ')}`);
-	unused.length && console.log(`${chalk.yellow('Unused packages:')} ${unused.join(', ')}`);
-
-	let config = readConfig();
-	let deps = new Set(Object.keys(config.dependencies || {}));
-	let devDeps = new Set(Object.keys(config['dev-dependencies'] || {}));
-
-	// add missing packages
-	for (let pkg of missing) {
-		await add(pkg);
-	}
-
-	// remove unused packages
-	for (let pkg of unused) {
-		let dev = devDeps.has(pkg) && !deps.has(pkg);
-		await remove(pkg, {dev});
-	}
 }

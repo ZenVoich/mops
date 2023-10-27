@@ -11,6 +11,21 @@ type LockFileV1 = {
 	hashes: Record<string, Record<string, string>>;
 };
 
+export async function checkIntegrity(lock?: 'save' | 'check' | 'ignore') {
+	let force = !!lock;
+
+	if (!lock) {
+		lock = process.env['CI'] ? 'check' : 'save';
+	}
+
+	if (lock === 'save') {
+		await saveLockFile();
+	}
+	else if (lock === 'check') {
+		await checkLockFile(force);
+	}
+}
+
 async function getFileHashesFromRegistry(): Promise<[string, [string, Uint8Array | number[]][]][]> {
 	let packageIds = await getResolvedMopsPackageIds();
 	let actor = await mainActor();
@@ -43,7 +58,7 @@ function getMopsTomlHash(): string {
 }
 
 // compare hashes of local files with hashes from the registry
-export async function checkIntegrity() {
+export async function checkRemote() {
 	let fileHashesFromRegistry = await getFileHashesFromRegistry();
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,7 +78,6 @@ export async function checkIntegrity() {
 
 export async function saveLockFile() {
 	let rootDir = getRootDir();
-	let fileHashes = await getFileHashesFromRegistry();
 	let lockFile = path.join(rootDir, 'mops.lock');
 
 	// if lock file exists and mops.toml hasn't changed, don't update it
@@ -74,6 +88,8 @@ export async function saveLockFile() {
 			return;
 		}
 	}
+
+	let fileHashes = await getFileHashesFromRegistry();
 
 	let lockFileJson: LockFileV1 = {
 		version: 1,
@@ -91,20 +107,21 @@ export async function saveLockFile() {
 }
 
 // compare hashes of local files with hashes from the lock file
-export async function checkLockFile() {
+export async function checkLockFile(force = false) {
 	let rootDir = getRootDir();
 	let lockFile = path.join(rootDir, 'mops.lock');
-	let packageIds = await getResolvedMopsPackageIds();
 
 	// check if lock file exists
 	if (!fs.existsSync(lockFile)) {
-		// BREAKING CHANGE
-		// console.error('Missing lock file. Run `mops install` to generate it.');
-		// process.exit(1);
+		if (force) {
+			console.error('Missing lock file. Run `mops install` to generate it.');
+			process.exit(1);
+		}
 		return;
 	}
 
 	let lockFileJson: LockFileV1 = JSON.parse(fs.readFileSync(lockFile).toString());
+	let packageIds = await getResolvedMopsPackageIds();
 
 	// check lock file version
 	if (lockFileJson.version !== 1) {

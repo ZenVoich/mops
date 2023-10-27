@@ -4,8 +4,15 @@ import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
 import {notifyInstalls} from '../notify-installs.js';
+import {checkIntegrity} from '../integrity.js';
 
-export async function installAll({verbose = false, silent = false} = {}) {
+type InstallAllOptions = {
+	verbose?: boolean;
+	silent?: boolean;
+	lockfile?: 'save' | 'check' | 'ignore';
+}
+
+export async function installAll({verbose = false, silent = false, lockfile}: InstallAllOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -35,4 +42,6 @@ export async function installAll({verbose = false, silent = false} = {}) {
 		logUpdate.clear();
 		console.log(chalk.green('All packages installed'));
 	}
+
+	await checkIntegrity(lockfile);
 }
