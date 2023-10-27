@@ -64,7 +64,7 @@ export async function checkIntegrity() {
 export async function saveLockFile() {
 	let rootDir = getRootDir();
 	let fileHashes = await getFileHashesFromRegistry();
-	let lockFile = path.join(rootDir, 'mops-lock.json');
+	let lockFile = path.join(rootDir, 'mops.lock');
 
 	// if lock file exists and mops.toml hasn't changed, don't update it
 	if (fs.existsSync(lockFile)) {
@@ -93,7 +93,7 @@ export async function saveLockFile() {
 // compare hashes of local files with hashes from the lock file
 export async function checkLockFile() {
 	let rootDir = getRootDir();
-	let lockFile = path.join(rootDir, 'mops-lock.json');
+	let lockFile = path.join(rootDir, 'mops.lock');
 	let packageIds = await getResolvedMopsPackageIds();
 
 	// check if lock file exists
