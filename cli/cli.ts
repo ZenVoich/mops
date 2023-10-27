@@ -26,7 +26,6 @@ import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
-import {checkIntegrity, checkLockFile, saveLockFile} from './integrity.js';
 // import {docs} from './commands/docs.js';
 
 program.name('mops');
