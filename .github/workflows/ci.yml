@@ -26,14 +26,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - uses: aviate-labs/setup-dfx@v0.2.6
+      - uses: dfinity/setup-dfx@main
         with:
-          dfx-version: 0.15.0
+          dfx-version: 0.15.1
 
       - name: Cache mops packages
         uses: actions/cache@v3
         with:
           key: mops-packages-${{ hashFiles('mops.toml') }}
+          restore-keys: |
+            mops-packages-${{ hashFiles('mops.toml') }}
+            mops-packages-
           path: |
             ~/.cache/mops
 

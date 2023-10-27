@@ -23,22 +23,17 @@
 			<div class="text">
 				<div class="description"><b>Mops</b> is a package manager for Motoko with fully on-chain package registry.</div>
 			</div>
+
+			<div class="getting-started">
+				<div class="buttons">
+					<a class="button" href="https://docs.mops.one/quick-start" target="_blank">Documentation</a>
+				</div>
+			</div>
 		</div>
 
 		<div class="delimiter"></div>
 
 		<TotalStats></TotalStats>
-
-		<div class="delimiter"></div>
-
-		<div class="getting-started">
-			<div class="title">Getting Started</div>
-			<div class="buttons">
-				<a class="button" href="/docs/install" use:link>Install Package</a>
-				<a class="button" href="/docs/publish" use:link>Publish Package</a>
-			</div>
-			<a class="link" href="/docs/config" use:link>Config file</a>
-		</div>
 
 		<div class="delimiter"></div>
 

@@ -1,0 +1,9 @@
+User:
+  user set <prop> [value]           User settings
+  user get <prop>                   User settings
+
+Other commands:
+  cache <sub>                       Manage cache
+  sources [options]                 for dfx packtool
+  search <text>                     Search for packages
+  template                          Apply template

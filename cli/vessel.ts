@@ -10,15 +10,15 @@ import {pipeline} from 'stream';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
 import {addCache, copyCache, isCached} from './cache.js';
 
-const dhallFileToJson = async (filePath: string) => {
+const dhallFileToJson = async (filePath: string, silent: boolean) => {
 	if (existsSync(filePath)) {
 		let cwd = new URL(path.dirname(import.meta.url)).pathname;
 		let res;
 		try {
 			res = await execaCommand(`dhall-to-json --file ${filePath}`, {preferLocal:true, cwd});
 		}
-		catch (err) {
-			console.error('dhall-to-json error:', err);
+		catch (err: any) {
+			silent || console.error('dhall-to-json error:', err.message?.split('Message:')[0]);
 			return null;
 		}
 
@@ -45,7 +45,7 @@ export type VesselDependencies = Array<{
 	path?: string; // local package
 }>;
 
-export const readVesselConfig = async (dir: string, {cache = true} = {}): Promise<VesselConfig | null> => {
+export const readVesselConfig = async (dir: string, {cache = true, silent = false} = {}): Promise<VesselConfig | null> => {
 	const cachedFile = (dir || process.cwd()) + '/vessel.json';
 
 	if (existsSync(cachedFile)) {
@@ -54,8 +54,8 @@ export const readVesselConfig = async (dir: string, {cache = true} = {}): Promis
 	}
 
 	const [vessel, packageSetArray] = await Promise.all([
-		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall'),
-		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall')
+		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall', silent),
+		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall', silent)
 	]);
 
 	if (!vessel || !packageSetArray) {
@@ -83,13 +83,15 @@ export const readVesselConfig = async (dir: string, {cache = true} = {}): Promis
 };
 
 export const downloadFromGithub = async (repo: string, dest: string, onProgress: any) => {
-	const {branch, org, gitName} = parseGithubURL(repo);
+	const {branch, org, gitName, commitHash} = parseGithubURL(repo);
 
-	const zipFile = `https://github.com/${org}/${gitName}/archive/${branch}.zip`;
+	const zipFile = `https://github.com/${org}/${gitName}/archive/${commitHash || branch}.zip`;
 	const readStream = got.stream(zipFile);
 
 	const promise = new Promise((resolve, reject) => {
 		readStream.on('error', (err) => {
+			console.error(chalk.red(`Error: failed to download from GitHub: ${zipFile}`));
+			console.error(err.message);
 			reject(err);
 		});
 
@@ -99,7 +101,7 @@ export const downloadFromGithub = async (repo: string, dest: string, onProgress:
 
 		readStream.on('response', (response) => {
 			if (response.headers.age > 3600) {
-				console.log(chalk.red('Error: ') +  'Failure - response too old');
+				console.error(chalk.red('Error: ') +  'Failure - response too old');
 				readStream.destroy(); // Destroy the stream to prevent hanging resources.
 				reject();
 				return;
@@ -108,7 +110,7 @@ export const downloadFromGithub = async (repo: string, dest: string, onProgress:
 			// Prevent `onError` being called twice.
 			readStream.off('error', reject);
 			const tmpDir = path.resolve(process.cwd(), '.mops/_tmp/');
-			const tmpFile = path.resolve(tmpDir, `${gitName}@${branch}.zip`);
+			const tmpFile = path.resolve(tmpDir, `${gitName}@${commitHash || branch}.zip`);
 
 			try {
 				mkdirSync(tmpDir, {recursive: true});
@@ -147,22 +149,22 @@ export const downloadFromGithub = async (repo: string, dest: string, onProgress:
 };
 
 export const installFromGithub = async (name: string, repo: string, {verbose = false, dep = false, silent = false} = {}) => {
-	const {branch} = parseGithubURL(repo);
-	const dir = formatGithubDir(name, repo);
-	const cacheName = `github_${name}@${branch}`;
+	let {branch, commitHash} = parseGithubURL(repo);
+	let dir = formatGithubDir(name, repo);
+	let cacheName = `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
 
 	if (existsSync(dir)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} (already installed) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache)`);
 	}
 	else if (isCached(cacheName)) {
 		await copyCache(cacheName, dir);
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} (cache) from Github`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (global cache)`);
 	}
 	else {
 		mkdirSync(dir, {recursive: true});
 
 		let progress = (step: number, total: number) => {
-			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${name}@${branch} ${progressBar(step, total)}`);
+			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} ${progressBar(step, total)}`);
 		};
 
 		progress(0, 2 * (1024 ** 2));
@@ -172,7 +174,7 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 		}
 		catch (err) {
 			deleteSync([dir]);
-			throw err;
+			process.exit(1);
 		}
 
 		// add to cache
@@ -183,7 +185,7 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 		silent || logUpdate.done();
 	}
 
-	const config = await readVesselConfig(dir);
+	const config = await readVesselConfig(dir, {silent});
 
 	if (config) {
 		for (const {name, repo} of config.dependencies) {

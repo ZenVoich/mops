@@ -1,0 +1,26 @@
+type anon_class_10_1 = 
+ service {
+   getSchema: () -> (BenchSchema) query;
+   getStats: () -> (BenchResult) query;
+   init: () -> (BenchSchema);
+   runCellQuery: (nat, nat) -> (BenchResult) query;
+   runCellUpdate: (nat, nat) -> (BenchResult);
+   runCellUpdateAwait: (nat, nat) -> (BenchResult);
+ };
+type BenchSchema = 
+ record {
+   cols: vec text;
+   description: text;
+   name: text;
+   rows: vec text;
+ };
+type BenchResult = 
+ record {
+   instructions: int;
+   rts_collector_instructions: int;
+   rts_heap_size: int;
+   rts_memory_size: int;
+   rts_mutator_instructions: int;
+   rts_total_allocation: int;
+ };
+service : () -> anon_class_10_1

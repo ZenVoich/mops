@@ -1,0 +1,22 @@
+type anon_class_9_1 = 
+ service {
+   init: () -> (BenchSchema);
+   runCell: (nat, nat) -> (BenchResult);
+ };
+type BenchSchema = 
+ record {
+   cols: vec text;
+   description: text;
+   name: text;
+   rows: vec text;
+ };
+type BenchResult = 
+ record {
+   instructions: nat;
+   rts_collector_instructions: nat;
+   rts_heap_size: nat;
+   rts_memory_size: nat;
+   rts_mutator_instructions: nat;
+   rts_total_allocation: nat;
+ };
+service : () -> anon_class_9_1
