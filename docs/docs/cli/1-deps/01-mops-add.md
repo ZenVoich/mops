@@ -17,6 +17,11 @@ Install latest `base` package from `mops` registry
 mops add base
 ```
 
+Install specific version of `base` package from `mops` registry
+```
+mops add base@0.10.0
+```
+
 Add package from GitHub
 ```
 mops add https://github.com/dfinity/motoko-base

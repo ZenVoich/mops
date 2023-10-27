@@ -5,7 +5,7 @@ sidebar_label: mops whoami
 
 # `mops whoami`
 
-Prin your principal.
+Print your principal.
 
 ```
 mops whoami
