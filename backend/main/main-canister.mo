@@ -755,7 +755,7 @@ actor {
 	func _computePackageQuality(name : PackageName, version : PackageVersion) : PackageQuality {
 		let packageId = name # "@" # version;
 		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		let ?fileStats = packageFileStats.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+		let fileStats = Option.get(packageFileStats.get(packageId), _defaultPackageFileStats());
 		let testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
 		let notes = Option.get(packageNotes.get(packageId), "");
 
