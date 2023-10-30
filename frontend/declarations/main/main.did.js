@@ -51,6 +51,21 @@ export const idlFactory = ({ IDL }) => {
     'githubVerified' : IDL.Bool,
     'github' : IDL.Text,
   });
+  const DepsStatus = IDL.Variant({
+    'allLatest' : IDL.Null,
+    'tooOld' : IDL.Null,
+    'updatesAvailable' : IDL.Null,
+  });
+  const PackageQuality = IDL.Record({
+    'depsStatus' : DepsStatus,
+    'hasDescription' : IDL.Bool,
+    'hasKeywords' : IDL.Bool,
+    'hasLicense' : IDL.Bool,
+    'hasDocumentation' : IDL.Bool,
+    'hasTests' : IDL.Bool,
+    'hasRepository' : IDL.Bool,
+    'hasReleaseNotes' : IDL.Bool,
+  });
   const Script = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
   const PackageName__1 = IDL.Text;
   const DependencyV2 = IDL.Record({
@@ -84,6 +99,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
@@ -93,6 +109,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
@@ -121,6 +138,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummaryWithChanges__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
@@ -132,6 +150,7 @@ export const idlFactory = ({ IDL }) => {
     'ownerInfo' : User,
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
+    'quality' : PackageQuality,
     'testStats' : TestStats__1,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -149,6 +168,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummaryWithChanges = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,

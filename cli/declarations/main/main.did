@@ -145,6 +145,7 @@ type PackageSummary__1 =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   quality: PackageQuality;
  };
 type PackageSummaryWithChanges__1 = 
  record {
@@ -156,6 +157,7 @@ type PackageSummaryWithChanges__1 =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   quality: PackageQuality;
  };
 type PackageSummaryWithChanges = 
  record {
@@ -167,6 +169,7 @@ type PackageSummaryWithChanges =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   quality: PackageQuality;
  };
 type PackageSummary = 
  record {
@@ -177,6 +180,18 @@ type PackageSummary =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   quality: PackageQuality;
+ };
+type PackageQuality = 
+ record {
+   depsStatus: DepsStatus;
+   hasDescription: bool;
+   hasDocumentation: bool;
+   hasKeywords: bool;
+   hasLicense: bool;
+   hasReleaseNotes: bool;
+   hasRepository: bool;
+   hasTests: bool;
  };
 type PackagePublication = 
  record {
@@ -207,6 +222,7 @@ type PackageDetails =
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
+   quality: PackageQuality;
    testStats: TestStats__1;
    versionHistory: vec PackageSummaryWithChanges__1;
  };
@@ -280,6 +296,12 @@ type DownloadsSnapshot =
    downloads: nat;
    endTime: Time;
    startTime: Time;
+ };
+type DepsStatus = 
+ variant {
+   allLatest;
+   tooOld;
+   updatesAvailable;
  };
 type DependencyV2 = 
  record {

@@ -79,6 +79,7 @@ module {
 		downloadsTotal : Nat;
 		downloadsInLast30Days : Nat;
 		downloadsInLast7Days : Nat;
+		quality : PackageQuality;
 	};
 
 	public type PackageSummaryWithChanges = PackageSummary and {
@@ -138,5 +139,25 @@ module {
 		tests : TestsChanges;
 		deps : [DepChange];
 		devDeps : [DepChange];
+	};
+
+	public type PackageQuality = {
+		// dynamic
+		depsStatus : DepsStatus;
+		// base
+		hasDescription : Bool;
+		hasKeywords : Bool;
+		hasLicense : Bool;
+		hasRepository : Bool;
+		hasDocumentation : Bool;
+		// extra
+		hasTests : Bool;
+		hasReleaseNotes : Bool;
+	};
+
+	public type DepsStatus = {
+		#allLatest;
+		#updatesAvailable;
+		#tooOld;
 	};
 };

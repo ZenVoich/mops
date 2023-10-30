@@ -59,6 +59,8 @@ actor {
 	public type PackageChanges = Types.PackageChanges;
 	public type TestsChanges = Types.TestsChanges;
 	public type DepChange = Types.DepChange;
+	public type DepsStatus = Types.DepsStatus;
+	public type PackageQuality = Types.PackageQuality;
 
 	let API_VERSION = "1.2"; // (!) make changes in pair with cli
 	let MAX_PACKAGE_FILES = 300;
@@ -162,6 +164,7 @@ actor {
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
+				quality = _computePackageQuality(name, version);
 			};
 		};
 	};
@@ -199,9 +202,9 @@ actor {
 	};
 
 	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let ?versions = packageVersions.get(name) else Debug.trap("Package'" # name # "' not found");
+		let ?versions = packageVersions.get(name) else Debug.trap("Package '" # name # "' not found");
 		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package'" # name # "' not found");
+			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package '" # name # "' not found");
 			summary;
 		}));
 	};
@@ -211,7 +214,7 @@ actor {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package'" # dep.name # "' not found");
+			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package '" # dep.name # "' not found");
 			summary;
 		});
 	};
@@ -250,7 +253,7 @@ actor {
 		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
 
 		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package'" # name # "' not found");
+			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package '" # name # "' not found");
 			summary;
 		});
 
@@ -724,6 +727,53 @@ actor {
 		Buffer.toArray(buf);
 	};
 
+	func _computeDepsStatus(name : PackageName, version : PackageVersion) : DepsStatus {
+		let packageId = name # "@" # version;
+		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+
+		var status : DepsStatus = #allLatest;
+
+		label l for (dep in config.dependencies.vals()) {
+			if (dep.version == "") {
+				continue l;
+			};
+
+			let depId = dep.name # "@" # dep.version;
+			let ?highestVersion = _getHighestVersion(dep.name) else Debug.trap("Package '" # dep.name # "' not found");
+
+			if (dep.version != highestVersion) {
+				status := #updatesAvailable;
+
+				let ?publication = packagePublications.get(depId) else Debug.trap("Package '" # depId # "' not found");
+				if (publication.time < Time.now() - 180 * DAY) {
+					status := #tooOld;
+					break l;
+				};
+			};
+		};
+
+		status;
+	};
+
+	func _computePackageQuality(name : PackageName, version : PackageVersion) : PackageQuality {
+		let packageId = name # "@" # version;
+		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+		let ?fileStats = packageFileStats.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
+		let testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
+		let notes = Option.get(packageNotes.get(packageId), "");
+
+		{
+			hasDescription = config.description.size() > 10;
+			hasKeywords = config.keywords.size() > 0;
+			hasLicense = config.license != "";
+			hasRepository = config.repository.size() > 20;
+			hasDocumentation = fileStats.docsCount > 0;
+			depsStatus = _computeDepsStatus(name, version);
+			hasTests = testStats.passed > 0;
+			hasReleaseNotes = notes.size() > 10;
+		};
+	};
+
 	// AIRDROP
 	let cyclesPerOwner = 15_000_000_000_000; // 15 TC
 	let cyclesPerPackage = 1_000_000_000_000; // 1 TC
@@ -995,7 +1045,7 @@ actor {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package'" # config.config.name # "' not found");
+			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package '" # config.config.name # "' not found");
 			summary;
 		});
 

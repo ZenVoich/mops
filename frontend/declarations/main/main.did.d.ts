@@ -11,6 +11,9 @@ export interface DependencyV2 {
   'repo' : string,
   'version' : string,
 }
+export type DepsStatus = { 'allLatest' : null } |
+  { 'tooOld' : null } |
+  { 'updatesAvailable' : null };
 export interface DownloadsSnapshot {
   'startTime' : Time,
   'endTime' : Time,
@@ -76,6 +79,7 @@ export interface PackageDetails {
   'ownerInfo' : User,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,
+  'quality' : PackageQuality,
   'testStats' : TestStats__1,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -101,9 +105,20 @@ export interface PackagePublication {
   'time' : Time,
   'user' : Principal,
 }
+export interface PackageQuality {
+  'depsStatus' : DepsStatus,
+  'hasDescription' : boolean,
+  'hasKeywords' : boolean,
+  'hasLicense' : boolean,
+  'hasDocumentation' : boolean,
+  'hasTests' : boolean,
+  'hasRepository' : boolean,
+  'hasReleaseNotes' : boolean,
+}
 export interface PackageSummary {
   'ownerInfo' : User,
   'owner' : Principal,
+  'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -113,6 +128,7 @@ export interface PackageSummary {
 export interface PackageSummaryWithChanges {
   'ownerInfo' : User,
   'owner' : Principal,
+  'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -123,6 +139,7 @@ export interface PackageSummaryWithChanges {
 export interface PackageSummaryWithChanges__1 {
   'ownerInfo' : User,
   'owner' : Principal,
+  'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -133,6 +150,7 @@ export interface PackageSummaryWithChanges__1 {
 export interface PackageSummary__1 {
   'ownerInfo' : User,
   'owner' : Principal,
+  'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
