@@ -291,11 +291,8 @@ actor {
 
 	func _computePackageChanges(name : PackageName, version : PackageVersion) : PackageChanges {
 		let curId = name # "@" # version;
-
-		let ?prevVersion = _getPrevVersion(name, version) else return _defaultPackageChanges();
+		let prevVersion = Option.get(_getPrevVersion(name, version), version);
 		let prevId = name # "@" # prevVersion;
-
-		let ?prevConfig = packageConfigs.get(prevId) else return _defaultPackageChanges();
 
 		{
 			notes = Option.get(packageNotes.get(curId), "");
