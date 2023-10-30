@@ -117,6 +117,16 @@ const config = {
 				darkTheme: darkCodeTheme,
 			},
 		}),
+
+	plugins: [
+		[
+			'@acid-info/docusaurus-fathom',
+			{
+				siteId: 'THOISMFA',
+				scriptUrl: 'https://cdn.usefathom.com/script.js',
+			},
+		],
+	],
 };
 
 module.exports = config;
