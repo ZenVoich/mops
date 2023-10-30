@@ -116,16 +116,13 @@ const config = {
 				theme: lightCodeTheme,
 				darkTheme: darkCodeTheme,
 			},
+			fathomAnalytics: {
+				siteId: 'THOISMFA',
+			},
 		}),
 
 	plugins: [
-		[
-			'@acid-info/docusaurus-fathom',
-			{
-				siteId: 'THOISMFA',
-				scriptUrl: 'https://cdn.usefathom.com/script.js',
-			},
-		],
+		'docusaurus-plugin-fathom',
 	],
 };
 
