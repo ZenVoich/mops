@@ -73,6 +73,14 @@ type Script =
    name: text;
    value: text;
  };
+type Result_8 = 
+ variant {
+   err: Err;
+   ok: vec record {
+             FileId;
+             blob;
+           };
+ };
 type Result_7 = 
  variant {
    err: Err;
@@ -318,6 +326,7 @@ type DepChange =
 service : {
   backup: () -> ();
   claimAirdrop: (principal) -> (text);
+  computeHashesForExistingFiles: () -> ();
   diff: (text, text) -> (PackageChanges__1) query;
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
@@ -333,6 +342,15 @@ service : {
    (vec DownloadsSnapshot__1) query;
   getDownloadTrendByPackageName: (PackageName) ->
    (vec DownloadsSnapshot__1) query;
+  getFileHashes: (PackageName, PackageVersion) -> (Result_8);
+  getFileHashesByPackageIds: (vec PackageId) ->
+   (vec record {
+          PackageId;
+          vec record {
+                FileId;
+                blob;
+              };
+        });
   getFileIds: (PackageName, PackageVersion) -> (Result_7) query;
   getHighestSemverBatch:
    (vec record {

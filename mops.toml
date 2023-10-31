@@ -1,9 +1,10 @@
 [dependencies]
-base = "0.9.4"
+base = "0.10.0"
 time-consts = "1.0.0"
 map = "8.1.0"
 ic = "0.2.0"
 backup = "1.1.0"
+sha2 = "0.0.4"
 vector = "0.2.0"
 http-types = "1.0.0"
 datetime = "0.1.0"

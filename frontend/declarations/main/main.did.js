@@ -28,6 +28,10 @@ export const idlFactory = ({ IDL }) => {
     'downloads' : IDL.Nat,
   });
   const FileId = IDL.Text;
+  const Result_8 = IDL.Variant({
+    'ok' : IDL.Vec(IDL.Tuple(FileId, IDL.Vec(IDL.Nat8))),
+    'err' : Err,
+  });
   const Result_7 = IDL.Variant({ 'ok' : IDL.Vec(FileId), 'err' : Err });
   const SemverPart = IDL.Variant({
     'major' : IDL.Null,
@@ -255,6 +259,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
+    'computeHashesForExistingFiles' : IDL.Func([], [], []),
     'diff' : IDL.Func([IDL.Text, IDL.Text], [PackageChanges__1], ['query']),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
@@ -275,6 +280,16 @@ export const idlFactory = ({ IDL }) => {
         [PackageName],
         [IDL.Vec(DownloadsSnapshot__1)],
         ['query'],
+      ),
+    'getFileHashes' : IDL.Func([PackageName, PackageVersion], [Result_8], []),
+    'getFileHashesByPackageIds' : IDL.Func(
+        [IDL.Vec(PackageId)],
+        [
+          IDL.Vec(
+            IDL.Tuple(PackageId, IDL.Vec(IDL.Tuple(FileId, IDL.Vec(IDL.Nat8))))
+          ),
+        ],
+        [],
       ),
     'getFileIds' : IDL.Func(
         [PackageName, PackageVersion],

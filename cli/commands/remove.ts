@@ -3,8 +3,16 @@ import {deleteSync} from 'del';
 import chalk from 'chalk';
 import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
 import {Config, Dependency} from '../types.js';
+import {checkIntegrity} from '../integrity.js';
 
-export async function remove(name: string, {dev = false, verbose = false, dryRun = false} = {}) {
+type RemoveOptions = {
+	verbose?: boolean;
+	dev?: boolean;
+	dryRun?: boolean;
+	lockfile?: 'save' | 'ignore';
+};
+
+export async function remove(name: string, {dev = false, verbose = false, dryRun = false, lockfile}: RemoveOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -92,4 +100,6 @@ export async function remove(name: string, {dev = false, verbose = false, dryRun
 	dryRun || writeConfig(config);
 
 	console.log(chalk.green('Package removed ') + `${name} = "${version}"`);
+
+	await checkIntegrity(lockfile);
 }

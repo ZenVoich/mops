@@ -137,8 +137,8 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 		installedDeps = {...installedDeps, [pkg]: version};
 	}
 
-	if (ok) {
-		return installedDeps;
+	if (!ok) {
+		return false;
 	}
-	return false;
+	return installedDeps;
 }

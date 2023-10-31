@@ -2,8 +2,15 @@ import chalk from 'chalk';
 import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig} from '../mops.js';
 import {add} from './add.js';
 import {getAvailableUpdates} from './available-updates.js';
+import {checkIntegrity} from '../integrity.js';
 
-export async function update(pkg?: string) {
+type UpdateOptions = {
+	verbose?: boolean;
+	dev?: boolean;
+	lockfile?: 'save' | 'ignore';
+};
+
+export async function update(pkg?: string, {lockfile}: UpdateOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -48,4 +55,6 @@ export async function update(pkg?: string) {
 			await add(`${dep[0]}@${dep[2]}`, {dev});
 		}
 	}
+
+	await checkIntegrity(lockfile);
 }
