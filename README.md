@@ -2,7 +2,8 @@
 
 Mops is a package manager for the Motoko programming language.
 
-See https://mops.one
+- [Documentation](https://docs.mops.one)
+- [Package Registry](https://mops.one)
 
 ## Setup
 

@@ -116,7 +116,14 @@ const config = {
 				theme: lightCodeTheme,
 				darkTheme: darkCodeTheme,
 			},
+			fathomAnalytics: {
+				siteId: 'THOISMFA',
+			},
 		}),
+
+	plugins: [
+		'docusaurus-plugin-fathom',
+	],
 };
 
 module.exports = config;

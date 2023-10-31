@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {link} from 'svelte-spa-history-router';
 	import {filesize} from 'filesize';
-	import {PackageDetails} from '/declarations/main/main.did.js';
+	import {DepsStatus, PackageDetails} from '/declarations/main/main.did.js';
 	import DownloadTrend from '../DownloadTrend.svelte';
 	import githubImg from '/img/github.svg';
 	import twitterImg from '/img/twitter.svg';
@@ -13,6 +13,18 @@
 	function showBadgesModal(e: MouseEvent) {
 		e.preventDefault();
 		badgesModalActive = true;
+	}
+
+	function depsStatusText(depsStatus: DepsStatus): string {
+		if ('allLatest' in depsStatus) {
+			return 'Up to Date';
+		}
+		else if ('updatesAvailable' in depsStatus) {
+			return 'Updates Available';
+		}
+		else if ('tooOld' in depsStatus) {
+			return 'Outdated';
+		}
 	}
 </script>
 
@@ -80,6 +92,50 @@
 		</div>
 	{/if}
 
+	<div class="quality">
+		<div class="label">Package Quality</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Dependencies</div>
+			<div class="quality-value" data-deps-status={Object.keys(packageDetails.quality.depsStatus)[0]}>{depsStatusText(packageDetails.quality.depsStatus)}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Description</div>
+			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDescription}>{packageDetails.quality.hasDescription ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Keywords</div>
+			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasKeywords}>{packageDetails.quality.hasKeywords ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">License</div>
+			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasLicense}>{packageDetails.quality.hasLicense ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Repository</div>
+			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasRepository}>{packageDetails.quality.hasRepository ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Documentation</div>
+			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDocumentation}>{packageDetails.quality.hasDocumentation ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Release Notes</div>
+			<div class="quality-value extra-quality" data-yes={packageDetails.quality.hasReleaseNotes}>{packageDetails.quality.hasReleaseNotes ? 'Yes' : 'No'}</div>
+		</div>
+
+		<div class="quality-row">
+			<div class="quality-label">Tests</div>
+			<div class="quality-value extra-quality" data-yes={packageDetails.quality.hasTests}>{packageDetails.quality.hasTests ? 'Yes' : 'No'}</div>
+		</div>
+	</div>
+
 	<a class="badges-button" on:click={showBadgesModal}>Badges</a>
 </div>
 
@@ -139,6 +195,37 @@
 		width: 20px;
 		height: 20px;
 		filter: hue-rotate(45deg) contrast(0.6);
+	}
+
+	/* quality */
+	.quality {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.quality-row {
+		display: flex;
+		justify-content: space-between;
+		/* padding-left: 5px; */
+	}
+
+	.quality-value {
+		text-transform: lowercase;
+	}
+
+	.quality-value[data-yes=true],
+	.quality-value[data-deps-status=allLatest] {
+		color: #1b4213;
+	}
+
+	.quality-value[data-deps-status=updatesAvailable] {
+		color: #d4930f;
+	}
+
+	.quality-value.base-quality[data-yes=false],
+	.quality-value[data-deps-status=tooOld] {
+		color: #9f1616;
 	}
 
 	.badges-button {
