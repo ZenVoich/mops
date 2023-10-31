@@ -3,7 +3,7 @@ import {deleteSync} from 'del';
 import chalk from 'chalk';
 import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
 import {Config, Dependency} from '../types.js';
-import {checkIntegrity} from '../integrity.js';
+// import {checkIntegrity} from '../integrity.js';
 
 type RemoveOptions = {
 	verbose?: boolean;
@@ -12,6 +12,7 @@ type RemoveOptions = {
 	lockfile?: 'save' | 'ignore';
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function remove(name: string, {dev = false, verbose = false, dryRun = false, lockfile}: RemoveOptions = {}) {
 	if (!checkConfigFile()) {
 		return;

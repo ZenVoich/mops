@@ -5,7 +5,7 @@ import {checkConfigFile, getGithubCommit, getHighestVersion, parseGithubURL, rea
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
-import {checkIntegrity} from '../integrity.js';
+// import {checkIntegrity} from '../integrity.js';
 
 type AddOptions = {
 	verbose?: boolean;
@@ -13,6 +13,7 @@ type AddOptions = {
 	lockfile?: 'save' | 'ignore';
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function add(name: string, {verbose = false, dev = false, lockfile}: AddOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
