@@ -754,7 +754,10 @@ actor {
 			let ?publication = packagePublications.get(packageId) else Debug.trap("Package publication '" # packageId # "' not found");
 			let storage = actor(Principal.toText(publication.storage)) : Storage.Storage;
 
-			for (fileId in fileIds.vals()) {
+			label l for (fileId in fileIds.vals()) {
+				if (hashByFileId.get(fileId) != null) {
+					continue l;
+				};
 				let #ok(fileMeta) = await storage.getFileMeta(fileId) else Debug.trap("File meta '" # fileId # "' not found");
 
 				let hasher = Sha256.Digest(#sha256);
