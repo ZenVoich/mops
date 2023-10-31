@@ -99,7 +99,7 @@ export async function remove(name: string, {dev = false, verbose = false, dryRun
 	}
 	dryRun || writeConfig(config);
 
-	console.log(chalk.green('Package removed ') + `${name} = "${version}"`);
+	// await checkIntegrity(lockfile);
 
-	await checkIntegrity(lockfile);
+	console.log(chalk.green('Package removed ') + `${name} = "${version}"`);
 }

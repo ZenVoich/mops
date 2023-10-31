@@ -28,13 +28,13 @@ export async function sync({lockfile}: SyncOptions = {}) {
 
 	// add missing packages
 	for (let pkg of missing) {
-		await add(pkg);
+		await add(pkg, {lockfile: 'ignore'});
 	}
 
 	// remove unused packages
 	for (let pkg of unused) {
 		let dev = devDeps.has(pkg) && !deps.has(pkg);
-		await remove(pkg, {dev});
+		await remove(pkg, {dev, lockfile: 'ignore'});
 	}
 
 	await checkIntegrity(lockfile);

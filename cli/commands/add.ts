@@ -106,10 +106,13 @@ export async function add(name: string, {verbose = false, dev = false, lockfile}
 	}
 
 	writeConfig(config);
-	await notifyInstalls(Object.keys(installedPackages));
+
+	// logUpdate('Checking integrity...');
+	await Promise.all([
+		notifyInstalls(Object.keys(installedPackages)),
+		// checkIntegrity(lockfile),
+	]);
 
 	logUpdate.clear();
 	console.log(chalk.green('Package installed ') + `${pkgDetails.name} = "${pkgDetails.repo || pkgDetails.path || pkgDetails.version}"`);
-
-	await checkIntegrity(lockfile);
 }

@@ -36,12 +36,16 @@ export async function installAll({verbose = false, silent = false, lockfile}: In
 		}
 	}
 
-	await notifyInstalls(Object.keys(installedPackages));
+	if (!silent && lockfile !== 'ignore') {
+		logUpdate('Checking integrity...');
+	}
+	await Promise.all([
+		notifyInstalls(Object.keys(installedPackages)),
+		checkIntegrity(lockfile),
+	]);
 
 	if (!silent) {
 		logUpdate.clear();
 		console.log(chalk.green('All packages installed'));
 	}
-
-	await checkIntegrity(lockfile);
 }
