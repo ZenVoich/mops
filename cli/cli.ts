@@ -154,7 +154,7 @@ program
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await installAll({silent: true});
+		await installAll({silent: true, lockfile: 'ignore'});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
 	});
