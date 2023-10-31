@@ -590,6 +590,7 @@ actor {
 		for (fileId in publicFileIds.vals()) {
 			let ?hasher = publishingFileHashers.get(fileId) else return #err("Hasher not found");
 			hashByFileId.put(fileId, hasher.sum());
+			publishingFileHashers.delete(fileId);
 		};
 
 		// finish uploads
@@ -757,7 +758,7 @@ actor {
 				let #ok(fileMeta) = await storage.getFileMeta(fileId) else Debug.trap("File meta '" # fileId # "' not found");
 
 				let hasher = Sha256.Digest(#sha256);
-				for (i in Iter.range(1, fileMeta.chunkCount)) {
+				for (i in Iter.range(0, fileMeta.chunkCount - 1)) {
 					let #ok(chunk) = await storage.downloadChunk(fileId, i) else Debug.trap("File chunk '" # fileId # "' not found");
 					hasher.writeBlob(chunk);
 				};

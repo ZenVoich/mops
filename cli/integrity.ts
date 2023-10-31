@@ -20,6 +20,7 @@ export async function checkIntegrity(lock?: 'save' | 'check' | 'ignore') {
 
 	if (lock === 'save') {
 		await saveLockFile();
+		await checkLockFile(force);
 	}
 	else if (lock === 'check') {
 		await checkLockFile(force);

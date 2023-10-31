@@ -65,7 +65,7 @@ program
 	.option('--dev', 'Remove from dev-dependencies instead of dependencies')
 	.option('--verbose', 'Show more information')
 	.option('--dry-run', 'Do not actually remove anything')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'check', 'ignore']))
+	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
