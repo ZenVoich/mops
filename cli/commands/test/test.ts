@@ -149,10 +149,10 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 					// run
 					let proc = spawn('wasmtime', [
 						'--max-wasm-stack=2000000',
-                        '--enable-cranelift-nan-canonicalization',
-                        '--wasm-features',
-                        'multi-memory,bulk-memory',
-						wasmFile
+						'--enable-cranelift-nan-canonicalization',
+						'--wasm-features',
+						'multi-memory,bulk-memory',
+						wasmFile,
 					]);
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
