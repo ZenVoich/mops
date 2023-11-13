@@ -15,7 +15,7 @@ export async function checkIntegrity(lock?: 'save' | 'check' | 'ignore') {
 	let force = !!lock;
 
 	if (!lock) {
-		lock = process.env['CI'] ? 'check' : 'save';
+		lock = process.env['CI'] ? 'check' : 'ignore';
 	}
 
 	if (lock === 'save') {
