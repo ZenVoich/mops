@@ -212,6 +212,7 @@ program
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
+		await installAll({silent: true, lockfile: 'ignore'});
 		await test(filter, options);
 	});
 
@@ -225,6 +226,7 @@ program
 	// .addOption(new Option('--force-gc', 'Force GC'))
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
+		await installAll({silent: true, lockfile: 'ignore'});
 		await bench(filter, options);
 	});
 
