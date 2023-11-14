@@ -1,19 +1,17 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import {Actor, HttpAgent, Identity} from '@dfinity/agent';
+import {Identity} from '@dfinity/agent';
 import TOML from '@iarna/toml';
 import chalk from 'chalk';
 import prompts from 'prompts';
 import ncp from 'ncp';
 import fetch from 'node-fetch';
 
-import {idlFactory} from './declarations/main/index.js';
-import {_SERVICE} from './declarations/main/main.did.js';
-import {idlFactory as storageIdlFactory} from './declarations/storage/index.js';
-import {_SERVICE as _STORAGE_SERVICE} from './declarations/storage/storage.did.js';
 import {decodeFile} from './pem.js';
 import {Config} from './types.js';
-import {Principal} from '@dfinity/principal';
+import {mainActor, storageActor} from './api/actors.js';
+import {getNetwork} from './api/network.js';
+import {getHighestVersion} from './api/getHighestVersion.js';
 
 
 if (!global.fetch) {
@@ -22,14 +20,6 @@ if (!global.fetch) {
 
 // (!) make changes in pair with backend
 export let apiVersion = '1.2';
-
-let networkFile: string | URL = '';
-try {
-	networkFile = new URL('./network.txt', import.meta.url);
-}
-catch {
-	networkFile = path.join(__dirname, 'network.txt');
-}
 
 export let globalConfigDir = '';
 export let globalCacheDir = '';
@@ -83,37 +73,20 @@ if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
 	console.log('Moved cache to ' + chalk.green(globalCacheDir));
 }
 
-export function setNetwork(network: string) {
-	fs.writeFileSync(networkFile, network);
+
+export function getNetworkFile(): string | URL {
+	let networkFile: string | URL = '';
+	try {
+		networkFile = new URL('./network.txt', import.meta.url);
+	}
+	catch {
+		networkFile = path.join(__dirname, 'network.txt');
+	}
+	return networkFile;
 }
 
-export function getNetwork() {
-	let network = 'ic';
-	if (fs.existsSync(networkFile)) {
-		network = fs.readFileSync(networkFile).toString() || 'ic';
-	}
-
-	if (network === 'staging') {
-		return {
-			network,
-			host: 'https://icp-api.io',
-			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
-		};
-	}
-	else if (network === 'ic') {
-		return {
-			network,
-			host: 'https://icp-api.io',
-			canisterId: 'oknww-riaaa-aaaam-qaf6a-cai',
-		};
-	}
-	else {
-		return {
-			network,
-			host: 'http://127.0.0.1:4943',
-			canisterId: '2d2zu-vaaaa-aaaak-qb6pq-cai',
-		};
-	}
+export function setNetwork(network: string) {
+	fs.writeFileSync(getNetworkFile(), network);
 }
 
 export let getIdentity = async (): Promise<Identity | undefined> => {
@@ -131,43 +104,6 @@ export let getIdentity = async (): Promise<Identity | undefined> => {
 		return decodeFile(identityPem);
 	}
 	return undefined;
-};
-
-export let mainActor = async (useIdentity = false): Promise<_SERVICE> => {
-	let network = getNetwork().network;
-	let host = getNetwork().host;
-	let canisterId = getNetwork().canisterId;
-
-	let identity = useIdentity ? await getIdentity() : undefined;
-	// @ts-ignore exactOptionalPropertyTypes
-	let agent = new HttpAgent({host, identity});
-
-	if (network === 'local') {
-		await agent.fetchRootKey();
-	}
-
-	return Actor.createActor(idlFactory, {
-		agent,
-		canisterId,
-	});
-};
-
-export let storageActor = async (storageId: Principal, useIdentity = false): Promise<_STORAGE_SERVICE> => {
-	let network = getNetwork().network;
-	let host = getNetwork().host;
-
-	let identity = useIdentity && await getIdentity();
-	// @ts-ignore exactOptionalPropertyTypes
-	let agent = new HttpAgent({host, identity});
-
-	if (network === 'local') {
-		await agent.fetchRootKey();
-	}
-
-	return Actor.createActor(storageIdlFactory, {
-		agent,
-		canisterId: storageId,
-	});
 };
 
 export function getClosestConfigFile(dir = process.cwd()) {
@@ -201,11 +137,6 @@ export function checkConfigFile() {
 export function progressBar(step: number, total: number) {
 	let done = Math.round(step / total * 10);
 	return `[${':'.repeat(done)}${' '.repeat(Math.max(0, 10 - done))}]`;
-}
-
-export async function getHighestVersion(pkgName: string) {
-	let actor = await mainActor();
-	return actor.getHighestVersion(pkgName);
 }
 
 export function parseGithubURL(href: string) {
@@ -339,3 +270,11 @@ export async function checkApiCompatibility() {
 	}
 	return true;
 }
+
+// compatibility with older versions
+export {
+	getNetwork,
+	mainActor,
+	storageActor,
+	getHighestVersion,
+};

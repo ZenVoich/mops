@@ -8,7 +8,8 @@ import prompts from 'prompts';
 import {fromMarkdown} from 'mdast-util-from-markdown';
 import {toMarkdown} from 'mdast-util-to-markdown';
 
-import {checkConfigFile, getRootDir, mainActor, progressBar, readConfig} from '../mops.js';
+import {checkConfigFile, getIdentity, getRootDir, progressBar, readConfig} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
 import {DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
@@ -266,7 +267,8 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	}
 
 	// upload config
-	let actor = await mainActor(true);
+	let identity = await getIdentity();
+	let actor = await mainActor(identity);
 
 	progress();
 	let publishing = await actor.startPublish(backendPkgConfig);

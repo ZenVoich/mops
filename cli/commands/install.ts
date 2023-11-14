@@ -2,10 +2,13 @@ import path from 'node:path';
 import fs from 'node:fs';
 import logUpdate from 'log-update';
 import chalk from 'chalk';
-import {checkConfigFile, formatDir, getHighestVersion, mainActor, progressBar, readConfig, storageActor} from '../mops.js';
+import {checkConfigFile, formatDir, progressBar, readConfig} from '../mops.js';
+import {getHighestVersion} from '../api/getHighestVersion.js';
+import {storageActor} from '../api/actors.js';
 import {parallel} from '../parallel.js';
 import {installFromGithub} from '../vessel.js';
 import {addCache, copyCache, isCached} from '../cache.js';
+import {downloadFile, getPackageFilesInfo} from '../api/downloadPackageFiles.js';
 
 export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}): Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
@@ -31,7 +34,6 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 	}
 
 	let dir = formatDir(pkg, version);
-	let actor = await mainActor();
 	let alreadyInstalled = false;
 
 	// already installed
@@ -46,28 +48,6 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 	}
 	// download
 	else {
-		let [packageDetailsRes, filesIdsRes] = await Promise.all([
-			actor.getPackageDetails(pkg, version),
-			actor.getFileIds(pkg, version),
-		]);
-
-		if ('err' in packageDetailsRes) {
-			console.log(chalk.red('Error: ') + packageDetailsRes.err);
-			return false;
-		}
-		let packageDetails = packageDetailsRes.ok;
-
-		if ('err' in filesIdsRes) {
-			console.log(chalk.red('Error: ') + filesIdsRes.err);
-			return false;
-		}
-		let filesIds = filesIdsRes.ok;
-		total = filesIds.length + 2;
-
-		let storage = await storageActor(packageDetails.publication.storage);
-
-		// download files
-		let filesData = new Map;
 		let threads = 16;
 
 		// GitHub Actions fails with "fetch failed" if there are multiple concurrent actions
@@ -75,32 +55,29 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 			threads = 4;
 		}
 
-		await parallel(threads, filesIds, async (fileId: string) => {
-			let fileMetaRes = await storage.getFileMeta(fileId);
-			if ('err' in fileMetaRes) {
-				console.log(chalk.red('ERR: ') + fileMetaRes.err);
-				return;
-			}
-			let fileMeta = fileMetaRes.ok;
+		try {
+			let {storageId, fileIds} = await getPackageFilesInfo(pkg, version);
 
-			let buffer = Buffer.from([]);
-			for (let i = 0n; i < fileMeta.chunkCount; i++) {
-				let chunkRes = await storage.downloadChunk(fileId, i);
-				if ('err' in chunkRes) {
-					console.log(chalk.red('ERR: ') + chunkRes.err);
-					return;
-				}
-				let chunk = chunkRes.ok;
-				buffer = Buffer.concat([buffer, Buffer.from(chunk)]);
-			}
-			filesData.set(fileMeta.path, buffer);
-			progress();
-		});
+			total = fileIds.length + 2;
 
-		// write files to disk
-		for (let [filePath, buffer] of filesData.entries()) {
-			fs.mkdirSync(path.join(dir, path.dirname(filePath)), {recursive: true});
-			fs.writeFileSync(path.join(dir, filePath), buffer);
+			let filesData = new Map;
+			let storage = await storageActor(storageId);
+
+			await parallel(threads, fileIds, async (fileId: string) => {
+				let {path, data} = await downloadFile(storage, fileId);
+				filesData.set(path, data);
+				progress();
+			});
+
+			// write files to disk
+			for (let [filePath, data] of filesData.entries()) {
+				fs.mkdirSync(path.join(dir, path.dirname(filePath)), {recursive: true});
+				fs.writeFileSync(path.join(dir, filePath), Buffer.from(data));
+			}
+		}
+		catch (err) {
+			console.error(chalk.red('Error: ') + err);
+			return false;
 		}
 
 		// add to cache

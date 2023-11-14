@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import {checkConfigFile, mainActor, readConfig} from '../mops.js';
+import {checkConfigFile, getIdentity, readConfig} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 import {Principal} from '@dfinity/principal';
 import prompts from 'prompts';
 
@@ -30,7 +31,8 @@ export async function transferOwnership(toPrincipal: string) {
 		return;
 	}
 
-	let actor = await mainActor(true);
+	let identity = await getIdentity();
+	let actor = await mainActor(identity);
 
 	let res = await actor.transferOwnership(config.package?.name || '', principal);
 	if ('ok' in res) {

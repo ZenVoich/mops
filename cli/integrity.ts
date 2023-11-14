@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {sha256} from '@noble/hashes/sha256';
 import {bytesToHex} from '@noble/hashes/utils';
-import {getDependencyType, getRootDir, mainActor} from './mops.js';
+import {getDependencyType, getRootDir} from './mops.js';
+import {mainActor} from './api/actors.js';
 import {resolvePackages} from './resolve-packages.js';
 
 type LockFileV1 = {

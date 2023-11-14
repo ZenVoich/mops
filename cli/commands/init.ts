@@ -4,7 +4,8 @@ import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import chalk from 'chalk';
 import prompts from 'prompts';
 
-import {checkApiCompatibility, mainActor, writeConfig} from '../mops.js';
+import {checkApiCompatibility, writeConfig} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 import {installAll} from './install-all.js';
 import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {Config, Dependencies} from '../types.js';

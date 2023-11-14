@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import {mainActor} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 import {Config} from '../types.js';
 
 // [pkg, oldVersion, newVersion]

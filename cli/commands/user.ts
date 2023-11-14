@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import {getIdentity, mainActor} from '../mops.js';
+import {getIdentity} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 
 export async function getUserProp(prop: string) {
 	let actor = await mainActor();
@@ -14,7 +15,9 @@ export async function getUserProp(prop: string) {
 }
 
 export async function setUserProp(prop: string, value: string) {
-	let actor = await mainActor(true);
+	let identity = await getIdentity();
+	let actor = await mainActor(identity);
+
 	let res = await actor.setUserProp(prop, value);
 	if ('ok' in res) {
 		console.log(chalk.green('Success!'));

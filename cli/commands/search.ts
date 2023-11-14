@@ -1,11 +1,10 @@
 import asTable from 'as-table';
 import chalk from 'chalk';
-import {mainActor} from '../mops.js';
+import {mainActor} from '../api/actors.js';
 
 export async function search(text: string) {
 	let actor = await mainActor();
-	let res = await actor.search(text, [], []);
-	let packages = res[0];
+	let [packages, _pageCount] = await actor.search(text, [], []);
 
 	if (!packages.length) {
 		console.log('Packages not found');

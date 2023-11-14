@@ -1,4 +1,5 @@
-import {getDependencyType, mainActor} from './mops.js';
+import {getDependencyType} from './mops.js';
+import {mainActor} from './api/actors.js';
 import {resolvePackages} from './resolve-packages.js';
 
 export async function notifyInstalls(names: string[]) {

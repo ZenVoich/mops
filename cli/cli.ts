@@ -9,7 +9,9 @@ import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, getNetwork, setNetwork, apiVersion, checkConfigFile, mainActor} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, getIdentity} from './mops.js';
+import {getNetwork} from './api/network.js';
+import {mainActor} from './api/actors.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
@@ -27,6 +29,17 @@ import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
 // import {docs} from './commands/docs.js';
+
+declare global {
+	// eslint-disable-next-line no-var
+	var MOPS_NETWORK: string;
+}
+
+let networkFile = getNetworkFile();
+if (fs.existsSync(networkFile)) {
+	globalThis.MOPS_NETWORK = fs.readFileSync(networkFile).toString() || 'ic';
+}
+
 
 program.name('mops');
 
@@ -132,7 +145,7 @@ program
 	.alias('gn')
 	.description('Get network')
 	.action(async () => {
-		console.log(getNetwork().network);
+		console.log(getNetwork());
 	});
 
 // import-identity
@@ -272,11 +285,12 @@ program
 		}
 	});
 
-// airdrop
+// temp: airdrop
 program
 	.command('airdrop <check|claim> [canister]')
 	.action(async (sub, canister) => {
-		let main = await mainActor(true);
+		let identity = await getIdentity();
+		let main = await mainActor(identity);
 		if (sub === 'check') {
 			let amount = await main.getAirdropAmount();
 			if (amount === 0n) {

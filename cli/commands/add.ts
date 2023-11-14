@@ -1,7 +1,8 @@
 import path from 'node:path';
 import chalk from 'chalk';
 import logUpdate from 'log-update';
-import {checkConfigFile, getGithubCommit, getHighestVersion, parseGithubURL, readConfig, writeConfig} from '../mops.js';
+import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig, writeConfig} from '../mops.js';
+import {getHighestVersion} from '../api/getHighestVersion.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
