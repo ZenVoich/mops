@@ -1211,6 +1211,7 @@ actor {
 					"linked-list",
 					"map",
 					"merkle-patricia-trie",
+					"memory-buffer",
 				], limit))
 			),
 			(
@@ -1224,6 +1225,7 @@ actor {
 					"fuzz",
 					"test",
 					"time-consts",
+					"memory-region",
 				], limit))
 			),
 			(
@@ -1235,6 +1237,7 @@ actor {
 					"cbor",
 					"candy",
 					"candid",
+					"rep-indy-hash",
 				], limit))
 			),
 			(
@@ -1289,6 +1292,20 @@ actor {
 				_sortByUpdated(_summariesFromNames([
 					"candb",
 					"rxmodb",
+				], limit))
+			),
+			(
+				"Stable Memory",
+				_sortByUpdated(_summariesFromNames([
+					"memory-region",
+					"memory-buffer",
+				], limit))
+			),
+			(
+				"ICRC",
+				_sortByUpdated(_summariesFromNames([
+					"icrc1",
+					"origyn-nft",
 				], limit))
 			),
 		];
