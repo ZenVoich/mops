@@ -14,17 +14,17 @@ import Users "../backend/main/users";
 
 let fuzz = Fuzz.Fuzz();
 let users = Users.Users();
-let aliceId = fuzz.principal.random();
+let aliceId = fuzz.principal.randomPrincipal(29);
 
 func ensureNewUser() : Principal {
-	let userId = fuzz.principal.random();
+	let userId = fuzz.principal.randomPrincipal(29);
 	users.ensureUser(userId);
 	userId;
 };
 
 test("get unkown user", func() {
-	assert users.getUserOpt(fuzz.principal.random()) == null;
-	assert users.getUserOpt(fuzz.principal.random()) == null;
+	assert users.getUserOpt(fuzz.principal.randomPrincipal(29)) == null;
+	assert users.getUserOpt(fuzz.principal.randomPrincipal(29)) == null;
 });
 
 test("register Alice", func() {
@@ -32,7 +32,7 @@ test("register Alice", func() {
 });
 
 test("setName before user created", func() {
-	let userId = fuzz.principal.random();
+	let userId = fuzz.principal.randomPrincipal(29);
 	assert Result.isErr(users.setName(userId, "alice"));
 });
 
