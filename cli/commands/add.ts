@@ -15,7 +15,7 @@ type AddOptions = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function add(name: string, {verbose = false, dev = false, lockfile}: AddOptions = {}) {
+export async function add(name: string, {verbose = false, dev = false, lockfile}: AddOptions = {}, asName?: string) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -57,7 +57,7 @@ export async function add(name: string, {verbose = false, dev = false, lockfile}
 		}
 
 		pkgDetails = {
-			name: parseGithubURL(name).gitName,
+			name: asName || parseGithubURL(name).gitName,
 			repo: `https://github.com/${org}/${gitName}#${branch}@${commitHash}`,
 			version: '',
 		};
