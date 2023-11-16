@@ -153,7 +153,7 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 						'--wasm-features',
 						'multi-memory,bulk-memory',
 						wasmFile,
-					]);
+					], {env: {WASMTIME_NEW_CLI: '0'}});
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
 					fs.rmSync(wasmFile, {force: true});
