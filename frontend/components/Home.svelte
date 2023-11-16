@@ -100,10 +100,6 @@
 		gap: 30px;
 	}
 
-	.getting-started .title {
-		font-weight: 500;
-		font-size: 30px;
-	}
 	.getting-started .buttons {
 		display: flex;
 		justify-content: center;

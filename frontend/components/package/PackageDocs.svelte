@@ -4,6 +4,7 @@
 	import untar from 'js-untar';
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
+	import asciidoctor from '@asciidoctor/core';
 	import '@wooorm/starry-night/style/light.css';
 	import {getStarryNight} from '/logic/get-starry-night';
 
@@ -51,8 +52,7 @@
 		// adoc to html
 		let text = new TextDecoder().decode(file.buffer);
 		// @ts-ignore
-		let asciidoctor = window.Asciidoctor();
-		let doc = asciidoctor.load(text);
+		let doc = asciidoctor().load(text);
 
 		// definitions
 		let getKind = (line: string): DefinitionKind => {
