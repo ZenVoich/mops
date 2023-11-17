@@ -1263,6 +1263,7 @@ actor {
 					"icrc1",
 					"origyn-nft",
 					"kyc",
+					"xrc-types",
 				], limit))
 			),
 			(
