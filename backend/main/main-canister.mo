@@ -1264,6 +1264,7 @@ actor {
 					"origyn-nft",
 					"kyc",
 					"xrc-types",
+					"promtracker",
 				], limit))
 			),
 			(
@@ -1278,6 +1279,7 @@ actor {
 					"web-io",
 					"http-types",
 					"motoko-certified-assets",
+					"promtracker",
 				], limit))
 			),
 			(
