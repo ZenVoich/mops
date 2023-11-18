@@ -5,7 +5,8 @@ import {createActor as createStorageActor} from '/declarations/storage';
 let getOptions = () => {
 	return {
 		agentOptions: {
-			host: process.env.NODE_ENV === 'production' ? 'https://icp-api.io' : undefined,
+			host: process.env.NODE_ENV === 'production' ? 'https://icp-api.io' : 'http://localhost:4943',
+			verifyQuerySignatures: false,
 		}
 	};
 };
