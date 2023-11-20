@@ -37,12 +37,18 @@ import Badge "./badge";
 import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
+import Registry "./registry/Registry";
+import {searchInRegistry} "./registry/searchInRegistry";
+import {getPackageSummary} "./registry/getPackageSummary";
+import PackagePublisher "./PackagePublisher";
+
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
 
 	public type PackageName = Text.Text; // lib
+	public type PackageVersion = Types.PackageVersion; // 1.2.3
 	public type PackageId = Text.Text; // lib@1.2.3
-	public type PackageVersion = Types.PackageVersion;
+	public type FileId = Types.FileId;
 	public type Err = Text.Text;
 	public type DependencyV2 = Types.DependencyV2;
 	public type Access = Types.Access;
@@ -62,6 +68,8 @@ actor {
 	public type DepChange = Types.DepChange;
 	public type DepsStatus = Types.DepsStatus;
 	public type PackageQuality = Types.PackageQuality;
+	public type PublishingId = Text;
+	public type PublishingErr = Text;
 
 	let API_VERSION = "1.2"; // (!) make changes in pair with cli
 	let MAX_PACKAGE_FILES = 300;
@@ -79,32 +87,26 @@ actor {
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
 
+	let registry = Registry.Registry(
+		packageVersions,
+		packageOwners,
+		highestConfigs,
+		packageConfigs,
+		packagePublications,
+		fileIdsByPackage,
+		hashByFileId,
+		packageFileStats,
+		packageTestStats,
+		packageNotes,
+	);
+
 	let downloadLog = DownloadLog.DownloadLog();
 	downloadLog.setTimers();
 
 	let storageManager = StorageManager.StorageManager();
 	let users = Users.Users();
 
-	// publish
-	type PublishingId = Text.Text;
-	type PublishingErr = Err;
-	type PublishingPackage = {
-		time : Time.Time;
-		user : Principal;
-		config : PackageConfigV2;
-		storage : Principal;
-	};
-	public type FileId = Text.Text;
-	public type PublishingFile = {
-		id : FileId;
-		path : Text.Text;
-	};
-	let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
-	let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
-	let publishingPackageFileStats = TrieMap.TrieMap<PublishingId, PackageFileStats>(Text.equal, Text.hash);
-	let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
-	let publishingNotes = TrieMap.TrieMap<PublishingId, Text>(Text.equal, Text.hash);
-	let publishingFileHashers = TrieMap.TrieMap<FileId, Sha256.Digest>(Text.equal, Text.hash);
+	let packagePublisher = PackagePublisher.PackagePublisher(registry, storageManager);
 
 	// PRIVATE
 	func _getHighestVersion(name : PackageName) : ?PackageVersion {
@@ -150,26 +152,7 @@ actor {
 	};
 
 	func _getPackageSummary(name : PackageName, version : PackageVersion) : ?PackageSummary {
-		let packageId = name # "@" # version;
-
-		do ? {
-			let config = packageConfigs.get(name # "@" # version)!;
-			let publication = packagePublications.get(packageId)!;
-
-			let owner = packageOwners.get(name)!;
-			users.ensureUser(owner);
-
-			return ?{
-				owner = owner;
-				ownerInfo = users.getUser(owner);
-				config = config;
-				publication = publication;
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
-				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
-				quality = _computePackageQuality(name, version);
-			};
-		};
+		getPackageSummary(registry, users, downloadLog, name, version);
 	};
 
 	func _getPackageSummaryWithChanges(name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
@@ -307,334 +290,30 @@ actor {
 
 
 	// PUBLIC
+
+	// Publication
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
-		if (Principal.isAnonymous(caller)) {
-			return #err("Unauthorized");
-		};
-
-		// validate config
-		switch (validateConfig(config)) {
-			case (#ok) {};
-			case (#err(err)) {
-				return #err(err);
-			};
-		};
-
-		// check permissions
-		switch (packageOwners.get(config.name)) {
-			case (null) {
-				// deny '.' and '_' in name for new packages
-				for (char in config.name.chars()) {
-					let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in name '" # config.name # "'");
-					if (char == '.' or char == '_') {
-						return err;
-					};
-				};
-			};
-			case (?owner) {
-				if (owner != caller) {
-					return #err("You don't have permissions to publish this package");
-				};
-			};
-		};
-
-		// check if the same version is published
-		switch (packageVersions.get(config.name)) {
-			case (?versions) {
-				let sameVersionOpt = Array.find<PackageVersion>(versions, func(ver : PackageVersion) {
-					ver == config.version;
-				});
-				if (sameVersionOpt != null) {
-					return #err(config.name # "@" # config.version # " already published");
-				};
-			};
-			case (null) {};
-		};
-
-		// check dependencies
-		for (dep in config.dependencies.vals()) {
-			let packageId = dep.name # "@" # dep.version;
-			if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
-				return #err("Dependency " # packageId # " not found in registry");
-			};
-		};
-
-		// check devDependencies
-		for (dep in config.devDependencies.vals()) {
-			let packageId = dep.name # "@" # dep.version;
-			if (dep.repo.size() == 0 and packageConfigs.get(packageId) == null) {
-				return #err("Dev Dependency " # packageId # " not found in registry");
-			};
-		};
-
-		let publishingId = await generateId();
-
-		if (publishingPackages.get(publishingId) != null) {
-			return #err("Already publishing");
-		};
-
-		await storageManager.ensureUploadableStorages();
-
-		// start
-		publishingPackages.put(publishingId, {
-			time = Time.now();
-			user = caller;
-			config = config;
-			storage = storageManager.getStorageForUpload();
-		});
-		publishingFiles.put(publishingId, Buffer.Buffer(10));
-
-		publishingPackageFileStats.put(publishingId, _defaultPackageFileStats());
-
-		#ok(publishingId);
+		await packagePublisher.startPublish(caller, config);
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
-		assert(not Principal.isAnonymous(caller));
-
-		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
-		assert(publishing.user == caller);
-
-		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
-		if (pubFiles.size() >= MAX_PACKAGE_FILES) {
-			return #err("Maximum number of package files: 300");
-		};
-
-		let moMd = Text.endsWith(path, #text(".mo")) or Text.endsWith(path, #text(".md"));
-		let didToml = Text.endsWith(path, #text(".did")) or Text.endsWith(path, #text(".toml"));
-		let license = Text.endsWith(path, #text("LICENSE")) or Text.endsWith(path, #text("LICENSE.md")) or Text.endsWith(path, #text("license"));
-		let notice = Text.endsWith(path, #text("NOTICE")) or Text.endsWith(path, #text("NOTICE.md")) or Text.endsWith(path, #text("notice"));
-		let docsTgz = path == "docs.tgz";
-		if (not (moMd or didToml or license or notice or docsTgz)) {
-			return #err("File " # path # " has unsupported extension. Allowed: .mo, .md, .did, .toml");
-		};
-
-		let fileId = publishing.config.name # "@" # publishing.config.version # "/" # path;
-
-		let startRes = await storageManager.startUpload(publishing.storage, {
-			id = fileId;
-			path = path;
-			chunkCount = chunkCount;
-			owners = [];
-		});
-		switch (startRes) {
-			case (#err(err)) {
-				return #err(err);
-			};
-			case (_) {};
-		};
-
-		// add temp hasher
-		let hasher = Sha256.Digest(#sha256);
-		publishingFileHashers.put(fileId, hasher);
-
-		// upload first chunk
-		if (chunkCount != 0) {
-			let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, 0, firstChunk);
-			switch (uploadRes) {
-				case (#err(err)) {
-					return #err(err);
-				};
-				case (_) {};
-			};
-
-			// compute hash of the first chunk
-			hasher.writeBlob(firstChunk);
-		};
-
-		// file stats
-		switch (publishingPackageFileStats.get(publishingId)) {
-			case (?fileStats) {
-				if (docsTgz) {
-					publishingPackageFileStats.put(publishingId, {
-						fileStats with
-						docsCount = 1;
-						docsSize = firstChunk.size();
-					});
-				}
-				else {
-					publishingPackageFileStats.put(publishingId, {
-						fileStats with
-						sourceFiles = fileStats.sourceFiles + 1;
-						sourceSize = fileStats.sourceSize + firstChunk.size();
-					});
-				};
-			};
-			case (null) {
-				return #err("File stats not found");
-			};
-		};
-
-		switch (_checkPublishingPackageSize(publishingId)) {
-			case (#err(err)) {
-				return #err(err);
-			};
-			case (#ok) {};
-		};
-
-		let pubFile : PublishingFile = {
-			id = fileId;
-			path = path;
-		};
-		pubFiles.add(pubFile);
-
-		#ok(fileId);
+		await packagePublisher.startFileUpload(caller, publishingId, path, chunkCount, firstChunk);
 	};
 
 	public shared ({caller}) func uploadFileChunk(publishingId : PublishingId, fileId : FileId, chunkIndex : Nat, chunk : Blob) : async Result.Result<(), Err> {
-		assert(not Principal.isAnonymous(caller));
-
-		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
-		assert(publishing.user == caller);
-
-		let uploadRes = await storageManager.uploadChunk(publishing.storage, fileId, chunkIndex, chunk);
-		let #ok = uploadRes else return uploadRes;
-
-		// file stats
-		switch (publishingPackageFileStats.get(publishingId)) {
-			case (?fileStats) {
-				publishingPackageFileStats.put(publishingId, {
-					fileStats with
-					sourceFiles = fileStats.sourceFiles + 1;
-					sourceSize = fileStats.sourceSize + chunk.size();
-				});
-			};
-			case (null) {
-				return #err("File stats not found");
-			};
-		};
-
-		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
-		if (Result.isErr(pkgSizeRes)) {
-			return pkgSizeRes;
-		};
-
-		let ?hasher = publishingFileHashers.get(fileId) else return #err("Hasher not found");
-		hasher.writeBlob(chunk);
-
-		#ok;
+		await packagePublisher.uploadFileChunk(caller, publishingId, fileId, chunkIndex, chunk);
 	};
 
 	public shared ({caller}) func uploadTestStats(publishingId : PublishingId, testStats : TestStats) : async Result.Result<(), Err> {
-		assert(not Principal.isAnonymous(caller));
-
-		if (testStats.passedNames.size() > 10_000) {
-			return #err("Max number of test names is 10_000");
-		};
-
-		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
-		assert(publishing.user == caller);
-
-		publishingTestStats.put(publishingId, testStats);
-		#ok;
+		packagePublisher.uploadTestStats(caller, publishingId, testStats);
 	};
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
-		assert(not Principal.isAnonymous(caller));
-
-		if (notes.size() > 10_000) {
-			return #err("Max changelog size is 10_000");
-		};
-
-		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
-		assert(publishing.user == caller);
-
-		publishingNotes.put(publishingId, notes);
-		#ok;
+		packagePublisher.uploadNotes(caller, publishingId, notes);
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		assert(not Principal.isAnonymous(caller));
-
-		let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
-		assert(publishing.user == caller);
-
-		let packageId = publishing.config.name # "@" # publishing.config.version;
-		let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
-
-		var mopsToml = false;
-		var readmeMd = false;
-
-		for (file in pubFiles.vals()) {
-			if (file.path == "mops.toml") {
-				mopsToml := true;
-			};
-			if (file.path == "README.md") {
-				readmeMd := true;
-			};
-		};
-
-		if (not mopsToml) {
-			return #err("Missing required file mops.toml");
-		};
-		if (not readmeMd) {
-			return #err("Missing required file README.md");
-		};
-
-		let pkgSizeRes = _checkPublishingPackageSize(publishingId);
-		if (Result.isErr(pkgSizeRes)) {
-			return pkgSizeRes;
-		};
-
-		let fileIds = Array.map(Buffer.toArray(pubFiles), func(file : PublishingFile) : Text.Text {
-			file.id;
-		});
-
-		let publicFileIds = Array.filter(fileIds, func(fileId : Text.Text) : Bool {
-			not Text.endsWith(fileId, #text("docs.tgz"));
-		});
-
-		fileIdsByPackage.put(packageId, publicFileIds);
-
-		// store file hashes
-		for (fileId in publicFileIds.vals()) {
-			let ?hasher = publishingFileHashers.get(fileId) else return #err("Hasher not found");
-			hashByFileId.put(fileId, hasher.sum());
-			publishingFileHashers.delete(fileId);
-		};
-
-		// finish uploads
-		let res = await storageManager.finishUploads(publishing.storage, fileIds);
-		if (Result.isErr(res)) {
-			return res;
-		};
-
-		_updateHighestConfig(publishing.config);
-
-		let versions = Option.get(packageVersions.get(publishing.config.name), []);
-		packageVersions.put(publishing.config.name, Array.append(versions, [publishing.config.version]));
-
-		packageConfigs.put(packageId, publishing.config);
-		packageOwners.put(publishing.config.name, caller);
-		packagePublications.put(packageId, {
-			user = caller;
-			time = Time.now();
-			storage = publishing.storage;
-		});
-
-		switch (publishingPackageFileStats.get(publishingId)) {
-			case (?fileStats) {
-				packageFileStats.put(packageId, fileStats);
-			};
-			case (null) {};
-		};
-
-		switch (publishingTestStats.get(publishingId)) {
-			case (?testStats) {
-				packageTestStats.put(packageId, testStats);
-			};
-			case (null) {};
-		};
-
-		packageNotes.put(packageId, Option.get(publishingNotes.get(publishingId), ""));
-
-		publishingFiles.delete(publishingId);
-		publishingPackages.delete(publishingId);
-		publishingPackageFileStats.delete(publishingId);
-		publishingTestStats.delete(publishingId);
-		publishingNotes.delete(publishingId);
-
-		#ok;
+		await packagePublisher.finishPublish(caller, publishingId);
 	};
 
 	public query func diff(a : Text, b : Text) : async PackageChanges {
@@ -643,20 +322,6 @@ actor {
 			tests = _computeTestsChangesBetween(a, b);
 			deps = _computeDepsChangesBetween(a, b);
 			devDeps = _computeDevDepsChangesBetween(a, b);
-		};
-	};
-
-	func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), Err> {
-		switch (publishingPackageFileStats.get(publishingId)) {
-			case (?fileStats) {
-				if (fileStats.sourceSize + fileStats.docsSize > MAX_PACKAGE_SIZE) {
-					return #err("Max package size is 50MB");
-				};
-				#ok;
-			};
-			case (null) {
-				#err("File stats not found");
-			};
 		};
 	};
 
@@ -770,53 +435,6 @@ actor {
 		};
 	};
 
-	func _computeDepsStatus(name : PackageName, version : PackageVersion) : DepsStatus {
-		let packageId = name # "@" # version;
-		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-
-		var status : DepsStatus = #allLatest;
-
-		label l for (dep in config.dependencies.vals()) {
-			if (dep.version == "") {
-				continue l;
-			};
-
-			let depId = dep.name # "@" # dep.version;
-			let ?highestVersion = _getHighestVersion(dep.name) else Debug.trap("Package '" # dep.name # "' not found");
-
-			if (dep.version != highestVersion) {
-				status := #updatesAvailable;
-
-				let ?publication = packagePublications.get(depId) else Debug.trap("Package '" # depId # "' not found");
-				if (publication.time < Time.now() - 180 * DAY) {
-					status := #tooOld;
-					break l;
-				};
-			};
-		};
-
-		status;
-	};
-
-	func _computePackageQuality(name : PackageName, version : PackageVersion) : PackageQuality {
-		let packageId = name # "@" # version;
-		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		let fileStats = Option.get(packageFileStats.get(packageId), _defaultPackageFileStats());
-		let testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
-		let notes = Option.get(packageNotes.get(packageId), "");
-
-		{
-			hasDescription = config.description.size() > 10;
-			hasKeywords = config.keywords.size() > 0;
-			hasLicense = config.license != "";
-			hasRepository = config.repository.size() > 20;
-			hasDocumentation = fileStats.docsCount > 0;
-			depsStatus = _computeDepsStatus(name, version);
-			hasTests = testStats.passed > 0;
-			hasReleaseNotes = notes.size() > 10;
-		};
-	};
-
 	// AIRDROP
 	let cyclesPerOwner = 15_000_000_000_000; // 15 TC
 	let cyclesPerPackage = 1_000_000_000_000; // 1 TC
@@ -876,12 +494,12 @@ actor {
 		return Nat.toText(cycles) # " cycles deposited to " # Principal.toText(canisterId);
 	};
 
-
 	// QUERY
 	public shared query ({caller}) func getApiVersion() : async Text.Text {
 		API_VERSION;
 	};
 
+	// defaultPackages.mo
 	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
 		switch (dfxVersion) {
 			case ("0.9.0") [("base", "0.6.20")];
@@ -1043,86 +661,7 @@ actor {
 	};
 
 	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
-		let limit = Option.get(limitOpt, 20);
-		let pageIndex = Option.get(pageIndexOpt, 0);
-
-		assert(limit <= 200);
-		assert(pageIndex <= 1_000_000);
-		assert(searchText.size() <= 100);
-
-		type ConfigWithPoints = {
-			config : PackageConfigV2;
-			sortingPoints : Nat;
-		};
-		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(0);
-		let pattern = #text(_toLowerCase(searchText));
-
-		for (config in highestConfigs.vals()) {
-			var sortingPoints = 0;
-
-			// search by owner
-			if (Text.startsWith(searchText, #text("owner:"))) {
-				ignore do ? {
-					let searchOwnerName = Text.stripStart(searchText, #text("owner:"))!;
-					let ownerId = packageOwners.get(config.name)!;
-					let ownerInfo = users.getUserOpt(ownerId)!;
-					if (searchOwnerName == ownerInfo.name) {
-						sortingPoints += 3;
-					};
-				};
-			}
-			// search by keyword
-			else if (Text.startsWith(searchText, #text("keyword:"))) {
-				ignore do ? {
-					let searchKeyword = Text.stripStart(searchText, #text("keyword:"))!;
-					let found = Array.find(config.keywords, func(keyword : Text) : Bool {
-						keyword == searchKeyword;
-					});
-					if (found != null) {
-						sortingPoints += 3;
-					};
-				};
-			}
-			else {
-				if (config.name == searchText) {
-					sortingPoints += 10;
-				};
-				if (Text.contains(config.name, pattern)) {
-					sortingPoints += 3;
-				};
-				if (Text.contains(_toLowerCase(config.description), pattern)) {
-					sortingPoints += 1;
-				};
-				for (keyword in config.keywords.vals()) {
-					if (Text.contains(_toLowerCase(keyword), pattern)) {
-						sortingPoints += 2;
-					};
-				};
-			};
-
-			if (sortingPoints > 0) {
-				matchedConfigs.add({config; sortingPoints});
-			};
-		};
-
-		var configs = Array.sort<ConfigWithPoints>(Buffer.toArray(matchedConfigs), func(a, b) {
-			var aPoints = a.sortingPoints;
-			var bPoints = b.sortingPoints;
-
-			if (a.config.name.size() < b.config.name.size()) aPoints += 1;
-			if (a.config.name.size() > b.config.name.size()) bPoints += 1;
-
-			Nat.compare(bPoints, aPoints);
-		});
-
-		let page = Utils.getPage(configs, pageIndex, limit);
-
-		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			let ?summary = _getPackageSummary(config.config.name, config.config.version) else Debug.trap("Package '" # config.config.name # "' not found");
-			summary;
-		});
-
-		(summaries, page.1);
+		searchInRegistry(registry, users, downloadLog, searchText, limitOpt, pageIndexOpt);
 	};
 
 	public query func getRecentlyUpdatedPackages() : async [PackageSummaryWithChanges] {
