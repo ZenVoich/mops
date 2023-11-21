@@ -13,6 +13,6 @@ test("dayOfWeek", func() {
 			minute = 0;
 			nanosecond = 0;
 		};
-		Debug.print(debug_show(DateComponents.dayOfWeek(components)));
+		Debug.print(debug_show(i) # " - " # debug_show(DateComponents.dayOfWeek(components)));
 	};
 });
