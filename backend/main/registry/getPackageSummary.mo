@@ -8,13 +8,17 @@ import Registry "./Registry";
 import DownloadLog "../download-log";
 import Users "../users";
 
+import {getPackageChanges} "./getPackageChanges";
+
 module {
 	public type PackageName = Types.PackageName;
 	public type PackageVersion = Types.PackageVersion;
 	public type PackageSummary = Types.PackageSummary;
 	public type PackageQuality = Types.PackageQuality;
 	public type DepsStatus = Types.DepsStatus;
+	public type PackageSummaryWithChanges = Types.PackageSummaryWithChanges;
 
+	// lightweight package summary
 	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
 		let packageId = name # "@" # version;
 
@@ -38,6 +42,16 @@ module {
 		};
 	};
 
+	// package summary with changes between this version and previous version
+	public func getPackageSummaryWithChanges(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
+		let ?packageSummary = getPackageSummary(registry, users, downloadLog, name, version) else return null;
+		?{
+			packageSummary with
+			changes = getPackageChanges(registry, name, version);
+		};
+	};
+
+	// package quality
 	func _computePackageQuality(registry : Registry.Registry, name : PackageName, version : PackageVersion) : PackageQuality {
 		let packageId = name # "@" # version;
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
@@ -54,6 +68,7 @@ module {
 		};
 	};
 
+	// deps status
 	func _computeDepsStatus(registry : Registry.Registry, name : PackageName, version : PackageVersion) : DepsStatus {
 		let packageId = name # "@" # version;
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");

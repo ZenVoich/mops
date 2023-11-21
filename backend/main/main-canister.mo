@@ -38,9 +38,11 @@ import {validateConfig} "./validate-config";
 import {generateId} "../generate-id";
 
 import Registry "./registry/Registry";
+import PackagePublisher "./PackagePublisher";
 import {searchInRegistry} "./registry/searchInRegistry";
 import {getPackageSummary} "./registry/getPackageSummary";
-import PackagePublisher "./PackagePublisher";
+import {getPackageDetails = _getPackageDetails} "./registry/getPackageDetails";
+import {getPackageChanges} "./registry/getPackageChanges";
 
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
@@ -87,7 +89,7 @@ actor {
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
 
-	let registry = Registry.Registry(
+	var registry = Registry.Registry(
 		packageVersions,
 		packageOwners,
 		highestConfigs,
@@ -106,48 +108,15 @@ actor {
 	let storageManager = StorageManager.StorageManager();
 	let users = Users.Users();
 
-	let packagePublisher = PackagePublisher.PackagePublisher(registry, storageManager);
+	var packagePublisher = PackagePublisher.PackagePublisher(registry, storageManager);
 
 	// PRIVATE
-	func _getHighestVersion(name : PackageName) : ?PackageVersion {
-		let ?versions = packageVersions.get(name) else return null;
-		let verSorted = Array.sort(versions, Semver.compare);
-
-		if (verSorted.size() != 0) {
-			return ?verSorted[verSorted.size() - 1];
-		};
-		return null;
-	};
-
-	func _getPrevVersion(name : PackageName, version : PackageVersion) : ?PackageVersion {
-		let ?versions = packageVersions.get(name) else return null;
-		let verSorted = Array.sort(versions, Semver.compare);
-		let ?curIndex = Array.indexOf(version, versions, Semver.equal) else return null;
-		if (curIndex > 0) {
-			return ?verSorted[curIndex - 1];
-		};
-		null;
-	};
-
 	func _resolveVersion(name : PackageName, version : PackageVersion) : ?PackageVersion {
 		if (version == "highest") {
-			_getHighestVersion(name);
+			registry.getHighestVersion(name);
 		}
 		else {
 			?version;
-		};
-	};
-
-	func _updateHighestConfig(config : PackageConfigV2) {
-		switch (_getHighestVersion(config.name)) {
-			case (?ver) {
-				if (Semver.compare(config.version, ver) == #greater) {
-					highestConfigs.put(config.name, config);
-				};
-			};
-			case (null) {
-				highestConfigs.put(config.name, config);
-			};
 		};
 	};
 
@@ -159,132 +128,7 @@ actor {
 		let ?packageSummary = _getPackageSummary(name, version) else return null;
 		?{
 			packageSummary with
-			changes = _computePackageChanges(name, version);
-		};
-	};
-
-	func _getPackageDetails(name : PackageName, version : PackageVersion) : ?PackageDetails {
-		let packageId = name # "@" # version;
-
-		do ? {
-			let summary = _getPackageSummary(name, version)!;
-			let fileStats = Option.get(packageFileStats.get(packageId), _defaultPackageFileStats());
-
-			return ?{
-				summary with
-				versionHistory = _getPackageVersionHistory(name);
-				deps = _getPackageDependencies(name, version);
-				devDeps = _getPackageDevDependencies(name, version);
-				dependents = _getPackageDependents(name);
-				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
-				fileStats = {
-					sourceFiles = fileStats.sourceFiles;
-					sourceSize = fileStats.sourceSize;
-				};
-				testStats = Option.get(packageTestStats.get(packageId), { passed = 0; passedNames = []; });
-				changes = _computePackageChanges(name, version);
-			};
-		};
-	};
-
-	func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-		let ?versions = packageVersions.get(name) else Debug.trap("Package '" # name # "' not found");
-		Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-			let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package '" # name # "' not found");
-			summary;
-		}));
-	};
-
-	func _getDepsSummaries(deps : [DependencyV2]) : [PackageSummary] {
-		let filtered = Array.filter<DependencyV2>(deps, func(dep) {
-			dep.repo == "";
-		});
-		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			let ?summary = _getPackageSummary(dep.name, dep.version) else Debug.trap("Package '" # dep.name # "' not found");
-			summary;
-		});
-	};
-
-	func _getPackageDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-		let packageId = name # "@" # version;
-		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		_getDepsSummaries(config.dependencies);
-	};
-
-	func _getPackageDevDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-		let packageId = name # "@" # version;
-		let ?config = packageConfigs.get(packageId) else Debug.trap("Package '" # packageId # "' not found");
-		_getDepsSummaries(config.devDependencies);
-	};
-
-	func _getPackageDependents(name : PackageName) : [PackageSummary] {
-		func isDependent(config : PackageConfigV2) : Bool {
-			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
-				dep.name == name and dep.repo == "";
-			}));
-			let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
-				dep.name == name and dep.repo == "";
-			}));
-			dependent or devDependent;
-		};
-
-		let dependentConfigs = Iter.filter<PackageConfigV2>(packageConfigs.vals(), isDependent);
-
-		let pkgHash = func(a : PackageConfigV2) : Hash.Hash {
-			Text.hash(a.name);
-		};
-		let pkgEqual = func(a : PackageConfigV2, b : PackageConfigV2) : Bool {
-			a.name == b.name;
-		};
-		let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(Iter.toArray<PackageConfigV2>(dependentConfigs), pkgHash, pkgEqual)).vals();
-
-		let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
-			let ?summary = _getPackageSummary(config.name, config.version) else Debug.trap("Package '" # name # "' not found");
-			summary;
-		});
-
-		let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
-			Nat.compare(b.downloadsTotal, a.downloadsTotal);
-		});
-
-		Iter.toArray(sorted);
-	};
-
-	func _defaultPackageFileStats() : PackageFileStats {
-		{
-			sourceFiles = 0;
-			sourceSize = 0;
-			docsCount = 0;
-			docsSize = 0;
-			testFiles = 0;
-			testSize = 0;
-			benchFiles = 0;
-			benchSize = 0;
-		}
-	};
-
-	func _defaultPackageChanges() : PackageChanges {
-		{
-			notes = "";
-			tests = {
-				addedNames = [];
-				removedNames = [];
-			};
-			deps = [];
-			devDeps = [];
-		};
-	};
-
-	func _computePackageChanges(name : PackageName, version : PackageVersion) : PackageChanges {
-		let curId = name # "@" # version;
-		let prevVersion = Option.get(_getPrevVersion(name, version), version);
-		let prevId = name # "@" # prevVersion;
-
-		{
-			notes = Option.get(packageNotes.get(curId), "");
-			tests = _computeTestsChangesBetween(prevId, curId);
-			deps = _computeDepsChangesBetween(prevId, curId);
-			devDeps = _computeDevDepsChangesBetween(prevId, curId);
+			changes = getPackageChanges(registry, name, version);
 		};
 	};
 
@@ -314,102 +158,6 @@ actor {
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
 		await packagePublisher.finishPublish(caller, publishingId);
-	};
-
-	public query func diff(a : Text, b : Text) : async PackageChanges {
-		{
-			notes = Option.get(null, "");
-			tests = _computeTestsChangesBetween(a, b);
-			deps = _computeDepsChangesBetween(a, b);
-			devDeps = _computeDevDepsChangesBetween(a, b);
-		};
-	};
-
-	func _computeTestsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : TestsChanges {
-		let oldTestStats = Option.get(packageTestStats.get(oldPackageId), { passed = 0; passedNames = []; });
-		let newTestStats = Option.get(packageTestStats.get(newPackageId), { passed = 0; passedNames = []; });
-
-		let addedNames = Array.filter<Text.Text>(newTestStats.passedNames, func(name) {
-			Array.find<Text.Text>(oldTestStats.passedNames, func(x) = x == name) == null;
-		});
-
-		let removedNames = Array.filter<Text.Text>(oldTestStats.passedNames, func(name) {
-			Array.find<Text.Text>(newTestStats.passedNames, func(x) = x == name) == null;
-		});
-
-		{
-			addedNames;
-			removedNames;
-		}
-	};
-
-	func _computeDepsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : [DepChange] {
-		let oldDeps = switch (packageConfigs.get(oldPackageId)) {
-			case (?config) config.dependencies;
-			case (null) [];
-		};
-		let newDeps = switch (packageConfigs.get(newPackageId)) {
-			case (?config) config.dependencies;
-			case (null) [];
-		};
-		_computeDepsChanges(oldDeps, newDeps);
-	};
-
-	func _computeDevDepsChangesBetween(oldPackageId : PackageId, newPackageId : PackageId) : [DepChange] {
-		let oldDeps = switch (packageConfigs.get(oldPackageId)) {
-			case (?config) config.devDependencies;
-			case (null) [];
-		};
-		let newDeps = switch (packageConfigs.get(newPackageId)) {
-			case (?config) config.devDependencies;
-			case (null) [];
-		};
-		_computeDepsChanges(oldDeps, newDeps);
-	};
-
-	func _computeDepsChanges(oldDeps : [DependencyV2], newDeps : [DependencyV2]) : [DepChange] {
-		let buf = Buffer.Buffer<DepChange>(newDeps.size());
-
-		func _getDepVer(dep : DependencyV2) : Text {
-			if (dep.version != "") {
-				dep.version;
-			}
-			else {
-				dep.repo;
-			};
-		};
-
-		// added and updated deps
-		for (newDep in newDeps.vals()) {
-			let oldDepOpt = Array.find<DependencyV2>(oldDeps, func(oldDep) = oldDep.name == newDep.name);
-			let oldVersion = switch (oldDepOpt) {
-				case (?oldDep) _getDepVer(oldDep);
-				case (null) "";
-			};
-
-			if (oldVersion != _getDepVer(newDep)) {
-				buf.add({
-					name = newDep.name;
-					oldVersion = oldVersion;
-					newVersion = _getDepVer(newDep);
-				});
-			};
-
-		};
-
-		// removed deps
-		for (oldDep in oldDeps.vals()) {
-			let newDepOpt = Array.find<DependencyV2>(newDeps, func(newDep) = newDep.name == oldDep.name);
-			if (newDepOpt == null) {
-				buf.add({
-					name = oldDep.name;
-					oldVersion = _getDepVer(oldDep);
-					newVersion = "";
-				});
-			};
-		};
-
-		Buffer.toArray(buf);
 	};
 
 	public shared ({caller}) func computeHashesForExistingFiles() : async () {
@@ -522,7 +270,7 @@ actor {
 			case ("0.15.1") [("base", "0.9.8")];
 			case ("0.15.2") [("base", "0.10.1")];
 			case (_) {
-				switch (_getHighestVersion("base")) {
+				switch (registry.getHighestVersion("base")) {
 					case (?ver) [("base", ver)];
 					case (null) [];
 				};
@@ -531,7 +279,7 @@ actor {
 	};
 
 	public shared query ({caller}) func getHighestVersion(name : PackageName) : async Result.Result<PackageVersion, Err> {
-		Result.fromOption(_getHighestVersion(name), "Package '" # name # "' not found");
+		Result.fromOption(registry.getHighestVersion(name), "Package '" # name # "' not found");
 	};
 
 	func _getHighestSemver(name : PackageName, currentVersion : PackageVersion, semverPart : SemverPart) : Result.Result<PackageVersion, Err> {
@@ -588,7 +336,7 @@ actor {
 	public shared query ({caller}) func getPackageDetails(name : PackageName, version : PackageVersion) : async Result.Result<PackageDetails, Err> {
 		let packageDetails = do ? {
 			let ver = _resolveVersion(name, version)!;
-			_getPackageDetails(name, ver)!;
+			_getPackageDetails(registry, users, downloadLog, name, ver)!;
 		};
 		Result.fromOption(packageDetails, "Package '" # name # "' not found");
 	};
@@ -703,7 +451,7 @@ actor {
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
-				let version = _getHighestVersion(packageName)!;
+				let version = registry.getHighestVersion(packageName)!;
 				let packageSummary = _getPackageSummary(packageName, version)!;
 
 				packages.add(packageSummary);
@@ -906,11 +654,6 @@ actor {
 		users.ensureUser(caller);
 		switch (prop) {
 			case ("name") {
-				let user = users.getUser(caller);
-				let hasScopedPackages = false; // TODO
-				if (user.name != "" and hasScopedPackages) {
-					return #err("You can't change name after publishing scoped packages");
-				};
 				users.setName(caller, value);
 			};
 			case ("site") users.setSite(caller, value);
@@ -970,7 +713,7 @@ actor {
 				Badge.documentation();
 			};
 			case ("mops") {
-				let ?highestVersion = _getHighestVersion(packageName) else {
+				let ?highestVersion = registry.getHighestVersion(packageName) else {
 					return r404;
 				};
 				Badge.mops(highestVersion);
@@ -1126,6 +869,12 @@ actor {
 	};
 
 	system func postupgrade() {
+		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
+		packageConfigsStableV2 := [];
+
+		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
+		highestConfigsStableV2 := [];
+
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
 		packagePublicationsStable := [];
 
@@ -1161,11 +910,20 @@ actor {
 		users.loadStable(usersStable);
 		usersStable := null;
 
-		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
-		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
+		registry := Registry.Registry(
+			packageVersions,
+			packageOwners,
+			highestConfigs,
+			packageConfigs,
+			packagePublications,
+			fileIdsByPackage,
+			hashByFileId,
+			packageFileStats,
+			packageTestStats,
+			packageNotes,
+		);
 
-		highestConfigsStableV2 := [];
-		packageConfigsStableV2 := [];
+		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);
 
 		backupManager.setTimer(#hours(24), _backup);
 	};

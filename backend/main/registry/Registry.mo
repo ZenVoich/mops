@@ -122,6 +122,10 @@ module {
 			Iter.toArray(highestConfigs.vals());
 		};
 
+		public func getAllConfigs() : [PackageConfigV2] {
+			Iter.toArray(packageConfigs.vals());
+		};
+
 		// -----------------------------
 		// By package name
 		// -----------------------------
