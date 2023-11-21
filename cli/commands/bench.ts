@@ -6,17 +6,19 @@ import chalk from 'chalk';
 import {globSync} from 'glob';
 import {markdownTable} from 'markdown-table';
 import logUpdate from 'log-update';
+import {execaCommand} from 'execa';
+import {PocketIc} from '@hadronous/pic';
 
 import {getRootDir} from '../mops.js';
 import {parallel} from '../parallel.js';
-import {createActor} from '../declarations/bench/index.js';
-import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.did.js';
 import {absToRel} from './test/utils.js';
 import {getMocVersion} from '../helpers/get-moc-version.js';
 import {getDfxVersion} from '../helpers/get-dfx-version.js';
 import {getMocPath} from '../helpers/get-moc-path.js';
 import {sources} from './sources.js';
-import {execaCommand} from 'execa';
+
+import {createActor, idlFactory} from '../declarations/bench/index.js';
+import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.did.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -40,6 +42,66 @@ type BenchOptions = {
 	verbose?: boolean,
 };
 
+class Replica {
+	type = 'dfx';
+	verbose = false;
+	canisters: Record<string, {cwd: string, canisterId: string, actor: any}> = {};
+	pocketIc?: PocketIc;
+
+	constructor(type: 'dfx' | 'pocket-ic', verbose = false) {
+		this.type = type;
+		this.verbose = verbose;
+	}
+
+	async start() {
+		if (this.type == 'dfx') {
+			await this.stop();
+			await startDfx(this.verbose);
+		}
+		else {
+			this.pocketIc = await PocketIc.create();
+		}
+	}
+
+	async stop() {
+		if (this.type == 'dfx') {
+			stopDfx(this.verbose);
+		}
+		else if (this.pocketIc) {
+			this.pocketIc.tearDown();
+		}
+	}
+
+	async deploy(name: string, wasm: string, cwd: string = process.cwd()) {
+		if (this.type === 'dfx') {
+			await execaCommand(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+			let canisterId = execSync(`dfx canister id ${name}`, {cwd}).toString().trim();
+			let actor = await createActor(canisterId, {
+				agentOptions: {
+					host: 'http://127.0.0.1:4944',
+				},
+			});
+			this.canisters[name] = {cwd, canisterId, actor};
+		}
+		else if (this.pocketIc) {
+			let {canisterId, actor} = await this.pocketIc.setupCanister(idlFactory, wasm);
+			this.canisters[name] = {
+				cwd,
+				canisterId: canisterId.toText(),
+				actor,
+			};
+		}
+	}
+
+	getActor(name: string): unknown {
+		return this.canisters[name]?.actor;
+	}
+
+	getCanisterId(name: string): string {
+		return this.canisters[name]?.canisterId || '';
+	}
+}
+
 export async function bench(filter = '', options: BenchOptions = {}): Promise<boolean> {
 	let defaultOptions: BenchOptions = {
 		moc: getMocVersion(),
@@ -54,6 +116,8 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	options = {...defaultOptions, ...options};
 
 	options.verbose && console.log(options);
+
+	let replica = new Replica('pocket-ic', options.verbose);
 
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
@@ -86,16 +150,18 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 	console.log('');
 
 	console.log('Starting dfx replica...');
-	startDfx(options.verbose);
+	await replica.start();
+	// startDfx(options.verbose);
 
 	console.log('Deploying canisters...');
 	await parallel(os.cpus().length, files, async (file: string) => {
 		try {
-			await deployBenchFile(file, options);
+			await deployBenchFile(file, options, replica);
 		}
 		catch (err) {
 			console.error('Unexpected error. Stopping dfx replica...');
-			stopDfx(options.verbose);
+			await replica.stop();
+			// stopDfx(options.verbose);
 			throw err;
 		}
 	});
@@ -105,17 +171,19 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 		console.log('');
 		try {
-			await runBenchFile(file, options);
+			await runBenchFile(file, options, replica);
 		}
 		catch (err) {
 			console.error('Unexpected error. Stopping dfx replica...');
-			stopDfx(options.verbose);
+			await replica.stop();
+			// stopDfx(options.verbose);
 			throw err;
 		}
 	});
 
 	console.log('Stopping dfx replica...');
-	stopDfx(options.verbose);
+	await replica.stop();
+	// stopDfx(options.verbose);
 
 	fs.rmSync(benchDir, {recursive: true, force: true});
 
@@ -163,7 +231,7 @@ function dfxJson(canisterName: string, options: BenchOptions = {}) {
 }
 
 function startDfx(verbose = false) {
-	stopDfx(verbose);
+	// stopDfx(verbose);
 	let dir = path.join(getRootDir(), '.mops/.bench');
 	fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(dfxJson(''), null, 2));
 	execSync('dfx start --background --clean --artificial-delay 0' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
@@ -174,7 +242,7 @@ function stopDfx(verbose = false) {
 	execSync('dfx stop' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', verbose ? 'inherit' : 'ignore', 'pipe']});
 }
 
-async function deployBenchFile(file: string, options: BenchOptions = {}): Promise<void> {
+async function deployBenchFile(file: string, options: BenchOptions = {}, replica: Replica): Promise<void> {
 	let rootDir = getRootDir();
 	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	let canisterName = path.parse(file).name;
@@ -195,18 +263,15 @@ async function deployBenchFile(file: string, options: BenchOptions = {}): Promis
 	options.verbose && console.timeEnd(`build ${canisterName}`);
 
 	// deploy canister
+	let wasm = path.join(tempDir, 'canister.wasm');
 	options.verbose && console.time(`deploy ${canisterName}`);
-	await execaCommand(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	// await execaCommand(`dfx deploy ${canisterName} --mode reinstall --yes --identity anonymous`, {cwd: tempDir, stdio: options.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+	await replica.deploy(canisterName, wasm, tempDir);
 	options.verbose && console.timeEnd(`deploy ${canisterName}`);
 
 	// init bench
 	options.verbose && console.time(`init ${canisterName}`);
-	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
-	let actor: _SERVICE = await createActor(canisterId, {
-		agentOptions: {
-			host: 'http://127.0.0.1:4944',
-		},
-	});
+	let actor = await replica.getActor(canisterName) as _SERVICE;
 	await actor.init();
 	options.verbose && console.timeEnd(`init ${canisterName}`);
 }
@@ -216,18 +281,11 @@ type RunBenchFileResult = {
 	results: Map<string, BenchResult>,
 };
 
-async function runBenchFile(file: string, options: BenchOptions = {}): Promise<RunBenchFileResult> {
+async function runBenchFile(file: string, options: BenchOptions = {}, replica: Replica): Promise<RunBenchFileResult> {
 	let rootDir = getRootDir();
-	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	let canisterName = path.parse(file).name;
 
-	let canisterId = execSync(`dfx canister id ${canisterName}`, {cwd: tempDir}).toString().trim();
-	let actor: _SERVICE = await createActor(canisterId, {
-		agentOptions: {
-			host: 'http://127.0.0.1:4944',
-		},
-	});
-
+	let actor = await replica.getActor(canisterName) as _SERVICE;
 	let schema = await actor.getSchema();
 
 	// load previous results
