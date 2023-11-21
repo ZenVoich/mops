@@ -166,7 +166,7 @@ function startDfx(verbose = false) {
 	stopDfx(verbose);
 	let dir = path.join(getRootDir(), '.mops/.bench');
 	fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(dfxJson(''), null, 2));
-	execSync('dfx start --background --clean' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
+	execSync('dfx start --background --clean --artificial-delay 0' + (verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', verbose ? 'inherit' : 'ignore', 'inherit']});
 }
 
 function stopDfx(verbose = false) {
