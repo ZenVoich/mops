@@ -20,7 +20,7 @@
 		"prepare-cli": "cd cli && npm run prepare",
 		"prepare": "husky install",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
-		"mo-dev": "mo-dev --exec 'dfx build main --check'",
+		"mo-dev": "mo-dev --exec 'clear && echo \"\nChecking...\n\" && moc --check ./backend/main/main-canister.mo $(mops sources) && echo \"\\033[0;32mOK\\033[0m\" || echo \"\\033[0;31mFAIL\\033[0m\" 1>&2;'",
 		"test": "mops test"
 	},
 	"devDependencies": {
