@@ -29,6 +29,7 @@ jobs:
       - name: install wasmtime
         run: |
           curl https://wasmtime.dev/install.sh -sSf | bash
+          bash -ci "$(curl -fsSL https://wasmtime.dev/install.sh)" -- --version v13.0.0
           echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
 
       - name: Cache mops packages
