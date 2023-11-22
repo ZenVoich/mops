@@ -318,11 +318,8 @@ type DepChange =
  };
 service : {
   backup: () -> ();
-  claimAirdrop: (principal) -> (text);
   computeHashesForExistingFiles: () -> ();
   finishPublish: (PublishingId) -> (Result);
-  getAirdropAmount: () -> (nat) query;
-  getAirdropAmountAll: () -> (nat) query;
   getApiVersion: () -> (Text) query;
   getBackupCanisterId: () -> (principal) query;
   getDefaultPackages: (text) ->
@@ -378,7 +375,6 @@ service : {
   setUserProp: (text, text) -> (Result_1);
   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_3);
   startPublish: (PackageConfigV2) -> (Result_2);
-  takeAirdropSnapshot: () -> () oneway;
   transferOwnership: (PackageName, principal) -> (Result_1);
   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
   uploadNotes: (PublishingId, text) -> (Result);

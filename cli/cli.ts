@@ -287,39 +287,6 @@ program
 		}
 	});
 
-// temp: airdrop
-program
-	.command('airdrop <check|claim> [canister]')
-	.action(async (sub, canister) => {
-		let identity = await getIdentity();
-		let main = await mainActor(identity);
-		if (sub === 'check') {
-			let amount = await main.getAirdropAmount();
-			if (amount === 0n) {
-				console.log('No airdrop available');
-				return;
-			}
-			console.log(`You can claim ${Number(amount) / 1_000_000_000_000} TCycles`);
-		}
-		else if (sub === 'claim') {
-			let principal;
-			try {
-				principal = Principal.fromText(canister);
-			}
-			catch (err) {
-				console.log('Invalid canister id');
-				console.log(err);
-				return;
-			}
-			console.log('Sending cycles to the canister ' + canister);
-			let res = await main.claimAirdrop(principal);
-			console.log(res);
-		}
-		else {
-			console.log('Unknown sub command. Available sub commands: check, claim');
-		}
-	});
-
 // bump
 program
 	.command('bump [major|minor|patch]')

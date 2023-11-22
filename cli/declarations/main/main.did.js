@@ -252,11 +252,8 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'backup' : IDL.Func([], [], []),
-    'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'computeHashesForExistingFiles' : IDL.Func([], [], []),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
-    'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
-    'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
     'getBackupCanisterId' : IDL.Func([], [IDL.Principal], ['query']),
     'getDefaultPackages' : IDL.Func(
@@ -349,7 +346,6 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'startPublish' : IDL.Func([PackageConfigV2], [Result_2], []),
-    'takeAirdropSnapshot' : IDL.Func([], [], ['oneway']),
     'transferOwnership' : IDL.Func(
         [PackageName, IDL.Principal],
         [Result_1],

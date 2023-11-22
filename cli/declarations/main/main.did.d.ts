@@ -246,11 +246,8 @@ export interface User__1 {
 }
 export interface _SERVICE {
   'backup' : ActorMethod<[], undefined>,
-  'claimAirdrop' : ActorMethod<[Principal], string>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
-  'getAirdropAmount' : ActorMethod<[], bigint>,
-  'getAirdropAmountAll' : ActorMethod<[], bigint>,
   'getApiVersion' : ActorMethod<[], Text>,
   'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
@@ -309,7 +306,6 @@ export interface _SERVICE {
     Result_3
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
-  'takeAirdropSnapshot' : ActorMethod<[], undefined>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],

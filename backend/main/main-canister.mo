@@ -184,65 +184,6 @@ actor {
 		};
 	};
 
-	// AIRDROP
-	let cyclesPerOwner = 15_000_000_000_000; // 15 TC
-	let cyclesPerPackage = 1_000_000_000_000; // 1 TC
-	// id -> pkg count
-	stable let airdropSnapshot = Map.new<Principal, Nat>(Map.phash);
-
-	public shared ({caller}) func takeAirdropSnapshot() {
-		assert(Utils.isAdmin(caller));
-		assert(Map.size(airdropSnapshot) == 0);
-
-		Map.clear(airdropSnapshot);
-
-		for (owner in packageOwners.vals()) {
-			Map.set(airdropSnapshot, Map.phash, owner, Option.get(Map.get(airdropSnapshot, Map.phash, owner), 0) + 1);
-		};
-	};
-
-	func _getAirdropAmountForUser(owner : Principal) : Nat {
-		let pkgCount = Option.get(Map.get(airdropSnapshot, Map.phash, owner), 0);
-		if (pkgCount == 0) {
-			return 0;
-		};
-		cyclesPerOwner + pkgCount * cyclesPerPackage;
-	};
-
-	public query ({caller}) func getAirdropAmount() : async Nat {
-		_getAirdropAmountForUser(caller);
-	};
-
-	public query ({caller}) func getAirdropAmountAll() : async Nat {
-		assert(Utils.isAdmin(caller));
-		var total = 0;
-		for (owner in Map.vals(airdropSnapshot)) {
-			total += _getAirdropAmountForUser(caller);
-		};
-		total;
-	};
-
-	public shared ({caller}) func claimAirdrop(canisterId : Principal) : async Text {
-		let cycles = _getAirdropAmountForUser(caller);
-		if (cycles == 0) {
-			return "No airdrop available";
-		};
-
-		let balance = ExperimentalCycles.balance();
-		if (balance < cycles) {
-			return "Not enough cycles in the canister";
-		};
-
-		ExperimentalCycles.add(cycles);
-		await ic.deposit_cycles({
-			canister_id = canisterId
-		});
-
-		Map.delete(airdropSnapshot, Map.phash, caller);
-
-		return Nat.toText(cycles) # " cycles deposited to " # Principal.toText(canisterId);
-	};
-
 	// QUERY
 	public shared query ({caller}) func getApiVersion() : async Text.Text {
 		API_VERSION;
