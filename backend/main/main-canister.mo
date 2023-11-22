@@ -1445,6 +1445,7 @@ actor {
 			status_code = 200;
 			headers = [
 				("Content-Type", "image/svg+xml"),
+				("Cache-Control", "max-age=0, no-cache, no-store, must-revalidate, private"),
 			];
 			body = Text.encodeUtf8(badge);
 			streaming_strategy = null;
