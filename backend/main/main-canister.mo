@@ -43,6 +43,7 @@ import {searchInRegistry} "./registry/searchInRegistry";
 import {getPackageSummary} "./registry/getPackageSummary";
 import {getPackageDetails = _getPackageDetails} "./registry/getPackageDetails";
 import {getPackageChanges} "./registry/getPackageChanges";
+import {packagesByCategory} "./registry/packagesByCategory";
 
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
@@ -476,129 +477,17 @@ actor {
 	};
 
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
+		let limit = 10;
+
 		func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
 			Array.sort<PackageSummary>(summaries, func(a, b) {
 				Int.compare(b.publication.time, a.publication.time);
 			});
 		};
 
-		let limit = 10;
-		[
-			(
-				"Data Structures",
-				_sortByUpdated(_summariesFromNames([
-					"bitbuffer",
-					"enumeration",
-					"buffer-deque",
-					"stableheapbtreemap",
-					"swb",
-					"vector",
-					"circular-buffer",
-					"splay",
-					"linked-list",
-					"map",
-					"merkle-patricia-trie",
-					"memory-buffer",
-				], limit))
-			),
-			(
-				"Utilities",
-				_sortByUpdated(_summariesFromNames([
-					"datetime",
-					"itertools",
-					"xtended-text",
-					"xtended-numbers",
-					"prng",
-					"fuzz",
-					"test",
-					"time-consts",
-					"memory-region",
-				], limit))
-			),
-			(
-				"Encoding",
-				_sortByUpdated(_summariesFromNames([
-					"deflate",
-					"serde",
-					"xml",
-					"cbor",
-					"candy",
-					"candid",
-					"rep-indy-hash",
-				], limit))
-			),
-			(
-				"Cryptography",
-				_sortByUpdated(_summariesFromNames([
-					"sha2",
-					"sha3",
-					"libsecp256k1",
-					"merkle-patricia-trie",
-					"evm-txs",
-					"ic-certification",
-					"evm-proof-verifier",
-				], limit))
-			),
-			(
-				"Types/Interfaces",
-				_sortByUpdated(_summariesFromNames([
-					"ic",
-					"ledger-types",
-					"ckbtc-types",
-					"http-types",
-					"canistergeek",
-					"icrc1",
-					"origyn-nft",
-					"kyc",
-					"xrc-types",
-					"promtracker",
-				], limit))
-			),
-			(
-				"HTTP",
-				_sortByUpdated(_summariesFromNames([
-					"certified-http",
-					"certified-cache",
-					"ic-certification",
-					"assets",
-					"server",
-					"http-parser",
-					"web-io",
-					"http-types",
-					"motoko-certified-assets",
-					"promtracker",
-				], limit))
-			),
-			(
-				"Async Data Flow",
-				_sortByUpdated(_summariesFromNames([
-					"star",
-					"maf",
-					"rxmo",
-				], limit))
-			),
-			(
-				"Databases",
-				_sortByUpdated(_summariesFromNames([
-					"candb",
-					"rxmodb",
-				], limit))
-			),
-			(
-				"Stable Memory",
-				_sortByUpdated(_summariesFromNames([
-					"memory-region",
-					"memory-buffer",
-				], limit))
-			),
-			(
-				"ICRC",
-				_sortByUpdated(_summariesFromNames([
-					"icrc1",
-					"origyn-nft",
-				], limit))
-			),
-		];
+		Array.map<(Text, [Text]), (Text, [PackageSummary])>(packagesByCategory, func((category, packageNames)) {
+			(category, _sortByUpdated(_summariesFromNames(packageNames, limit)))
+		});
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
