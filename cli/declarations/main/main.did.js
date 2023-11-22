@@ -1,19 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const TestsChanges = IDL.Record({
-    'addedNames' : IDL.Vec(IDL.Text),
-    'removedNames' : IDL.Vec(IDL.Text),
-  });
-  const DepChange = IDL.Record({
-    'oldVersion' : IDL.Text,
-    'name' : IDL.Text,
-    'newVersion' : IDL.Text,
-  });
-  const PackageChanges__1 = IDL.Record({
-    'tests' : TestsChanges,
-    'deps' : IDL.Vec(DepChange),
-    'notes' : IDL.Text,
-    'devDeps' : IDL.Vec(DepChange),
-  });
   const PublishingId = IDL.Text;
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
@@ -132,6 +117,15 @@ export const idlFactory = ({ IDL }) => {
   const PackageFileStatsPublic = IDL.Record({
     'sourceFiles' : IDL.Nat,
     'sourceSize' : IDL.Nat,
+  });
+  const TestsChanges = IDL.Record({
+    'addedNames' : IDL.Vec(IDL.Text),
+    'removedNames' : IDL.Vec(IDL.Text),
+  });
+  const DepChange = IDL.Record({
+    'oldVersion' : IDL.Text,
+    'name' : IDL.Text,
+    'newVersion' : IDL.Text,
   });
   const PackageChanges = IDL.Record({
     'tests' : TestsChanges,
@@ -260,7 +254,6 @@ export const idlFactory = ({ IDL }) => {
     'backup' : IDL.Func([], [], []),
     'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'computeHashesForExistingFiles' : IDL.Func([], [], []),
-    'diff' : IDL.Func([IDL.Text, IDL.Text], [PackageChanges__1], ['query']),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
     'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
     'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),

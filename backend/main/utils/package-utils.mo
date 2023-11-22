@@ -1,4 +1,4 @@
-import Types "./types";
+import Types "../types";
 import Iter "mo:base/Iter";
 import Text "mo:base/Text";
 

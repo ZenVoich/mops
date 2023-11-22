@@ -15,8 +15,8 @@ import StorageManager "../storage/storage-manager";
 
 import Types "./types";
 import {generateId} "../generate-id";
-import {validateConfig} "./validate-config";
-import PackageUtils "./package-utils";
+import {validateConfig} "./utils/validateConfig";
+import PackageUtils "./utils/package-utils";
 
 module {
 	type PackageVersion = Types.PackageVersion;

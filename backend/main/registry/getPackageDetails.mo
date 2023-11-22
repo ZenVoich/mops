@@ -9,8 +9,8 @@ import Nat "mo:base/Nat";
 
 import Types "../types";
 import Registry "./Registry";
-import DownloadLog "../download-log";
-import Users "../users";
+import DownloadLog "../DownloadLog";
+import Users "../Users";
 
 import {getPackageSummary; getPackageSummaryWithChanges} "./getPackageSummary";
 import {getPackageChanges} "./getPackageChanges";

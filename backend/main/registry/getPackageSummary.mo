@@ -5,8 +5,8 @@ import {DAY} "mo:time-consts";
 
 import Types "../types";
 import Registry "./Registry";
-import DownloadLog "../download-log";
-import Users "../users";
+import DownloadLog "../DownloadLog";
+import Users "../Users";
 
 import {getPackageChanges} "./getPackageChanges";
 

@@ -5,7 +5,7 @@ import Nat32 "mo:base/Nat32";
 import Order "mo:base/Order";
 import Result "mo:base/Result";
 
-import Types "./types";
+import Types "../types";
 
 module {
 	public type Version = Text.Text;

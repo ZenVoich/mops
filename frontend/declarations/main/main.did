@@ -272,13 +272,6 @@ type PackageConfigV2 =
    scripts: vec Script;
    version: text;
  };
-type PackageChanges__1 = 
- record {
-   deps: vec DepChange;
-   devDeps: vec DepChange;
-   notes: text;
-   tests: TestsChanges;
- };
 type PackageChanges = 
  record {
    deps: vec DepChange;
@@ -327,7 +320,6 @@ service : {
   backup: () -> ();
   claimAirdrop: (principal) -> (text);
   computeHashesForExistingFiles: () -> ();
-  diff: (text, text) -> (PackageChanges__1) query;
   finishPublish: (PublishingId) -> (Result);
   getAirdropAmount: () -> (nat) query;
   getAirdropAmountAll: () -> (nat) query;

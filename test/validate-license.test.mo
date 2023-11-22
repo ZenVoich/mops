@@ -1,7 +1,7 @@
 import Result "mo:base/Result";
 import {test; suite; skip} "mo:test";
 
-import {validateLicense} "../backend/main/validate-license";
+import {validateLicense} "../backend/main/validateLicense";
 
 test("check valid licenses", func() {
 	assert Result.isOk(validateLicense("Apache-2.0"));

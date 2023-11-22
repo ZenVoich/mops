@@ -27,14 +27,14 @@ import Sha256 "mo:sha2/Sha256";
 import HttpTypes "mo:http-types";
 
 import Utils "../utils";
-import Semver "./semver";
+import Semver "./utils/semver";
 import Types "./types";
-import DownloadLog "./download-log";
+import DownloadLog "./DownloadLog";
 import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
-import Users "./users";
-import Badge "./badge";
-import {validateConfig} "./validate-config";
+import Users "./Users";
+import Badges "./badges";
+import {validateConfig} "./utils/validateConfig";
 import {generateId} "../generate-id";
 
 import Registry "./registry/Registry";
@@ -710,13 +710,13 @@ actor {
 
 		let badge = switch (badgeName) {
 			case ("documentation") {
-				Badge.documentation();
+				Badges.documentation();
 			};
 			case ("mops") {
 				let ?highestVersion = registry.getHighestVersion(packageName) else {
 					return r404;
 				};
-				Badge.mops(highestVersion);
+				Badges.mops(highestVersion);
 			};
 			case (_) {
 				return r404;

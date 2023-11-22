@@ -5,33 +5,18 @@ import Array "mo:base/Array";
 import Time "mo:base/Time";
 
 import Types "../types";
-import Semver "../semver";
-import PackageUtils "../package-utils";
+import Semver "../utils/semver";
+import PackageUtils "../utils/package-utils";
 
 module {
 	public type PackageName = Types.PackageName;
 	public type PackageVersion = Types.PackageVersion;
 	public type PackageId = Types.PackageId;
 	public type FileId = Types.FileId;
-	public type Err = Text;
-	public type DependencyV2 = Types.DependencyV2;
-	public type Access = Types.Access;
 	public type PackageConfigV2 = Types.PackageConfigV2;
 	public type PackagePublication = Types.PackagePublication;
-	public type PackageDetails = Types.PackageDetails;
-	public type PackageSummary = Types.PackageSummary;
-	public type PackageSummaryWithChanges = Types.PackageSummaryWithChanges;
 	public type PackageFileStats = Types.PackageFileStats;
-	public type DownloadsSnapshot = Types.DownloadsSnapshot;
-	public type User = Types.User;
-	public type PageCount = Nat;
-	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
-	public type PackageChanges = Types.PackageChanges;
-	public type TestsChanges = Types.TestsChanges;
-	public type DepChange = Types.DepChange;
-	public type DepsStatus = Types.DepsStatus;
-	public type PackageQuality = Types.PackageQuality;
 
 	type NewPackageReleaseArgs = {
 		userId : Principal;

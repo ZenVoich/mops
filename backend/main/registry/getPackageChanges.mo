@@ -4,7 +4,7 @@ import Buffer "mo:base/Buffer";
 
 import Types "../types";
 import Registry "./Registry";
-import Semver "../semver";
+import Semver "../utils/semver";
 
 module {
 	public type PackageName = Types.PackageName;

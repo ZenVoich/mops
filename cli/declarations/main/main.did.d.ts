@@ -33,12 +33,6 @@ export interface PackageChanges {
   'notes' : string,
   'devDeps' : Array<DepChange>,
 }
-export interface PackageChanges__1 {
-  'tests' : TestsChanges,
-  'deps' : Array<DepChange>,
-  'notes' : string,
-  'devDeps' : Array<DepChange>,
-}
 export interface PackageConfigV2 {
   'dfx' : string,
   'moc' : string,
@@ -254,7 +248,6 @@ export interface _SERVICE {
   'backup' : ActorMethod<[], undefined>,
   'claimAirdrop' : ActorMethod<[Principal], string>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
-  'diff' : ActorMethod<[string, string], PackageChanges__1>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
   'getAirdropAmount' : ActorMethod<[], bigint>,
   'getAirdropAmountAll' : ActorMethod<[], bigint>,

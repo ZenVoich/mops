@@ -11,7 +11,7 @@ import Text "mo:base/Text";
 import Set "mo:map/Set";
 
 import Types "./types";
-import {isLetter; isLowerCaseLetter} "../main/is-letter";
+import {isLetter; isLowerCaseLetter} "./utils/is-letter";
 
 module {
 	public type Stable = ?{

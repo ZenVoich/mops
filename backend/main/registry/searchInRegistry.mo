@@ -6,10 +6,10 @@ import Nat "mo:base/Nat";
 import Debug "mo:base/Debug";
 
 import Registry "./Registry";
-import DownloadLog "../download-log";
+import DownloadLog "../DownloadLog";
 import Types "../types";
 import Utils "../../utils";
-import Users "../users";
+import Users "../Users";
 import {getPackageSummary} "./getPackageSummary";
 
 module {
