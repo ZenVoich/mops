@@ -1,6 +1,6 @@
 import {test; suite; skip} "mo:test";
 
-import {isLetter; isLowerCaseLetter; isUpperCaseLetter} "../backend/main/is-letter";
+import {isLetter; isLowerCaseLetter; isUpperCaseLetter} "../backend/main/utils/is-letter";
 
 test("isLetter", func() {
 	assert isLetter('a');
