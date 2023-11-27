@@ -3,15 +3,13 @@
 import fs from 'node:fs';
 import {program, Argument, Option} from 'commander';
 import chalk from 'chalk';
-import {Principal} from '@dfinity/principal';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, getIdentity} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile} from './mops.js';
 import {getNetwork} from './api/network.js';
-import {mainActor} from './api/actors.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
