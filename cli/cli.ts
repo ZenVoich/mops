@@ -220,8 +220,8 @@ program
 program
 	.command('bench [filter]')
 	.description('Run benchmarks')
-	.addOption(new Option('--mode <mode>', 'Benchmark mode').choices(['dfx', 'pocket-ic']).default('pocket-ic'))
-	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('incremental'))
+	.addOption(new Option('--replica <replica>', 'Which replica to use to run benchmarks').choices(['dfx', 'pocket-ic']).default('dfx'))
+	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('copying'))
 	.addOption(new Option('--save', 'Save benchmark results to .bench/<filename>.json'))
 	.addOption(new Option('--compare', 'Run benchmark and compare results with .bench/<filename>.json'))
 	// .addOption(new Option('--force-gc', 'Force GC'))

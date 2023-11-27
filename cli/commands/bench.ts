@@ -31,7 +31,7 @@ let globConfig = {
 };
 
 type BenchOptions = {
-	mode?: 'dfx' | 'pocket-ic',
+	replica?: 'dfx' | 'pocket-ic',
 	dfx?: string,
 	moc?: string,
 	gc?: 'copying' | 'compacting' | 'generational' | 'incremental',
@@ -43,10 +43,10 @@ type BenchOptions = {
 
 export async function bench(filter = '', options: BenchOptions = {}): Promise<boolean> {
 	let defaultOptions: BenchOptions = {
-		mode: 'pocket-ic',
+		replica: 'dfx',
 		moc: getMocVersion(),
 		dfx: getDfxVersion(),
-		gc: 'incremental',
+		gc: 'copying',
 		forceGc: true,
 		save: false,
 		compare: false,
@@ -57,7 +57,7 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 
 	options.verbose && console.log(options);
 
-	let replica = new BenchReplica(options.mode ?? 'pocket-ic', options.verbose);
+	let replica = new BenchReplica(options.replica ?? 'dfx', options.verbose);
 
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';

@@ -7,20 +7,20 @@ import {getRootDir} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 
 export class BenchReplica {
-	mode : 'dfx' | 'pocket-ic';
+	type : 'dfx' | 'pocket-ic';
 	verbose = false;
 	canisters: Record<string, {cwd: string; canisterId: string; actor: any;}> = {};
 	pocketIc?: PocketIc;
 
-	constructor(mode: 'dfx' | 'pocket-ic', verbose = false) {
-		this.mode = mode;
+	constructor(type: 'dfx' | 'pocket-ic', verbose = false) {
+		this.type = type;
 		this.verbose = verbose;
 	}
 
 	async start() {
-		console.log(`Starting ${this.mode} replica...`);
+		console.log(`Starting ${this.type} replica...`);
 
-		if (this.mode == 'dfx') {
+		if (this.type == 'dfx') {
 			await this.stop();
 			let dir = path.join(getRootDir(), '.mops/.bench');
 			fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(this.dfxJson(''), null, 2));
@@ -32,7 +32,7 @@ export class BenchReplica {
 	}
 
 	async stop() {
-		if (this.mode == 'dfx') {
+		if (this.type == 'dfx') {
 			let dir = path.join(getRootDir(), '.mops/.bench');
 			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
 		}
@@ -42,7 +42,7 @@ export class BenchReplica {
 	}
 
 	async deploy(name: string, wasm: string, cwd: string = process.cwd()) {
-		if (this.mode === 'dfx') {
+		if (this.type === 'dfx') {
 			await execaCommand(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
 			let canisterId = execSync(`dfx canister id ${name}`, {cwd}).toString().trim();
 			let actor = await createActor(canisterId, {

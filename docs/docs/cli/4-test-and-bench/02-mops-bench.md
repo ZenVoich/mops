@@ -33,18 +33,18 @@ Under the hood, Mops will:
 Select benchmark mode.
 
 Possible values:
-- `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper (default)
-- `dfx` - use `dfx` local replica
+- `dfx` - use `dfx` local replica (default)
+- `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper
 
 ### `--gc`
 
 Select garbage collector.
 
 Possible values:
-- `incremental` (default)
-- `copying`
+- `copying` (default)
 - `compacting`
 - `generational`
+- `incremental`
 
 ### `--save`
 
