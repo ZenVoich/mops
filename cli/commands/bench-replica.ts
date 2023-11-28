@@ -2,8 +2,8 @@ import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
-import {getRootDir} from '../mops.js';
 import {PocketIc} from '@hadronous/pic';
+import {getRootDir} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 
 export class BenchReplica {
