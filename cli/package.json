@@ -3,7 +3,8 @@
   "version": "0.34.4",
   "type": "module",
   "bin": {
-    "mops": "dist/cli.js"
+    "mops": "dist/bin/mops.js",
+    "moc-wrapper": "bin/moc-wrapper.sh"
   },
   "files": [
     "*",
