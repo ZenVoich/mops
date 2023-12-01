@@ -54,8 +54,6 @@ actor {
 	public type PackageId = Text.Text; // lib@1.2.3
 	public type FileId = Types.FileId;
 	public type Err = Text.Text;
-	public type DependencyV2 = Types.DependencyV2;
-	public type Access = Types.Access;
 	public type PackageConfigV2 = Types.PackageConfigV2;
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
@@ -67,17 +65,9 @@ actor {
 	public type PageCount = Nat;
 	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
-	public type PackageChanges = Types.PackageChanges;
-	public type TestsChanges = Types.TestsChanges;
-	public type DepChange = Types.DepChange;
-	public type DepsStatus = Types.DepsStatus;
-	public type PackageQuality = Types.PackageQuality;
 	public type PublishingId = Text;
-	public type PublishingErr = Text;
 
 	let API_VERSION = "1.2"; // (!) make changes in pair with cli
-	let MAX_PACKAGE_FILES = 300;
-	let MAX_PACKAGE_SIZE = 1024 * 1024 * 50; // 50MB
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
@@ -138,7 +128,7 @@ actor {
 	// PUBLIC
 
 	// Publication
-	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
+	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, Err> {
 		await packagePublisher.startPublish(caller, config);
 	};
 
