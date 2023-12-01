@@ -44,6 +44,7 @@ import {getPackageSummary} "./registry/getPackageSummary";
 import {getPackageDetails = _getPackageDetails} "./registry/getPackageDetails";
 import {getPackageChanges} "./registry/getPackageChanges";
 import {packagesByCategory} "./registry/packagesByCategory";
+import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages";
 
 actor {
 	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
@@ -191,33 +192,7 @@ actor {
 
 	// defaultPackages.mo
 	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
-		switch (dfxVersion) {
-			case ("0.9.0") [("base", "0.6.20")];
-			case ("0.9.2") [("base", "0.6.21")];
-			case ("0.9.3") [("base", "0.6.25")];
-			case ("0.10.0") [("base", "0.6.26")];
-			case ("0.10.1") [("base", "0.6.28")];
-			case ("0.11.1") [("base", "0.6.29")];
-			case ("0.11.2") [("base", "0.6.29")];
-			case ("0.12.0") [("base", "0.7.3")];
-			case ("0.12.1") [("base", "0.7.3")];
-			case ("0.13.0") [("base", "0.7.6")];
-			case ("0.13.1") [("base", "0.7.6")];
-			case ("0.14.0") [("base", "0.8.7")];
-			case ("0.14.1") [("base", "0.8.8")];
-			case ("0.14.2") [("base", "0.9.3")];
-			case ("0.14.3") [("base", "0.9.3")];
-			case ("0.14.4") [("base", "0.9.3")];
-			case ("0.15.0") [("base", "0.9.7")];
-			case ("0.15.1") [("base", "0.9.8")];
-			case ("0.15.2") [("base", "0.10.1")];
-			case (_) {
-				switch (registry.getHighestVersion("base")) {
-					case (?ver) [("base", ver)];
-					case (null) [];
-				};
-			};
-		};
+		_getDefaultPackages(registry, dfxVersion);
 	};
 
 	public shared query ({caller}) func getHighestVersion(name : PackageName) : async Result.Result<PackageVersion, Err> {
@@ -481,31 +456,11 @@ actor {
 	};
 
 	public shared ({caller}) func setUserProp(prop : Text, value : Text) : async Result.Result<(), Text> {
-		users.ensureUser(caller);
-		switch (prop) {
-			case ("name") {
-				users.setName(caller, value);
-			};
-			case ("site") users.setSite(caller, value);
-			case ("email") users.setEmail(caller, value);
-			case ("github") users.setGithub(caller, value);
-			case ("twitter") users.setTwitter(caller, value);
-			case (_) #err("unknown property");
-		};
+		users.setUserProp(caller, prop, value);
 	};
 
 	public shared ({caller}) func transferOwnership(packageName : PackageName, newOwner : Principal) : async Result.Result<(), Text> {
-		let ?oldOwner = packageOwners.get(packageName) else return #err("Package not found");
-
-		if (oldOwner != caller) {
-			return #err("Only owner can transfer ownership");
-		};
-		if (newOwner == caller) {
-			return #err("You can't transfer ownership to yourself");
-		};
-
-		packageOwners.put(packageName, newOwner);
-		#ok;
+		registry.transferOwnership(caller, packageName, newOwner);
 	};
 
 	// BADGES

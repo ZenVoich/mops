@@ -3,6 +3,7 @@ import Iter "mo:base/Iter";
 import Option "mo:base/Option";
 import Array "mo:base/Array";
 import Time "mo:base/Time";
+import Result "mo:base/Result";
 
 import Types "../types";
 import Semver "../utils/semver";
@@ -155,6 +156,24 @@ module {
 
 		public func getPackageReleaseNotes(name : PackageName, version : PackageVersion) : Text {
 			Option.get(packageNotes.get(name # "@" # version), "")
+		};
+
+		// -----------------------------
+		// Package ownership
+		// -----------------------------
+
+		public func transferOwnership(caller : Principal, packageName : PackageName, newOwner : Principal) : Result.Result<(), Text> {
+			let ?oldOwner = packageOwners.get(packageName) else return #err("Package not found");
+
+			if (oldOwner != caller) {
+				return #err("Only owner can transfer ownership");
+			};
+			if (newOwner == caller) {
+				return #err("You can't transfer ownership to yourself");
+			};
+
+			packageOwners.put(packageName, newOwner);
+			#ok;
 		};
 	};
 };

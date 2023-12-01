@@ -68,6 +68,20 @@ module {
 			};
 		};
 
+		public func setUserProp(userId : Principal, prop : Text, value : Text) : Result.Result<(), Text> {
+			ensureUser(userId);
+			switch (prop) {
+				case ("name") {
+					setName(userId, value);
+				};
+				case ("site") setSite(userId, value);
+				case ("email") setEmail(userId, value);
+				case ("github") setGithub(userId, value);
+				case ("twitter") setTwitter(userId, value);
+				case (_) #err("unknown property");
+			};
+		};
+
 		public func setName(userId : Principal, name : Text) : Result.Result<(), Text> {
 			let valid = _validateName(name);
 			if (Result.isErr(valid)) {
