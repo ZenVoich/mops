@@ -46,9 +46,7 @@ import {getPackageChanges} "./registry/getPackageChanges";
 import {packagesByCategory} "./registry/packagesByCategory";
 import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages";
 
-actor {
-	type TrieMap<K, V> = TrieMap.TrieMap<K, V>;
-
+actor class Main() {
 	public type PackageName = Text.Text; // lib
 	public type PackageVersion = Types.PackageVersion; // 1.2.3
 	public type PackageId = Text.Text; // lib@1.2.3
