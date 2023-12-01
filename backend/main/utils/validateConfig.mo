@@ -5,10 +5,10 @@ import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 
-import Types "./types";
-import Semver "./semver";
+import Types "../types";
+import Semver "../utils/semver";
 import {isLowerCaseLetter} "./is-letter";
-import {validateLicense} "./validate-license";
+import {validateLicense} "./validateLicense";
 
 module {
 	type PackageConfigV2 = Types.PackageConfigV2;

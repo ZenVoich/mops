@@ -1,4 +1,8 @@
 import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
+import Text "mo:base/Text";
+import HttpTypes "mo:http-types";
+import Registry "./registry/Registry";
 
 module {
 	public func documentation() : Text {
@@ -33,5 +37,43 @@ module {
 <text x=\"250\" y=\"140\" transform=\"scale(.1)\" fill=\"#fff\" textLength=\"340\">" # key # "</text>
 <text x=\"745\" y=\"150\" transform=\"scale(.1)\" fill=\"#010101\" fill-opacity=\".3\" textLength=\"" # valTextLength # "\" aria-hidden=\"true\">" # val # "</text>
 <text x=\"745\" y=\"140\" transform=\"scale(.1)\" fill=\"#fff\" textLength=\"" # valTextLength # "\">" # val # "</text></g></svg>";
+	};
+
+	public func processHttpRequest(registry : Registry.Registry, request : HttpTypes.Request) : ?HttpTypes.Response {
+		let path = Iter.toArray(Text.split(request.url, #text("?")))[0];
+		let parts = Iter.toArray(Text.split(path, #text("/")));
+		let badgePath = parts[1];
+		let badgeName = parts[2];
+		let packageName = if (parts.size() > 3) parts[3] else "";
+
+		if (badgePath != "badge") {
+			return null;
+		};
+
+		let badge = switch (badgeName) {
+			case ("documentation") {
+				documentation();
+			};
+			case ("mops") {
+				let ?highestVersion = registry.getHighestVersion(packageName) else {
+					return null;
+				};
+				mops(highestVersion);
+			};
+			case (_) {
+				return null;
+			};
+		};
+
+		return ?{
+			status_code = 200;
+			headers = [
+				("Content-Type", "image/svg+xml"),
+				("Cache-Control", "max-age=0, no-cache, no-store, must-revalidate, private"),
+			];
+			body = Text.encodeUtf8(badge);
+			streaming_strategy = null;
+			upgrade = null;
+		};
 	};
 };
