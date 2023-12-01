@@ -190,7 +190,6 @@ actor {
 		API_VERSION;
 	};
 
-	// defaultPackages.mo
 	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
 		_getDefaultPackages(registry, dfxVersion);
 	};
@@ -424,10 +423,10 @@ actor {
 			};
 		};
 
-		let buf = Buffer.fromArray<PackageSummary>(Iter.toArray(packagesFirstPub.vals()));
-		let max = Nat.min(5, buf.size());
-		Buffer.reverse(buf);
-		Buffer.toArray(Buffer.subBuffer<PackageSummary>(buf, buf.size() - max, max));
+		packagesFirstPub.vals()
+			|> Iter.toArray(_)
+			|> Utils.arrayTake(_, 5)
+			|> Array.reverse(_);
 	};
 
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {
