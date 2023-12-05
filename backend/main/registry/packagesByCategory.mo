@@ -29,6 +29,7 @@ module {
 				"test",
 				"time-consts",
 				"memory-region",
+				"account",
 			]
 		),
 		(
@@ -112,6 +113,11 @@ module {
 			[
 				"icrc1",
 				"origyn-nft",
+				"account",
+				"icrc3-mo",
+				"icrc7-mo",
+				"icrc30-mo",
+				"icrc-nft-mo",
 			]
 		),
 	];
