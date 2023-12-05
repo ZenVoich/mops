@@ -11,7 +11,7 @@ import Text "mo:base/Text";
 import Set "mo:map/Set";
 
 import Types "./types";
-import {isLetter; isLowerCaseLetter} "../main/is-letter";
+import {isLetter; isLowerCaseLetter} "./utils/is-letter";
 
 module {
 	public type Stable = ?{
@@ -65,6 +65,20 @@ module {
 					twitterVerified = false;
 					githubVerified = false;
 				});
+			};
+		};
+
+		public func setUserProp(userId : Principal, prop : Text, value : Text) : Result.Result<(), Text> {
+			ensureUser(userId);
+			switch (prop) {
+				case ("name") {
+					setName(userId, value);
+				};
+				case ("site") setSite(userId, value);
+				case ("email") setEmail(userId, value);
+				case ("github") setGithub(userId, value);
+				case ("twitter") setTwitter(userId, value);
+				case (_) #err("unknown property");
 			};
 		};
 

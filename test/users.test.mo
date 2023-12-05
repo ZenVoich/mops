@@ -10,7 +10,7 @@ import Fuzz "mo:fuzz";
 import Set "mo:map/Set";
 
 import Types "../backend/main/types";
-import Users "../backend/main/users";
+import Users "../backend/main/Users";
 
 let fuzz = Fuzz.Fuzz();
 let users = Users.Users();
