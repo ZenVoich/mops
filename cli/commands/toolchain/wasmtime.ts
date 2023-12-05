@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 
 import {globalCacheDir} from '../../mops.js';
-import {downloadGithubRelease} from './toolchain-utils.js';
+import {downloadAndExtract} from './toolchain-utils.js';
 
 let cacheDir = path.join(globalCacheDir, 'wasmtime');
 
@@ -26,5 +26,5 @@ export let download = async (version: string, {silent = false} = {}) => {
 
 	silent || console.log(`Downloading ${url}`);
 
-	await downloadGithubRelease(url, path.join(cacheDir, version));
+	await downloadAndExtract(url, path.join(cacheDir, version));
 };

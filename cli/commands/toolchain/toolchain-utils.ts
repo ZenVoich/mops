@@ -1,4 +1,6 @@
 import path from 'node:path';
+import {unzipSync} from 'node:zlib';
+import {chmodSync} from 'node:fs';
 import fs from 'fs-extra';
 import decompress from 'decompress';
 import decompressTarxz from 'decomp-tarxz';
@@ -8,7 +10,7 @@ import tar from 'tar';
 
 import {getRootDir} from '../../mops.js';
 
-export let downloadGithubRelease = async (url: string, dest: string) => {
+export let downloadAndExtract = async (url: string, dest: string) => {
 	let res = await fetch(url);
 
 	if (res.status !== 200) {
@@ -35,11 +37,16 @@ export let downloadGithubRelease = async (url: string, dest: string) => {
 			deleteSync([tmpDir]);
 		});
 	}
-	else {
+	else if (archive.endsWith('tar.gz')) {
 		await tar.extract({
 			file: archive,
 			cwd: dest,
 		});
+	}
+	else if (archive.endsWith('.gz')) {
+		let destFile = path.join(dest, path.parse(archive).name);
+		fs.writeFileSync(destFile, unzipSync(buffer));
+		chmodSync(destFile, 0o700);
 	}
 
 	deleteSync([tmpDir], {force: true});
