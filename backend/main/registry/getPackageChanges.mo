@@ -24,9 +24,9 @@ module {
 
 		{
 			notes = registry.getPackageReleaseNotes(name, version);
-			tests = _computeTestsChangesBetween(registry.getPackageTestStats(name, version), registry.getPackageTestStats(name, prevVersion));
-			deps = _computeDepsChangesBetween(registry.getPackageConfig(name, version), registry.getPackageConfig(name, prevVersion));
-			devDeps = _computeDevDepsChangesBetween(registry.getPackageConfig(name, version), registry.getPackageConfig(name, prevVersion));
+			tests = _computeTestsChangesBetween(registry.getPackageTestStats(name, prevVersion), registry.getPackageTestStats(name, version));
+			deps = _computeDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
+			devDeps = _computeDevDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
 		};
 	};
 
