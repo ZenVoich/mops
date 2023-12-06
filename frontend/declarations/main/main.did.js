@@ -244,13 +244,12 @@ export const idlFactory = ({ IDL }) => {
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
-  const PublishingErr = IDL.Text;
-  const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
+  const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : Err });
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
   });
-  return IDL.Service({
+  const Main = IDL.Service({
     'backup' : IDL.Func([], [], []),
     'computeHashesForExistingFiles' : IDL.Func([], [], []),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
@@ -359,5 +358,6 @@ export const idlFactory = ({ IDL }) => {
     'uploadNotes' : IDL.Func([PublishingId, IDL.Text], [Result], []),
     'uploadTestStats' : IDL.Func([PublishingId, TestStats], [Result], []),
   });
+  return Main;
 };
 export const init = ({ IDL }) => { return []; };
