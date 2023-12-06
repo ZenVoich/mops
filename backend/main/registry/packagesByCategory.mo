@@ -30,6 +30,7 @@ module {
 				"time-consts",
 				"memory-region",
 				"account",
+				"bench",
 			]
 		),
 		(
