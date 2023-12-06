@@ -1,4 +1,5 @@
 import Time "mo:base/Time";
+import IC "mo:ic";
 
 module {
 	public type PackageName = Text; // lib
@@ -160,5 +161,16 @@ module {
 		#allLatest;
 		#updatesAvailable;
 		#tooOld;
+	};
+
+	// http outcall
+	public type TransformArg = {
+		context : [Nat8];
+		response : IC.HttpResponse;
+	};
+
+	public type Transform = {
+		function : shared query (TransformArg) -> async IC.HttpResponse;
+		context : [Nat8];
 	};
 };
