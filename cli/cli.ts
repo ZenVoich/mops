@@ -60,7 +60,7 @@ program
 	.description('Install the package and save it to mops.toml')
 	.option('--dev')
 	.option('--verbose')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -76,7 +76,7 @@ program
 	.option('--dev', 'Remove from dev-dependencies instead of dependencies')
 	.option('--verbose', 'Show more information')
 	.option('--dry-run', 'Do not actually remove anything')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -90,7 +90,7 @@ program
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'check', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -165,7 +165,7 @@ program
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
 	});
@@ -210,7 +210,7 @@ program
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
 		await test(filter, options);
 	});
 
@@ -224,7 +224,7 @@ program
 	// .addOption(new Option('--force-gc', 'Force GC'))
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
 		await bench(filter, options);
 	});
 
@@ -297,7 +297,7 @@ program
 program
 	.command('sync')
 	.description('Add missing packages and remove unused packages')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (options) => {
 		await sync(options);
 	});
@@ -314,7 +314,7 @@ program
 program
 	.command('update [pkg]')
 	.description('Update dependencies specified in mops.toml')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		await update(pkg, options);
 	});

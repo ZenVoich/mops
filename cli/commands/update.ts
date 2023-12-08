@@ -7,10 +7,10 @@ import {checkIntegrity} from '../integrity.js';
 type UpdateOptions = {
 	verbose?: boolean;
 	dev?: boolean;
-	lockfile?: 'save' | 'ignore';
+	lock?: 'update' | 'ignore';
 };
 
-export async function update(pkg?: string, {lockfile}: UpdateOptions = {}) {
+export async function update(pkg?: string, {lock}: UpdateOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -56,5 +56,5 @@ export async function update(pkg?: string, {lockfile}: UpdateOptions = {}) {
 		}
 	}
 
-	await checkIntegrity(lockfile);
+	await checkIntegrity(lock);
 }
