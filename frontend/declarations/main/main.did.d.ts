@@ -27,6 +27,76 @@ export interface DownloadsSnapshot__1 {
 export type Err = string;
 export type FileId = string;
 export type Header = [string, string];
+export interface Main {
+  'backup' : ActorMethod<[], undefined>,
+  'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
+  'finishPublish' : ActorMethod<[PublishingId], Result>,
+  'getApiVersion' : ActorMethod<[], Text>,
+  'getBackupCanisterId' : ActorMethod<[], Principal>,
+  'getDefaultPackages' : ActorMethod<
+    [string],
+    Array<[PackageName, PackageVersion]>
+  >,
+  'getDownloadTrendByPackageId' : ActorMethod<
+    [PackageId],
+    Array<DownloadsSnapshot__1>
+  >,
+  'getDownloadTrendByPackageName' : ActorMethod<
+    [PackageName],
+    Array<DownloadsSnapshot__1>
+  >,
+  'getFileHashes' : ActorMethod<[PackageName, PackageVersion], Result_8>,
+  'getFileHashesByPackageIds' : ActorMethod<
+    [Array<PackageId>],
+    Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
+  >,
+  'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
+  'getHighestSemverBatch' : ActorMethod<
+    [Array<[PackageName, PackageVersion, SemverPart]>],
+    Result_6
+  >,
+  'getHighestVersion' : ActorMethod<[PackageName], Result_5>,
+  'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
+  'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
+  'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
+  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion], Result_4>,
+  'getPackagesByCategory' : ActorMethod<
+    [],
+    Array<[string, Array<PackageSummary>]>
+  >,
+  'getRecentlyUpdatedPackages' : ActorMethod<
+    [],
+    Array<PackageSummaryWithChanges>
+  >,
+  'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
+  'getTotalDownloads' : ActorMethod<[], bigint>,
+  'getTotalPackages' : ActorMethod<[], bigint>,
+  'getUser' : ActorMethod<[Principal], [] | [User__1]>,
+  'http_request' : ActorMethod<[Request], Response>,
+  'notifyInstall' : ActorMethod<[PackageName, PackageVersion], undefined>,
+  'notifyInstalls' : ActorMethod<
+    [Array<[PackageName, PackageVersion]>],
+    undefined
+  >,
+  'restore' : ActorMethod<[bigint, bigint], undefined>,
+  'search' : ActorMethod<
+    [Text, [] | [bigint], [] | [bigint]],
+    [Array<PackageSummary>, PageCount]
+  >,
+  'setUserProp' : ActorMethod<[string, string], Result_1>,
+  'startFileUpload' : ActorMethod<
+    [PublishingId, Text, bigint, Uint8Array | number[]],
+    Result_3
+  >,
+  'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
+  'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
+  'uploadFileChunk' : ActorMethod<
+    [PublishingId, FileId, bigint, Uint8Array | number[]],
+    Result
+  >,
+  'uploadNotes' : ActorMethod<[PublishingId, string], Result>,
+  'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
+}
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
@@ -153,7 +223,6 @@ export interface PackageSummary__1 {
 }
 export type PackageVersion = string;
 export type PageCount = bigint;
-export type PublishingErr = string;
 export type PublishingId = string;
 export interface Request {
   'url' : string,
@@ -174,7 +243,7 @@ export type Result = { 'ok' : null } |
 export type Result_1 = { 'ok' : null } |
   { 'err' : string };
 export type Result_2 = { 'ok' : PublishingId } |
-  { 'err' : PublishingErr };
+  { 'err' : Err };
 export type Result_3 = { 'ok' : FileId } |
   { 'err' : Err };
 export type Result_4 = { 'ok' : PackageDetails } |
@@ -244,73 +313,4 @@ export interface User__1 {
   'githubVerified' : boolean,
   'github' : string,
 }
-export interface _SERVICE {
-  'backup' : ActorMethod<[], undefined>,
-  'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
-  'finishPublish' : ActorMethod<[PublishingId], Result>,
-  'getApiVersion' : ActorMethod<[], Text>,
-  'getBackupCanisterId' : ActorMethod<[], Principal>,
-  'getDefaultPackages' : ActorMethod<
-    [string],
-    Array<[PackageName, PackageVersion]>
-  >,
-  'getDownloadTrendByPackageId' : ActorMethod<
-    [PackageId],
-    Array<DownloadsSnapshot__1>
-  >,
-  'getDownloadTrendByPackageName' : ActorMethod<
-    [PackageName],
-    Array<DownloadsSnapshot__1>
-  >,
-  'getFileHashes' : ActorMethod<[PackageName, PackageVersion], Result_8>,
-  'getFileHashesByPackageIds' : ActorMethod<
-    [Array<PackageId>],
-    Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
-  >,
-  'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
-  'getHighestSemverBatch' : ActorMethod<
-    [Array<[PackageName, PackageVersion, SemverPart]>],
-    Result_6
-  >,
-  'getHighestVersion' : ActorMethod<[PackageName], Result_5>,
-  'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
-  'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion], Result_4>,
-  'getPackagesByCategory' : ActorMethod<
-    [],
-    Array<[string, Array<PackageSummary>]>
-  >,
-  'getRecentlyUpdatedPackages' : ActorMethod<
-    [],
-    Array<PackageSummaryWithChanges>
-  >,
-  'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
-  'getTotalDownloads' : ActorMethod<[], bigint>,
-  'getTotalPackages' : ActorMethod<[], bigint>,
-  'getUser' : ActorMethod<[Principal], [] | [User__1]>,
-  'http_request' : ActorMethod<[Request], Response>,
-  'notifyInstall' : ActorMethod<[PackageName, PackageVersion], undefined>,
-  'notifyInstalls' : ActorMethod<
-    [Array<[PackageName, PackageVersion]>],
-    undefined
-  >,
-  'restore' : ActorMethod<[bigint, bigint], undefined>,
-  'search' : ActorMethod<
-    [Text, [] | [bigint], [] | [bigint]],
-    [Array<PackageSummary>, PageCount]
-  >,
-  'setUserProp' : ActorMethod<[string, string], Result_1>,
-  'startFileUpload' : ActorMethod<
-    [PublishingId, Text, bigint, Uint8Array | number[]],
-    Result_3
-  >,
-  'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
-  'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
-  'uploadFileChunk' : ActorMethod<
-    [PublishingId, FileId, bigint, Uint8Array | number[]],
-    Result
-  >,
-  'uploadNotes' : ActorMethod<[PublishingId, string], Result>,
-  'uploadTestStats' : ActorMethod<[PublishingId, TestStats], Result>,
-}
+export interface _SERVICE extends Main {}

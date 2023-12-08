@@ -28,7 +28,7 @@ jobs:
 
       - uses: dfinity/setup-dfx@main
         with:
-          dfx-version: 0.15.1
+          dfx-version: 0.15.2
 
       - name: Cache mops packages
         uses: actions/cache@v3
