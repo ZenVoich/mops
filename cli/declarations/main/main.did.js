@@ -1,19 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const TestsChanges = IDL.Record({
-    'addedNames' : IDL.Vec(IDL.Text),
-    'removedNames' : IDL.Vec(IDL.Text),
-  });
-  const DepChange = IDL.Record({
-    'oldVersion' : IDL.Text,
-    'name' : IDL.Text,
-    'newVersion' : IDL.Text,
-  });
-  const PackageChanges__1 = IDL.Record({
-    'tests' : TestsChanges,
-    'deps' : IDL.Vec(DepChange),
-    'notes' : IDL.Text,
-    'devDeps' : IDL.Vec(DepChange),
-  });
   const PublishingId = IDL.Text;
   const Err = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Err });
@@ -133,6 +118,15 @@ export const idlFactory = ({ IDL }) => {
     'sourceFiles' : IDL.Nat,
     'sourceSize' : IDL.Nat,
   });
+  const TestsChanges = IDL.Record({
+    'addedNames' : IDL.Vec(IDL.Text),
+    'removedNames' : IDL.Vec(IDL.Text),
+  });
+  const DepChange = IDL.Record({
+    'oldVersion' : IDL.Text,
+    'name' : IDL.Text,
+    'newVersion' : IDL.Text,
+  });
   const PackageChanges = IDL.Record({
     'tests' : TestsChanges,
     'deps' : IDL.Vec(DepChange),
@@ -250,20 +244,15 @@ export const idlFactory = ({ IDL }) => {
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
-  const PublishingErr = IDL.Text;
-  const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : PublishingErr });
+  const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : Err });
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
   });
-  return IDL.Service({
+  const Main = IDL.Service({
     'backup' : IDL.Func([], [], []),
-    'claimAirdrop' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'computeHashesForExistingFiles' : IDL.Func([], [], []),
-    'diff' : IDL.Func([IDL.Text, IDL.Text], [PackageChanges__1], ['query']),
     'finishPublish' : IDL.Func([PublishingId], [Result], []),
-    'getAirdropAmount' : IDL.Func([], [IDL.Nat], ['query']),
-    'getAirdropAmountAll' : IDL.Func([], [IDL.Nat], ['query']),
     'getApiVersion' : IDL.Func([], [Text], ['query']),
     'getBackupCanisterId' : IDL.Func([], [IDL.Principal], ['query']),
     'getDefaultPackages' : IDL.Func(
@@ -356,7 +345,6 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'startPublish' : IDL.Func([PackageConfigV2], [Result_2], []),
-    'takeAirdropSnapshot' : IDL.Func([], [], ['oneway']),
     'transferOwnership' : IDL.Func(
         [PackageName, IDL.Principal],
         [Result_1],
@@ -370,5 +358,6 @@ export const idlFactory = ({ IDL }) => {
     'uploadNotes' : IDL.Func([PublishingId, IDL.Text], [Result], []),
     'uploadTestStats' : IDL.Func([PublishingId, TestStats], [Result], []),
   });
+  return Main;
 };
 export const init = ({ IDL }) => { return []; };
