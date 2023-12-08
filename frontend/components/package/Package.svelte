@@ -18,6 +18,7 @@
 	import githubImg from '/img/github.svg';
 	import {compareVersions} from '/logic/compare-versions';
 	import PackageVersionSummary from './PackageVersionSummary.svelte';
+	import PackageTestStats from './PackageTestStats.svelte';
 
 	let pkgName: string;
 	$: pkgName = $routeParams.packageName;
@@ -230,9 +231,7 @@
 								</div>
 							{:else if selectedTab == 'tests'}
 								<div class="tests">
-									{#each packageDetails.testStats.passedNames as stat}
-										<div><span style="color: green">✓</span> {stat}</div>
-									{/each}
+									<PackageTestStats {packageDetails}></PackageTestStats>
 								</div>
 							{/if}
 						</div>
