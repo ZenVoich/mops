@@ -76,7 +76,7 @@
 		font-weight: 500;
 	}
 
-	.notes > :not(ul, ol) {
+	:global(.version-summary .notes > :not(ul, ol)) {
 		padding-left: 20px;
 	}
 
