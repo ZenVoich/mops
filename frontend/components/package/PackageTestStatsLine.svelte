@@ -24,7 +24,7 @@
 						{name} ({allNestedCount(nested)})
 					</div>
 					{#if root}
-						<a class="link" href="{packageDetails.config.repository}/{name}" target="_blank">[source]</a>
+						<a class="link" href="{packageDetails.config.repository}/blob/master/{name}" target="_blank">[source]</a>
 					{/if}
 				</summary>
 				<svelte:self {packageDetails} nestedStats={nested} root={false}/>
