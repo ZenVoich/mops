@@ -8,10 +8,10 @@ import {remove} from './remove.js';
 import {checkIntegrity} from '../integrity.js';
 
 type SyncOptions = {
-	lockfile?: 'save' | 'ignore';
+	lock?: 'update' | 'ignore';
 };
 
-export async function sync({lockfile}: SyncOptions = {}) {
+export async function sync({lock}: SyncOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -28,16 +28,16 @@ export async function sync({lockfile}: SyncOptions = {}) {
 
 	// add missing packages
 	for (let pkg of missing) {
-		await add(pkg, {lockfile: 'ignore'});
+		await add(pkg, {lock: 'ignore'});
 	}
 
 	// remove unused packages
 	for (let pkg of unused) {
 		let dev = devDeps.has(pkg) && !deps.has(pkg);
-		await remove(pkg, {dev, lockfile: 'ignore'});
+		await remove(pkg, {dev, lock: 'ignore'});
 	}
 
-	await checkIntegrity(lockfile);
+	await checkIntegrity(lock);
 }
 
 let ignore = [

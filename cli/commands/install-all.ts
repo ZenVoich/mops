@@ -9,10 +9,10 @@ import {checkIntegrity} from '../integrity.js';
 type InstallAllOptions = {
 	verbose?: boolean;
 	silent?: boolean;
-	lockfile?: 'save' | 'check' | 'ignore';
+	lock?: 'check' | 'update' | 'ignore';
 }
 
-export async function installAll({verbose = false, silent = false, lockfile}: InstallAllOptions = {}) {
+export async function installAll({verbose = false, silent = false, lock}: InstallAllOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -36,12 +36,12 @@ export async function installAll({verbose = false, silent = false, lockfile}: In
 		}
 	}
 
-	if (!silent && lockfile !== 'ignore') {
+	if (!silent && lock !== 'ignore') {
 		logUpdate('Checking integrity...');
 	}
 	await Promise.all([
 		notifyInstalls(Object.keys(installedPackages)),
-		checkIntegrity(lockfile),
+		checkIntegrity(lock),
 	]);
 
 	if (!silent) {
