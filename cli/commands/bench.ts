@@ -32,21 +32,21 @@ let globConfig = {
 };
 
 type BenchOptions = {
-	replica?: 'dfx' | 'pocket-ic',
-	dfx?: string,
-	moc?: string,
-	gc?: 'copying' | 'compacting' | 'generational' | 'incremental',
-	forceGc?: boolean,
-	save?: boolean,
-	compare?: boolean,
-	verbose?: boolean,
+	replica: 'dfx' | 'pocket-ic',
+	replicaVersion: string,
+	moc: string,
+	gc: 'copying' | 'compacting' | 'generational' | 'incremental',
+	forceGc: boolean,
+	save: boolean,
+	compare: boolean,
+	verbose: boolean,
 };
 
-export async function bench(filter = '', options: BenchOptions = {}): Promise<boolean> {
+export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {}): Promise<boolean> {
 	let defaultOptions: BenchOptions = {
 		replica: 'dfx',
 		moc: getMocVersion(),
-		dfx: getDfxVersion(),
+		replicaVersion: '0.0.0',
 		gc: 'copying',
 		forceGc: true,
 		save: false,
@@ -54,11 +54,13 @@ export async function bench(filter = '', options: BenchOptions = {}): Promise<bo
 		verbose: false,
 	};
 
-	options = {...defaultOptions, ...options};
+	let options: BenchOptions = {...defaultOptions, ...optionsArg};
+
+	options.replicaVersion = options.replica == 'dfx' ? getDfxVersion() : '1.0.0';
 
 	options.verbose && console.log(options);
 
-	let replica = new BenchReplica(options.replica ?? 'dfx', options.verbose);
+	let replica = new BenchReplica(options.replica, options.verbose);
 
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
@@ -137,7 +139,7 @@ function getMocArgs(options: BenchOptions): string {
 	return args;
 }
 
-async function deployBenchFile(file: string, options: BenchOptions = {}, replica: BenchReplica): Promise<void> {
+async function deployBenchFile(file: string, options: BenchOptions, replica: BenchReplica): Promise<void> {
 	let rootDir = getRootDir();
 	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	let canisterName = path.parse(file).name;
@@ -176,7 +178,7 @@ type RunBenchFileResult = {
 	results: Map<string, BenchResult>,
 };
 
-async function runBenchFile(file: string, options: BenchOptions = {}, replica: BenchReplica): Promise<RunBenchFileResult> {
+async function runBenchFile(file: string, options: BenchOptions, replica: BenchReplica): Promise<RunBenchFileResult> {
 	let rootDir = getRootDir();
 	let canisterName = path.parse(file).name;
 
@@ -281,7 +283,8 @@ async function runBenchFile(file: string, options: BenchOptions = {}, replica: B
 		let json: Record<any, any> = {
 			version: 1,
 			moc: options.moc,
-			dfx: options.dfx,
+			replica: options.replica,
+			replicaVersion: options.replicaVersion,
 			gc: options.gc,
 			forceGc: options.forceGc,
 			results: Array.from(results.entries()),
