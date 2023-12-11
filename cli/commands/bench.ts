@@ -6,6 +6,7 @@ import {globSync} from 'glob';
 import {markdownTable} from 'markdown-table';
 import logUpdate from 'log-update';
 import {execaCommand} from 'execa';
+import stringWidth from 'string-width';
 
 import {getRootDir} from '../mops.js';
 import {parallel} from '../parallel.js';
@@ -219,8 +220,8 @@ async function runBenchFile(file: string, options: BenchOptions = {}, replica: B
 							let percent = (Number(res[prop]) - Number(prevRes[prop])) / Number(prevRes[prop]) * 100;
 							let sign = percent > 0 ? '+' : '';
 							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
-							// diff = ' (' + (percent > 0 ? chalk.red(percentText) : chalk.green(percentText)) + ')'; // alignment is broken
-							diff = ' (' + percentText + ')';
+							let color: keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
+							diff = ` (${chalk[color](percentText)})`;
 						}
 						else {
 							diff = chalk.yellow(' (no previous results)');
@@ -237,7 +238,10 @@ async function runBenchFile(file: string, options: BenchOptions = {}, replica: B
 			resArr.push(curRow);
 		}
 
-		return markdownTable(resArr, {align: ['l', ...'r'.repeat(schema.cols.length)]});
+		return markdownTable(resArr, {
+			align: ['l', ...'r'.repeat(schema.cols.length)],
+			stringLength: stringWidth,
+		});
 	};
 
 	let printResults = () => {
@@ -249,7 +253,9 @@ async function runBenchFile(file: string, options: BenchOptions = {}, replica: B
 		`);
 	};
 
-	printResults();
+	if (!process.env.CI) {
+		printResults();
+	}
 
 	// run all cells
 	for (let [rowIndex, row] of schema.rows.entries()) {
@@ -258,8 +264,14 @@ async function runBenchFile(file: string, options: BenchOptions = {}, replica: B
 			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
 			let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
-			printResults();
+			if (!process.env.CI) {
+				printResults();
+			}
 		}
+	}
+
+	if (process.env.CI) {
+		printResults();
 	}
 	logUpdate.done();
 
