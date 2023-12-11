@@ -19,7 +19,7 @@ module {
         bench.rows(["Array"]);
         // bench.cols(["remove()", "add()", "remove()", "add()", "remove()"]);
         // bench.cols(["50k x1", "reset1", "50k x2", "reset2", "50k x4", "reset3", "100k x1", "reset4", "100k x2", "reset5", "100k x4", "reset6"]);
-        bench.cols(["100k x1", "reset4", "100k x3", "reset4"]);
+        bench.cols(["100k x1", "reset1", "100k x3", "reset2"]);
 
         var array : [(Nat, Nat)] = [];
         let buf50k = Buffer.Buffer<(Nat, Nat)>(50_000);
