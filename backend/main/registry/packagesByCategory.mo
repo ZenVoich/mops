@@ -15,6 +15,7 @@ module {
 				"map",
 				"merkle-patricia-trie",
 				"memory-buffer",
+				"augmented-btrees",
 			]
 		),
 		(
