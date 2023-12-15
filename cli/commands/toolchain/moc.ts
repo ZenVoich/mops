@@ -13,11 +13,11 @@ export let isCached = (version: string) => {
 
 export let download = async (version: string, {silent = false} = {}) => {
 	if (process.platform == 'win32') {
-		console.log('Windows is not supported. Please use WSL');
+		console.error('Windows is not supported. Please use WSL');
 		process.exit(1);
 	}
 	if (!version) {
-		console.log('version is not defined');
+		console.error('version is not defined');
 		process.exit(1);
 	}
 	if (isCached(version)) {

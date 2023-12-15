@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {program, Argument, Option} from 'commander';
+import {Command, Argument, Option} from 'commander';
 import chalk from 'chalk';
 
 import {init} from './commands/init.js';
@@ -24,6 +24,7 @@ import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
+import {toolchain} from './commands/toolchain/index.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -36,6 +37,7 @@ if (fs.existsSync(networkFile)) {
 	globalThis.MOPS_NETWORK = fs.readFileSync(networkFile).toString() || 'ic';
 }
 
+let program = new Command();
 
 program.name('mops');
 
@@ -324,5 +326,27 @@ program
 	.action(async (toPrincipal) => {
 		await transferOwnership(toPrincipal);
 	});
+
+// toolchain
+const toolchainCommand = new Command('toolchain').description('Toolchain management');
+
+toolchainCommand
+	.command('use')
+	.description('Install specified tool version and update mops.toml')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.addArgument(new Argument('<version>'))
+	.action(async (tool, version) => {
+		toolchain.use(tool, version);
+	});
+
+toolchainCommand
+	.command('bin')
+	.description('Get path to the tool binary\n<tool> can be one of "moc", "wasmtime", "pocket-ic"')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.action(async (tool) => {
+		toolchain.bin(tool);
+	});
+
+program.addCommand(toolchainCommand);
 
 program.parse();
