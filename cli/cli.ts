@@ -58,7 +58,7 @@ program
 program
 	.command('add <pkg>')
 	.description('Install the package and save it to mops.toml')
-	.option('--dev')
+	.option('--dev', 'Add to [dev-dependencies] section')
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {

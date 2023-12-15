@@ -28,9 +28,9 @@ Under the hood, Mops will:
 
 ## Options
 
-### `--mode`
+### `--replica`
 
-Select benchmark mode.
+Which replica to use.
 
 Possible values:
 - `dfx` - use `dfx` local replica (default)
