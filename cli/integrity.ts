@@ -12,19 +12,19 @@ type LockFileV1 = {
 	hashes: Record<string, Record<string, string>>;
 };
 
-export async function checkIntegrity(lock?: 'save' | 'check' | 'ignore') {
+export async function checkIntegrity(lock?: 'check' | 'update' | 'ignore') {
 	let force = !!lock;
 
 	if (!lock && !process.env['CI'] && fs.existsSync(path.join(getRootDir(), 'mops.lock'))) {
-		lock = 'save';
+		lock = 'update';
 	}
 
 	if (!lock) {
 		lock = process.env['CI'] ? 'check' : 'ignore';
 	}
 
-	if (lock === 'save') {
-		await saveLockFile();
+	if (lock === 'update') {
+		await updateLockFile();
 		await checkLockFile(force);
 	}
 	else if (lock === 'check') {
@@ -82,7 +82,7 @@ export async function checkRemote() {
 	}
 }
 
-export async function saveLockFile() {
+export async function updateLockFile() {
 	let rootDir = getRootDir();
 	let lockFile = path.join(rootDir, 'mops.lock');
 

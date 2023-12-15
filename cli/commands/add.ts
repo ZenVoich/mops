@@ -6,16 +6,16 @@ import {getHighestVersion} from '../api/getHighestVersion.js';
 import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
-// import {checkIntegrity} from '../integrity.js';
+import {checkIntegrity} from '../integrity.js';
 
 type AddOptions = {
 	verbose?: boolean;
 	dev?: boolean;
-	lockfile?: 'save' | 'ignore';
+	lock?: 'update' | 'ignore';
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function add(name: string, {verbose = false, dev = false, lockfile}: AddOptions = {}, asName?: string) {
+export async function add(name: string, {verbose = false, dev = false, lock}: AddOptions = {}, asName?: string) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -109,10 +109,12 @@ export async function add(name: string, {verbose = false, dev = false, lockfile}
 
 	writeConfig(config);
 
-	// logUpdate('Checking integrity...');
+	if (lock !== 'ignore') {
+		logUpdate('Checking integrity...');
+	}
 	await Promise.all([
 		notifyInstalls(Object.keys(installedPackages)),
-		// checkIntegrity(lockfile),
+		checkIntegrity(lock),
 	]);
 
 	logUpdate.clear();
