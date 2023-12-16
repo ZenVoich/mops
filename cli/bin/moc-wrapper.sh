@@ -48,6 +48,7 @@
 # fi
 
 # mocPath="$(mops toolchain moc bin)"
-mocPath="/home/zen/.cache/mops/moc/0.9.5/moc"
+mocPath="$(dfx cache show)/moc"
+# mocPath="/home/zen/.cache/mops/moc/0.7.5/moc"
 
 $mocPath "$@"
