@@ -106,9 +106,9 @@ export let getIdentity = async (): Promise<Identity | undefined> => {
 	return undefined;
 };
 
-export function getClosestConfigFile(dir = process.cwd()) {
+export function getClosestConfigFile(dir = process.cwd()) : string {
 	if (!path.basename(dir)) {
-		throw '';
+		return '';
 	}
 	let configFile = path.join(dir, 'mops.toml');
 	if (fs.existsSync(configFile)) {
