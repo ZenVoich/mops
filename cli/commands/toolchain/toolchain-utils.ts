@@ -30,12 +30,12 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 	fs.mkdirSync(dest, {recursive: true});
 
 	if (archive.endsWith('.xz')) {
-		await decompress(archive, dest, {
-			strip: 1,
+		await decompress(archive, tmpDir, {
 			plugins: [decompressTarxz()],
 		}).catch(() => {
 			deleteSync([tmpDir]);
 		});
+		fs.cpSync(path.join(tmpDir, path.parse(archive).name.replace('.tar', '')), dest, {recursive: true});
 	}
 	else if (archive.endsWith('tar.gz')) {
 		await tar.extract({
