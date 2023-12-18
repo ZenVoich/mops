@@ -25,6 +25,7 @@ import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
 import {toolchain} from './commands/toolchain/index.js';
+import {Tool} from './types.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -336,14 +337,14 @@ toolchainCommand
 	.command('init')
 	.description('One-time initialization of toolchain management')
 	.action(async () => {
-		toolchain.init();
+		await toolchain.init();
 	});
 
 toolchainCommand
 	.command('reset')
 	.description('Uninstall toolchain management')
 	.action(async () => {
-		toolchain.init({reset: true});
+		await toolchain.init({reset: true});
 	});
 
 toolchainCommand
@@ -352,15 +353,21 @@ toolchainCommand
 	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
 	.addArgument(new Argument('<version>'))
 	.action(async (tool, version) => {
-		toolchain.use(tool, version);
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.use(tool, version);
 	});
 
 toolchainCommand
 	.command('update')
-	.description('Update specified tool to the latest version and update mops.toml')
-	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
-	.action(async (tool) => {
-		toolchain.update(tool);
+	.description('Update specified tool or all tools to the latest version and update mops.toml')
+	.addArgument(new Argument('[tool]').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.action(async (tool?: Tool) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.update(tool);
 	});
 
 toolchainCommand

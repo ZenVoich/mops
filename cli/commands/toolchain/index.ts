@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import {execSync} from 'node:child_process';
 import chalk from 'chalk';
-import {getClosestConfigFile, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
+import {checkConfigFile, getClosestConfigFile, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
 import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
@@ -118,10 +118,9 @@ async function init({reset = false} = {}) {
 	console.log('Restart terminal to apply changes');
 }
 
-async function download(tool: Tool, version: string) {
-	if (tool === 'moc') {
-		await moc.download(version);
-	}
+async function download(tool: Tool, version: string, {silent = false} = {}) {
+	let toolUtils = getToolUtils(tool);
+	await toolUtils.download(version, {silent});
 }
 
 async function downloadAll() {
@@ -154,22 +153,38 @@ async function use(tool: Tool, version: string) {
 }
 
 // download latest binary and set version in mops.toml
-async function update(tool: Tool) {
+async function update(tool?: Tool) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
 	}
 
-	let toolUtils = getToolUtils(tool);
-	let version = await getLatestReleaseTag(toolUtils.repo);
-
-	await download(tool, version);
-
 	let config = readConfig();
 	config.toolchain = config.toolchain || {};
-	config.toolchain[tool] = version;
-	writeConfig(config);
 
-	console.log(chalk.green(`Installed ${tool} ${version}`));
+	let tools = tool ? [tool] : Object.keys(config.toolchain) as Tool[];
+
+	for (let tool of tools) {
+		if (!config.toolchain[tool]) {
+			console.error(`Tool '${tool}' is not defined in [toolchain] section in mops.toml`);
+			process.exit(1);
+		}
+
+		let toolUtils = getToolUtils(tool);
+		let version = await getLatestReleaseTag(toolUtils.repo);
+
+		await download(tool, version);
+
+		let oldVersion = config.toolchain[tool];
+		config.toolchain[tool] = version;
+		writeConfig(config);
+
+		if (oldVersion === version) {
+			console.log((`Latest ${tool} ${version} is already installed`));
+		}
+		else {
+			console.log(chalk.green(`Installed ${tool} ${version}`));
+		}
+	}
 }
 
 // return current version from mops.toml
@@ -178,8 +193,12 @@ async function bin(tool: Tool) {
 
 	// fallback to dfx moc
 	if (!hasConfig) {
-		console.log(execSync('dfx cache show').toString().trim() + '/moc');
-		return;
+		if (tool === 'moc') {
+			console.log(execSync('dfx cache show').toString().trim() + '/moc');
+			return;
+		}
+		checkConfigFile();
+		process.exit(1);
 	}
 
 	let config = readConfig();
@@ -200,13 +219,13 @@ async function bin(tool: Tool) {
 			await ensureToolchainInited();
 		}
 
-		await download(tool, version);
+		await download(tool, version, {silent: true});
 
 		if (tool === 'moc') {
-			console.log(path.join(globalCacheDir, 'moc', version, 'moc'));
+			console.log(path.join(globalCacheDir, 'moc', version, tool));
 		}
 		else {
-			console.log(path.join(globalCacheDir, tool, version, 'moc'));
+			console.log(path.join(globalCacheDir, tool, version, tool));
 		}
 	}
 }
