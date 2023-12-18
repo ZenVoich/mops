@@ -332,6 +332,20 @@ program
 const toolchainCommand = new Command('toolchain').description('Toolchain management');
 
 toolchainCommand
+	.command('init')
+	.description('One-time initialization of toolchain management')
+	.action(async () => {
+		toolchain.init();
+	});
+
+toolchainCommand
+	.command('reset')
+	.description('Uninstall toolchain management')
+	.action(async () => {
+		toolchain.init({reset: true});
+	});
+
+toolchainCommand
 	.command('use')
 	.description('Install specified tool version and update mops.toml')
 	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))

@@ -47,8 +47,8 @@
 #   mocPath="$(DFX_WARNING=-version_check dfx cache show)/moc" # fallback to dfx
 # fi
 
-# mocPath="$(mops toolchain moc bin)"
-mocPath="$(dfx cache show)/moc"
+mocPath="$(mops toolchain bin moc)"
+# mocPath="$(dfx cache show)/moc"
 # mocPath="/home/zen/.cache/mops/moc/0.7.5/moc"
 
 $mocPath "$@"
