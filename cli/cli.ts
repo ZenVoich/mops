@@ -108,6 +108,7 @@ program
 		}
 		else {
 			await installAll(options);
+			await toolchain.downloadAll();
 		}
 	});
 
@@ -352,6 +353,14 @@ toolchainCommand
 	.addArgument(new Argument('<version>'))
 	.action(async (tool, version) => {
 		toolchain.use(tool, version);
+	});
+
+toolchainCommand
+	.command('update')
+	.description('Update specified tool to the latest version and update mops.toml')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.action(async (tool) => {
+		toolchain.update(tool);
 	});
 
 toolchainCommand

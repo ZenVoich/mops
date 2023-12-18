@@ -6,6 +6,8 @@ import {downloadAndExtract} from './toolchain-utils.js';
 
 let cacheDir = path.join(globalCacheDir, 'pocket-ic');
 
+export let repo = 'dfinity/pocketic';
+
 export let isCached = (version: string) => {
 	let dir = path.join(cacheDir, version);
 	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'pocket-ic'));

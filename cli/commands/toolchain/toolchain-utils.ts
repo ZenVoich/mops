@@ -52,10 +52,14 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 	deleteSync([tmpDir], {force: true});
 };
 
-export let getLatestReleaseTag = async (repo: string): Promise<string | undefined> => {
+export let getLatestReleaseTag = async (repo: string): Promise<string> => {
 	let releases = await getReleases(repo);
 	let release = releases.find((release: any) => !release.prerelease && !release.draft);
-	return release?.tag_name;
+	if (!release?.tag_name) {
+		console.error(`Failed to fetch latest release tag for ${repo}`);
+		process.exit(1);
+	}
+	return release.tag_name.replace(/^v/, '');
 };
 
 export let getReleases = async (repo: string) => {
