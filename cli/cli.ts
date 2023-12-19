@@ -102,6 +102,8 @@ program
 			return;
 		}
 
+		await toolchain.ensureToolchainInited({strict: false});
+
 		if (pkg) {
 			// @deprecated
 			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
@@ -168,6 +170,7 @@ program
 			process.exit(1);
 		}
 		await installAll({silent: true, lock: 'ignore'});
+		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
 	});

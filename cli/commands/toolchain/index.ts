@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import {execSync} from 'node:child_process';
 import chalk from 'chalk';
-import {checkConfigFile, getClosestConfigFile, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
+import {checkConfigFile, getClosestConfigFile, getRootDir, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
 import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
@@ -26,15 +26,23 @@ function getToolUtils(tool: Tool) {
 	}
 }
 
-async function ensureToolchainInited() {
+async function ensureToolchainInited({strict = true} = {}) {
 	// auto init in CI
 	if (process.env.CI) {
 		await init();
 		return true;
 	}
+
+	// for non-stict perform check only if dfx.json exists and moc is listed in [toolchain] section
+	let rootDir = getRootDir();
+	let config = readConfig();
+	if (!strict && (!config.toolchain?.moc || rootDir && !fs.existsSync(path.join(rootDir, 'dfx.json')))) {
+		return true;
+	}
+
 	try {
 		let res = execSync('which moc-wrapper').toString().trim();
-		if (res) {
+		if (res && process.env.DFX_MOC_PATH === 'moc-wrapper') {
 			return true;
 		}
 	}
@@ -146,10 +154,18 @@ async function use(tool: Tool, version: string) {
 
 	let config = readConfig();
 	config.toolchain = config.toolchain || {};
+
+	let oldVersion = config.toolchain[tool];
+
 	config.toolchain[tool] = version;
 	writeConfig(config);
 
-	console.log(chalk.green(`Installed ${tool} ${version}`));
+	if (oldVersion === version) {
+		console.log((`${tool} ${version} is already installed`));
+	}
+	else {
+		console.log(chalk.green(`Installed ${tool} ${version}`));
+	}
 }
 
 // download latest binary and set version in mops.toml
@@ -235,4 +251,5 @@ export let toolchain = {
 	update,
 	bin,
 	downloadAll,
+	ensureToolchainInited,
 };

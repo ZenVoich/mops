@@ -18,6 +18,10 @@ export let download = async (version: string, {silent = false} = {}) => {
 		console.error('version is not defined');
 		process.exit(1);
 	}
+	if (version !== '1.0.0') {
+		console.error('Currently only pocket-ic version 1.0.0 is supported');
+		process.exit(1);
+	}
 	if (isCached(version)) {
 		return;
 	}
