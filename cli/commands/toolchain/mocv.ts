@@ -262,7 +262,7 @@ let updateShellConfig = async ({reset = false, yes = false} = {}) => {
 		}
 
 		fs.writeFileSync(configFile, data);
-	};
+	}
 
 	console.log('Success!');
 	// console.log(`Run "source ${configFile}" to apply changes`);

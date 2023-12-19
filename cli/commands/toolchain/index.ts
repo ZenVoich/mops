@@ -188,14 +188,13 @@ async function update(tool?: Tool) {
 }
 
 // return current version from mops.toml
-async function bin(tool: Tool) {
+async function bin(tool: Tool): Promise<string> {
 	let hasConfig = getClosestConfigFile();
 
 	// fallback to dfx moc
 	if (!hasConfig) {
 		if (tool === 'moc') {
-			console.log(execSync('dfx cache show').toString().trim() + '/moc');
-			return;
+			return execSync('dfx cache show').toString().trim() + '/moc';
 		}
 		checkConfigFile();
 		process.exit(1);
@@ -204,15 +203,6 @@ async function bin(tool: Tool) {
 	let config = readConfig();
 	let version = config.toolchain?.[tool];
 
-	if (!version) {
-		// fallback to dfx moc
-		if (tool === 'moc') {
-			console.log(execSync('dfx cache show').toString().trim() + '/moc');
-			return;
-		}
-		console.error(`Tool '${tool}' is not defined in [toolchain] section in mops.toml`);
-		process.exit(1);
-	}
 
 	if (version) {
 		if (tool === 'moc') {
@@ -222,11 +212,20 @@ async function bin(tool: Tool) {
 		await download(tool, version, {silent: true});
 
 		if (tool === 'moc') {
-			console.log(path.join(globalCacheDir, 'moc', version, tool));
+			return path.join(globalCacheDir, 'moc', version, tool);
 		}
 		else {
-			console.log(path.join(globalCacheDir, tool, version, tool));
+			return path.join(globalCacheDir, tool, version, tool);
 		}
+	}
+	else {
+		// fallback to dfx moc
+		if (tool === 'moc') {
+			return execSync('dfx cache show').toString().trim() + '/moc';
+		}
+		console.error(`Tool '${tool}' is not defined in [toolchain] section in mops.toml`);
+		console.log(`Run ${chalk.green(`mops toolchain use ${tool} <version>`)} to install it`);
+		process.exit(1);
 	}
 }
 

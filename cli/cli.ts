@@ -375,7 +375,8 @@ toolchainCommand
 	.description('Get path to the tool binary\n<tool> can be one of "moc", "wasmtime", "pocket-ic"')
 	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
 	.action(async (tool) => {
-		toolchain.bin(tool);
+		let bin = await toolchain.bin(tool);
+		console.log(bin);
 	});
 
 program.addCommand(toolchainCommand);

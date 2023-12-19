@@ -15,4 +15,4 @@ fuzz = "0.1.1"
 bench = "1.0.0"
 
 [toolchain]
-moc = "0.9.5"
+moc = "0.10.2"

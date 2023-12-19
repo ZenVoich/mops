@@ -2,9 +2,10 @@ import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
-import {PocketIc} from '@hadronous/pic';
+import {PocketIc} from 'pic-ic';
 import {getRootDir} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
+import {toolchain} from './toolchain/index.js';
 
 export class BenchReplica {
 	type : 'dfx' | 'pocket-ic';
@@ -27,7 +28,8 @@ export class BenchReplica {
 			execSync('dfx start --background --clean --artificial-delay 0' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', this.verbose ? 'inherit' : 'ignore', 'inherit']});
 		}
 		else {
-			this.pocketIc = await PocketIc.create();
+			let pocketIcBin = await toolchain.bin('pocket-ic');
+			this.pocketIc = await PocketIc.create(pocketIcBin);
 		}
 	}
 
@@ -37,7 +39,7 @@ export class BenchReplica {
 			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
 		}
 		else if (this.pocketIc) {
-			this.pocketIc.tearDown();
+			await this.pocketIc.tearDown();
 		}
 	}
 
