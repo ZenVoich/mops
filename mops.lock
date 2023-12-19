@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "mopsTomlHash": "b2ae94e2818ceac083505df3a1245eec74ebc97011d8a4947d76bb677d4af09b",
+  "version": 2,
+  "mopsTomlDepsHash": "45293ef168667224cecfaeb6329ddc2ac7128b8df35e0d78fc6a64869284ab91",
   "hashes": {
     "base@0.10.2": {
       "base@0.10.2/mops.toml": "ef38b2f5b3b280a41cb1eb8a0de3dfe4e41f4f54734e1af9269faaffff735ca5",
