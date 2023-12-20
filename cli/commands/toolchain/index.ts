@@ -3,12 +3,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import {execSync} from 'node:child_process';
 import chalk from 'chalk';
+import prompts from 'prompts';
 import {checkConfigFile, getClosestConfigFile, getRootDir, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
 import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
 import * as wasmtime from './wasmtime.js';
-import {getLatestReleaseTag} from './toolchain-utils.js';
 
 function getToolUtils(tool: Tool) {
 	if (tool === 'moc') {
@@ -144,10 +144,43 @@ async function downloadAll() {
 	}
 }
 
+async function promptVersion(tool: Tool): Promise<string> {
+	let config = readConfig();
+	config.toolchain = config.toolchain || {};
+	let current = config.toolchain[tool];
+
+	let toolUtils = getToolUtils(tool);
+	let releases = await toolUtils.getReleases();
+	let versions = releases.map((item: {tag_name: any;}) => item.tag_name);
+	let currentIndex = versions.indexOf(current);
+
+	let res = await prompts({
+		type: 'select',
+		name: 'version',
+		message: `Select ${tool} version`,
+		choices: releases.map((release: {published_at: string | number | Date; tag_name: string;}, i: any) => {
+			let date = new Date(release.published_at).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'});
+			return {
+				title: release.tag_name + chalk.gray(`  ${date}${currentIndex === i ? chalk.italic(' (current)') : ''}`),
+				value: release.tag_name,
+			};
+		}),
+		initial: currentIndex == -1 ? 0 : currentIndex,
+	});
+
+	return res.version;
+}
+
 // download binary and set version in mops.toml
-async function use(tool: Tool, version: string) {
+async function use(tool: Tool, version?: string) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
+	}
+	if (!version) {
+		version = await promptVersion(tool);
+	}
+	if (!version) {
+		return;
 	}
 
 	await download(tool, version);
@@ -186,7 +219,7 @@ async function update(tool?: Tool) {
 		}
 
 		let toolUtils = getToolUtils(tool);
-		let version = await getLatestReleaseTag(toolUtils.repo);
+		let version = await toolUtils.getLatestReleaseTag();
 
 		await download(tool, version);
 
@@ -240,7 +273,7 @@ async function bin(tool: Tool): Promise<string> {
 			return execSync('dfx cache show').toString().trim() + '/moc';
 		}
 		console.error(`Tool '${tool}' is not defined in [toolchain] section in mops.toml`);
-		console.log(`Run ${chalk.green(`mops toolchain use ${tool} <version>`)} to install it`);
+		console.log(`Run ${chalk.green(`mops toolchain use ${tool}`)} to install it`);
 		process.exit(1);
 	}
 }

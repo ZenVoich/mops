@@ -2,11 +2,19 @@ import path from 'node:path';
 import fs from 'fs-extra';
 
 import {globalCacheDir} from '../../mops.js';
-import {downloadAndExtract} from './toolchain-utils.js';
+import * as toolchainUtils from './toolchain-utils.js';
 
 let cacheDir = path.join(globalCacheDir, 'wasmtime');
 
 export let repo = 'bytecodealliance/wasmtime';
+
+export let getLatestReleaseTag = async () => {
+	return toolchainUtils.getLatestReleaseTag(repo);
+};
+
+export let getReleases = async () => {
+	return toolchainUtils.getReleases(repo);
+};
 
 export let isCached = (version: string) => {
 	let dir = path.join(cacheDir, version);
@@ -28,5 +36,5 @@ export let download = async (version: string, {silent = false} = {}) => {
 
 	silent || console.log(`Downloading ${url}`);
 
-	await downloadAndExtract(url, path.join(cacheDir, version));
+	await toolchainUtils.downloadAndExtract(url, path.join(cacheDir, version));
 };

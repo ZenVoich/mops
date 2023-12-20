@@ -354,7 +354,7 @@ toolchainCommand
 	.command('use')
 	.description('Install specified tool version and update mops.toml')
 	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
-	.addArgument(new Argument('<version>'))
+	.addArgument(new Argument('[version]'))
 	.action(async (tool, version) => {
 		if (!checkConfigFile()) {
 			process.exit(1);

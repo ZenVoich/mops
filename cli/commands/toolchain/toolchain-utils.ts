@@ -74,5 +74,10 @@ export let getReleases = async (repo: string) => {
 		console.log('Releases fetch error');
 		process.exit(1);
 	}
-	return res.data;
+	return res.data.map((release: any) => {
+		return {
+			...release,
+			tag_name: release.tag_name.replace(/^v/, ''),
+		};
+	});
 };

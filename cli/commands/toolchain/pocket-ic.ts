@@ -2,11 +2,37 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 import {globalCacheDir} from '../../mops.js';
-import {downloadAndExtract} from './toolchain-utils.js';
+import * as toolchainUtils from './toolchain-utils.js';
 
 let cacheDir = path.join(globalCacheDir, 'pocket-ic');
 
 export let repo = 'dfinity/pocketic';
+
+export let getLatestReleaseTag = async () => {
+	return '1.0.0';
+	// return toolchainUtils.getLatestReleaseTag(repo);
+};
+
+export let getReleases = async () => {
+	// return toolchainUtils.getReleases(repo);
+	return [
+		// {
+		// 	tag_name: '2.0.1',
+		// 	published_at: new Date('2023-11-23'),
+		// 	draft: false,
+		// },
+		// {
+		// 	tag_name: '2.0.0',
+		// 	published_at: new Date('2023-11-21'),
+		// 	draft: false,
+		// },
+		{
+			tag_name: '1.0.0',
+			published_at: new Date('2023-10-12'),
+			draft: false,
+		},
+	];
+};
 
 export let isCached = (version: string) => {
 	let dir = path.join(cacheDir, version);
@@ -19,7 +45,7 @@ export let download = async (version: string, {silent = false} = {}) => {
 		process.exit(1);
 	}
 	if (version !== '1.0.0') {
-		console.error('Currently only pocket-ic version 1.0.0 is supported');
+		console.error('Currently only pocket-ic 1.0.0 is supported');
 		process.exit(1);
 	}
 	if (isCached(version)) {
@@ -39,5 +65,5 @@ export let download = async (version: string, {silent = false} = {}) => {
 
 	silent || console.log(`Downloading ${url}`);
 
-	await downloadAndExtract(url, path.join(cacheDir, version));
+	await toolchainUtils.downloadAndExtract(url, path.join(cacheDir, version));
 };
