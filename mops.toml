@@ -16,4 +16,5 @@ bench = "1.0.0"
 
 [toolchain]
 moc = "0.10.2"
+wasmtime = "13.0.0"
 pocket-ic = "1.0.0"
