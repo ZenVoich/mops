@@ -29,7 +29,7 @@ function getToolUtils(tool: Tool) {
 async function ensureToolchainInited({strict = true} = {}) {
 	// auto init in CI
 	if (process.env.CI) {
-		await init();
+		await init({silent: true});
 		return true;
 	}
 
@@ -52,7 +52,7 @@ async function ensureToolchainInited({strict = true} = {}) {
 }
 
 // update shell config files to set DFX_MOC_PATH to moc-wrapper
-async function init({reset = false} = {}) {
+async function init({reset = false, silent = false} = {}) {
 	if (process.platform == 'win32') {
 		console.error('Windows is not supported. Please use WSL');
 		process.exit(1);
@@ -125,8 +125,10 @@ async function init({reset = false} = {}) {
 		fs.writeFileSync(shellConfigFile, text);
 	}
 
-	console.log(chalk.green('Success!'));
-	console.log('Restart terminal to apply changes');
+	if (!silent) {
+		console.log(chalk.green('Success!'));
+		console.log('Restart terminal to apply changes');
+	}
 }
 
 async function download(tool: Tool, version: string, {silent = false} = {}) {
