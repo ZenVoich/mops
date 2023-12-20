@@ -55,7 +55,7 @@ jobs:
         run: mops install
 
       - name: Select moc version
-        run: mops toolchain moc use ${{ matrix.moc-version }}
+        run: mops toolchain use moc ${{ matrix.moc-version }}
 
       - name: Build and Deploy
         run: |
