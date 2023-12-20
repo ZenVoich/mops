@@ -85,10 +85,10 @@ async function init({reset = false} = {}) {
 	// update all existing shell config files
 	for (let shellConfigFile of shellConfigFiles) {
 		let text = fs.readFileSync(shellConfigFile).toString();
-		let setDfxLine = '\nexport DFX_MOC_PATH="moc-wrapper"';
+		let setDfxMocPathLine = '\nexport DFX_MOC_PATH=moc-wrapper';
 
 		let newLines = [
-			setDfxLine,
+			setDfxMocPathLine,
 		];
 
 		let oldLines = [
@@ -96,7 +96,7 @@ async function init({reset = false} = {}) {
 			`\nexport DFX_MOC_PATH=${path.join(path.join(os.homedir(), '.cache/mocv'), 'versions/current')}/moc`,
 			'\nexport DFX_MOC_PATH="$HOME/.cache/mocv/versions/current/moc"',
 			// new
-			setDfxLine,
+			setDfxMocPathLine,
 		];
 
 		// remove old lines
@@ -114,6 +114,9 @@ async function init({reset = false} = {}) {
 				text += '\n';
 			}
 			for (let newLine of newLines) {
+				if (shellConfigFile === process.env.GITHUB_ENV) {
+					newLine = newLine.replace('export ', '');
+				}
 				text += newLine;
 			}
 			text += '\n';
