@@ -252,7 +252,6 @@ async function bin(tool: Tool): Promise<string> {
 	let config = readConfig();
 	let version = config.toolchain?.[tool];
 
-
 	if (version) {
 		if (tool === 'moc') {
 			await ensureToolchainInited();
