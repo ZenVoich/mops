@@ -182,6 +182,9 @@ async function use(tool: Tool, version?: string) {
 	if (!version) {
 		return;
 	}
+	if (version === 'latest') {
+		version = await getToolUtils(tool).getLatestReleaseTag();
+	}
 
 	await download(tool, version);
 
