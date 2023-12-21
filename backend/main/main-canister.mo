@@ -2,26 +2,16 @@ import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import TrieMap "mo:base/TrieMap";
-import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Time "mo:base/Time";
-import Nat "mo:base/Nat";
 import Int "mo:base/Int";
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
-import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
-import Char "mo:base/Char";
-import Hash "mo:base/Hash";
-import TrieSet "mo:base/TrieSet";
-import ExperimentalCycles "mo:base/ExperimentalCycles";
 import Blob "mo:base/Blob";
-import Prim "mo:prim";
 
 import {DAY} "mo:time-consts";
-import {ic} "mo:ic";
-import Map "mo:map/Map";
 import Backup "mo:backup";
 import Sha256 "mo:sha2/Sha256";
 import HttpTypes "mo:http-types";
@@ -34,8 +24,6 @@ import StorageManager "../storage/storage-manager";
 import Storage "../storage/storage-canister";
 import Users "./Users";
 import Badges "./badges";
-import {validateConfig} "./utils/validateConfig";
-import {generateId} "../generate-id";
 
 import Registry "./registry/Registry";
 import PackagePublisher "./PackagePublisher";
@@ -306,10 +294,6 @@ actor class Main() {
 		for ((name, version) in installs.vals()) {
 			_notifyInstall(name, version, caller);
 		};
-	};
-
-	func _toLowerCase(text : Text) : Text {
-		Text.map(text, Prim.charToLower);
 	};
 
 	public query func search(searchText : Text.Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : async ([PackageSummary], PageCount) {
