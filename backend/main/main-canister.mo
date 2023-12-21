@@ -413,7 +413,7 @@ actor class Main() {
 
 		packagesFirstPub.vals()
 			|> Iter.toArray(_)
-			|> Utils.arrayTake(_, 5)
+			|> Array.take(_, 5)
 			|> Array.reverse(_);
 	};
 
