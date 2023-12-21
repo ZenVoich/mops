@@ -46,6 +46,6 @@ export async function installAll({verbose = false, silent = false, lock}: Instal
 
 	if (!silent) {
 		logUpdate.clear();
-		console.log(chalk.green('All packages installed'));
+		console.log(chalk.green('Packages installed'));
 	}
 }

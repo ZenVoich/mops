@@ -21,12 +21,15 @@ export let isCached = (version: string) => {
 	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'wasmtime'));
 };
 
-export let download = async (version: string, {silent = false} = {}) => {
+export let download = async (version: string, {silent = false, verbose = false} = {}) => {
 	if (!version) {
 		console.error('version is not defined');
 		process.exit(1);
 	}
 	if (isCached(version)) {
+		if (verbose) {
+			console.log(`wasmtime ${version} is already installed`);
+		}
 		return;
 	}
 
@@ -34,7 +37,9 @@ export let download = async (version: string, {silent = false} = {}) => {
 	let arch = process.arch.startsWith('arm') ? 'aarch64' : 'x86_64';
 	let url = `https://github.com/bytecodealliance/wasmtime/releases/download/v${version}/wasmtime-v${version}-${arch}-${platfrom}.tar.xz`;
 
-	silent || console.log(`Downloading ${url}`);
+	if (verbose && !silent) {
+		console.log(`Downloading ${url}`);
+	}
 
 	await toolchainUtils.downloadAndExtract(url, path.join(cacheDir, version));
 };

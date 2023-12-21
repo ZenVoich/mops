@@ -21,7 +21,7 @@ export let isCached = (version: string) => {
 	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'moc'));
 };
 
-export let download = async (version: string, {silent = false} = {}) => {
+export let download = async (version: string, {silent = false, verbose = false} = {}) => {
 	if (process.platform == 'win32') {
 		console.error('Windows is not supported. Please use WSL');
 		process.exit(1);
@@ -31,6 +31,9 @@ export let download = async (version: string, {silent = false} = {}) => {
 		process.exit(1);
 	}
 	if (isCached(version)) {
+		if (verbose) {
+			console.log(`moc ${version} is already installed`);
+		}
 		return;
 	}
 
@@ -47,7 +50,9 @@ export let download = async (version: string, {silent = false} = {}) => {
 		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${version}.tar.gz`;
 	}
 
-	silent || console.log(`Downloading ${url}`);
+	if (verbose && !silent) {
+		console.log(`Downloading ${url}`);
+	}
 
 	await toolchainUtils.downloadAndExtract(url, path.join(cacheDir, version));
 };

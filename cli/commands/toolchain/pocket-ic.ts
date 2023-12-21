@@ -39,7 +39,7 @@ export let isCached = (version: string) => {
 	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'pocket-ic'));
 };
 
-export let download = async (version: string, {silent = false} = {}) => {
+export let download = async (version: string, {silent = false, verbose = false} = {}) => {
 	if (!version) {
 		console.error('version is not defined');
 		process.exit(1);
@@ -49,6 +49,9 @@ export let download = async (version: string, {silent = false} = {}) => {
 		process.exit(1);
 	}
 	if (isCached(version)) {
+		if (verbose) {
+			console.log(`pocket-ic ${version} is already installed`);
+		}
 		return;
 	}
 
@@ -63,7 +66,9 @@ export let download = async (version: string, {silent = false} = {}) => {
 
 	let url = `https://download.dfinity.systems/ic/${hashes[version]}/openssl-static-binaries/${arch}-${platfrom}/pocket-ic.gz`;
 
-	silent || console.log(`Downloading ${url}`);
+	if (verbose && !silent) {
+		console.log(`Downloading ${url}`);
+	}
 
 	await toolchainUtils.downloadAndExtract(url, path.join(cacheDir, version));
 };

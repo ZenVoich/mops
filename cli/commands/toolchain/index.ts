@@ -4,6 +4,7 @@ import os from 'node:os';
 import {execSync} from 'node:child_process';
 import chalk from 'chalk';
 import prompts from 'prompts';
+import logUpdate from 'log-update';
 import {checkConfigFile, getClosestConfigFile, getRootDir, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
 import * as moc from './moc.js';
@@ -131,21 +132,48 @@ async function init({reset = false, silent = false} = {}) {
 	}
 }
 
-async function download(tool: Tool, version: string, {silent = false} = {}) {
+async function download(tool: Tool, version: string, {silent = false, verbose = false} = {}) {
 	let toolUtils = getToolUtils(tool);
-	await toolUtils.download(version, {silent});
+	await toolUtils.download(version, {silent, verbose});
 }
 
-async function downloadAll() {
+async function installAll({silent = false, verbose = false} = {}) {
 	let config = readConfig();
+
+	if (!config.toolchain) {
+		return;
+	}
+
+	let log = (...args: string[]) => {
+		if (silent) {
+			return;
+		}
+		if (verbose) {
+			console.log(...args);
+		}
+		else {
+			logUpdate(...args);
+		}
+	};
+
+	log('Installing toolchain...');
+
 	if (config.toolchain?.moc) {
-		await download('moc', config.toolchain.moc);
+		log('Installing moc', config.toolchain.moc);
+		await download('moc', config.toolchain.moc, {verbose});
 	}
 	if (config.toolchain?.wasmtime) {
-		await download('wasmtime', config.toolchain.wasmtime);
+		log('Installing wasmtime', config.toolchain.wasmtime);
+		await download('wasmtime', config.toolchain.wasmtime, {verbose});
 	}
 	if (config.toolchain?.['pocket-ic']) {
-		await download('pocket-ic', config.toolchain['pocket-ic']);
+		log('Installing pocket-ic', config.toolchain['pocket-ic']);
+		await download('pocket-ic', config.toolchain['pocket-ic'], {verbose});
+	}
+
+	if (!silent) {
+		logUpdate.clear();
+		console.log(chalk.green('Toolchain installed'));
 	}
 }
 
@@ -290,6 +318,6 @@ export let toolchain = {
 	use,
 	update,
 	bin,
-	downloadAll,
+	installAll,
 	ensureToolchainInited,
 };

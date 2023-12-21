@@ -111,7 +111,7 @@ program
 		}
 		else {
 			await installAll(options);
-			await toolchain.downloadAll();
+			await toolchain.installAll(options);
 		}
 	});
 
