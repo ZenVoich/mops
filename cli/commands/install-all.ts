@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import logUpdate from 'log-update';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {createLogUpdate} from 'log-update';
 import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
@@ -36,9 +37,13 @@ export async function installAll({verbose = false, silent = false, lock}: Instal
 		}
 	}
 
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+	// let logUpdate = l;
+
 	if (!silent && lock !== 'ignore') {
 		logUpdate('Checking integrity...');
 	}
+
 	await Promise.all([
 		notifyInstalls(Object.keys(installedPackages)),
 		checkIntegrity(lock),

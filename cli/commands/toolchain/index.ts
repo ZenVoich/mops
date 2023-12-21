@@ -4,7 +4,7 @@ import os from 'node:os';
 import {execSync} from 'node:child_process';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import logUpdate from 'log-update';
+import {createLogUpdate} from 'log-update';
 import {checkConfigFile, getClosestConfigFile, getRootDir, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
 import * as moc from './moc.js';
@@ -143,6 +143,8 @@ async function installAll({silent = false, verbose = false} = {}) {
 	if (!config.toolchain) {
 		return;
 	}
+
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
 	let log = (...args: string[]) => {
 		if (silent) {
