@@ -118,6 +118,7 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 
 	reporter.addFiles(files);
 
+	let config = readConfig();
 	let sourcesArr = await sources();
 
 	if (!mocPath) {
@@ -133,7 +134,6 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 
 		if (wasiMode && !wasmtimePath) {
 			// ensure wasmtime is installed or specified in config
-			let config = readConfig();
 			if (config.toolchain?.wasmtime) {
 				wasmtimePath = await toolchain.bin('wasmtime');
 			}
@@ -159,18 +159,29 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 						return;
 					}
 					// run
-					let proc = spawn(wasmtimePath, [
-						'--max-wasm-stack=2000000',
-						'--enable-cranelift-nan-canonicalization',
-						'--wasm-features',
-						'multi-memory,bulk-memory',
-						wasmFile,
-					], {
-						env: {
-							...process.env,
-							WASMTIME_NEW_CLI: '0',
-						}
-					});
+					let wasmtimeArgs = [];
+					if (config.toolchain?.wasmtime && config.toolchain?.wasmtime >= '14.0.0') {
+						wasmtimeArgs = [
+							'-S', 'preview2=n',
+							'-C', 'cache=n',
+							'-W', 'bulk-memory',
+							'-W', 'multi-memory',
+							'-W', 'max-wasm-stack=2000000',
+							'-W', 'nan-canonicalization=y',
+							wasmFile,
+						];
+					}
+					else {
+						wasmtimeArgs = [
+							'--max-wasm-stack=2000000',
+							'--enable-cranelift-nan-canonicalization',
+							'--wasm-features',
+							'multi-memory,bulk-memory',
+							wasmFile,
+						];
+					}
+
+					let proc = spawn(wasmtimePath, wasmtimeArgs);
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
 					fs.rmSync(wasmFile, {force: true});
