@@ -4,6 +4,7 @@
   "type": "module",
   "bin": {
     "mops": "dist/bin/mops.js",
+    "ic-mops": "dist/bin/mops.js",
     "moc-wrapper": "bin/moc-wrapper.sh"
   },
   "files": [
