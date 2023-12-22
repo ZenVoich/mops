@@ -372,9 +372,11 @@ actor class Main() {
 			});
 		};
 
-		Array.map<(Text, [Text]), (Text, [PackageSummary])>(packagesByCategory, func((category, packageNames)) {
-			(category, _sortByUpdated(_summariesFromNames(packageNames, limit)))
-		});
+		packagesByCategory
+			|> Array.map<(Text, [Text]), (Text, [PackageSummary])>(_, func((category, packageNames)) {
+				(category, _sortByUpdated(_summariesFromNames(packageNames, 1000)))
+			})
+			|> Array.take(_, limit);
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
