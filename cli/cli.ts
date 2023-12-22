@@ -1,17 +1,13 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs';
-import {program, Argument, Option} from 'commander';
+import {Command, Argument, Option} from 'commander';
 import chalk from 'chalk';
-import {Principal} from '@dfinity/principal';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, getIdentity} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile} from './mops.js';
 import {getNetwork} from './api/network.js';
-import {mainActor} from './api/actors.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
 import {search} from './commands/search.js';
@@ -28,6 +24,8 @@ import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
+import {toolchain} from './commands/toolchain/index.js';
+import {Tool} from './types.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -40,6 +38,7 @@ if (fs.existsSync(networkFile)) {
 	globalThis.MOPS_NETWORK = fs.readFileSync(networkFile).toString() || 'ic';
 }
 
+let program = new Command();
 
 program.name('mops');
 
@@ -60,9 +59,9 @@ program
 program
 	.command('add <pkg>')
 	.description('Install the package and save it to mops.toml')
-	.option('--dev')
+	.option('--dev', 'Add to [dev-dependencies] section')
 	.option('--verbose')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -78,7 +77,7 @@ program
 	.option('--dev', 'Remove from dev-dependencies instead of dependencies')
 	.option('--verbose', 'Show more information')
 	.option('--dry-run', 'Do not actually remove anything')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -92,7 +91,7 @@ program
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'check', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (pkg, options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
@@ -103,6 +102,8 @@ program
 			return;
 		}
 
+		await toolchain.ensureToolchainInited({strict: false});
+
 		if (pkg) {
 			// @deprecated
 			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
@@ -110,6 +111,7 @@ program
 		}
 		else {
 			await installAll(options);
+			await toolchain.installAll(options);
 		}
 	});
 
@@ -167,7 +169,8 @@ program
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
+		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
 	});
@@ -212,7 +215,7 @@ program
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
 		await test(filter, options);
 	});
 
@@ -220,13 +223,14 @@ program
 program
 	.command('bench [filter]')
 	.description('Run benchmarks')
+	.addOption(new Option('--replica <replica>', 'Which replica to use to run benchmarks').choices(['dfx', 'pocket-ic']).default('dfx'))
+	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('copying'))
 	.addOption(new Option('--save', 'Save benchmark results to .bench/<filename>.json'))
 	.addOption(new Option('--compare', 'Run benchmark and compare results with .bench/<filename>.json'))
-	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('incremental'))
 	// .addOption(new Option('--force-gc', 'Force GC'))
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
-		await installAll({silent: true, lockfile: 'ignore'});
+		await installAll({silent: true, lock: 'ignore'});
 		await bench(filter, options);
 	});
 
@@ -287,39 +291,6 @@ program
 		}
 	});
 
-// temp: airdrop
-program
-	.command('airdrop <check|claim> [canister]')
-	.action(async (sub, canister) => {
-		let identity = await getIdentity();
-		let main = await mainActor(identity);
-		if (sub === 'check') {
-			let amount = await main.getAirdropAmount();
-			if (amount === 0n) {
-				console.log('No airdrop available');
-				return;
-			}
-			console.log(`You can claim ${Number(amount) / 1_000_000_000_000} TCycles`);
-		}
-		else if (sub === 'claim') {
-			let principal;
-			try {
-				principal = Principal.fromText(canister);
-			}
-			catch (err) {
-				console.log('Invalid canister id');
-				console.log(err);
-				return;
-			}
-			console.log('Sending cycles to the canister ' + canister);
-			let res = await main.claimAirdrop(principal);
-			console.log(res);
-		}
-		else {
-			console.log('Unknown sub command. Available sub commands: check, claim');
-		}
-	});
-
 // bump
 program
 	.command('bump [major|minor|patch]')
@@ -332,7 +303,7 @@ program
 program
 	.command('sync')
 	.description('Add missing packages and remove unused packages')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (options) => {
 		await sync(options);
 	});
@@ -349,7 +320,7 @@ program
 program
 	.command('update [pkg]')
 	.description('Update dependencies specified in mops.toml')
-	.addOption(new Option('--lockfile <lockfile>', 'Lockfile action').choices(['save', 'ignore']))
+	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		await update(pkg, options);
 	});
@@ -361,5 +332,57 @@ program
 	.action(async (toPrincipal) => {
 		await transferOwnership(toPrincipal);
 	});
+
+// toolchain
+const toolchainCommand = new Command('toolchain').description('Toolchain management');
+
+toolchainCommand
+	.command('init')
+	.description('One-time initialization of toolchain management')
+	.action(async () => {
+		await toolchain.init();
+	});
+
+toolchainCommand
+	.command('reset')
+	.description('Uninstall toolchain management')
+	.action(async () => {
+		await toolchain.init({reset: true});
+	});
+
+toolchainCommand
+	.command('use')
+	.description('Install specified tool version and update mops.toml')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.addArgument(new Argument('[version]'))
+	.action(async (tool, version) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.use(tool, version);
+	});
+
+toolchainCommand
+	.command('update')
+	.description('Update specified tool or all tools to the latest version and update mops.toml')
+	.addArgument(new Argument('[tool]').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.action(async (tool?: Tool) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.update(tool);
+	});
+
+toolchainCommand
+	.command('bin')
+	.description('Get path to the tool binary\n<tool> can be one of "moc", "wasmtime", "pocket-ic"')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.addOption(new Option('--fallback', 'Fallback to the moc that comes with dfx if moc is not specified in the [toolchain] section'))
+	.action(async (tool, options) => {
+		let bin = await toolchain.bin(tool, options);
+		console.log(bin);
+	});
+
+program.addCommand(toolchainCommand);
 
 program.parse();

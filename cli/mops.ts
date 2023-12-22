@@ -106,9 +106,9 @@ export let getIdentity = async (): Promise<Identity | undefined> => {
 	return undefined;
 };
 
-export function getClosestConfigFile(dir = process.cwd()) {
+export function getClosestConfigFile(dir = process.cwd()) : string {
 	if (!path.basename(dir)) {
-		throw '';
+		return '';
 	}
 	let configFile = path.join(dir, 'mops.toml');
 	if (fs.existsSync(configFile)) {
@@ -210,7 +210,7 @@ export function readConfig(configFile = getClosestConfigFile()): Config {
 }
 
 export function writeConfig(config: Config, configFile = getClosestConfigFile()) {
-	let resConfig: any = {...config};
+	let resConfig: any = JSON.parse(JSON.stringify(config));
 
 	let deps = resConfig.dependencies || {};
 	Object.entries(config.dependencies || {}).forEach(([name, {repo, path, version}]) => {

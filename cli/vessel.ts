@@ -3,7 +3,7 @@ import path from 'node:path';
 import {deleteSync} from 'del';
 import {execaCommand} from 'execa';
 import chalk from 'chalk';
-import logUpdate from 'log-update';
+import {createLogUpdate} from 'log-update';
 import got from 'got';
 import decompress from 'decompress';
 import {pipeline} from 'stream';
@@ -153,6 +153,8 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 	let dir = formatGithubDir(name, repo);
 	let cacheName = `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
 
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+
 	if (existsSync(dir)) {
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache)`);
 	}
@@ -183,6 +185,9 @@ export const installFromGithub = async (name: string, repo: string, {verbose = f
 
 	if (verbose) {
 		silent || logUpdate.done();
+	}
+	else {
+		logUpdate.clear();
 	}
 
 	const config = await readVesselConfig(dir, {silent});

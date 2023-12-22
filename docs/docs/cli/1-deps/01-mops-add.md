@@ -36,3 +36,22 @@ Add local package
 ```
 mops add ./shared
 ```
+
+## Options
+
+### `--dev`
+Add package to `[dev-dependencies]` section.
+
+### `--lock`
+
+What to do with the [lockfile](/mops.lock)
+
+Default value is `update` if lockfile exists and `ignore` otherwise.
+
+Possible values:
+- `update` - update lockfile (create if not exists). Always checks after update
+- `ignore` - ignore lockfile
+
+### `--verbose`
+
+Verbose output.

@@ -13,7 +13,7 @@ mops bench [filter]
 
 Put your benchmark code in `bench/*.bench.mo` files.
 
-It is necessary to use [bench package](https://mops.one/bench) write benchmarks.
+It is necessary to use [bench package](https://mops.one/bench) to write benchmarks.
 
 The output format is a markdown table, so you can copy-paste it into your `README.md`.
 
@@ -28,6 +28,24 @@ Under the hood, Mops will:
 
 ## Options
 
+### `--replica`
+
+Which replica to use.
+
+Possible values:
+- `dfx` - use `dfx` local replica (default)
+- `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper
+
+### `--gc`
+
+Select garbage collector.
+
+Possible values:
+- `copying` (default)
+- `compacting`
+- `generational`
+- `incremental`
+
 ### `--save`
 
 Save benchmark results to `.bench/<filename>.json` file.
@@ -35,16 +53,6 @@ Save benchmark results to `.bench/<filename>.json` file.
 ### `--compare`
 
 Compare benchmark results with the results from `.bench/<filename>.json` file.
-
-### `--gc`
-
-Select garbage collector.
-
-Possible values:
-- `incremental` (default)
-- `copying`
-- `compacting`
-- `generational`
 
 ### `--verbose`
 

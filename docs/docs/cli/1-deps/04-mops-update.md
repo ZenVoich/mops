@@ -21,3 +21,15 @@ Update the `base` package to the latest version:
 ```
 mops update base
 ```
+
+## Options
+
+### `--lock`
+
+What to do with the [lockfile](/mops.lock).
+
+Default value is `update` if lockfile exists and `ignore` otherwise.
+
+Possible values:
+- `update` - update lockfile (create if not exists). Always checks after update
+- `ignore` - ignore lockfile

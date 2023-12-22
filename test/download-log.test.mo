@@ -5,7 +5,7 @@ import Time "mo:base/Time";
 import Debug "mo:base/Debug";
 import Prim "mo:prim";
 
-import DownloadLog "../backend/main/download-log";
+import DownloadLog "../backend/main/DownloadLog";
 
 let fuzz = Fuzz.Fuzz();
 let downloadLog = DownloadLog.DownloadLog();

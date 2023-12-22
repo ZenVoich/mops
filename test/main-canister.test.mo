@@ -1,0 +1,1 @@
+import Main "../backend/main/main-canister";

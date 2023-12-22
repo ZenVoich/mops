@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import logUpdate from 'log-update';
+import {createLogUpdate} from 'log-update';
 import chalk from 'chalk';
 import {checkConfigFile, formatDir, progressBar, readConfig} from '../mops.js';
 import {getHighestVersion} from '../api/getHighestVersion.js';
@@ -14,6 +14,7 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 	if (!checkConfigFile()) {
 		return false;
 	}
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
 	// progress
 	let total = Infinity;
@@ -88,6 +89,9 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 
 	if (verbose) {
 		silent || logUpdate.done();
+	}
+	else {
+		logUpdate.clear();
 	}
 
 	// install dependencies
