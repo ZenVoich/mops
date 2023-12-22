@@ -120,6 +120,7 @@ module {
 				"icrc7-mo",
 				"icrc30-mo",
 				"icrc-nft-mo",
+				"icrc1-mo",
 			]
 		),
 	];

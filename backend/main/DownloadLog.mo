@@ -106,7 +106,7 @@ module {
 		func _getTrend(snapshotsOpt : ?Buffer.Buffer<DownloadsSnapshot>, max : Nat) : [DownloadsSnapshot] {
 			switch (snapshotsOpt) {
 				case (?snapshots) {
-					Utils.arrayTake(Buffer.toArray(snapshots), -max);
+					Array.take(Buffer.toArray(snapshots), -max);
 				};
 				case (null) {
 					[];

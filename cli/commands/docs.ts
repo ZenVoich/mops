@@ -1,4 +1,4 @@
-import {spawn, execSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
@@ -8,8 +8,9 @@ import tar from 'tar';
 import streamToPromise from 'stream-to-promise';
 
 import {getRootDir} from '../mops.js';
+import {toolchain} from './toolchain/index.js';
 
-let moDoc: string;
+let moDocPath: string;
 
 export async function docs({silent = false} = {}) {
 	let rootDir = getRootDir();
@@ -18,17 +19,19 @@ export async function docs({silent = false} = {}) {
 
 	deleteSync([docsDir], {force: true});
 
-	// detect mocv
+	// detect mocv (legacy)
 	if (process.env.DFX_MOC_PATH && process.env.DFX_MOC_PATH.includes('mocv/versions')) {
-		moDoc = process.env.DFX_MOC_PATH.replace(/\/moc$/, '/mo-doc');
+		moDocPath = process.env.DFX_MOC_PATH.replace(/\/moc$/, '/mo-doc');
 	}
 	else {
-		moDoc = execSync('dfx cache show').toString().trim() + '/mo-doc';
+		// fallbacks to dfx moc if not specified in config
+		let mocPath = await toolchain.bin('moc');
+		moDocPath = mocPath.replace(/\/moc$/, '/mo-doc');
 	}
 
 	// generate docs
 	await new Promise<void>((resolve) => {
-		let proc = spawn(moDoc, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
+		let proc = spawn(moDocPath, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
 
 		// stdout
 		proc.stdout.on('data', (data) => {

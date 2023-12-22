@@ -1,4 +1,4 @@
-import {spawn, execSync, ChildProcessWithoutNullStreams} from 'node:child_process';
+import {spawn, ChildProcessWithoutNullStreams} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -8,7 +8,7 @@ import chokidar from 'chokidar';
 import debounce from 'debounce';
 
 import {sources} from '../sources.js';
-import {getRootDir} from '../../mops.js';
+import {getRootDir, readConfig} from '../../mops.js';
 import {parallel} from '../../parallel.js';
 
 import {MMF1} from './mmf1.js';
@@ -18,6 +18,7 @@ import {VerboseReporter} from './reporters/verbose-reporter.js';
 import {FilesReporter} from './reporters/files-reporter.js';
 import {CompactReporter} from './reporters/compact-reporter.js';
 import {SilentReporter} from './reporters/silent-reporter.js';
+import {toolchain} from '../toolchain/index.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -70,7 +71,8 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 	}
 }
 
-let mocPath = process.env.DFX_MOC_PATH;
+let mocPath = '';
+let wasmtimePath = '';
 
 export async function runAll(reporterName: ReporterName = 'verbose', filter = '', mode: TestMode = 'interpreter'): Promise<boolean> {
 	let reporter: Reporter;
@@ -116,10 +118,11 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 
 	reporter.addFiles(files);
 
+	let config = readConfig();
 	let sourcesArr = await sources();
 
 	if (!mocPath) {
-		mocPath = execSync('dfx cache show').toString().trim() + '/moc';
+		mocPath = await toolchain.bin('moc');
 	}
 
 	let wasmDir = `${getRootDir()}/.mops/.test/`;
@@ -129,11 +132,20 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 		let mmf = new MMF1('store', absToRel(file));
 		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
-		let promise = new Promise<void>((resolve) => {
-			if (!mocPath) {
-				mocPath = 'moc';
+		if (wasiMode && !wasmtimePath) {
+			// ensure wasmtime is installed or specified in config
+			if (config.toolchain?.wasmtime) {
+				wasmtimePath = await toolchain.bin('wasmtime');
 			}
+			// fallback wasmtime to global binary if not specified in config (legacy)
+			else {
+				wasmtimePath = 'wasmtime';
+				console.log(chalk.yellow('Warning:'), 'Wasmtime is not specified in config. Using global binary "wasmtime". This will be removed in the future.');
+				console.log(`Run ${chalk.green('mops toolchain use wasmtime')} or add ${chalk.green('wasmtime = "<version>"')} in mops.toml to avoid breaking changes with future versions of mops.`);
+			}
+		}
 
+		let promise = new Promise<void>((resolve) => {
 			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
 			// build and run wasm
@@ -147,18 +159,29 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 						return;
 					}
 					// run
-					let proc = spawn('wasmtime', [
-						'--max-wasm-stack=2000000',
-						'--enable-cranelift-nan-canonicalization',
-						'--wasm-features',
-						'multi-memory,bulk-memory',
-						wasmFile,
-					], {
-						env: {
-							...process.env,
-							WASMTIME_NEW_CLI: '0',
-						}
-					});
+					let wasmtimeArgs = [];
+					if (config.toolchain?.wasmtime && config.toolchain?.wasmtime >= '14.0.0') {
+						wasmtimeArgs = [
+							'-S', 'preview2=n',
+							'-C', 'cache=n',
+							'-W', 'bulk-memory',
+							'-W', 'multi-memory',
+							'-W', 'max-wasm-stack=2000000',
+							'-W', 'nan-canonicalization=y',
+							wasmFile,
+						];
+					}
+					else {
+						wasmtimeArgs = [
+							'--max-wasm-stack=2000000',
+							'--enable-cranelift-nan-canonicalization',
+							'--wasm-features',
+							'multi-memory,bulk-memory',
+							wasmFile,
+						];
+					}
+
+					let proc = spawn(wasmtimePath, wasmtimeArgs);
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
 					fs.rmSync(wasmFile, {force: true});

@@ -1,7 +1,5 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs';
-import {program, Argument, Option} from 'commander';
+import {Command, Argument, Option} from 'commander';
 import chalk from 'chalk';
 
 import {init} from './commands/init.js';
@@ -26,6 +24,8 @@ import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
+import {toolchain} from './commands/toolchain/index.js';
+import {Tool} from './types.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -38,6 +38,7 @@ if (fs.existsSync(networkFile)) {
 	globalThis.MOPS_NETWORK = fs.readFileSync(networkFile).toString() || 'ic';
 }
 
+let program = new Command();
 
 program.name('mops');
 
@@ -101,6 +102,8 @@ program
 			return;
 		}
 
+		await toolchain.ensureToolchainInited({strict: false});
+
 		if (pkg) {
 			// @deprecated
 			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
@@ -108,6 +111,7 @@ program
 		}
 		else {
 			await installAll(options);
+			await toolchain.installAll(options);
 		}
 	});
 
@@ -166,6 +170,7 @@ program
 			process.exit(1);
 		}
 		await installAll({silent: true, lock: 'ignore'});
+		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
 	});
@@ -327,5 +332,57 @@ program
 	.action(async (toPrincipal) => {
 		await transferOwnership(toPrincipal);
 	});
+
+// toolchain
+const toolchainCommand = new Command('toolchain').description('Toolchain management');
+
+toolchainCommand
+	.command('init')
+	.description('One-time initialization of toolchain management')
+	.action(async () => {
+		await toolchain.init();
+	});
+
+toolchainCommand
+	.command('reset')
+	.description('Uninstall toolchain management')
+	.action(async () => {
+		await toolchain.init({reset: true});
+	});
+
+toolchainCommand
+	.command('use')
+	.description('Install specified tool version and update mops.toml')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.addArgument(new Argument('[version]'))
+	.action(async (tool, version) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.use(tool, version);
+	});
+
+toolchainCommand
+	.command('update')
+	.description('Update specified tool or all tools to the latest version and update mops.toml')
+	.addArgument(new Argument('[tool]').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.action(async (tool?: Tool) => {
+		if (!checkConfigFile()) {
+			process.exit(1);
+		}
+		await toolchain.update(tool);
+	});
+
+toolchainCommand
+	.command('bin')
+	.description('Get path to the tool binary\n<tool> can be one of "moc", "wasmtime", "pocket-ic"')
+	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
+	.addOption(new Option('--fallback', 'Fallback to the moc that comes with dfx if moc is not specified in the [toolchain] section'))
+	.action(async (tool, options) => {
+		let bin = await toolchain.bin(tool, options);
+		console.log(bin);
+	});
+
+program.addCommand(toolchainCommand);
 
 program.parse();

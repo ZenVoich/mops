@@ -1,6 +1,6 @@
 import path from 'node:path';
 import chalk from 'chalk';
-import logUpdate from 'log-update';
+import {createLogUpdate} from 'log-update';
 import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {getHighestVersion} from '../api/getHighestVersion.js';
 import {installFromGithub} from '../vessel.js';
@@ -108,6 +108,8 @@ export async function add(name: string, {verbose = false, dev = false, lock}: Ad
 	}
 
 	writeConfig(config);
+
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
 	if (lock !== 'ignore') {
 		logUpdate('Checking integrity...');
