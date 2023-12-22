@@ -275,12 +275,12 @@ async function update(tool?: Tool) {
 }
 
 // return current version from mops.toml
-async function bin(tool: Tool): Promise<string> {
+async function bin(tool: Tool, {fallback = false} = {}): Promise<string> {
 	let hasConfig = getClosestConfigFile();
 
 	// fallback to dfx moc
 	if (!hasConfig) {
-		if (tool === 'moc') {
+		if (tool === 'moc' && fallback) {
 			return execSync('dfx cache show').toString().trim() + '/moc';
 		}
 		checkConfigFile();
@@ -306,7 +306,7 @@ async function bin(tool: Tool): Promise<string> {
 	}
 	else {
 		// fallback to dfx moc
-		if (tool === 'moc') {
+		if (tool === 'moc' && fallback) {
 			return execSync('dfx cache show').toString().trim() + '/moc';
 		}
 		console.error(`Tool '${tool}' is not defined in [toolchain] section in mops.toml`);

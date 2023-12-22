@@ -1,3 +1,3 @@
 #!/bin/bash
-mocPath="$(mops toolchain bin moc)"
+mocPath="$(mops toolchain bin moc --fallback)"
 $mocPath "$@"

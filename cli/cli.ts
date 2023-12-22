@@ -377,8 +377,9 @@ toolchainCommand
 	.command('bin')
 	.description('Get path to the tool binary\n<tool> can be one of "moc", "wasmtime", "pocket-ic"')
 	.addArgument(new Argument('<tool>').choices(['moc', 'wasmtime', 'pocket-ic']))
-	.action(async (tool) => {
-		let bin = await toolchain.bin(tool);
+	.addOption(new Option('--fallback', 'Fallback to the moc that comes with dfx if moc is not specified in the [toolchain] section'))
+	.action(async (tool, options) => {
+		let bin = await toolchain.bin(tool, options);
 		console.log(bin);
 	});
 
