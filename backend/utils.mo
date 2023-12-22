@@ -39,10 +39,4 @@ module {
 			items.size() / limit + (if (items.size() % limit == 0) 0 else 1),
 		);
 	};
-
-	public func arrayTake<T>(ar : [T], n : Int) : [T] {
-		let resSize = Nat.min(Int.abs(n), ar.size());
-		let start : Nat = if (n > 0) 0 else ar.size() - resSize;
-		Array.subArray(ar, start, resSize);
-	};
 }

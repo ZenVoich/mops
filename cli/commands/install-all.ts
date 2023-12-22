@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import logUpdate from 'log-update';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {createLogUpdate} from 'log-update';
 import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
@@ -9,10 +10,10 @@ import {checkIntegrity} from '../integrity.js';
 type InstallAllOptions = {
 	verbose?: boolean;
 	silent?: boolean;
-	lockfile?: 'save' | 'check' | 'ignore';
+	lock?: 'check' | 'update' | 'ignore';
 }
 
-export async function installAll({verbose = false, silent = false, lockfile}: InstallAllOptions = {}) {
+export async function installAll({verbose = false, silent = false, lock}: InstallAllOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -36,16 +37,20 @@ export async function installAll({verbose = false, silent = false, lockfile}: In
 		}
 	}
 
-	if (!silent && lockfile !== 'ignore') {
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+	// let logUpdate = l;
+
+	if (!silent && lock !== 'ignore') {
 		logUpdate('Checking integrity...');
 	}
+
 	await Promise.all([
 		notifyInstalls(Object.keys(installedPackages)),
-		checkIntegrity(lockfile),
+		checkIntegrity(lock),
 	]);
 
 	if (!silent) {
 		logUpdate.clear();
-		console.log(chalk.green('All packages installed'));
+		console.log(chalk.green('Packages installed'));
 	}
 }

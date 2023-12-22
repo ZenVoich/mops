@@ -39,7 +39,7 @@ export let copyCache = (pkgId: string, dest: string) => {
 };
 
 export let cacheSize = async () => {
-	let dir = path.join(globalCacheDir, 'packages');
+	let dir = path.join(globalCacheDir);
 	fs.mkdirSync(dir, {recursive: true});
 
 	let size = await getFolderSize.strict(dir);
@@ -50,6 +50,6 @@ export let cacheSize = async () => {
 };
 
 export let cleanCache = async () => {
-	let dir = path.join(globalCacheDir, 'packages');
+	let dir = path.join(globalCacheDir);
 	fs.rmSync(dir, {recursive: true, force: true});
 };

@@ -327,6 +327,8 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 
 	// finish
 	progress();
+	logUpdate.done();
+
 	let res = await actor.finishPublish(puiblishingId);
 	if ('err' in res) {
 		console.log(chalk.red('Error: ') + res.err);

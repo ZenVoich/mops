@@ -15,6 +15,7 @@ module {
 				"map",
 				"merkle-patricia-trie",
 				"memory-buffer",
+				"augmented-btrees",
 			]
 		),
 		(
@@ -30,6 +31,7 @@ module {
 				"time-consts",
 				"memory-region",
 				"account",
+				"bench",
 			]
 		),
 		(
@@ -118,6 +120,7 @@ module {
 				"icrc7-mo",
 				"icrc30-mo",
 				"icrc-nft-mo",
+				"icrc1-mo",
 			]
 		),
 	];

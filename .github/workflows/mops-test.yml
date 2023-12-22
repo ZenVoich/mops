@@ -12,9 +12,10 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
+        # mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
         moc-version: [0.10.1, latest]
-        mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
-        node-version: [16, 20]
+        mops-version: [./cli]
+        node-version: [18, 20]
 
     runs-on: ubuntu-latest
     name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
@@ -26,12 +27,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: install wasmtime
-        run: |
-          curl https://wasmtime.dev/install.sh -sSf | bash
-          bash -ci "$(curl -fsSL https://wasmtime.dev/install.sh)" -- --version v13.0.0
-          echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
-
       - name: Cache mops packages
         uses: actions/cache@v3
         with:
@@ -41,9 +36,6 @@ jobs:
             mops-packages-
           path: |
             ~/.cache/mops
-
-      - name: Select moc version
-        run: npx mocv use ${{ matrix.moc-version }}
 
       - name: Install npm packages
         run: |
@@ -59,6 +51,9 @@ jobs:
 
       - name: Install mops packages
         run: mops install
+
+      - name: Select moc version
+        run: mops toolchain use moc ${{ matrix.moc-version }}
 
       - name: Run tests
         run: mops test

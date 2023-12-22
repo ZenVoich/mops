@@ -2,9 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {sha256} from '@noble/hashes/sha256';
 import {bytesToHex} from '@noble/hashes/utils';
-import {getDependencyType, getRootDir} from './mops.js';
+import {getDependencyType, getRootDir, readConfig} from './mops.js';
 import {mainActor} from './api/actors.js';
 import {resolvePackages} from './resolve-packages.js';
+
+type LockFileGeneric = {
+	version: number;
+};
 
 type LockFileV1 = {
 	version: 1;
@@ -12,19 +16,27 @@ type LockFileV1 = {
 	hashes: Record<string, Record<string, string>>;
 };
 
-export async function checkIntegrity(lock?: 'save' | 'check' | 'ignore') {
+type LockFileV2 = {
+	version: 2;
+	mopsTomlDepsHash: string;
+	hashes: Record<string, Record<string, string>>;
+};
+
+type LockFile = LockFileV1 | LockFileV2;
+
+export async function checkIntegrity(lock?: 'check' | 'update' | 'ignore') {
 	let force = !!lock;
 
 	if (!lock && !process.env['CI'] && fs.existsSync(path.join(getRootDir(), 'mops.lock'))) {
-		lock = 'save';
+		lock = 'update';
 	}
 
 	if (!lock) {
 		lock = process.env['CI'] ? 'check' : 'ignore';
 	}
 
-	if (lock === 'save') {
-		await saveLockFile();
+	if (lock === 'update') {
+		await updateLockFile();
 		await checkLockFile(force);
 	}
 	else if (lock === 'check') {
@@ -63,6 +75,19 @@ function getMopsTomlHash(): string {
 	return bytesToHex(sha256(fs.readFileSync(getRootDir() + '/mops.toml')));
 }
 
+function getMopsTomlDepsHash(): string {
+	let config = readConfig();
+	let deps = config.dependencies || {};
+	let devDeps = config['dev-dependencies'] || {};
+	let allDeps = {...deps, ...devDeps};
+	// sort allDeps by key
+	let sortedDeps = Object.keys(allDeps).sort().reduce((acc, key) => {
+		acc[key] = allDeps[key]?.version || allDeps[key]?.repo || allDeps[key]?.path || '';
+		return acc;
+	}, {} as Record<string, string>);
+	return bytesToHex(sha256(JSON.stringify(sortedDeps)));
+}
+
 // compare hashes of local files with hashes from the registry
 export async function checkRemote() {
 	let fileHashesFromRegistry = await getFileHashesFromRegistry();
@@ -82,24 +107,24 @@ export async function checkRemote() {
 	}
 }
 
-export async function saveLockFile() {
+export async function updateLockFile() {
 	let rootDir = getRootDir();
 	let lockFile = path.join(rootDir, 'mops.lock');
 
 	// if lock file exists and mops.toml hasn't changed, don't update it
 	if (fs.existsSync(lockFile)) {
-		let lockFileJson: LockFileV1 = JSON.parse(fs.readFileSync(lockFile).toString());
-		let mopsTomlHash = getMopsTomlHash();
-		if (mopsTomlHash === lockFileJson.mopsTomlHash) {
+		let lockFileJson: LockFileV2 = JSON.parse(fs.readFileSync(lockFile).toString());
+		let mopsTomlDepsHash = getMopsTomlDepsHash();
+		if (mopsTomlDepsHash === lockFileJson.mopsTomlDepsHash) {
 			return;
 		}
 	}
 
 	let fileHashes = await getFileHashesFromRegistry();
 
-	let lockFileJson: LockFileV1 = {
-		version: 1,
-		mopsTomlHash: getMopsTomlHash(),
+	let lockFileJson: LockFileV2 = {
+		version: 2,
+		mopsTomlDepsHash: getMopsTomlDepsHash(),
 		hashes: fileHashes.reduce((acc, [packageId, fileHashes]) => {
 			acc[packageId] = fileHashes.reduce((acc, [fileId, hash]) => {
 				acc[fileId] = bytesToHex(new Uint8Array(hash));
@@ -126,23 +151,38 @@ export async function checkLockFile(force = false) {
 		return;
 	}
 
-	let lockFileJson: LockFileV1 = JSON.parse(fs.readFileSync(lockFile).toString());
+	let lockFileJsonGeneric: LockFileGeneric = JSON.parse(fs.readFileSync(lockFile).toString());
 	let packageIds = await getResolvedMopsPackageIds();
 
 	// check lock file version
-	if (lockFileJson.version !== 1) {
+	if (lockFileJsonGeneric.version !== 1 && lockFileJsonGeneric.version !== 2) {
 		console.error('Integrity check failed');
-		console.error(`Invalid lock file version: ${lockFileJson.version}. Supported versions: 1`);
+		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: 1`);
 		process.exit(1);
 	}
 
-	// check mops.toml hash
-	if (lockFileJson.mopsTomlHash !== getMopsTomlHash()) {
-		console.error('Integrity check failed');
-		console.error('Mismatched mops.toml hash');
-		console.error(`Locked hash: ${lockFileJson.mopsTomlHash}`);
-		console.error(`Actual hash: ${getMopsTomlHash()}`);
-		process.exit(1);
+	let lockFileJson = lockFileJsonGeneric as LockFile;
+
+	// V1: check mops.toml hash
+	if (lockFileJson.version === 1) {
+		if (lockFileJson.mopsTomlHash !== getMopsTomlHash()) {
+			console.error('Integrity check failed');
+			console.error('Mismatched mops.toml hash');
+			console.error(`Locked hash: ${lockFileJson.mopsTomlHash}`);
+			console.error(`Actual hash: ${getMopsTomlHash()}`);
+			process.exit(1);
+		}
+	}
+
+	// V2: check mops.toml deps hash
+	if (lockFileJson.version === 2) {
+		if (lockFileJson.mopsTomlDepsHash !== getMopsTomlDepsHash()) {
+			console.error('Integrity check failed');
+			console.error('Mismatched mops.toml dependencies hash');
+			console.error(`Locked hash: ${lockFileJson.mopsTomlDepsHash}`);
+			console.error(`Actual hash: ${getMopsTomlDepsHash()}`);
+			process.exit(1);
+		}
 	}
 
 	// check number of packages

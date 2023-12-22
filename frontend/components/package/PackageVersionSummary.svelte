@@ -76,6 +76,10 @@
 		font-weight: 500;
 	}
 
+	:global(.version-summary .notes > :not(ul, ol)) {
+		padding-left: 20px;
+	}
+
 	.old-version {
 		color: gray;
 		text-decoration: line-through;
