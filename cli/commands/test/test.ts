@@ -122,7 +122,7 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 	let sourcesArr = await sources();
 
 	if (!mocPath) {
-		mocPath = await toolchain.bin('moc');
+		mocPath = await toolchain.bin('moc', {fallback: true});
 	}
 
 	let wasmDir = `${getRootDir()}/.mops/.test/`;
