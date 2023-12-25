@@ -11,6 +11,7 @@
 		},
 		"assets": {
 			"type": "assets",
+			"build": ["npm run build-frontend"],
 			"frontend": {
 				"entrypoint": "frontend/dist/index.html"
 			},
