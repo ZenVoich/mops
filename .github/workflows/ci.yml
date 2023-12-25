@@ -59,7 +59,7 @@ jobs:
         run: mops toolchain use moc ${{ matrix.moc-version }}
 
       - name: Run replica
-        run: npm run deploy-local
+        run: npm run replica
 
       - name: Deploy backend
         run: npm run deploy-local
