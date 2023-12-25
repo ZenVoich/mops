@@ -58,14 +58,14 @@ jobs:
       - name: Select moc version
         run: mops toolchain use moc ${{ matrix.moc-version }}
 
-      - name: Build frontend
-        run: npm run build-frontend
-
-      - name: Build docs
-        run: npm run build-docs
-
       - name: Run replica
         run: npm run deploy-local
 
       - name: Deploy backend
         run: npm run deploy-local
+
+      - name: Build frontend
+        run: npm run build-frontend
+
+      - name: Build docs
+        run: npm run build-docs
