@@ -134,7 +134,18 @@ async function init({reset = false, silent = false} = {}) {
 
 async function download(tool: Tool, version: string, {silent = false, verbose = false} = {}) {
 	let toolUtils = getToolUtils(tool);
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+
+	silent || logUpdate('Installing', tool, version);
+
 	await toolUtils.download(version, {silent, verbose});
+
+	if (verbose) {
+		logUpdate.done();
+	}
+	else if (!silent) {
+		logUpdate.clear();
+	}
 }
 
 async function installAll({silent = false, verbose = false} = {}) {
@@ -161,16 +172,13 @@ async function installAll({silent = false, verbose = false} = {}) {
 	log('Installing toolchain...');
 
 	if (config.toolchain?.moc) {
-		log('Installing moc', config.toolchain.moc);
-		await download('moc', config.toolchain.moc, {verbose});
+		await download('moc', config.toolchain.moc, {silent, verbose});
 	}
 	if (config.toolchain?.wasmtime) {
-		log('Installing wasmtime', config.toolchain.wasmtime);
-		await download('wasmtime', config.toolchain.wasmtime, {verbose});
+		await download('wasmtime', config.toolchain.wasmtime, {silent, verbose});
 	}
 	if (config.toolchain?.['pocket-ic']) {
-		log('Installing pocket-ic', config.toolchain['pocket-ic']);
-		await download('pocket-ic', config.toolchain['pocket-ic'], {verbose});
+		await download('pocket-ic', config.toolchain['pocket-ic'], {silent, verbose});
 	}
 
 	if (!silent) {
