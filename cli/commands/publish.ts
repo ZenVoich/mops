@@ -29,7 +29,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'dependencies', 'dev-dependencies', 'scripts'].includes(key)) {
+		if (!['package', 'dependencies', 'dev-dependencies', 'toolchain'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			process.exit(1);
 		}
