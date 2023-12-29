@@ -97,7 +97,9 @@
 			}
 			return 'value';
 		};
-		definitions = Object.values(doc.getRefs()).slice(1).map((def: any) => {
+		definitions = Object.values(doc.getRefs()).slice(1).filter((def: any) => {
+			return !def.id.startsWith('_') && def.blocks[0]?.node_name !== 'paragraph' && def.blocks[0]?.node_name !== 'ulist';
+		}).map((def: any) => {
 			return {
 				id: def.id,
 				name: def.id.replace('type.', '').split('.').at(-1),
