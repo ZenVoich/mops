@@ -3,7 +3,7 @@
 	import Date from '../Date.svelte';
 
 	import {PackageSummary} from '/declarations/main/main.did.js';
-	// import PackageQualityIcon from './PackageQualityIcon.svelte';
+	import PackageQualityIcon from './PackageQualityIcon.svelte';
 
 	export let pkg: PackageSummary;
 	export let showVersion = false;
@@ -16,8 +16,8 @@
 	<div class="summary">
 		<div class="left">
 			<div class="header">
+				<PackageQualityIcon pkg={pkg}></PackageQualityIcon>
 				<a class="name" href="/{pkg.config.name}" use:link>{pkg.config.name}</a>
-				<!-- <PackageQualityIcon pkg={pkg}></PackageQualityIcon> -->
 				<div class="version">{pkg.config.version}</div>
 			</div>
 		</div>
@@ -65,8 +65,8 @@
 
 	.header {
 		display: flex;
-		align-items: flex-end;
-		gap: 10px;
+		align-items: center;
+		gap: 6px;
 	}
 
 	.name {
