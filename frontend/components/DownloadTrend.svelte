@@ -43,7 +43,7 @@
 						time: {
 							unit: 'day'
 						},
-						min: Number(snapshots.at(-1).startTime / 1_000_000n) - 1000 * 60 * 60 * 24 * 7,
+						min: Number(snapshots.at(-1).startTime / 1_000_000n) - 1000 * 60 * 60 * 24 * 13,
 					},
 					y: {
 						beginAtZero: true,
