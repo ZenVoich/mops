@@ -28,7 +28,7 @@
 		}
 
 		outerCircleDashOffset = convertRange(maxBasePoints - basePoints, [0, maxBasePoints], [18, 100]);
-		innerLineY = convertRange(maxExtraPoints - extraPoints, [0, maxExtraPoints], [13, 27]);
+		innerLineY = convertRange(maxExtraPoints - extraPoints, [0, maxExtraPoints], [13, 30]);
 	}
 </script>
 
