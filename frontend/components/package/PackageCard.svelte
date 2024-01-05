@@ -16,7 +16,9 @@
 	<div class="summary">
 		<div class="left">
 			<div class="header">
-				<PackageQualityIcon pkg={pkg}></PackageQualityIcon>
+				<div class="quality-icon">
+					<PackageQualityIcon pkg={pkg}></PackageQualityIcon>
+				</div>
 				<a class="name" href="/{pkg.config.name}" use:link>{pkg.config.name}</a>
 				<div class="version">{pkg.config.version}</div>
 			</div>
@@ -65,8 +67,12 @@
 
 	.header {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		gap: 6px;
+	}
+
+	.quality-icon {
+		opacity: 0.6;
 	}
 
 	.name {

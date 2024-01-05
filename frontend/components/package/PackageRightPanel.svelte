@@ -6,6 +6,7 @@
 	import githubImg from '/img/github.svg';
 	import twitterImg from '/img/twitter.svg';
 	import BadgesModal from './BadgesModal.svelte';
+	import PackageQualityIcon from './PackageQualityIcon.svelte';
 
 	export let packageDetails: PackageDetails;
 	let badgesModalActive = false;
@@ -93,7 +94,10 @@
 	{/if}
 
 	<div class="quality">
-		<div class="label">Package Quality</div>
+		<div class="label">
+			<div>Package Quality</div>
+			<PackageQualityIcon pkg={packageDetails}></PackageQualityIcon>
+		</div>
 
 		<div class="quality-row">
 			<div class="quality-label">Dependencies</div>
@@ -202,6 +206,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
+	}
+
+	.quality > .label {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 5px;
 	}
 
 	.quality-row {
