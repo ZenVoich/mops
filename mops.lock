@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "mopsTomlDepsHash": "4b5068249660312e435a75d4485bcbf495399fbec1cddbba62a6e06e3f738ae7",
+  "mopsTomlDepsHash": "5caa09e002e0cb7373a61f94c3b8af48462357b2d0eb45226e4e44c98770dda5",
   "hashes": {
     "base@0.10.3": {
       "base@0.10.3/README.md": "69c2df7968308cee8bb7ad921c1b399f1f0cc8aa669e533232b779dc14ac1156",
@@ -55,10 +55,10 @@
       "base@0.10.3/src/Trie.mo": "7ad3cc1f906cf7befb0730e7ccdfdcfa3e309855e703a3b88e29184b69b549b4",
       "base@0.10.3/src/TrieSet.mo": "147be4e31c39e0c7a9b817bbc542e2ca979bc57f3322533048ad7fb76235c7ce"
     },
-    "time-consts@1.0.0": {
-      "time-consts@1.0.0/mops.toml": "a0ba5db43cb45f2b3db4b051104762acd4faf02934244db22f2b52798fed3e62",
-      "time-consts@1.0.0/README.md": "9b3fafe1dfd499111bd65e51166ed68d1bd40cf9f5f2c1aba44ad6f45bee009a",
-      "time-consts@1.0.0/src/lib.mo": "a7ab0b790436c9f8ca56f657e3e6c5d706fc93f7aba9f70e4aa60c4f619a3527"
+    "time-consts@1.0.1": {
+      "time-consts@1.0.1/src/lib.mo": "a7ab0b790436c9f8ca56f657e3e6c5d706fc93f7aba9f70e4aa60c4f619a3527",
+      "time-consts@1.0.1/README.md": "9b3fafe1dfd499111bd65e51166ed68d1bd40cf9f5f2c1aba44ad6f45bee009a",
+      "time-consts@1.0.1/mops.toml": "4deeba3ace4f9069e8155dfd6920244ceda39eae2a9c5841ca806eb6efc7b8b3"
     },
     "map@8.1.0": {
       "map@8.1.0/main.mo": "262423684528447ead5452a0657b11b2389be181ccddd73136e21c3202d04bc1",
@@ -72,17 +72,18 @@
       "map@8.1.0/src/Set/lib.mo": "819434b89ac1244dfb1bda796fe747b9b34bc146c32423980b4f0369ce6cf183",
       "map@8.1.0/src/Set/optimized.mo": "efba4479586d7982ffa76c31591863168ae9dcbb0a6a9a0ee199d4a2f4694413"
     },
-    "ic@0.2.0": {
-      "ic@0.2.0/mops.toml": "be7082333da0cb0a0f21dfacff7b98b56223722c4891f664815e6e095842950b",
-      "ic@0.2.0/README.md": "b269665f58f7b980f4c8eef555396c85d4a23298484cffe56b21cbd2bf98186a",
-      "ic@0.2.0/src/lib.mo": "d3d97b5892dc58bef86b4d3b818b68467bf610cacc51c737b5b791e3ba52a428"
+    "ic@0.2.1": {
+      "ic@0.2.1/LICENSE": "9323eded2cdf2129732f5b7cd812f350eba0cf68451bb2e1726eaa749b9b1885",
+      "ic@0.2.1/README.md": "cce41536dee218feadfcecb63aa2102de97c3503b2c687ef5a7736950df3e5be",
+      "ic@0.2.1/src/lib.mo": "20fb4e699d389b2714321150bc42fdb1d9f642766302d5805f4e1ab15d731de2",
+      "ic@0.2.1/mops.toml": "765c3c7625c50d3bfb29bc56f34f87f2ee0b2a6b27bab4208b61a14268a82554"
     },
-    "backup@1.1.0": {
-      "backup@1.1.0/src/lib.mo": "4af0c13e22bec569e006186f4e69921fcff27a764da8d1c1b8498e1e678db284",
-      "backup@1.1.0/README.md": "04c0bdbff9daa45f8753bc71639d4ec9ca76061ed604f9e68b3e5449cd33af12",
-      "backup@1.1.0/src/backup-canister.mo": "5ee103a73c522fc05a8b83cbe8a80183d8ed73ce6176e2b7fe060d9c52382ff7",
-      "backup@1.1.0/LICENSE": "3d081f9b4a5e05c2e02a370bbfac792c81125b4efe1404f79a39359e2b923c63",
-      "backup@1.1.0/mops.toml": "9900b6f94190ae7f10f3b891f931e2fa5ba0f3c2e3cadaa102d037fcb05be99c"
+    "backup@1.1.1": {
+      "backup@1.1.1/LICENSE": "3d081f9b4a5e05c2e02a370bbfac792c81125b4efe1404f79a39359e2b923c63",
+      "backup@1.1.1/src/backup-canister.mo": "5ee103a73c522fc05a8b83cbe8a80183d8ed73ce6176e2b7fe060d9c52382ff7",
+      "backup@1.1.1/README.md": "e54d1a00029557a132d0d53b783910ab3b8faddc85a21a531d5a99036cac081a",
+      "backup@1.1.1/src/lib.mo": "4af0c13e22bec569e006186f4e69921fcff27a764da8d1c1b8498e1e678db284",
+      "backup@1.1.1/mops.toml": "8da62f5ca24b352cc1f16f06a105813d4618c616ea93ae4498bbcf09696756f6"
     },
     "linked-list@0.1.0": {
       "linked-list@0.1.0/tests/Lib.Test.mo": "695afdaf9fdc2c01f99d74f170e41c2ec89b7c64c48cabf9a74e5301aaa1fa8a",
@@ -349,39 +350,62 @@
       "xtended-numbers@0.2.1/src/NatX.mo": "970e0b74627c9de407013b36312fa16a8187be107b65c5afef291a8fef931456",
       "xtended-numbers@0.2.1/src/Util.mo": "47f9b9a20310ad3e309a4ab465cb1b1a5666c65873554c0d06d89832a96acfca"
     },
-    "test@1.0.0": {
-      "test@1.0.0/LICENSE": "9323eded2cdf2129732f5b7cd812f350eba0cf68451bb2e1726eaa749b9b1885",
-      "test@1.0.0/README.md": "9a274ab711d5a21f317484e24addafaaba552b6018db340b6d79f86d0f21becb",
-      "test@1.0.0/mops.toml": "f10054542739ecd3b32261016ab760c255265543d59038a9ef3e0a2c3e8fafbd",
-      "test@1.0.0/src/async.mo": "c2b97c96d0022aa0b5a7af3234246968acc50ab4a6441111db0c30d2865f3e76",
-      "test@1.0.0/src/lib.mo": "ea2203848deac405c4da10067ab52b9b4334a6b2c8be039efe327a9c1499d6f2"
+    "test@1.2.0": {
+      "test@1.2.0/mops.toml": "6598f69e19b0ef8ce83fbd3725e5328f275791e603bc8e29ee1cd4a376d9fc51",
+      "test@1.2.0/src/lib.mo": "0def79d5a021112cc1e04cd8ec32b50e515ede55143e19c7b7a897cbd43575b1",
+      "test@1.2.0/src/expect/expect-array.mo": "ad63f246e3af89810a21ddfd4239750d27326ffd2b64cfc62513532b39453142",
+      "test@1.2.0/README.md": "1d904c84022f296d18238bf592cdb2854070283f280dc7f7560d24b33b8433e2",
+      "test@1.2.0/src/expect/async.mo": "7566e53fd175e733c2c3d08cd7199cd4d52343e9114a8360cfda45333f1ae1fd",
+      "test@1.2.0/src/async.mo": "bf612911a79b31db8d677f4b7dd4dbb3fa210977e06eef185e53d0f3ceb0c837",
+      "test@1.2.0/LICENSE": "9323eded2cdf2129732f5b7cd812f350eba0cf68451bb2e1726eaa749b9b1885",
+      "test@1.2.0/src/expect/expect-bool.mo": "aac09fb62e3e51184233f909ff12275a7a9996d5cb0354b23b644d5ba20b99e0",
+      "test@1.2.0/src/expect/expect-blob.mo": "8d638bad7aaa0d47428d998d2ee1fa0b9170745f46a43d803fd960aa5a8834ab",
+      "test@1.2.0/src/expect/expect-call.mo": "b7bddceb1a4c42a458c5349a4cd1709985c8072268abeadcfba6c3680693f330",
+      "test@1.2.0/src/expect/expect-char.mo": "2d572db5b2b59a3d81bdbcf0e9bb2d0fa6779aaae18c7dcf8f4efbf2fde1d5b1",
+      "test@1.2.0/src/expect/expect-int.mo": "b7d775b6b22007978b6e40e37e66f648a356a3dc8b603e3a1db98a3884647c8f",
+      "test@1.2.0/src/expect/expect-int16.mo": "41bbbcf2feb6771d1a5cb511dc6036f1e00b4408b4b524d420a13120aea20401",
+      "test@1.2.0/src/expect/expect-int32.mo": "bef183e0ce272082d619872a60c75a30567b26db2afd1ca4e56cf6534ef4479f",
+      "test@1.2.0/src/expect/expect-int64.mo": "6dc9351d9ce534b16816f51d4e9ddfd0940dbaa1d76fe4e4625260805efdf38a",
+      "test@1.2.0/src/expect/expect-nat.mo": "224f85e3e96eb84d4d7f9828e220816d4792fb1910931b00ecd0699710224a02",
+      "test@1.2.0/src/expect/expect-int8.mo": "eefce98e69be550fc7edda76d5e3b661fa66e73f88414ec5d7bc66d84fbfe977",
+      "test@1.2.0/src/expect/expect-nat32.mo": "81c025c8d32590c14f6aa454653971cdd75033faa9365a804a91cd13623745ae",
+      "test@1.2.0/src/expect/expect-nat16.mo": "3dbf17e08fecd34cab13ebfee97a886173480fdd7a9e1c0ab17bbb2cac67354c",
+      "test@1.2.0/src/expect/expect-nat64.mo": "9889cabe96ede8b76d61b9a2e625872043d334d4d5d807b389cbdf2d9373d39a",
+      "test@1.2.0/src/expect/expect-nat8.mo": "dab31f87a724c88216aa3d2d6b061510cfc56437a906069f3cde707015d73bf1",
+      "test@1.2.0/src/expect/expect-option.mo": "b87749f2aea8603ff42b5c2c77c1358c36953f657bfedaee080f2141535480e6",
+      "test@1.2.0/src/expect/expect-principal.mo": "50dd68a73aaa63937a300f6a89977790f4bba102503dc76847b3be91a18a72ca",
+      "test@1.2.0/src/expect/expect-result.mo": "e88ffb67d5fe0b969e3de4dbdb0129a6441d5431ab76d6493557ef7b724112ef",
+      "test@1.2.0/src/expect/expect-text.mo": "b9ec4564c0c0c2254584956107b8ce01e20ed9bdd5ff7c56b7cabaffd1057e9c",
+      "test@1.2.0/src/expect/lib.mo": "ff41b60bfa354df4502ba29d1ed8b7a692c54ec97316bf56f8c4fa755966c442",
+      "test@1.2.0/src/expect/utils.mo": "d7e3b792b4ab12455f6ba285f747de1c53d73649105633c5477985a2064894b5"
     },
-    "fuzz@0.1.1": {
-      "fuzz@0.1.1/mops.toml": "27acd60b5abb79a3cf02ec902728a49af4fa611706897e63fb81ac1b8d38c6f2",
-      "fuzz@0.1.1/LICENSE": "3d081f9b4a5e05c2e02a370bbfac792c81125b4efe1404f79a39359e2b923c63",
-      "fuzz@0.1.1/src/Array.mo": "22466612295c77943f1865c4eb030fba9e8956ea3169627b920ddbaf9d1cdf4c",
-      "fuzz@0.1.1/src/Bool.mo": "0c0b1030d54526605cb06dbe32b09ee3fe66cbed626f49c399e8a6f0c5fa5d4f",
-      "fuzz@0.1.1/README.md": "848a9010280015e30f59667f17bc92acce5d8e80e76ac607533de3f9b541a45d",
-      "fuzz@0.1.1/src/Char.mo": "818527e96df58e0a1c3a3a92434a4d6deae33f0a5ac1810c5d3c7b87deb8c73f",
-      "fuzz@0.1.1/src/Blob.mo": "d222f23b772e6e2f83009c201599edfb432c3d5912f890b3508c4948c004f75c",
-      "fuzz@0.1.1/src/ICRC1.mo": "ba20a62932e85a7b32e07112ea094d7fb88f63c0c66f199e3c43b3c03058ea6d",
-      "fuzz@0.1.1/src/Float.mo": "5f6c89cd7246351258906496d4a5534970f238f5575f30a428f833f2e53a2f5c",
-      "fuzz@0.1.1/src/Int16.mo": "78c0e464cb0dbff805b2a75192c8be91747b1d17b1c574cb33b02bff15a90764",
-      "fuzz@0.1.1/src/Int.mo": "8939640ef8e73e0c22d05671c0f54340ccd9ab1f8b2992ee775066ca0be2bf01",
-      "fuzz@0.1.1/src/Int32.mo": "f66a30d1ebf5b3365716532bf158586a62ec871a467dab8b8b02fab5298d2372",
-      "fuzz@0.1.1/src/Nat.mo": "bafb9ea007d6f3d1c770e6dd368536359a581034383d546852aca756743bcdf0",
-      "fuzz@0.1.1/src/Int8.mo": "c32d7c504262e336465143c29c28f140eae09cd7c7059c6e701be714c6050ac6",
-      "fuzz@0.1.1/src/Int64.mo": "5e3b53c1b6b06f64ba2a801b2994920ddb8237c27bea6c534f37cdcf6608a3e0",
-      "fuzz@0.1.1/src/Nat16.mo": "46fde4497b445f24dbfe29d69b6204af8de3c08e28fb266ab89ddc55b6a03dd9",
-      "fuzz@0.1.1/src/Nat32.mo": "5e4d331b24cbc1dd63fb59d5be4b2da8b94708effbce53d72e0a85d0c18df4bb",
-      "fuzz@0.1.1/src/Nat64.mo": "66b3922bf5b78b92e5d560eb5cb2fbd1391ae52c4428622ac471ef2ba0d7ede9",
-      "fuzz@0.1.1/src/Nat8.mo": "06d08395a5d94f69ae0ebe06456127d00120e75a6811bc7038bfafc3cbbe6678",
-      "fuzz@0.1.1/src/Principal.mo": "fa03e8d3d76b66cfed18bb3a89451ea1eca6e6b113f5db9c5441e6105c68a617",
-      "fuzz@0.1.1/src/Option.mo": "ff0b8769260e4b6420a846fb965f0bb6aa724a486333f23db86b03ce888a986f",
-      "fuzz@0.1.1/src/Text.mo": "842ed6236226118d26a712b64d478b85546ef52a6e02e20fce82e8ff9e615bcb",
-      "fuzz@0.1.1/src/lib.mo": "c2186f4510b298e1d6b3775e7dcf53d96e7eb8a3638a29df58e3835c8ab35f40",
-      "fuzz@0.1.1/src/types.mo": "e94e673e2486d37a1497380cb4096dcd6e7d9a3bb25963ea6e53b925fd813496",
-      "fuzz@0.1.1/src/utils.mo": "121e49271a6dea94a9c56175f75d965d01fc813962cafdb1a1e0ea4110fa58b7"
+    "fuzz@0.2.0": {
+      "fuzz@0.2.0/src/Array.mo": "e35a723792eababc3b912f5452dddddf0ca95879e16139168e7e845b12cde5af",
+      "fuzz@0.2.0/LICENSE": "9323eded2cdf2129732f5b7cd812f350eba0cf68451bb2e1726eaa749b9b1885",
+      "fuzz@0.2.0/README.md": "ce18c86e17976ae1f341c22912a2765d8cd0834494f565058029a2b5b504c52d",
+      "fuzz@0.2.0/src/Blob.mo": "d222f23b772e6e2f83009c201599edfb432c3d5912f890b3508c4948c004f75c",
+      "fuzz@0.2.0/mops.toml": "1e9560787d127ac840a0df988a8227bebe495487914c51d514d51e71ae4b38a1",
+      "fuzz@0.2.0/src/Buffer.mo": "90357da6951b32a57bcb379692d08784d322f4b5433c8c5a7686cbd1d9c89af9",
+      "fuzz@0.2.0/src/Bool.mo": "0c0b1030d54526605cb06dbe32b09ee3fe66cbed626f49c399e8a6f0c5fa5d4f",
+      "fuzz@0.2.0/src/Float.mo": "5f6c89cd7246351258906496d4a5534970f238f5575f30a428f833f2e53a2f5c",
+      "fuzz@0.2.0/src/ICRC1.mo": "ba20a62932e85a7b32e07112ea094d7fb88f63c0c66f199e3c43b3c03058ea6d",
+      "fuzz@0.2.0/src/Char.mo": "818527e96df58e0a1c3a3a92434a4d6deae33f0a5ac1810c5d3c7b87deb8c73f",
+      "fuzz@0.2.0/src/Int.mo": "8939640ef8e73e0c22d05671c0f54340ccd9ab1f8b2992ee775066ca0be2bf01",
+      "fuzz@0.2.0/src/Int16.mo": "78c0e464cb0dbff805b2a75192c8be91747b1d17b1c574cb33b02bff15a90764",
+      "fuzz@0.2.0/src/Int32.mo": "f66a30d1ebf5b3365716532bf158586a62ec871a467dab8b8b02fab5298d2372",
+      "fuzz@0.2.0/src/Int64.mo": "5e3b53c1b6b06f64ba2a801b2994920ddb8237c27bea6c534f37cdcf6608a3e0",
+      "fuzz@0.2.0/src/Int8.mo": "c32d7c504262e336465143c29c28f140eae09cd7c7059c6e701be714c6050ac6",
+      "fuzz@0.2.0/src/Nat.mo": "bafb9ea007d6f3d1c770e6dd368536359a581034383d546852aca756743bcdf0",
+      "fuzz@0.2.0/src/Nat64.mo": "66b3922bf5b78b92e5d560eb5cb2fbd1391ae52c4428622ac471ef2ba0d7ede9",
+      "fuzz@0.2.0/src/Nat32.mo": "5e4d331b24cbc1dd63fb59d5be4b2da8b94708effbce53d72e0a85d0c18df4bb",
+      "fuzz@0.2.0/src/Nat16.mo": "46fde4497b445f24dbfe29d69b6204af8de3c08e28fb266ab89ddc55b6a03dd9",
+      "fuzz@0.2.0/src/Nat8.mo": "06d08395a5d94f69ae0ebe06456127d00120e75a6811bc7038bfafc3cbbe6678",
+      "fuzz@0.2.0/src/Option.mo": "ff0b8769260e4b6420a846fb965f0bb6aa724a486333f23db86b03ce888a986f",
+      "fuzz@0.2.0/src/Principal.mo": "fa03e8d3d76b66cfed18bb3a89451ea1eca6e6b113f5db9c5441e6105c68a617",
+      "fuzz@0.2.0/src/Text.mo": "842ed6236226118d26a712b64d478b85546ef52a6e02e20fce82e8ff9e615bcb",
+      "fuzz@0.2.0/src/lib.mo": "b7816a8efa0e00a6e2b9808593b92d341f47d9be2d23900c47dfd7bd84164c61",
+      "fuzz@0.2.0/src/types.mo": "e94e673e2486d37a1497380cb4096dcd6e7d9a3bb25963ea6e53b925fd813496",
+      "fuzz@0.2.0/src/utils.mo": "121e49271a6dea94a9c56175f75d965d01fc813962cafdb1a1e0ea4110fa58b7"
     },
     "bench@1.0.0": {
       "bench@1.0.0/README.md": "6518eca24000e53b8a662c896361fa003cbc9a3f7d98aaf76fd77679a288a224",
