@@ -12,9 +12,9 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        moc-version: [0.10.1]
         # mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
         mops-version: [./cli]
+        moc-version: [0.10.1]
         node-version: [20]
 
     runs-on: ubuntu-latest
@@ -32,15 +32,10 @@ jobs:
         with:
           dfx-version: 0.15.2
 
-      - name: Cache mops packages
-        uses: actions/cache@v3
+      - uses: ZenVoich/setup-mops@v1
         with:
-          key: mops-packages-${{ hashFiles('mops.toml') }}
-          restore-keys: |
-            mops-packages-${{ hashFiles('mops.toml') }}
-            mops-packages-
-          path: |
-            ~/.cache/mops
+          mops-version: ${{ matrix.mops-version }}
+          moc-version: ${{ matrix.moc-version }}
 
       - name: Install npm packages
         run: bun install
@@ -48,15 +43,6 @@ jobs:
       - name: Build local cli
         if: ${{ matrix.mops-version == './cli' }}
         run: cd cli && npm run prepare
-
-      - name: Install mops
-        run: npm i -g ${{ matrix.mops-version }}
-
-      - name: Install mops packages
-        run: mops install
-
-      - name: Select moc version
-        run: mops toolchain use moc ${{ matrix.moc-version }}
 
       - name: Run replica
         run: npm run replica
