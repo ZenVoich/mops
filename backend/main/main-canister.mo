@@ -11,6 +11,7 @@ import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Blob "mo:base/Blob";
 
+import IC "mo:ic";
 import {DAY} "mo:time-consts";
 import Backup "mo:backup";
 import Sha256 "mo:sha2/Sha256";
@@ -33,6 +34,7 @@ import {getPackageDetails = _getPackageDetails} "./registry/getPackageDetails";
 import {getPackageChanges} "./registry/getPackageChanges";
 import {packagesByCategory} "./registry/packagesByCategory";
 import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages";
+import {verifyPackageRepository} "./verifyPackageRepository";
 
 actor class Main() {
 	public type PackageName = Text.Text; // lib
@@ -110,12 +112,41 @@ actor class Main() {
 		};
 	};
 
+	public shared query func transformRequest(arg : Types.TransformArg) : async IC.HttpResponse {
+		{
+			status = arg.response.status;
+			body = arg.response.body;
+			headers = [];
+		};
+	};
+
+	let transform : Types.Transform = {
+		function = transformRequest;
+		context = [];
+	};
+
+	func _verifyPackageRepo(config : PackageConfigV2) : async Result.Result<(), Err> {
+		await verifyPackageRepository(config.name, config.repository, transform);
+	};
 
 	// PUBLIC
 
 	// Publication
 	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, Err> {
-		await packagePublisher.startPublish(caller, config);
+		let pubRes = await packagePublisher.startPublish(caller, config);
+		if (Result.isErr(pubRes)) {
+			return pubRes;
+		};
+
+		let repoVerifyRes = await _verifyPackageRepo(config);
+		switch (repoVerifyRes) {
+			case (#ok) {};
+			case (#err(err)) {
+				return #err(err);
+			};
+		};
+
+		return pubRes;
 	};
 
 	public shared ({caller}) func startFileUpload(publishingId : PublishingId, path : Text.Text, chunkCount : Nat, firstChunk : Blob) : async Result.Result<FileId, Err> {
