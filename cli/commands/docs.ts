@@ -25,7 +25,7 @@ export async function docs({silent = false} = {}) {
 	}
 	else {
 		// fallbacks to dfx moc if not specified in config
-		let mocPath = await toolchain.bin('moc');
+		let mocPath = await toolchain.bin('moc', {fallback: true});
 		moDocPath = mocPath.replace(/\/moc$/, '/mo-doc');
 	}
 

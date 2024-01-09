@@ -195,14 +195,14 @@
 									{/each}
 								</div>
 							{:else if selectedTab == 'dependencies'}
-								<h3>Dependencies</h3>
+								<h3 class="deps">Dependencies</h3>
 								<div class="packages">
 									{#each packageDetails.deps as pkg}
 										<PackageCard {pkg} showVersion={true} />
 									{/each}
 								</div>
 								{#if packageDetails.devDeps.length}
-									<h3>Dev Dependencies</h3>
+									<h3 class="dev-deps">Dev Dependencies</h3>
 									<div class="packages">
 										{#each packageDetails.devDeps as pkg}
 											<PackageCard {pkg} showVersion={true} />
@@ -210,7 +210,7 @@
 									</div>
 								{/if}
 								{#if githubDeps.length}
-									<h3>GitHub Dependencies</h3>
+									<h3 class="github-deps">GitHub Dependencies</h3>
 									<div class="packages">
 										{#each githubDeps as dep}
 											<div class="github-dep">
@@ -423,6 +423,10 @@
 
 	.no-docs {
 		margin: auto;
+	}
+
+	h3.dev-deps, h3.github-deps {
+		margin-top: 40px;
 	}
 
 	@media (max-width: 750px) {

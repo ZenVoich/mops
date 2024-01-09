@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
 import {PocketIc} from 'pic-ic';
-import {getRootDir} from '../mops.js';
+import {getRootDir, readConfig} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 import {toolchain} from './toolchain/index.js';
 
@@ -29,6 +29,11 @@ export class BenchReplica {
 		}
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
+			let config = readConfig();
+			if (config.toolchain?.['pocket-ic'] !== '1.0.0') {
+				console.error('Currently only pocket-ic 1.0.0 is supported');
+				process.exit(1);
+			}
 			this.pocketIc = await PocketIc.create(pocketIcBin);
 		}
 	}

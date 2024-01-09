@@ -86,6 +86,7 @@ module {
 				"http-types",
 				"motoko-certified-assets",
 				"promtracker",
+				"certified-assets",
 			]
 		),
 		(
@@ -121,6 +122,8 @@ module {
 				"icrc30-mo",
 				"icrc-nft-mo",
 				"icrc1-mo",
+				"icrc2-mo",
+				"icrc-fungible",
 			]
 		),
 	];

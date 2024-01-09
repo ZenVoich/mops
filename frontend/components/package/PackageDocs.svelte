@@ -35,6 +35,26 @@
 	let unpack = async (docsData: Uint8Array) => {
 		let decompressed = pako.inflate(docsData);
 		files = await untar(decompressed.buffer);
+
+		// sort files by folder nesting
+		// place "lib" at the top of the folder
+		let getPath = (file: string) => {
+			return file.split('/').slice(0, -1).join('/');
+		};
+		files.sort((a, b) => {
+			let aNesting = a.name.split('/').length;
+			let bNesting = b.name.split('/').length;
+			if (aNesting == bNesting) {
+				if (getPath(a.name) === getPath(b.name) && a.name.endsWith('lib.adoc')) {
+					return -1;
+				}
+				if (getPath(a.name) === getPath(b.name) && b.name.endsWith('lib.adoc')) {
+					return 1;
+				}
+				return a.name.localeCompare(b.name);
+			}
+			return aNesting - bNesting;
+		});
 	};
 
 	function getModuleNesting(id: string): number {
@@ -77,7 +97,9 @@
 			}
 			return 'value';
 		};
-		definitions = Object.values(doc.getRefs()).slice(1).map((def: any) => {
+		definitions = Object.values(doc.getRefs()).slice(1).filter((def: any) => {
+			return !def.id.startsWith('_') && def.blocks[0]?.node_name !== 'paragraph' && def.blocks[0]?.node_name !== 'ulist';
+		}).map((def: any) => {
 			return {
 				id: def.id,
 				name: def.id.replace('type.', '').split('.').at(-1),

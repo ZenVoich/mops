@@ -1,0 +1,19 @@
+name: mops test with ZenVoich/setup-mops
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test with ZenVoich/setup-mops
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ZenVoich/setup-mops@v1
+
+      - name: Run tests
+        run: mops test
