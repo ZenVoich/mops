@@ -14,9 +14,14 @@ import Types "./types";
 
 module {
 	public func verifyPackageRepository(packageName : Types.PackageName, repositoryUrl : Text, transform : Types.Transform) : async Result.Result<(), Text> {
+		if (repositoryUrl == "") {
+			return #ok;
+		};
+
 		if (not Text.startsWith(repositoryUrl, #text("https://github.com/"))) {
 			return #err("Currently only github repositories are supported.\nPlease create an issue at https://github.com/ZenVoich/mops/issues if you want to add support for other repositories.");
 		};
+
 		let repoName = Iter.toArray(Text.split(repositoryUrl, #text("https://github.com/")))[1];
 		let slash = if (Text.endsWith(repoName, #text("/"))) "" else "/";
 		let url = "https://raw.githubusercontent.com/" # repoName # slash # "master/mops.toml";
