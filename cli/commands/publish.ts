@@ -40,10 +40,10 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		console.log(chalk.red('Error: ') + 'Please specify [package] section in your mops.toml');
 		process.exit(1);
 	}
-	for (let key of ['name', 'version']) {
+	for (let key of ['name', 'version', 'repository']) {
 		// @ts-ignore
 		if (!config.package[key]) {
-			console.log(chalk.red('Error: ') + `Please specify "${key}" in [config] section in your mops.toml`);
+			console.log(chalk.red('Error: ') + `Please specify "${key}" in [package] section in your mops.toml`);
 			process.exit(1);
 		}
 	}
