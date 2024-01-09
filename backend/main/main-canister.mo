@@ -112,7 +112,7 @@ actor class Main() {
 		};
 	};
 
-	public shared query func transformRequest(arg : Types.TransformArg) : async IC.HttpResponse {
+	public shared query func transformRequest(arg : IC.HttpTransformArg) : async IC.HttpResponse {
 		{
 			status = arg.response.status;
 			body = arg.response.body;
@@ -120,9 +120,9 @@ actor class Main() {
 		};
 	};
 
-	let transform : Types.Transform = {
+	let transform : IC.HttpTransform = {
 		function = transformRequest;
-		context = [];
+		context = Blob.fromArray([]);
 	};
 
 	func _verifyPackageRepo(config : PackageConfigV2) : async Result.Result<(), Err> {

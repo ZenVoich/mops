@@ -8,12 +8,13 @@ import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Error "mo:base/Error";
 
+import IC "mo:ic";
 import {ic} "mo:ic";
 
 import Types "./types";
 
 module {
-	public func verifyPackageRepository(packageName : Types.PackageName, repositoryUrl : Text, transform : Types.Transform) : async Result.Result<(), Text> {
+	public func verifyPackageRepository(packageName : Types.PackageName, repositoryUrl : Text, transform : IC.HttpTransform) : async Result.Result<(), Text> {
 		if (repositoryUrl == "") {
 			return #ok;
 		};
@@ -41,7 +42,7 @@ module {
 				return #err("Repository verification failed: Response status " # Nat.toText(response.status));
 			};
 
-			let textOpt = Text.decodeUtf8(Blob.fromArray(response.body));
+			let textOpt = Text.decodeUtf8(response.body);
 			let text = switch (textOpt) {
 				case (?text) text;
 				case (null) {

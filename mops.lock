@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "mopsTomlDepsHash": "5caa09e002e0cb7373a61f94c3b8af48462357b2d0eb45226e4e44c98770dda5",
+  "mopsTomlDepsHash": "d53160457221f2171cf6483b23bb48625f85a08e91c960869cea499eb39574c5",
   "hashes": {
     "base@0.10.3": {
       "base@0.10.3/README.md": "69c2df7968308cee8bb7ad921c1b399f1f0cc8aa669e533232b779dc14ac1156",
@@ -72,11 +72,11 @@
       "map@8.1.0/src/Set/lib.mo": "819434b89ac1244dfb1bda796fe747b9b34bc146c32423980b4f0369ce6cf183",
       "map@8.1.0/src/Set/optimized.mo": "efba4479586d7982ffa76c31591863168ae9dcbb0a6a9a0ee199d4a2f4694413"
     },
-    "ic@0.2.1": {
-      "ic@0.2.1/LICENSE": "9323eded2cdf2129732f5b7cd812f350eba0cf68451bb2e1726eaa749b9b1885",
-      "ic@0.2.1/README.md": "cce41536dee218feadfcecb63aa2102de97c3503b2c687ef5a7736950df3e5be",
-      "ic@0.2.1/src/lib.mo": "20fb4e699d389b2714321150bc42fdb1d9f642766302d5805f4e1ab15d731de2",
-      "ic@0.2.1/mops.toml": "765c3c7625c50d3bfb29bc56f34f87f2ee0b2a6b27bab4208b61a14268a82554"
+    "ic@1.0.1": {
+      "ic@1.0.1/README.md": "5efa5e123f5327597f0935320ff8c1cdd7976469a760553fbbfa6961cf514dd9",
+      "ic@1.0.1/LICENSE": "b0c603803f7aa8275dcb0502968f96725b151a4f7108549584045d79ba0ec14f",
+      "ic@1.0.1/mops.toml": "5dca2fd41a666895ca6142f13808bf14cb2fae279020c8fb58aa34dd9d62243a",
+      "ic@1.0.1/src/lib.mo": "db81425f70e6139333165b17b2668e84da7fabc5e92135fb51ebb975cb77250e"
     },
     "backup@1.1.1": {
       "backup@1.1.1/LICENSE": "3d081f9b4a5e05c2e02a370bbfac792c81125b4efe1404f79a39359e2b923c63",
