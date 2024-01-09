@@ -27,6 +27,12 @@ export interface DownloadsSnapshot__1 {
 export type Err = string;
 export type FileId = string;
 export type Header = [string, string];
+export interface HttpHeader { 'value' : string, 'name' : string }
+export interface HttpResponse {
+  'status' : bigint,
+  'body' : Uint8Array | number[],
+  'headers' : Array<HttpHeader>,
+}
 export interface Main {
   'backup' : ActorMethod<[], undefined>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
@@ -90,6 +96,7 @@ export interface Main {
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
+  'transformRequest' : ActorMethod<[TransformArg], HttpResponse>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
@@ -289,6 +296,10 @@ export interface TestsChanges {
 }
 export type Text = string;
 export type Time = bigint;
+export interface TransformArg {
+  'context' : Uint8Array | number[],
+  'response' : HttpResponse,
+}
 export interface User {
   'id' : Principal,
   'emailVerified' : boolean,

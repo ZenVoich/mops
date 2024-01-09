@@ -245,6 +245,16 @@ export const idlFactory = ({ IDL }) => {
     'readme' : IDL.Text,
   });
   const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : Err });
+  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpResponse = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HttpHeader),
+  });
+  const TransformArg = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : HttpResponse,
+  });
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
@@ -350,6 +360,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
+    'transformRequest' : IDL.Func([TransformArg], [HttpResponse], ['query']),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],
