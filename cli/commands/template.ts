@@ -18,6 +18,7 @@ export async function template(templateName?: string, options: any = {}) {
 				{title: 'License MIT', value: 'license:MIT'},
 				{title: 'License Apache-2.0', value: 'license:Apache-2.0'},
 				{title: 'GitHub Workflow to run \'mops test\'', value: 'github-workflow:mops-test'},
+				{title: 'GitHub Workflow to publish a package', value: 'github-workflow:mops-publish'},
 				{title: '× Cancel', value: ''},
 			],
 			initial: 0,
@@ -34,6 +35,17 @@ export async function template(templateName?: string, options: any = {}) {
 		let mopsTestYml = new URL('../templates/mops-test.yml', import.meta.url);
 		fs.mkdirSync(path.resolve(getRootDir(), '.github/workflows'), {recursive: true});
 		fs.copyFileSync(mopsTestYml, dest);
+		console.log(chalk.green('Created'), path.relative(getRootDir(), dest));
+	}
+	else if (templateName === 'github-workflow:mops-publish') {
+		let dest = path.resolve(getRootDir(), '.github/workflows/mops-publish.yml');
+		if (fs.existsSync(dest)) {
+			console.log(chalk.yellow('Workflow already exists:'), path.relative(getRootDir(), dest));
+			return;
+		}
+		let mopsPublishYml = new URL('../templates/mops-publish.yml', import.meta.url);
+		fs.mkdirSync(path.resolve(getRootDir(), '.github/workflows'), {recursive: true});
+		fs.copyFileSync(mopsPublishYml, dest);
 		console.log(chalk.green('Created'), path.relative(getRootDir(), dest));
 	}
 	else if (templateName?.startsWith('license:')) {
