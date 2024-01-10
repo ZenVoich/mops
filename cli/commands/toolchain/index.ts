@@ -68,7 +68,9 @@ async function init({reset = false, silent = false} = {}) {
 			console.log('2. Run "npm uninstall -g mocv"');
 			console.log('TIP: Alternative to "mocv use <version>" is "mops toolchain use moc <version>" (installs moc only for current project)');
 			console.log('TIP: More details at https://docs.mops.one/cli/toolchain');
-			process.exit(1);
+			if (!process.env.CI || !silent) {
+				process.exit(1);
+			}
 		}
 	}
 	catch {}
