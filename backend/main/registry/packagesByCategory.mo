@@ -87,6 +87,7 @@ module {
 				"motoko-certified-assets",
 				"promtracker",
 				"certified-assets",
+				"ic-websocket-cdk",
 			]
 		),
 		(
@@ -124,6 +125,7 @@ module {
 				"icrc1-mo",
 				"icrc2-mo",
 				"icrc-fungible",
+				"icrc4-mo",
 			]
 		),
 	];
