@@ -6,6 +6,7 @@ import {install} from './install.js';
 import {installFromGithub} from '../vessel.js';
 import {notifyInstalls} from '../notify-installs.js';
 import {checkIntegrity} from '../integrity.js';
+import {installLocal} from './install-local.js';
 
 type InstallAllOptions = {
 	verbose?: boolean;
@@ -28,8 +29,8 @@ export async function installAll({verbose = false, silent = false, lock}: Instal
 		if (repo) {
 			await installFromGithub(name, repo, {verbose, silent});
 		}
-		else if (!path) {
-			let res = await install(name, version, {verbose, silent});
+		else {
+			let res = await (path ? installLocal(name, path, {silent, verbose}) : install(name, version, {silent, verbose}));
 			if (res === false) {
 				return;
 			}
@@ -38,7 +39,6 @@ export async function installAll({verbose = false, silent = false, lock}: Instal
 	}
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
-	// let logUpdate = l;
 
 	if (!silent && lock !== 'ignore') {
 		logUpdate('Checking integrity...');
