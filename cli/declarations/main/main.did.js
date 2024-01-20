@@ -251,7 +251,7 @@ export const idlFactory = ({ IDL }) => {
     'body' : IDL.Vec(IDL.Nat8),
     'headers' : IDL.Vec(HttpHeader),
   });
-  const TransformArg = IDL.Record({
+  const HttpTransformArg = IDL.Record({
     'context' : IDL.Vec(IDL.Nat8),
     'response' : HttpResponse,
   });
@@ -360,7 +360,11 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'transformRequest' : IDL.Func([TransformArg], [HttpResponse], ['query']),
+    'transformRequest' : IDL.Func(
+        [HttpTransformArg],
+        [HttpResponse],
+        ['query'],
+      ),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],

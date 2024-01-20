@@ -33,6 +33,10 @@ export interface HttpResponse {
   'body' : Uint8Array | number[],
   'headers' : Array<HttpHeader>,
 }
+export interface HttpTransformArg {
+  'context' : Uint8Array | number[],
+  'response' : HttpResponse,
+}
 export interface Main {
   'backup' : ActorMethod<[], undefined>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
@@ -96,7 +100,7 @@ export interface Main {
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
-  'transformRequest' : ActorMethod<[TransformArg], HttpResponse>,
+  'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
@@ -296,10 +300,6 @@ export interface TestsChanges {
 }
 export type Text = string;
 export type Time = bigint;
-export interface TransformArg {
-  'context' : Uint8Array | number[],
-  'response' : HttpResponse,
-}
 export interface User {
   'id' : Principal,
   'emailVerified' : boolean,

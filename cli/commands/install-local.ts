@@ -5,11 +5,12 @@ import {installFromGithub} from '../vessel.js';
 import {install} from './install.js';
 
 // skip install and just find non-local dependencies to install
-// pkgPath should be relative to the current root dir
+// pkgPath should be relative to the current root dir or absolute
 export async function installLocal(pkg: string, pkgPath = '', {verbose = false, silent = false} = {}): Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
+	console.log(pkg, pkgPath)
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
@@ -24,7 +25,8 @@ export async function installLocal(pkg: string, pkgPath = '', {verbose = false, 
 
 	// install dependencies
 	let ok = true;
-	let dir = path.resolve(getRootDir(), pkgPath);
+	let rootDir = getRootDir();
+	let dir = path.resolve(rootDir, pkgPath);
 	let config = readConfig(path.join(dir, 'mops.toml'));
 	let deps = Object.values(config.dependencies || {});
 	let installedDeps = {};
@@ -33,7 +35,7 @@ export async function installLocal(pkg: string, pkgPath = '', {verbose = false, 
 			await installFromGithub(name, repo, {silent, verbose});
 		}
 		else {
-			let res = await (depPath ? installLocal(name, depPath, {silent, verbose}) : install(name, version, {silent, verbose}));
+			let res = await (depPath ? installLocal(name, path.resolve(pkgPath, depPath), {silent, verbose}) : install(name, version, {silent, verbose}));
 			if (res) {
 				installedDeps = {...installedDeps, ...res};
 			}
