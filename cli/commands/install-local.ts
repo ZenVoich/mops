@@ -10,7 +10,6 @@ export async function installLocal(pkg: string, pkgPath = '', {verbose = false, 
 	if (!checkConfigFile()) {
 		return false;
 	}
-	console.log(pkg, pkgPath)
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
