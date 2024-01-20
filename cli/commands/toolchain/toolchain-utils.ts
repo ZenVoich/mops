@@ -3,7 +3,7 @@ import {unzipSync} from 'node:zlib';
 import {chmodSync} from 'node:fs';
 import fs from 'fs-extra';
 import decompress from 'decompress';
-import decompressTarxz from 'decomp-tarxz';
+// import decompressTarxz from 'decomp-tarxz';
 import {deleteSync} from 'del';
 import {Octokit} from 'octokit';
 import tar from 'tar';
@@ -30,8 +30,9 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 	fs.mkdirSync(dest, {recursive: true});
 
 	if (archive.endsWith('.xz')) {
+		let decompressTarxz = await import('decomp-tarxz');
 		await decompress(archive, tmpDir, {
-			plugins: [decompressTarxz()],
+			plugins: [decompressTarxz.default()],
 		}).catch(() => {
 			deleteSync([tmpDir]);
 		});
