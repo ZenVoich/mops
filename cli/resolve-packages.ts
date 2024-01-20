@@ -9,6 +9,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 		return {};
 	}
 
+	let rootDir = getRootDir();
 	let packages: Record<string, Dependency & {isRoot: boolean;}> = {};
 	let versions: Record<string, string[]> = {};
 
@@ -44,7 +45,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 		}
 	};
 
-	let collectDeps = async (config: Config | VesselConfig, isRoot = false) => {
+	let collectDeps = async (config: Config | VesselConfig, configDir: string, isRoot = false) => {
 		let allDeps = [...Object.values(config.dependencies || {})];
 		if (isRoot) {
 			allDeps = [...allDeps, ...Object.values(config['dev-dependencies'] || {})];
@@ -61,25 +62,38 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 					repo && packages[name]?.repo && compareGitVersions(packages[name]?.repo || '', repo) === -1
 					|| compareVersions(packages[name]?.version, version) === -1)
 			) {
-				packages[name] = {
+				let temp = {
 					...pkgDetails,
 					isRoot,
 				};
+				packages[name] = temp;
+
+				// normalize path relative to the root config dir
+				if (pkgDetails.path) {
+					temp.path = path.relative(rootDir, path.resolve(configDir, pkgDetails.path));
+				}
 			}
 
 			let nestedConfig;
+			let nestedDir = '';
 
+			// read nested config
 			if (repo) {
-				const dir = formatGithubDir(name, repo);
-				nestedConfig = await readVesselConfig(dir, {silent: true}) || {};
+				nestedDir = formatGithubDir(name, repo);
+				nestedConfig = await readVesselConfig(nestedDir, {silent: true}) || {};
 			}
-			else if (!pkgDetails.path && version) {
-				const file = formatDir(name, version) + '/mops.toml';
-				nestedConfig = readConfig(file);
+			else if (pkgDetails.path) {
+				nestedDir = path.resolve(configDir, pkgDetails.path);
+				nestedConfig = readConfig(nestedDir + '/mops.toml');
+			}
+			else if (version) {
+				nestedDir = formatDir(name, version);
+				nestedConfig = readConfig(nestedDir + '/mops.toml');
 			}
 
-			if (nestedConfig && !pkgDetails.path) {
-				await collectDeps(nestedConfig);
+			// collect nested deps
+			if (nestedConfig) {
+				await collectDeps(nestedConfig, nestedDir);
 			}
 
 			if (!versions[name]) {
@@ -97,7 +111,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 	};
 
 	let config = readConfig();
-	await collectDeps(config, true);
+	await collectDeps(config, rootDir, true);
 
 	// show conflicts
 	if (verbose) {
@@ -107,8 +121,6 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 			}
 		}
 	}
-
-	let rootDir = getRootDir();
 
 	return Object.fromEntries(
 		Object.entries(packages).map(([name, pkg]) => {

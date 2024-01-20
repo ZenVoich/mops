@@ -24,11 +24,6 @@ type User =
    twitter: text;
    twitterVerified: bool;
  };
-type TransformArg = 
- record {
-   context: vec nat8;
-   response: HttpResponse;
- };
 type Time = int;
 type Text = text;
 type TestsChanges = 
@@ -344,14 +339,19 @@ type Main =
    startFileUpload: (PublishingId, Text, nat, blob) -> (Result_3);
    startPublish: (PackageConfigV2) -> (Result_2);
    transferOwnership: (PackageName, principal) -> (Result_1);
-   transformRequest: (TransformArg) -> (HttpResponse) query;
+   transformRequest: (HttpTransformArg) -> (HttpResponse) query;
    uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
    uploadNotes: (PublishingId, text) -> (Result);
    uploadTestStats: (PublishingId, TestStats) -> (Result);
  };
+type HttpTransformArg = 
+ record {
+   context: blob;
+   response: HttpResponse;
+ };
 type HttpResponse = 
  record {
-   body: vec nat8;
+   body: blob;
    headers: vec HttpHeader;
    status: nat;
  };
