@@ -1,7 +1,7 @@
 [dependencies]
 base = "0.10.3"
 time-consts = "1.0.1"
-map = "8.1.0"
+map = "9.0.1"
 ic = "1.0.1"
 backup = "1.1.1"
 sha2 = "0.0.4"
