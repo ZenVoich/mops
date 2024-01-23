@@ -496,11 +496,11 @@ actor class Main() {
 	};
 
 	// BACKUP
-	stable let backupState = Backup.init(null);
-	let backupManager = Backup.BackupManager(backupState);
+	stable let backupStateV2 = Backup.init(null);
+	let backupManager = Backup.BackupManager(backupStateV2, {maxBackups = 20});
 
 	type BackupChunk = {
-		#v4 : {
+		#v5 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
@@ -508,6 +508,7 @@ actor class Main() {
 			#highestConfigs : [(PackageName, PackageConfigV2)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
 			#hashByFileId : [(FileId, Blob)];
+			#packageFileStats : [(PackageId, PackageFileStats)];
 			#packageTestStats : [(PackageId, TestStats)];
 			#packageNotes : [(PackageId, Text)];
 			#downloadLog : DownloadLog.Stable;
@@ -527,30 +528,31 @@ actor class Main() {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v4");
+		let backup = backupManager.NewBackup("v5");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v4(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v4(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v5(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
 	// RESTORE
-	public shared ({caller}) func restore(backupId : Nat, chunkIndex : Nat) : async () {
+	public shared ({caller}) func restore(backupId : Nat) : async () {
 		assert(false); // restore disabled
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v4(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v5(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -567,6 +569,9 @@ actor class Main() {
 				};
 				case (#hashByFileId(hashByFileIdStable)) {
 					hashByFileId := TrieMap.fromEntries<FileId, Blob>(hashByFileIdStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageFileStats(packageFileStatsStable)) {
+					packageFileStats := TrieMap.fromEntries<PackageId, PackageFileStats>(packageFileStatsStable.vals(), Text.equal, Text.hash);
 				};
 				case (#packageTestStats(packageTestStatsStable)) {
 					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
@@ -593,6 +598,21 @@ actor class Main() {
 				};
 			};
 		});
+
+		// re-init registry
+		registry := Registry.Registry(
+			packageVersions,
+			packageOwners,
+			highestConfigs,
+			packageConfigs,
+			packagePublications,
+			fileIdsByPackage,
+			hashByFileId,
+			packageFileStats,
+			packageTestStats,
+			packageNotes,
+		);
+		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);
 	};
 
 	// SYSTEM
