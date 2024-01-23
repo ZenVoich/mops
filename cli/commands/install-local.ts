@@ -11,15 +11,16 @@ export async function installLocal(pkg: string, pkgPath = '', {verbose = false, 
 		return false;
 	}
 
-	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+	if (!silent) {
+		let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+		logUpdate(`Local dependency ${pkg} = "${pkgPath}"`);
 
-	logUpdate(`Local dependency ${pkg} = "${pkgPath}"`);
-
-	if (verbose) {
-		silent || logUpdate.done();
-	}
-	else {
-		logUpdate.clear();
+		if (verbose) {
+			silent || logUpdate.done();
+		}
+		else {
+			logUpdate.clear();
+		}
 	}
 
 	// install dependencies
