@@ -1,5 +1,5 @@
 [dependencies]
-base = "0.10.3"
+base = "0.10.4"
 time-consts = "1.0.1"
 map = "9.0.1"
 ic = "1.0.1"
@@ -15,6 +15,6 @@ fuzz = "0.2.0"
 bench = "1.0.0"
 
 [toolchain]
-moc = "0.10.3"
+moc = "0.10.4"
 wasmtime = "16.0.0"
 pocket-ic = "1.0.0"
