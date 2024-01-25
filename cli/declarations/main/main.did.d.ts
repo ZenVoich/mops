@@ -88,7 +88,7 @@ export interface Main {
     [Array<[PackageName, PackageVersion]>],
     undefined
   >,
-  'restore' : ActorMethod<[bigint, bigint], undefined>,
+  'restore' : ActorMethod<[bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]

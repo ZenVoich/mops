@@ -342,7 +342,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         ['oneway'],
       ),
-    'restore' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
+    'restore' : IDL.Func([IDL.Nat], [], []),
     'search' : IDL.Func(
         [Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
         [IDL.Vec(PackageSummary), PageCount],

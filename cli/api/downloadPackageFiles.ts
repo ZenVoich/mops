@@ -54,7 +54,10 @@ export async function getFileIds(pkg: string, version: string): Promise<string[]
 }
 
 // download single file
-export async function downloadFile(storage: Storage, fileId: string): Promise<{ path: string, data: Array<number> }> {
+export async function downloadFile(storage: Storage | string, fileId: string): Promise<{path: string, data: Array<number>;}> {
+	if (typeof storage === 'string') {
+		storage = await storageActor(Principal.fromText(storage));
+	}
 	let fileMetaRes = await storage.getFileMeta(fileId);
 	if ('err' in fileMetaRes) {
 		throw fileMetaRes.err;

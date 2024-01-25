@@ -2,6 +2,7 @@
 	import {onMount} from 'svelte';
 	import {debounce} from 'throttle-debounce';
 	import {currentURL, routeParams, push, link} from 'svelte-spa-history-router';
+	import {getFileIds} from 'ic-mops/api/downloadPackageFiles';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
@@ -13,6 +14,7 @@
 	import Footer from '../Footer.svelte';
 	import PackageCard from './PackageCard.svelte';
 	import PackageReadme from './PackageReadme.svelte';
+	import PackageCode from './PackageCode.svelte';
 	import PackageDocs from './PackageDocs.svelte';
 	import PackageRightPanel from './PackageRightPanel.svelte';
 	import githubImg from '/img/github.svg';
@@ -26,8 +28,8 @@
 	$: $currentURL && load();
 	$: command = `mops add ${packageDetails?.config.name}${getHighestVersion() !== packageDetails?.config.version ? '@' + packageDetails?.config.version : ''}`;
 
-
 	let readme: string;
+	let fileIds: string[];
 	let docsData: Uint8Array;
 	let packageDetails: PackageDetails;
 	let loaded = false;
@@ -68,7 +70,6 @@
 			}
 		};
 
-
 		let downloadDocs = async () => {
 			let docsRes = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/docs.tgz`, 0n);
 			if ('ok' in docsRes) {
@@ -79,7 +80,12 @@
 			}
 		};
 
-		await Promise.all([dowloadReadme(), downloadDocs()]);
+		let downloadCode = async () => {
+			window.MOPS_NETWORK = process.env.NODE_ENV === 'development' ? 'local' : 'ic';
+			fileIds = await getFileIds(packageDetails.config.name, packageDetails.config.version);
+		};
+
+		await Promise.all([dowloadReadme(), downloadDocs(), downloadCode()]);
 
 		loaded = true;
 	});
@@ -166,16 +172,21 @@
 
 			<!-- tabs -->
 			<div class="tabs">
-				<div class="tab" class:selected={isTabSelected('docs', selectedTab)} on:click={() => selectTab('docs')}>Docs</div>
-				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')}>Readme</div>
-				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')}>Versions ({packageDetails.versionHistory.length})</div>
-				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')}>Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
-				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')}>Dependents ({packageDetails.dependents.length})</div>
-				<div class="tab" class:selected={isTabSelected('tests', selectedTab)} on:click={() => selectTab('tests')}>Tests ({packageDetails.testStats.passed})</div>
+				<div class="tab" class:selected={isTabSelected('code', selectedTab)} on:click={() => selectTab('code')} on:keydown={(e) => e.key === 'Enter' && selectTab('code')} tabindex="0" role="tab">Code</div>
+				<div class="tab" class:selected={isTabSelected('docs', selectedTab)} on:click={() => selectTab('docs')} on:keydown={(e) => e.key === 'Enter' && selectTab('docs')} tabindex="0" role="tab">Docs</div>
+				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')} on:keydown={(e) => e.key === 'Enter' && selectTab('')} tabindex="0" role="tab">Readme</div>
+				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')} on:keydown={(e) => e.key === 'Enter' && selectTab('versions')} tabindex="0" role="tab">Versions ({packageDetails.versionHistory.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependencies')} tabindex="0" role="tab">Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependents')} tabindex="0" role="tab">Dependents ({packageDetails.dependents.length})</div>
+				<div class="tab" class:selected={isTabSelected('tests', selectedTab)} on:click={() => selectTab('tests')} on:keydown={(e) => e.key === 'Enter' && selectTab('tests')} tabindex="0" role="tab">Tests ({packageDetails.testStats.passed})</div>
 			</div>
 
 			<div class="body">
-				{#if selectedTab == 'docs'}
+				{#if selectedTab == 'code'}
+					<div class="layout-wide">
+						<PackageCode {packageDetails} {fileIds}></PackageCode>
+					</div>
+				{:else if selectedTab == 'docs'}
 					<div class="layout-wide">
 						{#if docsData}
 							<PackageDocs docsData={docsData}></PackageDocs>
