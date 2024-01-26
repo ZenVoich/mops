@@ -96,7 +96,7 @@ export let getIdentity = async () : Promise<Identity | undefined> => {
 		let res = await prompts({
 			type: 'invisible',
 			name: 'value',
-			message: 'Enter password:'
+			message: 'Enter password:',
 		});
 		return await decodeFile(identityPemEncrypted, res.value);
 	}

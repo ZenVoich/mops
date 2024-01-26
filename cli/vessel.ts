@@ -55,7 +55,7 @@ export const readVesselConfig = async (dir : string, {cache = true, silent = fal
 
 	const [vessel, packageSetArray] = await Promise.all([
 		dhallFileToJson((dir || process.cwd()) + '/vessel.dhall', silent),
-		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall', silent)
+		dhallFileToJson((dir || process.cwd()) + '/package-set.dhall', silent),
 	]);
 
 	if (!vessel || !packageSetArray) {

@@ -36,7 +36,7 @@ export class MMF1 {
 		if (this.srategy === 'store') {
 			this.output.push({
 				type,
-				message: args.join(' ')
+				message: args.join(' '),
 			});
 		}
 		else if (this.srategy === 'print') {

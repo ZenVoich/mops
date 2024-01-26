@@ -36,7 +36,7 @@ export let markdownToHtml = async (markdown : string, repositoryUrl ?: string) =
 				return toHtml(starryNight.highlight(str, 'source.mo'));
 			}
 			return '';
-		}
+		},
 	});
 
 	mdit.render(markdown);

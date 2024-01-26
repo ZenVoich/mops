@@ -68,8 +68,8 @@ export let getReleases = async (repo : string) => {
 	let res = await octokit.request(`GET /repos/${repo}/releases`, {
 		per_page: 10,
 		headers: {
-			'X-GitHub-Api-Version': '2022-11-28'
-		}
+			'X-GitHub-Api-Version': '2022-11-28',
+		},
 	});
 	if (res.status !== 200) {
 		console.log('Releases fetch error');

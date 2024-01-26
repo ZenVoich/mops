@@ -164,7 +164,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean} = {})
 		return {
 			...dep,
 			version: dep.version || '',
-			repo: dep.repo || ''
+			repo: dep.repo || '',
 		};
 	};
 

@@ -60,17 +60,17 @@ export default defineConfig({
 			targets: [
 				{
 					src: 'external/*',
-					dest: 'external'
+					dest: 'external',
 				},
 				{
 					src: '.ic-assets.json',
-					dest: '.'
+					dest: '.',
 				},
 				{
 					src: '.well-known/*',
-					dest: '.well-known'
+					dest: '.well-known',
 				},
-			]
+			],
 		}),
 	],
 	build: {
@@ -85,7 +85,7 @@ export default defineConfig({
 				entryFileNames: 'bundle/[name]-[hash:20].js',
 				chunkFileNames: 'bundle/[name]-[hash:20].js',
 				assetFileNames: 'bundle/[name]-[hash:20].[ext]',
-			}
+			},
 		},
 	},
 	resolve: {

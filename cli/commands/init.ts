@@ -63,7 +63,7 @@ export async function init({yes = false} = {}) {
 		onCancel() {
 			console.log('aborted');
 			process.exit(0);
-		}
+		},
 	};
 
 	// type

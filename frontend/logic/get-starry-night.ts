@@ -13,7 +13,7 @@ export async function getStarryNight() : Promise<StarryNight> {
 		window.starryNight = await createStarryNight([moGrammar], {
 			getOnigurumaUrlFetch: () => {
 				return new URL('/external/onig@1.7.0.wasm', import.meta.url);
-			}
+			},
 		});
 	}
 

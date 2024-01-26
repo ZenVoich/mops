@@ -7,7 +7,7 @@ let getOptions = () => {
 		agentOptions: {
 			host: process.env.NODE_ENV === 'production' ? 'https://icp-api.io' : 'http://localhost:4943',
 			verifyQuerySignatures: false,
-		}
+		},
 	};
 };
 

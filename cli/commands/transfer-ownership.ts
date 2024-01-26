@@ -16,7 +16,7 @@ export async function transferOwnership(toPrincipal : string) {
 		onCancel() {
 			console.log('aborted');
 			process.exit(0);
-		}
+		},
 	};
 
 	console.log(chalk.red('Warning: ') + 'This action cannot be undone!');
