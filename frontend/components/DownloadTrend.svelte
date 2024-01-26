@@ -6,7 +6,7 @@
 
 	ChartJS.register([BarElement, LinearScale, CategoryScale, TimeScale]);
 
-	export let snapshots: DownloadsSnapshot[] = [];
+	export let snapshots : DownloadsSnapshot[] = [];
 </script>
 
 <div class="download-trend">

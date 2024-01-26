@@ -10,10 +10,10 @@ let network = process.env['DFX_NETWORK'] as Network || 'local';
 
 interface CanisterIds {
 	/* eslint-disable-next-line no-unused-vars */
-	[key: string]: {[key in Network]: string}
+	[key : string] : {[key in Network] : string}
 }
 
-let canisterIds: CanisterIds;
+let canisterIds : CanisterIds;
 try {
 	canisterIds = JSON.parse(
 		fs.readFileSync(network === 'local' ? '../.dfx/local/canister_ids.json' : '../canister_ids.json').toString(),

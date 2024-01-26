@@ -16,9 +16,21 @@
     "ignorePatterns": [
         "node_modules/",
         "declarations/",
+        "backend/",
+        "docs/",
+        ".dfx/",
+        ".git/",
+        ".mops/",
         "dist/"
     ],
     "rules": {
+        "@stylistic/type-annotation-spacing": [
+            "error",
+            {
+                "before": true,
+                "after": true
+            }
+        ],
         "indent": [
             "error",
             "tab"

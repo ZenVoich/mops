@@ -8,15 +8,15 @@
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
-	export let packageDetails: PackageDetails;
-	export let fileIds: string[];
+	export let packageDetails : PackageDetails;
+	export let fileIds : string[];
 
 	let pkgId = `${packageDetails.config.name}@${packageDetails.config.version}`;
-	let files: string[] = fileIds.map((id) => id.replace(pkgId + '/', ''));
+	let files : string[] = fileIds.map((id) => id.replace(pkgId + '/', ''));
 	$: selectedFileName = $routeParams.file ? $routeParams.file : files[0];
 	let fileContentHtml = '';
 
-	function isFileSelected(file: string, selectedFileName = files[0]) {
+	function isFileSelected(file : string, selectedFileName = files[0]) {
 		return file == selectedFileName;
 	}
 	let cachedFilesContentHtml = new Map<string, string>();
@@ -54,8 +54,8 @@
 	}
 
 	// calculate el heights
-	let filesEl: HTMLElement;
-	let contentEl: HTMLElement;
+	let filesEl : HTMLElement;
+	let contentEl : HTMLElement;
 
 	let filesPanelHeight = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;

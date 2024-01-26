@@ -10,12 +10,12 @@ export class FilesReporter implements Reporter {
 
 	#startTime = Date.now();
 
-	addFiles(files: string[]) {
+	addFiles(files : string[]) {
 		console.log(`Test files: ${files.length}`);
 		console.log('='.repeat(50));
 	}
 
-	addRun(file: string, mmf: MMF1, state: Promise<void>, wasiMode: boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, wasiMode : boolean) {
 		state.then(() => {
 			this.passed += Number(mmf.failed === 0);
 			this.failed += Number(mmf.failed !== 0);
@@ -32,7 +32,7 @@ export class FilesReporter implements Reporter {
 		});
 	}
 
-	done(): boolean {
+	done() : boolean {
 		console.log('='.repeat(50));
 		if (this.failed) {
 			console.log(chalk.redBright('Tests failed'));

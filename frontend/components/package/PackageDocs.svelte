@@ -10,35 +10,35 @@
 
 	type DefinitionKind = 'module' | 'class' | 'type' | 'func' | 'value' | 'type-actor';
 	type Definition = {
-		id: string;
-		name: string;
-		kind: DefinitionKind;
+		id : string;
+		name : string;
+		kind : DefinitionKind;
 	}
 
-	export let docsData: Uint8Array;
+	export let docsData : Uint8Array;
 
 	let docsHtml = 'Loading...';
-	let files: any[] = [];
-	let definitions: Definition[] = [];
+	let files : any[] = [];
+	let definitions : Definition[] = [];
 	let fileNameShadow = false;
 
-	function getDefaultFileName(files: any[]): string {
+	function getDefaultFileName(files : any[]) : string {
 		return files[0]?.name.replace('.adoc', '') || '';
 	}
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : getDefaultFileName(files);
 
-	function isFileSelected(file: any, selectedFileName = getDefaultFileName(files)) {
+	function isFileSelected(file : any, selectedFileName = getDefaultFileName(files)) {
 		return file.name.replace('.adoc', '') == selectedFileName;
 	}
 
-	let unpack = async (docsData: Uint8Array) => {
+	let unpack = async (docsData : Uint8Array) => {
 		let decompressed = pako.inflate(docsData);
 		files = await untar(decompressed.buffer);
 
 		// sort files by folder nesting
 		// place "lib" at the top of the folder
-		let getPath = (file: string) => {
+		let getPath = (file : string) => {
 			return file.split('/').slice(0, -1).join('/');
 		};
 		files.sort((a, b) => {
@@ -57,11 +57,11 @@
 		});
 	};
 
-	function getModuleNesting(id: string): number {
+	function getModuleNesting(id : string) : number {
 		return [...id.replace('type.', '').matchAll(/\./g)].length;
 	}
 
-	let render = async (files: any[], fileName = getDefaultFileName(files)) => {
+	let render = async (files : any[], fileName = getDefaultFileName(files)) => {
 		let file = files.find((file) => file.name.replace('.adoc', '') == fileName);
 		if (!file) {
 			return;
@@ -79,7 +79,7 @@
 		let doc = asciidoctor().load(text);
 
 		// definitions
-		let getKind = (line: string): DefinitionKind => {
+		let getKind = (line : string) : DefinitionKind => {
 			if (line.match(/^\w+$/i)) {
 				return 'module';
 			}
@@ -97,9 +97,9 @@
 			}
 			return 'value';
 		};
-		definitions = Object.values(doc.getRefs()).slice(1).filter((def: any) => {
+		definitions = Object.values(doc.getRefs()).slice(1).filter((def : any) => {
 			return !def.id.startsWith('_') && def.blocks[0]?.node_name !== 'paragraph' && def.blocks[0]?.node_name !== 'ulist';
-		}).map((def: any) => {
+		}).map((def : any) => {
 			return {
 				id: def.id,
 				name: def.id.replace('type.', '').split('.').at(-1),
@@ -170,9 +170,9 @@
 		});
 	};
 
-	let docHeaderEl: HTMLElement;
-	let filesEl: HTMLElement;
-	let defsEl: HTMLElement;
+	let docHeaderEl : HTMLElement;
+	let filesEl : HTMLElement;
+	let defsEl : HTMLElement;
 
 	let filesPanelHeight = '';
 	let defsPanelHeight = '';
@@ -220,7 +220,7 @@
 		};
 	});
 
-	function definitionOnClick(e: MouseEvent) {
+	function definitionOnClick(e : MouseEvent) {
 		e.preventDefault();
 		let id = (e.currentTarget as HTMLElement).getAttribute('href');
 		history.replaceState({}, '', id);

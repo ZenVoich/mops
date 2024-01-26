@@ -5,7 +5,7 @@ import prompts from 'prompts';
 import camelCase from 'camelcase';
 import {getRootDir, readConfig} from '../mops.js';
 
-export async function template(templateName?: string, options: any = {}) {
+export async function template(templateName ?: string, options : any = {}) {
 	if (!templateName) {
 		let res = await prompts({
 			type: 'select',
@@ -55,7 +55,7 @@ export async function template(templateName?: string, options: any = {}) {
 			return;
 		}
 
-		let setYearAndOwner = (file: string) => {
+		let setYearAndOwner = (file : string) => {
 			let license = fs.readFileSync(file).toString();
 			license = license.replace(/<year>/g, new Date().getFullYear().toString());
 			if (options.copyrightOwner) {

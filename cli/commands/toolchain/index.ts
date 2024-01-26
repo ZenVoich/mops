@@ -11,7 +11,7 @@ import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
 import * as wasmtime from './wasmtime.js';
 
-function getToolUtils(tool: Tool) {
+function getToolUtils(tool : Tool) {
 	if (tool === 'moc') {
 		return moc;
 	}
@@ -136,7 +136,7 @@ async function init({reset = false, silent = false} = {}) {
 	}
 }
 
-async function download(tool: Tool, version: string, {silent = false, verbose = false} = {}) {
+async function download(tool : Tool, version : string, {silent = false, verbose = false} = {}) {
 	let toolUtils = getToolUtils(tool);
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
@@ -161,7 +161,7 @@ async function installAll({silent = false, verbose = false} = {}) {
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
-	let log = (...args: string[]) => {
+	let log = (...args : string[]) => {
 		if (silent) {
 			return;
 		}
@@ -191,21 +191,21 @@ async function installAll({silent = false, verbose = false} = {}) {
 	}
 }
 
-async function promptVersion(tool: Tool): Promise<string> {
+async function promptVersion(tool : Tool) : Promise<string> {
 	let config = readConfig();
 	config.toolchain = config.toolchain || {};
 	let current = config.toolchain[tool];
 
 	let toolUtils = getToolUtils(tool);
 	let releases = await toolUtils.getReleases();
-	let versions = releases.map((item: {tag_name: any;}) => item.tag_name);
+	let versions = releases.map((item : {tag_name : any;}) => item.tag_name);
 	let currentIndex = versions.indexOf(current);
 
 	let res = await prompts({
 		type: 'select',
 		name: 'version',
 		message: `Select ${tool} version`,
-		choices: releases.map((release: {published_at: string | number | Date; tag_name: string;}, i: any) => {
+		choices: releases.map((release : {published_at : string | number | Date; tag_name : string;}, i : any) => {
 			let date = new Date(release.published_at).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'});
 			return {
 				title: release.tag_name + chalk.gray(`  ${date}${currentIndex === i ? chalk.italic(' (current)') : ''}`),
@@ -219,7 +219,7 @@ async function promptVersion(tool: Tool): Promise<string> {
 }
 
 // download binary and set version in mops.toml
-async function use(tool: Tool, version?: string) {
+async function use(tool : Tool, version ?: string) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
 	}
@@ -252,7 +252,7 @@ async function use(tool: Tool, version?: string) {
 }
 
 // download latest binary and set version in mops.toml
-async function update(tool?: Tool) {
+async function update(tool ?: Tool) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
 	}
@@ -287,7 +287,7 @@ async function update(tool?: Tool) {
 }
 
 // return current version from mops.toml
-async function bin(tool: Tool, {fallback = false} = {}): Promise<string> {
+async function bin(tool : Tool, {fallback = false} = {}) : Promise<string> {
 	let hasConfig = getClosestConfigFile();
 
 	// fallback to dfx moc

@@ -9,7 +9,7 @@ import {_SERVICE as _STORAGE_SERVICE} from '../declarations/storage/storage.did.
 import {getEndpoint} from './network.js';
 import {getNetwork} from './network.js';
 
-export let mainActor = async (identity?: Identity): Promise<_SERVICE> => {
+export let mainActor = async (identity ?: Identity) : Promise<_SERVICE> => {
 	let network = getNetwork();
 	let host = getEndpoint(network).host;
 	let canisterId = getEndpoint(network).canisterId;
@@ -27,7 +27,7 @@ export let mainActor = async (identity?: Identity): Promise<_SERVICE> => {
 	});
 };
 
-export let storageActor = async (storageId: Principal, identity?: Identity): Promise<_STORAGE_SERVICE> => {
+export let storageActor = async (storageId : Principal, identity ?: Identity) : Promise<_STORAGE_SERVICE> => {
 	let network = getNetwork();
 	let host = getEndpoint(network).host;
 

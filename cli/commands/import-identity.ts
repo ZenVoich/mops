@@ -7,10 +7,10 @@ import {globalConfigDir} from '../mops.js';
 import {encrypt} from '../pem.js';
 
 type ImportIdentityOptions = {
-	encrypt: boolean;
+	encrypt : boolean;
 };
 
-export async function importPem(data: string, options: ImportIdentityOptions = {encrypt: true}) {
+export async function importPem(data : string, options : ImportIdentityOptions = {encrypt: true}) {
 	try {
 		if (!fs.existsSync(globalConfigDir)) {
 			fs.mkdirSync(globalConfigDir);

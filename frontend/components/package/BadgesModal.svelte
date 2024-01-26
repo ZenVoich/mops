@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
 
-	export let packageName: string;
+	export let packageName : string;
 	export let active = false;
 
-	function badgeUrl(badgeName: string) {
+	function badgeUrl(badgeName : string) {
 		if (process.env.NODE_ENV === 'development') {
 			return `http://localhost:4943/badge/${badgeName}/${packageName}?canisterId=2d2zu-vaaaa-aaaak-qb6pq-cai`;
 		}

@@ -28,7 +28,7 @@
 	}
 
 	// reset scroll on navigate
-	let resetScrollTimer: any;
+	let resetScrollTimer : any;
 	onMount(() => {
 		let popstate = () => {
 			clearTimeout(resetScrollTimer);

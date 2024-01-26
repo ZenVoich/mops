@@ -11,7 +11,7 @@ import {addCache, copyCache, isCached} from '../cache.js';
 import {downloadFile, getPackageFilesInfo} from '../api/downloadPackageFiles.js';
 import {installLocal} from './install-local.js';
 
-export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}): Promise<Record<string, string> | false> {
+export async function install(pkg : string, version = '', {verbose = false, silent = false, dep = false} = {}) : Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -65,7 +65,7 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 			let filesData = new Map;
 			let storage = await storageActor(storageId);
 
-			await parallel(threads, fileIds, async (fileId: string) => {
+			await parallel(threads, fileIds, async (fileId : string) => {
 				let {path, data} = await downloadFile(storage, fileId);
 				filesData.set(path, data);
 				progress();

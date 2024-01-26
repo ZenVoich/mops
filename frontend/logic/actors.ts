@@ -15,13 +15,13 @@ export let mainActor = () => {
 	return createMainActor(mainCanisterId, getOptions());
 };
 
-export let storageActor = (storageId: string | Principal) => {
+export let storageActor = (storageId : string | Principal) => {
 	return createStorageActor(storageId, getOptions());
 };
 
 declare global {
 	// eslint-disable-next-line no-unused-vars, no-var
-	var getStoragesStats: () => void;
+	var getStoragesStats : () => void;
 }
 
 window.getStoragesStats = () => {

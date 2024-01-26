@@ -10,7 +10,7 @@ import streamToPromise from 'stream-to-promise';
 import {getRootDir} from '../mops.js';
 import {toolchain} from './toolchain/index.js';
 
-let moDocPath: string;
+let moDocPath : string;
 
 export async function docs({silent = false} = {}) {
 	let rootDir = getRootDir();

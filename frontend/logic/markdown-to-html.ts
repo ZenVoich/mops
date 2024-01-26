@@ -3,7 +3,7 @@ import {toHtml} from 'hast-util-to-html';
 
 import {getStarryNight} from './get-starry-night';
 
-export let markdownToHtml = async (markdown: string, repositoryUrl?: string) => {
+export let markdownToHtml = async (markdown : string, repositoryUrl ?: string) => {
 	// make links to issues and PRs clickable
 	if (repositoryUrl) {
 		markdown = markdown.replace(/\(#(\d+)\)/g, `([#$1](${repositoryUrl}/issues/$1))`);
@@ -45,7 +45,7 @@ export let markdownToHtml = async (markdown: string, repositoryUrl?: string) => 
 
 	// replace relative url to github absolute url
 	if (repositoryUrl) {
-		let relToAbs = (url: string) => {
+		let relToAbs = (url : string) => {
 			if (url && !url.startsWith('http') && !url.startsWith('#')) {
 				let sep = url.startsWith('/') ? '' : '/';
 				// todo: master branch?

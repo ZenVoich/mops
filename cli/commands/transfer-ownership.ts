@@ -4,7 +4,7 @@ import {mainActor} from '../api/actors.js';
 import {Principal} from '@dfinity/principal';
 import prompts from 'prompts';
 
-export async function transferOwnership(toPrincipal: string) {
+export async function transferOwnership(toPrincipal : string) {
 	if (!checkConfigFile()) {
 		return;
 	}

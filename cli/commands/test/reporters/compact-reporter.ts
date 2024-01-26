@@ -17,13 +17,13 @@ export class CompactReporter implements Reporter {
 	#finishedFiles = new Set<string>();
 	#startTime = Date.now();
 
-	addFiles(files: string[]) {
+	addFiles(files : string[]) {
 		this.#allFiles = new Set(files);
 		this.#log();
 		this.#startTimer();
 	}
 
-	addRun(file: string, mmf: MMF1, state: Promise<void>, _wasiMode: boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, _wasiMode : boolean) {
 		this.#runningFiles.add(file);
 		this.#log();
 
@@ -53,14 +53,14 @@ export class CompactReporter implements Reporter {
 		});
 	}
 
-	done(): boolean {
+	done() : boolean {
 		this.#log();
 		logUpdate.done();
 		this.#clearTimer();
 		return this.failed === 0;
 	}
 
-	#timerId: NodeJS.Timeout | null = null;
+	#timerId : NodeJS.Timeout | null = null;
 	#startTimer() {
 		this.#timerId = setInterval(() => this.#log(), 55);
 	}
@@ -72,7 +72,7 @@ export class CompactReporter implements Reporter {
 	}
 
 	#log() {
-		let res: string[] = [];
+		let res : string[] = [];
 		let i = 0;
 		for (let file of this.#allFiles) {
 			if (this.#runningFiles.has(file)) {

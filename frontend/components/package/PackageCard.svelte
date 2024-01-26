@@ -5,7 +5,7 @@
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import PackageQualityIcon from './PackageQualityIcon.svelte';
 
-	export let pkg: PackageSummary;
+	export let pkg : PackageSummary;
 	export let showVersion = false;
 	export let showUpdated = false;
 	export let showDownloads = false;

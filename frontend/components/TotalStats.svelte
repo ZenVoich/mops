@@ -2,8 +2,8 @@
 	import {onMount} from 'svelte';
 	import {mainActor} from '/logic/actors';
 
-	let totalPackages: bigint;
-	let totalDownloads: bigint;
+	let totalPackages : bigint;
+	let totalDownloads : bigint;
 
 	onMount(async () => {
 		totalPackages = await mainActor().getTotalPackages();

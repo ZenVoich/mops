@@ -74,8 +74,8 @@ if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
 }
 
 
-export function getNetworkFile(): string | URL {
-	let networkFile: string | URL = '';
+export function getNetworkFile() : string | URL {
+	let networkFile : string | URL = '';
 	try {
 		networkFile = new URL('./network.txt', import.meta.url);
 	}
@@ -85,11 +85,11 @@ export function getNetworkFile(): string | URL {
 	return networkFile;
 }
 
-export function setNetwork(network: string) {
+export function setNetwork(network : string) {
 	fs.writeFileSync(getNetworkFile(), network);
 }
 
-export let getIdentity = async (): Promise<Identity | undefined> => {
+export let getIdentity = async () : Promise<Identity | undefined> => {
 	let identityPem = path.resolve(globalConfigDir, 'identity.pem');
 	let identityPemEncrypted = path.resolve(globalConfigDir, 'identity.pem.encrypted');
 	if (fs.existsSync(identityPemEncrypted)) {
@@ -134,12 +134,12 @@ export function checkConfigFile() {
 	return true;
 }
 
-export function progressBar(step: number, total: number) {
+export function progressBar(step : number, total : number) {
 	let done = Math.round(step / total * 10);
 	return `[${':'.repeat(done)}${' '.repeat(Math.max(0, 10 - done))}]`;
 }
 
-export function parseGithubURL(href: string) {
+export function parseGithubURL(href : string) {
 	const url = new URL(href);
 	let branchAndSha = url.hash?.substring(1).split('@');
 	let branch = branchAndSha[0] || 'master';
@@ -154,9 +154,9 @@ export function parseGithubURL(href: string) {
 	return {org, gitName, branch, commitHash};
 }
 
-export async function getGithubCommit(repo: string, ref: string): Promise<any> {
+export async function getGithubCommit(repo : string, ref : string) : Promise<any> {
 	let res = await fetch(`https://api.github.com/repos/${repo}/commits/${ref}`);
-	let json: any = await res.json();
+	let json : any = await res.json();
 
 	// try on main branch
 	if (json.message && ref === 'master') {
@@ -166,7 +166,7 @@ export async function getGithubCommit(repo: string, ref: string): Promise<any> {
 	return json;
 }
 
-export function getDependencyType(version: string) {
+export function getDependencyType(version : string) {
 	if (!version || typeof version !== 'string') {
 		throw Error(`Invalid dependency value "${version}"`);
 	}
@@ -181,11 +181,11 @@ export function getDependencyType(version: string) {
 	}
 }
 
-export function readConfig(configFile = getClosestConfigFile()): Config {
+export function readConfig(configFile = getClosestConfigFile()) : Config {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
-	let processDeps = (deps: any) => {
+	let processDeps = (deps : any) => {
 		Object.entries(deps).forEach(([name, data]) => {
 			if (!data || typeof data !== 'string') {
 				throw Error(`Invalid dependency value ${name} = "${data}"`);
@@ -209,8 +209,8 @@ export function readConfig(configFile = getClosestConfigFile()): Config {
 	return toml;
 }
 
-export function writeConfig(config: Config, configFile = getClosestConfigFile()) {
-	let resConfig: any = JSON.parse(JSON.stringify(config));
+export function writeConfig(config : Config, configFile = getClosestConfigFile()) {
+	let resConfig : any = JSON.parse(JSON.stringify(config));
 
 	let deps = resConfig.dependencies || {};
 	Object.entries(config.dependencies || {}).forEach(([name, {repo, path, version}]) => {
@@ -229,16 +229,16 @@ export function writeConfig(config: Config, configFile = getClosestConfigFile())
 	fs.writeFileSync(configFile, text);
 }
 
-export function formatDir(name: string, version: string) {
+export function formatDir(name : string, version : string) {
 	return path.join(getRootDir(), '.mops', `${name}@${version}`);
 }
 
-export function formatGithubDir(name: string, repo: string) {
+export function formatGithubDir(name : string, repo : string) {
 	const {branch, commitHash} = parseGithubURL(repo);
 	return path.join(getRootDir(), '.mops/_github', `${name}#${branch}` + (commitHash ? `@${commitHash}` : ''));
 }
 
-export function readDfxJson(): any {
+export function readDfxJson() : any {
 	let dir = process.cwd();
 	let dfxJson = null;
 	for (let i = 0; i < 5; i++) {

@@ -22,16 +22,16 @@
 	import PackageVersionSummary from './PackageVersionSummary.svelte';
 	import PackageTestStats from './PackageTestStats.svelte';
 
-	let pkgName: string;
+	let pkgName : string;
 	$: pkgName = $routeParams.packageName;
 	$: pkgVersion = $routeParams.version;
 	$: $currentURL && load();
 	$: command = `mops add ${packageDetails?.config.name}${getHighestVersion() !== packageDetails?.config.version ? '@' + packageDetails?.config.version : ''}`;
 
-	let readme: string;
-	let fileIds: string[];
-	let docsData: Uint8Array;
-	let packageDetails: PackageDetails;
+	let readme : string;
+	let fileIds : string[];
+	let docsData : Uint8Array;
+	let packageDetails : PackageDetails;
 	let loaded = false;
 	let installHovered = false;
 	let copiedToClipboard = false;
@@ -90,7 +90,7 @@
 		loaded = true;
 	});
 
-	let installHoverTimer: any;
+	let installHoverTimer : any;
 	function installMouseenter() {
 		clearTimeout(installHoverTimer);
 		installHoverTimer = setTimeout(() => {
@@ -105,7 +105,7 @@
 		}
 	}
 
-	let resetIconTimer: any;
+	let resetIconTimer : any;
 	function copyCommand() {
 		navigator.clipboard.writeText(command);
 		copiedToClipboard = true;
@@ -120,7 +120,7 @@
 	}
 
 	$: selectedTab = $routeParams.tab || '';
-	function selectTab(tab: string) {
+	function selectTab(tab : string) {
 		let path = `/${$routeParams.packageId}`;
 		if (tab) {
 			path += `/${tab}`;
@@ -128,7 +128,7 @@
 		push(path);
 	}
 
-	function isTabSelected(tab: string, selectedTab: string): boolean {
+	function isTabSelected(tab : string, selectedTab : string) : boolean {
 		return selectedTab == tab;
 	}
 

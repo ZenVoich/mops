@@ -8,15 +8,15 @@
 	import BadgesModal from './BadgesModal.svelte';
 	import PackageQualityIcon from './PackageQualityIcon.svelte';
 
-	export let packageDetails: PackageDetails;
+	export let packageDetails : PackageDetails;
 	let badgesModalActive = false;
 
-	function showBadgesModal(e: MouseEvent) {
+	function showBadgesModal(e : MouseEvent) {
 		e.preventDefault();
 		badgesModalActive = true;
 	}
 
-	function depsStatusText(depsStatus: DepsStatus): string {
+	function depsStatusText(depsStatus : DepsStatus) : string {
 		if ('allLatest' in depsStatus) {
 			return 'Up to Date';
 		}

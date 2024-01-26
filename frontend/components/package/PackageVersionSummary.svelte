@@ -5,9 +5,9 @@
 	import {markdownToHtml} from '/logic/markdown-to-html';
 	import Date from '../Date.svelte';
 
-	export let summary: PackageSummaryWithChanges;
+	export let summary : PackageSummaryWithChanges;
 
-	let dd: [string, DepChange[]][] = [['Dependencies', summary.changes.deps], ['Dev Dependencies', summary.changes.devDeps]];
+	let dd : [string, DepChange[]][] = [['Dependencies', summary.changes.deps], ['Dev Dependencies', summary.changes.devDeps]];
 </script>
 
 <div class="version-summary">

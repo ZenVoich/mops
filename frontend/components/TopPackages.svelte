@@ -5,9 +5,9 @@
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
-	export let type: 'recently-updated' | 'most-downloaded' = 'recently-updated';
+	export let type : 'recently-updated' | 'most-downloaded' = 'recently-updated';
 	let loaded = false;
-	let packages: PackageSummary[] = [];
+	let packages : PackageSummary[] = [];
 
 	onMount(async () => {
 		if (type === 'recently-updated') {

@@ -1,6 +1,6 @@
 declare global {
 	interface Window {
-		MOPS_NETWORK: string;
+		MOPS_NETWORK : string;
 	}
 }
 

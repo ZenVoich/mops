@@ -5,12 +5,12 @@ import getFolderSize from 'get-folder-size';
 
 import {globalCacheDir} from './mops.js';
 
-export let isCached = (pkgId: string) => {
+export let isCached = (pkgId : string) => {
 	let dir = path.join(globalCacheDir, 'packages', pkgId);
 	return fs.existsSync(dir);
 };
 
-export let addCache = (pkgId: string, source: string) => {
+export let addCache = (pkgId : string, source : string) => {
 	let dest = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 
@@ -24,7 +24,7 @@ export let addCache = (pkgId: string, source: string) => {
 	});
 };
 
-export let copyCache = (pkgId: string, dest: string) => {
+export let copyCache = (pkgId : string, dest : string) => {
 	let source = path.join(globalCacheDir, 'packages', pkgId);
 	fs.mkdirSync(dest, {recursive: true});
 

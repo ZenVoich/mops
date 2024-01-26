@@ -10,7 +10,7 @@ import tar from 'tar';
 
 import {getRootDir} from '../../mops.js';
 
-export let downloadAndExtract = async (url: string, dest: string) => {
+export let downloadAndExtract = async (url : string, dest : string) => {
 	let res = await fetch(url);
 
 	if (res.status !== 200) {
@@ -53,9 +53,9 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 	deleteSync([tmpDir], {force: true});
 };
 
-export let getLatestReleaseTag = async (repo: string): Promise<string> => {
+export let getLatestReleaseTag = async (repo : string) : Promise<string> => {
 	let releases = await getReleases(repo);
-	let release = releases.find((release: any) => !release.prerelease && !release.draft);
+	let release = releases.find((release : any) => !release.prerelease && !release.draft);
 	if (!release?.tag_name) {
 		console.error(`Failed to fetch latest release tag for ${repo}`);
 		process.exit(1);
@@ -63,7 +63,7 @@ export let getLatestReleaseTag = async (repo: string): Promise<string> => {
 	return release.tag_name.replace(/^v/, '');
 };
 
-export let getReleases = async (repo: string) => {
+export let getReleases = async (repo : string) => {
 	let octokit = new Octokit;
 	let res = await octokit.request(`GET /repos/${repo}/releases`, {
 		per_page: 10,
@@ -75,7 +75,7 @@ export let getReleases = async (repo: string) => {
 		console.log('Releases fetch error');
 		process.exit(1);
 	}
-	return res.data.map((release: any) => {
+	return res.data.map((release : any) => {
 		return {
 			...release,
 			tag_name: release.tag_name.replace(/^v/, ''),

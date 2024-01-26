@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {PackageSummary} from '/declarations/main/main.did.js';
 
-	export let pkg: PackageSummary;
+	export let pkg : PackageSummary;
 
 	let maxBasePoints = 6;
 	let maxExtraPoints = 3;
@@ -23,7 +23,7 @@
 			extraPoints = 0;
 		}
 
-		function convertRange(value: number, r1: [number, number], r2: [number, number]) {
+		function convertRange(value : number, r1 : [number, number], r2 : [number, number]) {
 			return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
 		}
 

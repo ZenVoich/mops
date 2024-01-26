@@ -9,12 +9,12 @@ import {checkIntegrity} from '../integrity.js';
 import {installLocal} from './install-local.js';
 
 type InstallAllOptions = {
-	verbose?: boolean;
-	silent?: boolean;
-	lock?: 'check' | 'update' | 'ignore';
+	verbose ?: boolean;
+	silent ?: boolean;
+	lock ?: 'check' | 'update' | 'ignore';
 }
 
-export async function installAll({verbose = false, silent = false, lock}: InstallAllOptions = {}) {
+export async function installAll({verbose = false, silent = false, lock} : InstallAllOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}

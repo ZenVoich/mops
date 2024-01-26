@@ -5,10 +5,10 @@ type StarryNight = Awaited<ReturnType<typeof createStarryNight>>;
 
 declare global {
 	// eslint-disable-next-line no-unused-vars, no-var
-	var starryNight: StarryNight;
+	var starryNight : StarryNight;
 }
 
-export async function getStarryNight(): Promise<StarryNight> {
+export async function getStarryNight() : Promise<StarryNight> {
 	if (!window.starryNight) {
 		window.starryNight = await createStarryNight([moGrammar], {
 			getOnigurumaUrlFetch: () => {

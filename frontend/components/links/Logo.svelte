@@ -2,7 +2,7 @@
 	import {link} from 'svelte-spa-history-router';
 	import mopsMotokoImg from '/img/mops-motoko.svg';
 
-	export let size: 'small' | 'big' = 'big';
+	export let size : 'small' | 'big' = 'big';
 </script>
 
 <a href="/" use:link>

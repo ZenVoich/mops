@@ -4,18 +4,18 @@ import {checkConfigFile, formatDir, formatGithubDir, getRootDir, parseGithubURL,
 import {VesselConfig, readVesselConfig} from './vessel.js';
 import {Config, Dependency} from './types.js';
 
-export async function resolvePackages({verbose = false} = {}): Promise<Record<string, string>> {
+export async function resolvePackages({verbose = false} = {}) : Promise<Record<string, string>> {
 	if (!checkConfigFile()) {
 		return {};
 	}
 
 	let rootDir = getRootDir();
-	let packages: Record<string, Dependency & {isRoot: boolean;}> = {};
-	let versions: Record<string, string[]> = {};
+	let packages : Record<string, Dependency & {isRoot : boolean;}> = {};
+	let versions : Record<string, string[]> = {};
 
-	let compareVersions = (a: string = '0.0.0', b: string = '0.0.0') => {
-		let ap = a.split('.').map((x: string) => parseInt(x)) as [number, number, number];
-		let bp = b.split('.').map((x: string) => parseInt(x)) as [number, number, number];
+	let compareVersions = (a : string = '0.0.0', b : string = '0.0.0') => {
+		let ap = a.split('.').map((x : string) => parseInt(x)) as [number, number, number];
+		let bp = b.split('.').map((x : string) => parseInt(x)) as [number, number, number];
 		if (ap[0] - bp[0]) {
 			return Math.sign(ap[0] - bp[0]);
 		}
@@ -30,7 +30,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 
 	const gitVerRegex = new RegExp(/v(\d{1,2}\.\d{1,2}\.\d{1,2})(-.*)?$/);
 
-	const compareGitVersions = (repoA: string, repoB: string) => {
+	const compareGitVersions = (repoA : string, repoB : string) => {
 		const {branch: a} = parseGithubURL(repoA);
 		const {branch: b} = parseGithubURL(repoB);
 
@@ -45,7 +45,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 		}
 	};
 
-	let collectDeps = async (config: Config | VesselConfig, configDir: string, isRoot = false) => {
+	let collectDeps = async (config : Config | VesselConfig, configDir : string, isRoot = false) => {
 		let allDeps = [...Object.values(config.dependencies || {})];
 		if (isRoot) {
 			allDeps = [...allDeps, ...Object.values(config['dev-dependencies'] || {})];
@@ -124,7 +124,7 @@ export async function resolvePackages({verbose = false} = {}): Promise<Record<st
 
 	return Object.fromEntries(
 		Object.entries(packages).map(([name, pkg]) => {
-			let version: string;
+			let version : string;
 			if (pkg.path) {
 				version = path.resolve(rootDir, pkg.path).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 			}

@@ -32,18 +32,18 @@ let globConfig = {
 };
 
 type BenchOptions = {
-	replica: 'dfx' | 'pocket-ic',
-	replicaVersion: string,
-	moc: string,
-	gc: 'copying' | 'compacting' | 'generational' | 'incremental',
-	forceGc: boolean,
-	save: boolean,
-	compare: boolean,
-	verbose: boolean,
+	replica : 'dfx' | 'pocket-ic',
+	replicaVersion : string,
+	moc : string,
+	gc : 'copying' | 'compacting' | 'generational' | 'incremental',
+	forceGc : boolean,
+	save : boolean,
+	compare : boolean,
+	verbose : boolean,
 };
 
-export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {}): Promise<boolean> {
-	let defaultOptions: BenchOptions = {
+export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<boolean> {
+	let defaultOptions : BenchOptions = {
 		replica: 'dfx',
 		moc: getMocVersion(),
 		replicaVersion: '0.0.0',
@@ -54,7 +54,7 @@ export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {})
 		verbose: false,
 	};
 
-	let options: BenchOptions = {...defaultOptions, ...optionsArg};
+	let options : BenchOptions = {...defaultOptions, ...optionsArg};
 
 	options.replicaVersion = options.replica == 'dfx' ? getDfxVersion() : '1.0.0';
 
@@ -95,7 +95,7 @@ export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {})
 	await replica.start();
 
 	console.log('Deploying canisters...');
-	await parallel(os.cpus().length, files, async (file: string) => {
+	await parallel(os.cpus().length, files, async (file : string) => {
 		try {
 			await deployBenchFile(file, options, replica);
 		}
@@ -106,7 +106,7 @@ export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {})
 		}
 	});
 
-	await parallel(1, files, async (file: string) => {
+	await parallel(1, files, async (file : string) => {
 		console.log('\n' + '—'.repeat(50));
 		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 		console.log('');
@@ -128,7 +128,7 @@ export async function bench(filter = '', optionsArg: Partial<BenchOptions> = {})
 	return true;
 }
 
-function getMocArgs(options: BenchOptions): string {
+function getMocArgs(options : BenchOptions) : string {
 	let args = '';
 	if (options.forceGc) {
 		args += ' --force-gc';
@@ -139,7 +139,7 @@ function getMocArgs(options: BenchOptions): string {
 	return args;
 }
 
-async function deployBenchFile(file: string, options: BenchOptions, replica: BenchReplica): Promise<void> {
+async function deployBenchFile(file : string, options : BenchOptions, replica : BenchReplica) : Promise<void> {
 	let rootDir = getRootDir();
 	let tempDir = path.join(rootDir, '.mops/.bench/', path.parse(file).name);
 	let canisterName = path.parse(file).name;
@@ -174,11 +174,11 @@ async function deployBenchFile(file: string, options: BenchOptions, replica: Ben
 }
 
 type RunBenchFileResult = {
-	schema: BenchSchema,
-	results: Map<string, BenchResult>,
+	schema : BenchSchema,
+	results : Map<string, BenchResult>,
 };
 
-async function runBenchFile(file: string, options: BenchOptions, replica: BenchReplica): Promise<RunBenchFileResult> {
+async function runBenchFile(file : string, options : BenchOptions, replica : BenchReplica) : Promise<RunBenchFileResult> {
 	let rootDir = getRootDir();
 	let canisterName = path.parse(file).name;
 
@@ -186,7 +186,7 @@ async function runBenchFile(file: string, options: BenchOptions, replica: BenchR
 	let schema = await actor.getSchema();
 
 	// load previous results
-	let prevResults: Map<string, BenchResult> | undefined;
+	let prevResults : Map<string, BenchResult> | undefined;
 	let resultsJsonFile = path.join(rootDir, '.bench', `${path.parse(file).name}.json`);
 	if (options.compare) {
 		if (fs.existsSync(resultsJsonFile)) {
@@ -200,11 +200,11 @@ async function runBenchFile(file: string, options: BenchOptions, replica: BenchR
 
 	let results = new Map<string, BenchResult>();
 
-	let formatNumber = (n: bigint | number): string => {
+	let formatNumber = (n : bigint | number) : string => {
 		return n.toLocaleString('en-US').replaceAll(',', '_');
 	};
 
-	let getTable = (prop: keyof BenchResult): string => {
+	let getTable = (prop : keyof BenchResult) : string => {
 		let resArr = [['', ...schema.cols]];
 
 		for (let [_rowIndex, row] of schema.rows.entries()) {
@@ -222,7 +222,7 @@ async function runBenchFile(file: string, options: BenchOptions, replica: BenchR
 							let percent = (Number(res[prop]) - Number(prevRes[prop])) / Number(prevRes[prop]) * 100;
 							let sign = percent > 0 ? '+' : '';
 							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
-							let color: keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
+							let color : keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
 							diff = ` (${chalk[color](percentText)})`;
 						}
 						else {
@@ -280,7 +280,7 @@ async function runBenchFile(file: string, options: BenchOptions, replica: BenchR
 	// save results
 	if (options.save) {
 		console.log(`Saving results to ${chalk.gray(absToRel(resultsJsonFile))}`);
-		let json: Record<any, any> = {
+		let json : Record<any, any> = {
 			version: 1,
 			moc: options.moc,
 			replica: options.replica,

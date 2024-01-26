@@ -6,7 +6,7 @@ import {install} from './install.js';
 
 // skip install and just find non-local dependencies to install
 // pkgPath should be relative to the current root dir or absolute
-export async function installLocal(pkg: string, pkgPath = '', {verbose = false, silent = false} = {}): Promise<Record<string, string> | false> {
+export async function installLocal(pkg : string, pkgPath = '', {verbose = false, silent = false} = {}) : Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
