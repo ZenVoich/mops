@@ -8,7 +8,11 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],
+    "plugins": [
+        "@typescript-eslint",
+        "@stylistic",
+        "@stylistic/migrate"
+    ],
     "ignorePatterns": [
         "node_modules/",
         "declarations/",

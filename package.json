@@ -24,6 +24,8 @@
 		"test": "mops test"
 	},
 	"devDependencies": {
+		"@stylistic/eslint-plugin": "1.5.4",
+		"@stylistic/eslint-plugin-migrate": "1.5.4",
 		"@typescript-eslint/eslint-plugin": "6.19.1",
 		"@typescript-eslint/parser": "6.19.1",
 		"eslint": "8.56.0",
