@@ -18,18 +18,18 @@
 		"build-frontend": "cd frontend && npm run build",
 		"build-docs": "cd docs && npm run build",
 		"prepare-cli": "cd cli && npm run prepare",
-		"prepare": "husky install",
+		"prepare": "husky",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
 		"mo-dev": "mo-dev --exec 'clear && echo \"\nChecking...\n\" && moc --check ./backend/main/main-canister.mo $(mops sources) && echo \"\\033[0;32mOK\\033[0m\" || echo \"\\033[0;31mFAIL\\033[0m\" 1>&2;'",
 		"test": "mops test"
 	},
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "6.7.5",
-		"@typescript-eslint/parser": "6.7.5",
-		"eslint": "8.51.0",
-		"eslint-plugin-svelte": "2.34.0",
-		"husky": "8.0.3",
+		"@typescript-eslint/eslint-plugin": "6.19.1",
+		"@typescript-eslint/parser": "6.19.1",
+		"eslint": "8.56.0",
+		"eslint-plugin-svelte": "2.35.1",
+		"husky": "9.0.6",
 		"mo-dev": "0.12.0",
-		"typescript": "5.2.2"
+		"typescript": "5.3.3"
 	}
 }
