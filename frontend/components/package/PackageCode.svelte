@@ -1,25 +1,55 @@
 <script lang="ts">
-	import {link, routeParams} from 'svelte-spa-history-router';
+	import {routeParams} from 'svelte-spa-history-router';
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
-	import '@wooorm/starry-night/style/light.css';
-	import {getStarryNight} from '/logic/get-starry-night';
 	import {downloadFile} from 'ic-mops/api/downloadPackageFiles';
+	import '@wooorm/starry-night/style/light';
+	import {getStarryNight} from '/logic/get-starry-night';
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
+	import PackageCodeTreeView from './PackageCodeTreeView.svelte';
 
 	export let packageDetails : PackageDetails;
 	export let fileIds : string[];
 
 	let pkgId = `${packageDetails.config.name}@${packageDetails.config.version}`;
-	let files : string[] = fileIds.map((id) => id.replace(pkgId + '/', ''));
-	$: selectedFileName = $routeParams.file ? $routeParams.file : files[0];
-	let fileContentHtml = '';
 
-	function isFileSelected(file : string, selectedFileName = files[0]) {
-		return file == selectedFileName;
-	}
+	let files : string[] = fileIds.map((id) => id.replace(pkgId + '/', ''));
+	let tree = buildTree(files);
+
 	let cachedFilesContentHtml = new Map<string, string>();
+	let fileContentHtml : null | string = null;
+
+	$: selectedFileName = $routeParams.file ? $routeParams.file : '';
+
+	type Tree = {
+		name : string;
+		path : string;
+		children : Tree;
+	}[];
+
+	function buildTree(filenames : string[]) : Tree {
+		const root : Tree = [];
+
+		filenames.forEach(filename => {
+			const parts = filename.split('/');
+			let currentLevel = root;
+
+			parts.forEach((part, index) => {
+				const path = parts.slice(0, index + 1).join('/');
+				let node = currentLevel.find(c => c.name === part);
+
+				if (!node) {
+					node = {name: part, path, children: []};
+					currentLevel.push(node);
+				}
+
+				currentLevel = node.children;
+			});
+		});
+
+		return root;
+	}
 
 	async function loadSelectedFile() {
 		if (cachedFilesContentHtml.has(selectedFileName)) {
@@ -27,9 +57,9 @@
 			return;
 		}
 
-		fileContentHtml = 'Loading...';
+		fileContentHtml = null;
 
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, Math.round(Math.random() * 2000)));
 
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
 		let text = new TextDecoder().decode(new Uint8Array(data));
@@ -39,6 +69,12 @@
 
 		if (selectedFileName.endsWith('.mo')) {
 			fileContentHtml = toHtml(starryNight.highlight(text, 'source.mo'));
+		}
+		else if (selectedFileName.endsWith('.md')) {
+			fileContentHtml = toHtml(starryNight.highlight(text, 'text.md'));
+		}
+		else if (selectedFileName.endsWith('.toml')) {
+			fileContentHtml = toHtml(starryNight.highlight(text, 'source.toml'));
 		}
 		else {
 			fileContentHtml = text + text + text + text;
@@ -69,7 +105,6 @@
 		let footerSizeFiles = Math.max(bottomSpace, scrollTopWithFooter - document.body.scrollHeight);
 
 		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
-		console.log(window.innerHeight, contentEl.offsetTop, footerHeight);
 		contentEl.style.maxHeight = `calc(${window.innerHeight - contentEl.offsetTop - footerHeight * 2 - margin}px)`;
 	};
 
@@ -85,26 +120,27 @@
 <div id="package-code" class="package-code">
 	<div class="files" style:max-height={filesPanelHeight} bind:this={filesEl}>
 		<div class="files-scrollable">
-			{#each files as file}
-				<a
-					class="file"
-					class:selected={isFileSelected(file, $routeParams.file)}
-					href="/{$routeParams.packageId}/{$routeParams.tab}/{file}"
-					use:link
-				>
-					{file}
-				</a>
+			{#each tree as node}
+				<PackageCodeTreeView {node} root={true}></PackageCodeTreeView>
 			{/each}
 		</div>
 	</div>
 
 	<div class="middle-right">
-		<div class="header">
+			<div class="header" hidden={!selectedFileName}>
 			<div class="file-name"><code>{selectedFileName}</code></div>
 		</div>
 
-		<div class="content" bind:this={contentEl}>
+		<div class="content" hidden={!selectedFileName || fileContentHtml == null} bind:this={contentEl}>
 			{@html fileContentHtml}
+		</div>
+
+		<div class="loading-text" hidden={!selectedFileName || fileContentHtml != null}>
+			Loading...
+		</div>
+
+		<div class="no-file-selected" hidden={selectedFileName}>
+			<div class="file-name">Select a file to view its content</div>
 		</div>
 	</div>
 </div>
@@ -164,15 +200,6 @@
 		border-radius: 5px;
 	}
 
-	.file {
-		display: block;
-		padding: 6px 12px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		color: var(--color-primary);
-	}
-
 	/* files */
 	.files {
 		background: white;
@@ -183,13 +210,9 @@
 		padding-right: 2px;
 	}
 
-	.file:hover {
-		background: rgb(247, 247, 247);
-	}
-
-	.file.selected {
-		background: var(--color-secondary);
-		color: black;
+	.no-file-selected, .loading-text {
+		margin-left: 10px;
+		margin-top: 10px;
 	}
 
 	.content {

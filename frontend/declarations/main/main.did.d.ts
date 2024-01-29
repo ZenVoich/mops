@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface DepChange {
   'oldVersion' : string,
@@ -325,3 +326,4 @@ export interface User__1 {
   'github' : string,
 }
 export interface _SERVICE extends Main {}
+export declare const idlFactory: IDL.InterfaceFactory;

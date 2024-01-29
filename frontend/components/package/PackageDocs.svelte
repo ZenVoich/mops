@@ -5,7 +5,7 @@
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
 	import asciidoctor from '@asciidoctor/core';
-	import '@wooorm/starry-night/style/light.css';
+	import '@wooorm/starry-night/style/light';
 	import {getStarryNight} from '/logic/get-starry-night';
 
 	type DefinitionKind = 'module' | 'class' | 'type' | 'func' | 'value' | 'type-actor';

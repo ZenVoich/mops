@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface BenchResult {
   'instructions' : bigint,
@@ -24,3 +25,4 @@ export interface anon_class_10_1 {
   'runCellUpdateAwait' : ActorMethod<[bigint, bigint], BenchResult>,
 }
 export interface _SERVICE extends anon_class_10_1 {}
+export declare const idlFactory: IDL.InterfaceFactory;
