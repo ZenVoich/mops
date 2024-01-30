@@ -19,9 +19,11 @@
 	let files : string[] = fileIds.map((id) => id.replace(pkgId + '/', ''));
 	let tree = buildTree(files);
 
+	let cachedFilesContent = new Map<string, string>();
 	let cachedFilesContentHtml = new Map<string, string>();
 	let fileContent = '';
 	let fileContentHtml : null | string = null;
+	let selectedFileSize = '';
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : '';
 
@@ -73,6 +75,7 @@
 	async function loadSelectedFile() {
 		if (cachedFilesContentHtml.has(selectedFileName)) {
 			fileContentHtml = cachedFilesContentHtml.get(selectedFileName);
+			selectedFileSize = filesize(cachedFilesContent.get(selectedFileName).length, {standard: 'iec', round: 1});
 			return;
 		}
 
@@ -80,6 +83,7 @@
 
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
 		fileContent = new TextDecoder().decode(new Uint8Array(data));
+		selectedFileSize = filesize(fileContent.length, {standard: 'iec', round: 1});
 
 		// syntax highlight
 		let starryNight = await getStarryNight();
@@ -97,6 +101,7 @@
 			fileContentHtml = fileContent;
 		}
 
+		cachedFilesContent.set(selectedFileName, fileContent);
 		cachedFilesContentHtml.set(selectedFileName, fileContentHtml);
 	}
 
@@ -146,7 +151,7 @@
 	<div class="middle-right">
 		<div class="header" hidden={!selectedFileName}>
 			<div class="file-name"><code>{selectedFileName}</code></div>
-			<div class="file-size">{filesize(fileContent.length, {standard: 'iec', round: 1})}</div>
+			<div class="file-size">{selectedFileSize}</div>
 			<div class="bullet">•</div>
 			<div class="file-hash">{getFileHash(selectedFileName, fileHashes)}</div>
 		</div>
@@ -254,10 +259,11 @@
 	}
 
 	.content {
-		white-space: pre;
-		font-family: monospace;
-		line-height: 1.5;
+		min-height: 250px;
 		padding: 20px;
+		white-space: pre;
+		line-height: 1.5;
+		font-family: monospace;
 		overflow: auto;
 		background: rgb(246 248 248);
 	}
