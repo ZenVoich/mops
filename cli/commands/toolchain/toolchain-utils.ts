@@ -10,7 +10,7 @@ import tar from 'tar';
 
 import {getRootDir} from '../../mops.js';
 
-export let downloadAndExtract = async (url: string, dest: string) => {
+export let downloadAndExtract = async (url: string, destDir: string, destFileName: string = '') => {
 	let res = await fetch(url);
 
 	if (res.status !== 200) {
@@ -27,7 +27,7 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 	fs.mkdirSync(tmpDir, {recursive: true});
 	fs.writeFileSync(archive, buffer);
 
-	fs.mkdirSync(dest, {recursive: true});
+	fs.mkdirSync(destDir, {recursive: true});
 
 	if (archive.endsWith('.xz')) {
 		let decompressTarxz = await import('decomp-tarxz');
@@ -36,16 +36,16 @@ export let downloadAndExtract = async (url: string, dest: string) => {
 		}).catch(() => {
 			deleteSync([tmpDir]);
 		});
-		fs.cpSync(path.join(tmpDir, path.parse(archive).name.replace('.tar', '')), dest, {recursive: true});
+		fs.cpSync(path.join(tmpDir, path.parse(archive).name.replace('.tar', '')), destDir, {recursive: true});
 	}
 	else if (archive.endsWith('tar.gz')) {
 		await tar.extract({
 			file: archive,
-			cwd: dest,
+			cwd: destDir,
 		});
 	}
 	else if (archive.endsWith('.gz')) {
-		let destFile = path.join(dest, path.parse(archive).name);
+		let destFile = path.join(destDir, destFileName || path.parse(archive).name);
 		fs.writeFileSync(destFile, unzipSync(buffer));
 		chmodSync(destFile, 0o700);
 	}
