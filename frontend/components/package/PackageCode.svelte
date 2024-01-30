@@ -111,7 +111,7 @@
 
 	// calculate el heights
 	let filesEl : HTMLElement;
-	let contentEl : HTMLElement;
+	let codeViewEl : HTMLElement;
 
 	let filesPanelHeight = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
@@ -125,7 +125,7 @@
 		let footerSizeFiles = Math.max(bottomSpace, scrollTopWithFooter - document.body.scrollHeight);
 
 		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
-		contentEl.style.maxHeight = `calc(${window.innerHeight - contentEl.offsetTop - footerHeight * 2 - margin}px)`;
+		codeViewEl.style.maxHeight = `calc(${window.innerHeight - codeViewEl.offsetTop - footerHeight * 2 - margin}px)`;
 	};
 
 	onMount(() => {
@@ -154,14 +154,14 @@
 			<div class="file-hash">{getFileHash(selectedFileName, fileHashes)}</div>
 		</div>
 
-		<div class="code-view" bind:this={contentEl}>
+		<div class="code-view" hidden={!selectedFileName || fileContentHtml == null} bind:this={codeViewEl}>
 			<div class="code-view-wrap">
 				<div class="line-numbers">
 					{#each fileContent.split('\n') as _line, i}
 						<div class="line-number">{i + 1}</div>
 					{/each}
 				</div>
-				<div class="content" hidden={!selectedFileName || fileContentHtml == null}>
+				<div class="content">
 					{@html fileContentHtml}
 				</div>
 			</div>
@@ -199,7 +199,6 @@
 		gap: 10px;
 		padding: 8px 0;
 		border-bottom: 1px solid rgb(111 111 111);
-		padding-left: 10px;
 	}
 
 	.header .file-name {
@@ -214,6 +213,7 @@
 	.header :is(.file-size, .file-hash, .bullet) {
 		white-space: nowrap;
 		font-size: 13px;
+		color: gray;
 	}
 
 	.header .file-hash {
@@ -268,7 +268,8 @@
 	/* code */
 	.code-view {
 		font-family: monospace;
-		line-height: 1.5;
+		line-height: 1.55;
+		tab-size: 4;
 		overflow: auto;
 	}
 
