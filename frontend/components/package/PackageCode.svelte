@@ -23,7 +23,6 @@
 	let cachedFilesContentHtml = new Map<string, string>();
 	let fileContent = '';
 	let fileContentHtml : null | string = null;
-	let selectedFileSize = '';
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : '';
 
@@ -75,7 +74,7 @@
 	async function loadSelectedFile() {
 		if (cachedFilesContentHtml.has(selectedFileName)) {
 			fileContentHtml = cachedFilesContentHtml.get(selectedFileName);
-			selectedFileSize = filesize(cachedFilesContent.get(selectedFileName).length, {standard: 'iec', round: 1});
+			fileContent = cachedFilesContent.get(selectedFileName);
 			return;
 		}
 
@@ -83,7 +82,6 @@
 
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
 		fileContent = new TextDecoder().decode(new Uint8Array(data));
-		selectedFileSize = filesize(fileContent.length, {standard: 'iec', round: 1});
 
 		// syntax highlight
 		let starryNight = await getStarryNight();
@@ -151,13 +149,22 @@
 	<div class="middle-right">
 		<div class="header" hidden={!selectedFileName}>
 			<div class="file-name"><code>{selectedFileName}</code></div>
-			<div class="file-size">{selectedFileSize}</div>
+			<div class="file-size">{filesize(fileContent.length, {standard: 'iec', round: 1})}</div>
 			<div class="bullet">•</div>
 			<div class="file-hash">{getFileHash(selectedFileName, fileHashes)}</div>
 		</div>
 
-		<div class="content" hidden={!selectedFileName || fileContentHtml == null} bind:this={contentEl}>
-			{@html fileContentHtml}
+		<div class="code-view" bind:this={contentEl}>
+			<div class="code-view-wrap">
+				<div class="line-numbers">
+					{#each fileContent.split('\n') as _line, i}
+						<div class="line-number">{i + 1}</div>
+					{/each}
+				</div>
+				<div class="content" hidden={!selectedFileName || fileContentHtml == null}>
+					{@html fileContentHtml}
+				</div>
+			</div>
 		</div>
 
 		<div class="loading-text" hidden={!selectedFileName || fileContentHtml != null}>
@@ -258,19 +265,44 @@
 		margin-top: 10px;
 	}
 
-	.content {
-		min-height: 250px;
-		padding: 20px;
-		white-space: pre;
-		line-height: 1.5;
+	/* code */
+	.code-view {
 		font-family: monospace;
+		line-height: 1.5;
 		overflow: auto;
+	}
+
+	.code-view-wrap {
+		display: flex;
+	}
+
+	.line-numbers {
+		position: sticky;
+		left: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		padding: 8px 10px;
+		background: rgb(246 248 248);
+		color: #8e8e8e;
+		border-right: 1px solid rgb(185 185 185);
+		user-select: none;
+	}
+
+	.content {
+		flex-grow: 1;
+		padding: 8px 15px;
+		white-space: pre;
 		background: rgb(246 248 248);
 	}
 
 	@media (max-width: 1030px) {
 		.package-code {
 			flex-wrap: wrap;
+		}
+
+		.content {
+			min-height: 250px;
 		}
 
 		.files {
