@@ -284,6 +284,11 @@ actor class Main() {
 		_getFileHashes(packageId);
 	};
 
+	public query ({caller}) func getFileHashesQuery(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
+		let packageId = name # "@" # version;
+		_getFileHashes(packageId);
+	};
+
 	public shared ({caller}) func getFileHashesByPackageIds(packageIds : [PackageId]) : async [(PackageId, [(FileId, Blob)])] {
 		let buf = Buffer.Buffer<(PackageId, [(FileId, Blob)])>(packageIds.size());
 

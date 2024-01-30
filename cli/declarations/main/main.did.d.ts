@@ -61,6 +61,7 @@ export interface Main {
     [Array<PackageId>],
     Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
+  'getFileHashesQuery' : ActorMethod<[PackageName, PackageVersion], Result_8>,
   'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
     [Array<[PackageName, PackageVersion, SemverPart]>],

@@ -290,6 +290,11 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
+    'getFileHashesQuery' : IDL.Func(
+        [PackageName, PackageVersion],
+        [Result_8],
+        ['query'],
+      ),
     'getFileIds' : IDL.Func(
         [PackageName, PackageVersion],
         [Result_7],

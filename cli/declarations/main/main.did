@@ -303,6 +303,7 @@ type Main =
                  blob;
                };
          });
+   getFileHashesQuery: (PackageName, PackageVersion) -> (Result_8) query;
    getFileIds: (PackageName, PackageVersion) -> (Result_7) query;
    getHighestSemverBatch:
     (vec record {

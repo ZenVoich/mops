@@ -8,6 +8,8 @@
 
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import PackageCodeTreeView from './PackageCodeTreeView.svelte';
+	import {filesize} from 'filesize';
+	import {mainActor} from '/logic/actors';
 
 	export let packageDetails : PackageDetails;
 	export let fileIds : string[];
@@ -18,6 +20,7 @@
 	let tree = buildTree(files);
 
 	let cachedFilesContentHtml = new Map<string, string>();
+	let fileContent = '';
 	let fileContentHtml : null | string = null;
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : '';
@@ -51,6 +54,22 @@
 		return root;
 	}
 
+	let fileHashes = new Map<string, string>();
+
+	async function loadFileHashes() {
+		let main = await mainActor();
+		let res = await main.getFileHashesQuery(packageDetails.config.name, packageDetails.config.version);
+		if ('ok' in res) {
+			fileHashes = new Map(res.ok.map(([name, hash]) => [name, Array.from(hash).map((byte) => byte.toString(16).padStart(2, '0')).join('')]));
+		}
+	}
+
+	function getFileHash(filename : string, _d : any) {
+		return fileHashes.get(pkgId + '/' + filename) || '';
+	}
+
+	loadFileHashes();
+
 	async function loadSelectedFile() {
 		if (cachedFilesContentHtml.has(selectedFileName)) {
 			fileContentHtml = cachedFilesContentHtml.get(selectedFileName);
@@ -59,25 +78,23 @@
 
 		fileContentHtml = null;
 
-		await new Promise((resolve) => setTimeout(resolve, Math.round(Math.random() * 2000)));
-
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
-		let text = new TextDecoder().decode(new Uint8Array(data));
+		fileContent = new TextDecoder().decode(new Uint8Array(data));
 
 		// syntax highlight
 		let starryNight = await getStarryNight();
 
 		if (selectedFileName.endsWith('.mo')) {
-			fileContentHtml = toHtml(starryNight.highlight(text, 'source.mo'));
+			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'source.mo'));
 		}
 		else if (selectedFileName.endsWith('.md')) {
-			fileContentHtml = toHtml(starryNight.highlight(text, 'text.md'));
+			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'text.md'));
 		}
 		else if (selectedFileName.endsWith('.toml')) {
-			fileContentHtml = toHtml(starryNight.highlight(text, 'source.toml'));
+			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'source.toml'));
 		}
 		else {
-			fileContentHtml = text + text + text + text;
+			fileContentHtml = fileContent;
 		}
 
 		cachedFilesContentHtml.set(selectedFileName, fileContentHtml);
@@ -127,8 +144,11 @@
 	</div>
 
 	<div class="middle-right">
-			<div class="header" hidden={!selectedFileName}>
+		<div class="header" hidden={!selectedFileName}>
 			<div class="file-name"><code>{selectedFileName}</code></div>
+			<div class="file-size">{filesize(fileContent.length, {standard: 'iec', round: 1})}</div>
+			<div class="bullet">•</div>
+			<div class="file-hash">{getFileHash(selectedFileName, fileHashes)}</div>
 		</div>
 
 		<div class="content" hidden={!selectedFileName || fileContentHtml == null} bind:this={contentEl}>
@@ -161,15 +181,33 @@
 		padding: 10px;
 	}
 
-	/* .header {} */
-
-	.header .file-name {
+	.header {
 		display: flex;
+		align-items: center;
+		gap: 10px;
 		padding: 8px 0;
 		border-bottom: 1px solid rgb(111 111 111);
+		padding-left: 10px;
+	}
+
+	.header .file-name {
 		font-size: 2em;
 		font-weight: bold;
-		padding-left: 10px;
+	}
+
+	.header .file-size {
+		margin-left: auto;
+	}
+
+	.header :is(.file-size, .file-hash, .bullet) {
+		white-space: nowrap;
+		font-size: 13px;
+	}
+
+	.header .file-hash {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.files {
