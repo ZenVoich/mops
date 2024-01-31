@@ -2,14 +2,15 @@
 	import {routeParams} from 'svelte-spa-history-router';
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
+	import {filesize} from 'filesize';
 	import {downloadFile} from 'ic-mops/api/downloadPackageFiles';
 	import '@wooorm/starry-night/style/light';
-	import {getStarryNight} from '/logic/get-starry-night';
 
+	import {getStarryNight} from '/logic/get-starry-night';
 	import {PackageDetails} from '/declarations/main/main.did.js';
 	import PackageCodeTreeView from './PackageCodeTreeView.svelte';
-	import {filesize} from 'filesize';
 	import {mainActor} from '/logic/actors';
+	import Loader from '../Loader.svelte';
 
 	export let packageDetails : PackageDetails;
 	export let fileIds : string[];
@@ -245,9 +246,11 @@
 			</div>
 		</div>
 
-		<div class="loading-text" hidden={!selectedFileName || fileContentHtml != null}>
-			Loading...
-		</div>
+		{#if selectedFileName && fileContentHtml == null}
+			<div class="loader">
+				<Loader></Loader>
+			</div>
+		{/if}
 
 		<div class="no-file-selected" hidden={selectedFileName}>
 			<div class="file-name">Select a file to view its content</div>
@@ -338,9 +341,8 @@
 		padding-right: 2px;
 	}
 
-	.no-file-selected, .loading-text {
-		margin-left: 10px;
-		margin-top: 10px;
+	.no-file-selected, .loader {
+		margin: 70px auto;
 	}
 
 	/* code */
