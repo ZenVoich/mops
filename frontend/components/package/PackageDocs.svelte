@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {link, routeParams} from 'svelte-spa-history-router';
+	import {link, routeParams, push} from 'svelte-spa-history-router';
 	import pako from 'pako';
 	import untar from 'js-untar';
 	import {toHtml} from 'hast-util-to-html';
@@ -128,6 +128,19 @@
 			}
 		});
 
+		// link to source code
+		div.querySelectorAll('h2, h3, h4').forEach((el : HTMLElement) => {
+			let link = document.createElement('a');
+			link.className = 'source-link';
+			link.href = `/${$routeParams.packageName}${$routeParams.version ? '@' + $routeParams.version : ''}/code/src/${selectedFileName}.mo#${el.id}`;
+			link.textContent = '[source]';
+			link.style.fontSize = '16px';
+			el.appendChild(link);
+			el.style.display = 'flex';
+			el.style.alignItems = 'center';
+			el.style.justifyContent = 'space-between';
+		});
+
 		let starryNight = await getStarryNight();
 		div.querySelectorAll('pre code.language-motoko, pre code.language-mo').forEach((el) => {
 			let text = el.textContent;
@@ -212,11 +225,22 @@
 		fileNameShadow = filesTop < 1;
 	};
 
+	let onClick = (e : MouseEvent) => {
+		let link = e.target as HTMLElement;
+		if (link.matches('a.source-link')) {
+			e.preventDefault();
+			push(link.getAttribute('href'));
+		}
+	};
+
 	onMount(() => {
 		filesEl && onScroll();
 		window.addEventListener('scroll', onScroll);
+		window.addEventListener('click', onClick);
+
 		return () => {
 			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('click', onClick);
 		};
 	});
 
@@ -458,7 +482,7 @@
 		margin-bottom: 0.7em;
 	}
 
-	:global(h2, h3) {
+	:global(h2, h3, h4) {
 		transition: background-color cubic-bezier(0, 0.79, 0.76, 0.5) 700ms;
 	}
 
@@ -466,7 +490,7 @@
 		display: none;
 	}
 
-	:global(h2.highlight, h3.highlight) {
+	:global(h2.highlight, h3.highlight, h4.highlight) {
 		background: rgb(236 238 0 / 30%);
 	}
 

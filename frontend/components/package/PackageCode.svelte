@@ -101,6 +101,45 @@
 
 		cachedFilesContent.set(selectedFileName, fileContent);
 		cachedFilesContentHtml.set(selectedFileName, fileContentHtml);
+
+		requestAnimationFrame(onResize);
+		requestAnimationFrame(scrollToDefiition);
+	}
+
+	function scrollToDefiition() {
+		let parts = location.hash.replace('#', '').split('.');
+
+		let prev : Node | null = null;
+		let prevClasses : string[] = [];
+
+		for (let child of codeViewEl.querySelector('.content').childNodes) {
+			let scroll = false;
+
+			if (parts[0] === 'type' && prev && (prev.textContent === 'type' || prev.textContent === 'class') && child.textContent === parts[1]) {
+				scroll = true;
+			}
+			if (parts.length > 1 && parts.slice(0, -1).every((part) => prevClasses.includes(part))) {
+				if (prev.textContent === 'func' && child.textContent.trim().startsWith(`${parts.at(-1)}(`)) {
+					scroll = true;
+				}
+			}
+			if (prev && prev.textContent === 'class' && child.textContent.trim()) {
+				prevClasses.push(child.textContent.trim());
+			}
+			if (child.textContent.trim()) {
+				prev = child;
+			}
+
+			if (scroll) {
+				if (child instanceof Element) {
+					child.scrollIntoView({block: 'start', behavior: 'smooth'});
+				}
+				else if (child.previousSibling instanceof Element) {
+					child.previousSibling.scrollIntoView({block: 'start', behavior: 'smooth'});
+				}
+				break;
+			}
+		}
 	}
 
 	$: {
@@ -115,7 +154,7 @@
 
 	let filesPanelHeight = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
-	let margin = 20;
+	let margin = 40;
 	let bottomSpace = 0;
 
 	// adjust side panels' height on scroll
@@ -125,7 +164,7 @@
 		let footerSizeFiles = Math.max(bottomSpace, scrollTopWithFooter - document.body.scrollHeight);
 
 		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
-		codeViewEl.style.maxHeight = `calc(${window.innerHeight - codeViewEl.offsetTop - footerHeight * 2 - margin}px)`;
+		codeViewEl.style.maxHeight = `calc(${window.innerHeight - codeViewEl.offsetTop - footerHeight - margin}px)`;
 	};
 
 	onMount(() => {
@@ -294,7 +333,7 @@
 		flex-grow: 1;
 		padding: 8px 15px;
 		white-space: pre;
-		background: rgb(246 248 248);
+		background: rgb(248 250 250);
 	}
 
 	@media (max-width: 1030px) {
@@ -302,7 +341,7 @@
 			flex-wrap: wrap;
 		}
 
-		.content {
+		.code-view {
 			min-height: 250px;
 		}
 
