@@ -77,39 +77,47 @@
 			codeViewEl.scrollTop = 0;
 		}
 
-		if (cachedFilesContentHtml.has(selectedFileName)) {
-			fileContentHtml = cachedFilesContentHtml.get(selectedFileName);
-			fileContent = cachedFilesContent.get(selectedFileName);
+		// prevent saving to worng file when switching between files before the previous one is loaded
+		let curSelectedFileName = selectedFileName;
+
+		if (cachedFilesContentHtml.has(curSelectedFileName)) {
+			fileContentHtml = cachedFilesContentHtml.get(curSelectedFileName);
+			fileContent = cachedFilesContent.get(curSelectedFileName);
 			return;
 		}
 
 		fileContentHtml = null;
 		fileContent = '';
 
-		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
+		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + curSelectedFileName);
 		fileContent = new TextDecoder().decode(new Uint8Array(data));
 
 		// syntax highlight
 		let starryNight = await getStarryNight();
-
-		if (selectedFileName.endsWith('.mo')) {
-			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'source.mo'));
+		let html = '';
+		if (curSelectedFileName.endsWith('.mo')) {
+			html = toHtml(starryNight.highlight(fileContent, 'source.mo'));
 		}
-		else if (selectedFileName.endsWith('.md')) {
-			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'text.md'));
+		else if (curSelectedFileName.endsWith('.md')) {
+			html = toHtml(starryNight.highlight(fileContent, 'text.md'));
 		}
-		else if (selectedFileName.endsWith('.toml')) {
-			fileContentHtml = toHtml(starryNight.highlight(fileContent, 'source.toml'));
+		else if (curSelectedFileName.endsWith('.toml')) {
+			html = toHtml(starryNight.highlight(fileContent, 'source.toml'));
 		}
 		else {
-			fileContentHtml = fileContent;
+			html = fileContent;
 		}
 
-		cachedFilesContent.set(selectedFileName, fileContent);
-		cachedFilesContentHtml.set(selectedFileName, fileContentHtml);
+		cachedFilesContent.set(curSelectedFileName, fileContent);
+		cachedFilesContentHtml.set(curSelectedFileName, html);
 
-		requestAnimationFrame(onResize);
-		requestAnimationFrame(scrollToDefiition);
+		// render only if the selected file is still the same
+		if (curSelectedFileName === selectedFileName) {
+			fileContentHtml = html;
+
+			requestAnimationFrame(onResize);
+			requestAnimationFrame(scrollToDefiition);
+		}
 	}
 
 	function scrollToDefiition() {
