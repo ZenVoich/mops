@@ -37,22 +37,24 @@
 	function buildTree(filenames : string[]) : Tree {
 		const root : Tree = [];
 
-		filenames.forEach(filename => {
-			const parts = filename.split('/');
-			let currentLevel = root;
+		filenames
+			.toSorted((a, b) => b.split('/').length - a.split('/').length || a.localeCompare(b))
+			.forEach(filename => {
+				const parts = filename.split('/');
+				let currentLevel = root;
 
-			parts.forEach((part, index) => {
-				const path = parts.slice(0, index + 1).join('/');
-				let node = currentLevel.find(c => c.name === part);
+				parts.forEach((part, index) => {
+					const path = parts.slice(0, index + 1).join('/');
+					let node = currentLevel.find(c => c.name === part);
 
-				if (!node) {
-					node = {name: part, path, children: []};
-					currentLevel.push(node);
-				}
+					if (!node) {
+						node = {name: part, path, children: []};
+						currentLevel.push(node);
+					}
 
-				currentLevel = node.children;
+					currentLevel = node.children;
+				});
 			});
-		});
 
 		return root;
 	}
