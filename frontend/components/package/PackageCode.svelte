@@ -114,7 +114,6 @@
 		// render only if the selected file is still the same
 		if (curSelectedFileName === selectedFileName) {
 			fileContentHtml = html;
-
 			requestAnimationFrame(onResize);
 			requestAnimationFrame(scrollToDefiition);
 		}
@@ -123,6 +122,7 @@
 	function scrollToDefiition() {
 		let parts = location.hash.replace('#', '').split('.').filter(x => x);
 
+		let prev2 : Node | null = null;
 		let prev : Node | null = null;
 		let prevClasses : string[] = [];
 
@@ -135,7 +135,7 @@
 				}
 
 				if (parts.length === 1 || parts.length > 1 && parts.slice(0, -1).every((part) => prevClasses.includes(part))) {
-					if (prev.textContent === 'func' && child.textContent.trim().match(`^${parts.at(-1)}(\\(|$)`)) {
+					if ((prev.textContent === 'func' || prev2?.textContent === 'public' && prev.textContent === 'let') && child.textContent.trim().match(`^${parts.at(-1)}(\\(| :|$)`)) {
 						scroll = true;
 					}
 				}
@@ -145,6 +145,9 @@
 				}
 			}
 
+			if (prev?.textContent.trim()) {
+				prev2 = prev;
+			}
 			if (child.textContent.trim()) {
 				prev = child;
 			}
