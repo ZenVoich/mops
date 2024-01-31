@@ -8,10 +8,10 @@ import {remove} from './remove.js';
 import {checkIntegrity} from '../integrity.js';
 
 type SyncOptions = {
-	lock?: 'update' | 'ignore';
+	lock ?: 'update' | 'ignore';
 };
 
-export async function sync({lock}: SyncOptions = {}) {
+export async function sync({lock} : SyncOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -48,7 +48,7 @@ let ignore = [
 ];
 
 let mocPath = '';
-function getMocPath(): string {
+function getMocPath() : string {
 	if (!mocPath) {
 		mocPath = process.env.DFX_MOC_PATH || '';
 	}
@@ -64,7 +64,7 @@ function getMocPath(): string {
 	return mocPath;
 }
 
-async function getUsedPackages(): Promise<string[]> {
+async function getUsedPackages() : Promise<string[]> {
 	let rootDir = getRootDir();
 	let files = globSync('**/*.mo', {
 		cwd: rootDir,
@@ -72,10 +72,10 @@ async function getUsedPackages(): Promise<string[]> {
 		ignore: ignore,
 	});
 
-	let packages: Set<string> = new Set;
+	let packages : Set<string> = new Set;
 
 	for (let file of files) {
-		let deps: string[] = execSync(`${getMocPath()} --print-deps ${path.join(rootDir, file)}`).toString().trim().split('\n');
+		let deps : string[] = execSync(`${getMocPath()} --print-deps ${path.join(rootDir, file)}`).toString().trim().split('\n');
 
 		for (let dep of deps) {
 			if (dep.startsWith('mo:') && !dep.startsWith('mo:prim') && !dep.startsWith('mo:⛔')) {
@@ -87,7 +87,7 @@ async function getUsedPackages(): Promise<string[]> {
 	return [...packages];
 }
 
-async function getMissingPackages(): Promise<string[]> {
+async function getMissingPackages() : Promise<string[]> {
 	let config = readConfig();
 	let allDeps = [...Object.keys(config.dependencies || {}), ...Object.keys(config['dev-dependencies'] || {})];
 	let missing = new Set(await getUsedPackages());
@@ -97,7 +97,7 @@ async function getMissingPackages(): Promise<string[]> {
 	return [...missing];
 }
 
-async function getUnusedPackages(): Promise<string[]> {
+async function getUnusedPackages() : Promise<string[]> {
 	let config = readConfig();
 	let allDeps = new Set([...Object.keys(config.dependencies || {}), ...Object.keys(config['dev-dependencies'] || {})]);
 	let used = await getUsedPackages();

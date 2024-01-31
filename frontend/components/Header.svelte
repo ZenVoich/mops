@@ -13,7 +13,7 @@
 		push(`/search/${text}`);
 	}
 
-	function onKeyDown(e: KeyboardEvent) {
+	function onKeyDown(e : KeyboardEvent) {
 		if (e.key == 'Enter') {
 			search();
 		}

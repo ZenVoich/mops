@@ -4,7 +4,7 @@
 
 	export let size = '200px';
 
-	let loaderEl: HTMLElement;
+	let loaderEl : HTMLElement;
 
 	onMount(() => {
 		loaderEl.style.setProperty('--size', size);

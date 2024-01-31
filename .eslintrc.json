@@ -8,13 +8,39 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],
+    "plugins": [
+        "@typescript-eslint",
+        "@stylistic",
+        "@stylistic/migrate"
+    ],
     "ignorePatterns": [
         "node_modules/",
         "declarations/",
+        "backend/",
+        "docs/",
+        ".dfx/",
+        ".git/",
+        ".mops/",
         "dist/"
     ],
     "rules": {
+        "@stylistic/type-annotation-spacing": [
+            "error",
+            {
+                "before": true,
+                "after": true
+            }
+        ],
+        "@stylistic/comma-dangle": [
+            "error",
+            {
+                "arrays": "always-multiline",
+                "objects": "always-multiline",
+                "imports": "always-multiline",
+                "exports": "always-multiline",
+                "functions": "ignore"
+            }
+        ],
         "indent": [
             "error",
             "tab"

@@ -1,4 +1,1 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-npm test && (cd cli && npm run check)
+npm run lint && npm run test && (cd cli && npm run check)

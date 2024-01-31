@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface DepChange {
   'oldVersion' : string,
@@ -60,6 +61,7 @@ export interface Main {
     [Array<PackageId>],
     Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
+  'getFileHashesQuery' : ActorMethod<[PackageName, PackageVersion], Result_8>,
   'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
     [Array<[PackageName, PackageVersion, SemverPart]>],
@@ -88,7 +90,7 @@ export interface Main {
     [Array<[PackageName, PackageVersion]>],
     undefined
   >,
-  'restore' : ActorMethod<[bigint, bigint], undefined>,
+  'restore' : ActorMethod<[bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]
@@ -325,3 +327,4 @@ export interface User__1 {
   'github' : string,
 }
 export interface _SERVICE extends Main {}
+export declare const idlFactory: IDL.InterfaceFactory;

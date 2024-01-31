@@ -2,7 +2,7 @@ import asTable from 'as-table';
 import chalk from 'chalk';
 import {mainActor} from '../api/actors.js';
 
-export async function search(text: string) {
+export async function search(text : string) {
 	let actor = await mainActor();
 	let [packages, _pageCount] = await actor.search(text, [], []);
 
@@ -11,7 +11,7 @@ export async function search(text: string) {
 		return;
 	}
 
-	let ellipsis = (text: string, max: number) => {
+	let ellipsis = (text : string, max : number) => {
 		if (text.length <= max) {
 			return text;
 		}

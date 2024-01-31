@@ -9,13 +9,13 @@ import {notifyInstalls} from '../notify-installs.js';
 import {checkIntegrity} from '../integrity.js';
 
 type AddOptions = {
-	verbose?: boolean;
-	dev?: boolean;
-	lock?: 'update' | 'ignore';
+	verbose ?: boolean;
+	dev ?: boolean;
+	lock ?: 'update' | 'ignore';
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function add(name: string, {verbose = false, dev = false, lock}: AddOptions = {}, asName?: string) {
+export async function add(name : string, {verbose = false, dev = false, lock} : AddOptions = {}, asName ?: string) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -32,7 +32,7 @@ export async function add(name: string, {verbose = false, dev = false, lock}: Ad
 		}
 	}
 
-	let pkgDetails: any;
+	let pkgDetails : any;
 
 	// local package
 	if (name.startsWith('./') || name.startsWith('../') || name.startsWith('/')) {
@@ -64,7 +64,7 @@ export async function add(name: string, {verbose = false, dev = false, lock}: Ad
 	}
 	// mops package
 	else {
-		let ver: string;
+		let ver : string;
 		if (name.includes('@')) {
 			// @ts-ignore
 			[name, ver] = name.split('@');

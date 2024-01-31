@@ -16,7 +16,7 @@
 	$: page = parseInt($currentURL.searchParams.get('page')) || 1;
 	$: $currentURL && updateResults();
 
-	let packages: PackageSummary[] = [];
+	let packages : PackageSummary[] = [];
 	let loaded = false;
 	let pageCount = 1;
 

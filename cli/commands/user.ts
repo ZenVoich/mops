@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import {getIdentity} from '../mops.js';
 import {mainActor} from '../api/actors.js';
 
-export async function getUserProp(prop: string) {
+export async function getUserProp(prop : string) {
 	let actor = await mainActor();
 	let identity = await getIdentity();
 	if (!identity) {
@@ -14,7 +14,7 @@ export async function getUserProp(prop: string) {
 	console.log(res[0]?.[prop] || '');
 }
 
-export async function setUserProp(prop: string, value: string) {
+export async function setUserProp(prop : string, value : string) {
 	let identity = await getIdentity();
 	let actor = await mainActor(identity);
 

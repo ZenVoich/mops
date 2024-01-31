@@ -21,7 +21,7 @@ export async function init({yes = false} = {}) {
 
 	console.log('Initializing...');
 
-	let config: Config = {};
+	let config : Config = {};
 
 	if (yes) {
 		await applyInit({
@@ -36,7 +36,7 @@ export async function init({yes = false} = {}) {
 
 	// migrate from vessel
 	let vesselFile = path.join(process.cwd(), 'vessel.dhall');
-	let vesselConfig: VesselConfig = {dependencies: [], 'dev-dependencies': []};
+	let vesselConfig : VesselConfig = {dependencies: [], 'dev-dependencies': []};
 
 	if (existsSync(vesselFile)) {
 		console.log('Reading vessel.dhall file');
@@ -47,7 +47,7 @@ export async function init({yes = false} = {}) {
 	}
 
 	if (vesselConfig.dependencies) {
-		let deps: Dependencies = {};
+		let deps : Dependencies = {};
 		deps = {};
 
 		for (const dep of (vesselConfig.dependencies || [])) {
@@ -63,7 +63,7 @@ export async function init({yes = false} = {}) {
 		onCancel() {
 			console.log('aborted');
 			process.exit(0);
-		}
+		},
 	};
 
 	// type
@@ -162,11 +162,11 @@ export async function init({yes = false} = {}) {
 }
 
 type ApplyInitOptions = {
-	type: 'project' | 'package';
-	config: Config;
-	setupWorkflow: boolean;
-	addTest: boolean;
-	copyrightOwner: string;
+	type : 'project' | 'package';
+	config : Config;
+	setupWorkflow : boolean;
+	addTest : boolean;
+	copyrightOwner : string;
 }
 
 async function applyInit({type, config, setupWorkflow, addTest, copyrightOwner} : ApplyInitOptions) {

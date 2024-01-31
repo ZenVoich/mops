@@ -6,7 +6,7 @@
 
 	ChartJS.register([BarElement, LinearScale, CategoryScale, TimeScale]);
 
-	export let snapshots: DownloadsSnapshot[] = [];
+	export let snapshots : DownloadsSnapshot[] = [];
 </script>
 
 <div class="download-trend">
@@ -28,31 +28,31 @@
 					barPercentage: 1,
 					barThickness: 4,
 					minBarLength: 0,
-				}]
+				}],
 			}}
 			options={{
 				animation: false,
 				events: [],
 				layout: {
-					padding: 0
+					padding: 0,
 				},
 				scales: {
 					x: {
 						display: false,
 						type: 'time',
 						time: {
-							unit: 'day'
+							unit: 'day',
 						},
 						min: Number(snapshots.at(-1).startTime / 1_000_000n) - 1000 * 60 * 60 * 24 * 13,
 					},
 					y: {
 						beginAtZero: true,
 						display: false,
-					}
+					},
 				},
 				plugins: {
 					legend: {
-						display: false
+						display: false,
 					},
 				},
 			}}

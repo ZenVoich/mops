@@ -16,12 +16,12 @@ export let getReleases = async () => {
 	return toolchainUtils.getReleases(repo);
 };
 
-export let isCached = (version: string) => {
+export let isCached = (version : string) => {
 	let dir = path.join(cacheDir, version);
 	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'pocket-ic'));
 };
 
-export let download = async (version: string, {silent = false, verbose = false} = {}) => {
+export let download = async (version : string, {silent = false, verbose = false} = {}) => {
 	if (!version) {
 		console.error('version is not defined');
 		process.exit(1);

@@ -5,14 +5,14 @@
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
-	let packagesByCategory: [string, PackageSummary[]][] = [];
+	let packagesByCategory : [string, PackageSummary[]][] = [];
 
 	let loaded = false;
-	let packages: PackageSummary[] = [];
-	let categories: string[] = [];
+	let packages : PackageSummary[] = [];
+	let categories : string[] = [];
 	let selectedCategory = '';
 
-	function selectCategory(category: string) {
+	function selectCategory(category : string) {
 		selectedCategory = category;
 		packages = [];
 

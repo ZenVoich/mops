@@ -11,7 +11,7 @@ export class VerboseReporter implements Reporter {
 	#startTime = Date.now();
 	#curFileIndex = 0;
 
-	addFiles(files: string[]) {
+	addFiles(files : string[]) {
 		console.log('Test files:');
 		for (let file of files) {
 			console.log(chalk.gray(`• ${absToRel(file)}`));
@@ -19,7 +19,7 @@ export class VerboseReporter implements Reporter {
 		console.log('='.repeat(50));
 	}
 
-	addRun(file: string, mmf: MMF1, state: Promise<void>, wasiMode: boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, wasiMode : boolean) {
 		state.then(() => {
 			this.passed += mmf.passed;
 			this.failed += mmf.failed;
@@ -35,7 +35,7 @@ export class VerboseReporter implements Reporter {
 		});
 	}
 
-	done(): boolean {
+	done() : boolean {
 		console.log('='.repeat(50));
 		if (this.failed) {
 			console.log(chalk.redBright('Tests failed'));

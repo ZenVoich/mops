@@ -2,9 +2,9 @@
 name = "hello"
 version = "0.9.7"
 description = "hello lib"
-repository = "https://github.com/ZenVoich/hello"
+# repository = "https://github.com/ZenVoich/hello"
 license = "Apache-2.0"
 keywords = [ "test", "map" ]
 
 [dependencies]
-ccc = "../.flat/ccc"
+# ccc = "../.flat/ccc"

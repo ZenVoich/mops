@@ -7,24 +7,24 @@ import {mainActor} from './api/actors.js';
 import {resolvePackages} from './resolve-packages.js';
 
 type LockFileGeneric = {
-	version: number;
+	version : number;
 };
 
 type LockFileV1 = {
-	version: 1;
-	mopsTomlHash: string;
-	hashes: Record<string, Record<string, string>>;
+	version : 1;
+	mopsTomlHash : string;
+	hashes : Record<string, Record<string, string>>;
 };
 
 type LockFileV2 = {
-	version: 2;
-	mopsTomlDepsHash: string;
-	hashes: Record<string, Record<string, string>>;
+	version : 2;
+	mopsTomlDepsHash : string;
+	hashes : Record<string, Record<string, string>>;
 };
 
 type LockFile = LockFileV1 | LockFileV2;
 
-export async function checkIntegrity(lock?: 'check' | 'update' | 'ignore') {
+export async function checkIntegrity(lock ?: 'check' | 'update' | 'ignore') {
 	let force = !!lock;
 
 	if (!lock && !process.env['CI'] && fs.existsSync(path.join(getRootDir(), 'mops.lock'))) {
@@ -44,14 +44,14 @@ export async function checkIntegrity(lock?: 'check' | 'update' | 'ignore') {
 	}
 }
 
-async function getFileHashesFromRegistry(): Promise<[string, [string, Uint8Array | number[]][]][]> {
+async function getFileHashesFromRegistry() : Promise<[string, [string, Uint8Array | number[]][]][]> {
 	let packageIds = await getResolvedMopsPackageIds();
 	let actor = await mainActor();
 	let fileHashesByPackageIds = await actor.getFileHashesByPackageIds(packageIds);
 	return fileHashesByPackageIds;
 }
 
-async function getResolvedMopsPackageIds(): Promise<string[]> {
+async function getResolvedMopsPackageIds() : Promise<string[]> {
 	let resolvedPackages = await resolvePackages();
 	let packageIds = Object.entries(resolvedPackages)
 		.filter(([_, version]) => getDependencyType(version) === 'mops')
@@ -60,7 +60,7 @@ async function getResolvedMopsPackageIds(): Promise<string[]> {
 }
 
 // get hash of local file from '.mops' dir by fileId
-export function getLocalFileHash(fileId: string): string {
+export function getLocalFileHash(fileId : string) : string {
 	let rootDir = getRootDir();
 	let file = path.join(rootDir, '.mops', fileId);
 	if (!fs.existsSync(file)) {
@@ -71,11 +71,11 @@ export function getLocalFileHash(fileId: string): string {
 	return bytesToHex(sha256(fileData));
 }
 
-function getMopsTomlHash(): string {
+function getMopsTomlHash() : string {
 	return bytesToHex(sha256(fs.readFileSync(getRootDir() + '/mops.toml')));
 }
 
-function getMopsTomlDepsHash(): string {
+function getMopsTomlDepsHash() : string {
 	let config = readConfig();
 	let deps = config.dependencies || {};
 	let devDeps = config['dev-dependencies'] || {};
@@ -113,7 +113,7 @@ export async function updateLockFile() {
 
 	// if lock file exists and mops.toml hasn't changed, don't update it
 	if (fs.existsSync(lockFile)) {
-		let lockFileJson: LockFileV2 = JSON.parse(fs.readFileSync(lockFile).toString());
+		let lockFileJson : LockFileV2 = JSON.parse(fs.readFileSync(lockFile).toString());
 		let mopsTomlDepsHash = getMopsTomlDepsHash();
 		if (mopsTomlDepsHash === lockFileJson.mopsTomlDepsHash) {
 			return;
@@ -122,7 +122,7 @@ export async function updateLockFile() {
 
 	let fileHashes = await getFileHashesFromRegistry();
 
-	let lockFileJson: LockFileV2 = {
+	let lockFileJson : LockFileV2 = {
 		version: 2,
 		mopsTomlDepsHash: getMopsTomlDepsHash(),
 		hashes: fileHashes.reduce((acc, [packageId, fileHashes]) => {
@@ -151,7 +151,7 @@ export async function checkLockFile(force = false) {
 		return;
 	}
 
-	let lockFileJsonGeneric: LockFileGeneric = JSON.parse(fs.readFileSync(lockFile).toString());
+	let lockFileJsonGeneric : LockFileGeneric = JSON.parse(fs.readFileSync(lockFile).toString());
 	let packageIds = await getResolvedMopsPackageIds();
 
 	// check lock file version
