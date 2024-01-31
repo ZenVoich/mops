@@ -192,16 +192,17 @@
 	let filesPanelHeight = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
 	let margin = 40;
+	let padding = 10;
 	let bottomSpace = 0;
 
 	// adjust side panels' height on scroll
 	let onResize = () => {
 		let filesTop = Math.max(0, filesEl.getBoundingClientRect().top);
-		let scrollTopWithFooter = document.body.scrollTop + document.body.clientHeight + footerHeight + margin;
-		let footerSizeFiles = Math.max(bottomSpace, scrollTopWithFooter - document.body.scrollHeight);
+		let scrollTopWithFooter = document.body.scrollTop + document.body.clientHeight + footerHeight + margin - padding;
+		let footerSizeFiles = Math.max(bottomSpace, scrollTopWithFooter - document.body.clientHeight);
 
-		filesPanelHeight = `calc(100vh - ${filesTop + footerSizeFiles}px)`;
-		codeViewEl.style.maxHeight = `calc(${window.innerHeight - codeViewEl.offsetTop - footerHeight - margin}px)`;
+		filesPanelHeight = `calc(100vh - ${Math.floor(filesTop + footerSizeFiles)}px)`;
+		codeViewEl.style.maxHeight = `calc(${Math.floor(window.innerHeight - codeViewEl.offsetTop - footerHeight - margin)}px)`;
 	};
 
 	onMount(() => {
@@ -279,7 +280,7 @@
 	}
 
 	.header .file-name {
-		font-size: 2em;
+		font-size: 20px;
 		font-weight: bold;
 	}
 
