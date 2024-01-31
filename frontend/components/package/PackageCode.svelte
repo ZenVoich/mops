@@ -91,29 +91,30 @@
 		fileContent = '';
 
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + curSelectedFileName);
-		fileContent = new TextDecoder().decode(new Uint8Array(data));
+		let content = new TextDecoder().decode(new Uint8Array(data));
 
 		// syntax highlight
 		let starryNight = await getStarryNight();
 		let html = '';
 		if (curSelectedFileName.endsWith('.mo')) {
-			html = toHtml(starryNight.highlight(fileContent, 'source.mo'));
+			html = toHtml(starryNight.highlight(content, 'source.mo'));
 		}
 		else if (curSelectedFileName.endsWith('.md')) {
-			html = toHtml(starryNight.highlight(fileContent, 'text.md'));
+			html = toHtml(starryNight.highlight(content, 'text.md'));
 		}
 		else if (curSelectedFileName.endsWith('.toml')) {
-			html = toHtml(starryNight.highlight(fileContent, 'source.toml'));
+			html = toHtml(starryNight.highlight(content, 'source.toml'));
 		}
 		else {
-			html = fileContent;
+			html = content;
 		}
 
-		cachedFilesContent.set(curSelectedFileName, fileContent);
+		cachedFilesContent.set(curSelectedFileName, content);
 		cachedFilesContentHtml.set(curSelectedFileName, html);
 
 		// render only if the selected file is still the same
 		if (curSelectedFileName === selectedFileName) {
+			fileContent = content;
 			fileContentHtml = html;
 			requestAnimationFrame(onResize);
 			requestAnimationFrame(scrollToDefiition);
