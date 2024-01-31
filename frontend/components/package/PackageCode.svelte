@@ -73,6 +73,10 @@
 	loadFileHashes();
 
 	async function loadSelectedFile() {
+		if (codeViewEl) {
+			codeViewEl.scrollTop = 0;
+		}
+
 		if (cachedFilesContentHtml.has(selectedFileName)) {
 			fileContentHtml = cachedFilesContentHtml.get(selectedFileName);
 			fileContent = cachedFilesContent.get(selectedFileName);
@@ -109,8 +113,7 @@
 	}
 
 	function scrollToDefiition() {
-
-		let parts = location.hash.replace('#', '').split('.');
+		let parts = location.hash.replace('#', '').split('.').filter(x => x);
 
 		let prev : Node | null = null;
 		let prevClasses : string[] = [];
@@ -118,17 +121,22 @@
 		for (let child of codeViewEl.querySelector('.content').childNodes) {
 			let scroll = false;
 
-			if (parts[0] === 'type' && prev && (prev.textContent === 'type' || prev.textContent === 'class') && child.textContent === parts[1]) {
-				scroll = true;
-			}
-			if (parts.length > 1 && parts.slice(0, -1).every((part) => prevClasses.includes(part))) {
-				if (prev.textContent === 'func' && child.textContent.trim().startsWith(`${parts.at(-1)}(`)) {
+			if (prev) {
+				if (parts[0] === 'type' && (prev.textContent === 'type' || prev.textContent === 'class') && child.textContent === parts[1]) {
 					scroll = true;
 				}
+
+				if (parts.length === 1 || parts.length > 1 && parts.slice(0, -1).every((part) => prevClasses.includes(part))) {
+					if (prev.textContent === 'func' && child.textContent.trim().match(`^${parts.at(-1)}(\\(|$)`)) {
+						scroll = true;
+					}
+				}
+
+				if (prev.textContent === 'class' && child.textContent.trim()) {
+					prevClasses.push(child.textContent.trim());
+				}
 			}
-			if (prev && prev.textContent === 'class' && child.textContent.trim()) {
-				prevClasses.push(child.textContent.trim());
-			}
+
 			if (child.textContent.trim()) {
 				prev = child;
 			}
@@ -149,6 +157,9 @@
 				lineHighlightActive = true;
 				setTimeout(() => {
 					lineHighlightActive = false;
+					setTimeout(() => {
+						lineHighlightEl.style.top = '0';
+					}, 700);
 				}, 1000);
 
 				break;
@@ -355,18 +366,17 @@
 
 	.line-highlight {
 		position: absolute;
-		/* top: 574px; */
-		height: 1.3em;
 		top: 0;
 		right: 0;
 		left: 0;
 		z-index: 1;
-		pointer-events: none;
 
+		height: 1.3em;
 		opacity: 0;
 		background: rgba(255, 255, 0, 0.4);
 		mix-blend-mode: multiply;
-		transition: opacity cubic-bezier(0, 0.79, 0.76, 0.5) 700ms;
+		transition: opacity cubic-bezier(0, 0.79, 0.76, 0.3) 700ms;
+		pointer-events: none;
 	}
 
 	.line-highlight.active {
