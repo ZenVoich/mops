@@ -23,6 +23,7 @@
 	let cachedFilesContentHtml = new Map<string, string>();
 	let fileContent = '';
 	let fileContentHtml : null | string = null;
+	let lineHighlightActive = false;
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : '';
 
@@ -79,6 +80,7 @@
 		}
 
 		fileContentHtml = null;
+		fileContent = '';
 
 		let {data} = await downloadFile(packageDetails.publication.storage.toText(), pkgId + '/' + selectedFileName);
 		fileContent = new TextDecoder().decode(new Uint8Array(data));
@@ -107,6 +109,7 @@
 	}
 
 	function scrollToDefiition() {
+
 		let parts = location.hash.replace('#', '').split('.');
 
 		let prev : Node | null = null;
@@ -131,12 +134,23 @@
 			}
 
 			if (scroll) {
-				if (child instanceof Element) {
-					child.scrollIntoView({block: 'start', behavior: 'smooth'});
+				let el : HTMLElement;
+				if (child instanceof HTMLElement) {
+					el = child;
 				}
-				else if (child.previousSibling instanceof Element) {
-					child.previousSibling.scrollIntoView({block: 'start', behavior: 'smooth'});
+				else if (child.previousSibling instanceof HTMLElement) {
+					el = child.previousSibling;
 				}
+
+				el.scrollIntoView({block: 'start', behavior: 'smooth'});
+
+				lineHighlightEl.style.top = `${el.offsetTop}px`;
+
+				lineHighlightActive = true;
+				setTimeout(() => {
+					lineHighlightActive = false;
+				}, 1000);
+
 				break;
 			}
 		}
@@ -151,6 +165,7 @@
 	// calculate el heights
 	let filesEl : HTMLElement;
 	let codeViewEl : HTMLElement;
+	let lineHighlightEl : HTMLElement;
 
 	let filesPanelHeight = '';
 	let footerHeight = document.querySelector('#app-footer').getBoundingClientRect().height;
@@ -202,6 +217,7 @@
 				</div>
 				<div class="content">
 					{@html fileContentHtml}
+					<div class="line-highlight" class:active={lineHighlightActive} bind:this={lineHighlightEl}></div>
 				</div>
 			</div>
 		</div>
@@ -330,10 +346,31 @@
 	}
 
 	.content {
+		position: relative;
 		flex-grow: 1;
 		padding: 8px 15px;
 		white-space: pre;
 		background: rgb(248 250 250);
+	}
+
+	.line-highlight {
+		position: absolute;
+		/* top: 574px; */
+		height: 1.3em;
+		top: 0;
+		right: 0;
+		left: 0;
+		z-index: 1;
+		pointer-events: none;
+
+		opacity: 0;
+		background: rgba(255, 255, 0, 0.4);
+		mix-blend-mode: multiply;
+		transition: opacity cubic-bezier(0, 0.79, 0.76, 0.5) 700ms;
+	}
+
+	.line-highlight.active {
+		opacity: 1;
 	}
 
 	@media (max-width: 1030px) {
