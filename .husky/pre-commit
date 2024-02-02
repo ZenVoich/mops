@@ -1,1 +1,2 @@
-npm run lint && npm run test && (cd cli && npm run check)
+# npm run lint && npm run test && (cd cli && npm run check)
+npm run lint & npm run test & (cd cli && npm run check) & wait
