@@ -399,14 +399,14 @@ actor class Main() {
 		_summariesFromNames(packageNames, 5);
 	};
 
+	func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+		Array.sort<PackageSummary>(summaries, func(a, b) {
+			Int.compare(b.publication.time, a.publication.time);
+		});
+	};
+
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
 		let limit = 10;
-
-		func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
-			Array.sort<PackageSummary>(summaries, func(a, b) {
-				Int.compare(b.publication.time, a.publication.time);
-			});
-		};
 
 		packagesByCategory
 			|> Array.map<(Text, [Text]), (Text, [PackageSummary])>(_, func((category, packageNames)) {
@@ -435,7 +435,8 @@ actor class Main() {
 
 		packagesFirstPub.vals()
 			|> Iter.toArray(_)
-			|> Array.take(_, 5)
+			|> _sortByUpdated(_)
+			|> Array.take(_, 10)
 			|> Array.reverse(_);
 	};
 
