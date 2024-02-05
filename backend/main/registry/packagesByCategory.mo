@@ -16,6 +16,8 @@ module {
 				"merkle-patricia-trie",
 				"memory-buffer",
 				"augmented-btrees",
+				"stable-enum",
+				"stable-buffer",
 			]
 		),
 		(
@@ -71,6 +73,9 @@ module {
 				"kyc",
 				"xrc-types",
 				"promtracker",
+				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
 			]
 		),
 		(
@@ -110,6 +115,8 @@ module {
 			[
 				"memory-region",
 				"memory-buffer",
+				"stable-enum",
+				"stable-buffer",
 			]
 		),
 		(
@@ -126,6 +133,9 @@ module {
 				"icrc2-mo",
 				"icrc-fungible",
 				"icrc4-mo",
+				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
 			]
 		),
 	];
