@@ -1,12 +1,12 @@
 <script lang="ts">
 	export let title = '';
 	export let theme = '';
-	export let size: 'small' | 'medium' | 'large' = 'small';
+	export let size : 'small' | 'medium' | 'large' = 'small';
 	export let active = false;
 	export let popup = false;
 	export let valid = true;
 
-	let resolve: (ok: boolean) => void = () => {};
+	let resolve : (ok : boolean) => void = () => {};
 
 	export function open() {
 		active = true;
@@ -32,7 +32,7 @@
 		resolve(false);
 	}
 
-	function windowKeydown(e: KeyboardEvent) {
+	function windowKeydown(e : KeyboardEvent) {
 		if (!active) {
 			return;
 		}

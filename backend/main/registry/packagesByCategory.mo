@@ -16,6 +16,8 @@ module {
 				"merkle-patricia-trie",
 				"memory-buffer",
 				"augmented-btrees",
+				"stable-enum",
+				"stable-buffer",
 			]
 		),
 		(
@@ -71,6 +73,9 @@ module {
 				"kyc",
 				"xrc-types",
 				"promtracker",
+				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
 			]
 		),
 		(
@@ -86,6 +91,8 @@ module {
 				"http-types",
 				"motoko-certified-assets",
 				"promtracker",
+				"certified-assets",
+				"ic-websocket-cdk",
 			]
 		),
 		(
@@ -108,6 +115,8 @@ module {
 			[
 				"memory-region",
 				"memory-buffer",
+				"stable-enum",
+				"stable-buffer",
 			]
 		),
 		(
@@ -121,6 +130,12 @@ module {
 				"icrc30-mo",
 				"icrc-nft-mo",
 				"icrc1-mo",
+				"icrc2-mo",
+				"icrc-fungible",
+				"icrc4-mo",
+				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
 			]
 		),
 	];

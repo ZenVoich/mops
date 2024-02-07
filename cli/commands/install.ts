@@ -9,8 +9,9 @@ import {parallel} from '../parallel.js';
 import {installFromGithub} from '../vessel.js';
 import {addCache, copyCache, isCached} from '../cache.js';
 import {downloadFile, getPackageFilesInfo} from '../api/downloadPackageFiles.js';
+import {installLocal} from './install-local.js';
 
-export async function install(pkg: string, version = '', {verbose = false, silent = false, dep = false} = {}): Promise<Record<string, string> | false> {
+export async function install(pkg : string, version = '', {verbose = false, silent = false, dep = false} = {}) : Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -64,7 +65,7 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 			let filesData = new Map;
 			let storage = await storageActor(storageId);
 
-			await parallel(threads, fileIds, async (fileId: string) => {
+			await parallel(threads, fileIds, async (fileId : string) => {
 				let {path, data} = await downloadFile(storage, fileId);
 				filesData.set(path, data);
 				progress();
@@ -99,12 +100,12 @@ export async function install(pkg: string, version = '', {verbose = false, silen
 	let config = readConfig(path.join(dir, 'mops.toml'));
 	let deps = Object.values(config.dependencies || {});
 	let installedDeps = {};
-	for (const {name, repo, version} of deps) {
+	for (const {name, repo, version, path: depPath} of deps) {
 		if (repo) {
 			await installFromGithub(name, repo, {silent, verbose});
 		}
 		else {
-			let res = await install(name, version, {silent, verbose});
+			let res = await (depPath ? installLocal(name, depPath, {silent, verbose}) : install(name, version, {silent, verbose}));
 			if (res) {
 				installedDeps = {...installedDeps, ...res};
 			}

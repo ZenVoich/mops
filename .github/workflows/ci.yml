@@ -26,10 +26,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - uses: oven-sh/setup-bun@v1.1.1
 
       - uses: dfinity/setup-dfx@main
         with:
-          dfx-version: 0.15.2
+          dfx-version: 0.16.1
 
       - name: Cache mops packages
         uses: actions/cache@v3
@@ -42,7 +43,7 @@ jobs:
             ~/.cache/mops
 
       - name: Install npm packages
-        run: npm install
+        run: bun install
 
       - name: Build local cli
         if: ${{ matrix.mops-version == './cli' }}
@@ -57,8 +58,14 @@ jobs:
       - name: Select moc version
         run: mops toolchain use moc ${{ matrix.moc-version }}
 
-      - name: Build and Deploy
-        run: |
-            npm run replica
-            npm run deploy-local
-            npm run build
+      - name: Run replica
+        run: npm run replica
+
+      - name: Deploy backend
+        run: npm run deploy-local
+
+      - name: Build frontend
+        run: npm run build-frontend
+
+      - name: Build docs
+        run: npm run build-docs

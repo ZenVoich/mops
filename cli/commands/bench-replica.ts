@@ -3,17 +3,17 @@ import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
 import {PocketIc} from 'pic-ic';
-import {getRootDir} from '../mops.js';
+import {getRootDir, readConfig} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 import {toolchain} from './toolchain/index.js';
 
 export class BenchReplica {
 	type : 'dfx' | 'pocket-ic';
 	verbose = false;
-	canisters: Record<string, {cwd: string; canisterId: string; actor: any;}> = {};
-	pocketIc?: PocketIc;
+	canisters : Record<string, {cwd : string; canisterId : string; actor : any;}> = {};
+	pocketIc ?: PocketIc;
 
-	constructor(type: 'dfx' | 'pocket-ic', verbose = false) {
+	constructor(type : 'dfx' | 'pocket-ic', verbose = false) {
 		this.type = type;
 		this.verbose = verbose;
 	}
@@ -29,6 +29,11 @@ export class BenchReplica {
 		}
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
+			let config = readConfig();
+			if (config.toolchain?.['pocket-ic'] !== '1.0.0') {
+				console.error('Currently only pocket-ic 1.0.0 is supported');
+				process.exit(1);
+			}
 			this.pocketIc = await PocketIc.create(pocketIcBin);
 		}
 	}
@@ -43,7 +48,7 @@ export class BenchReplica {
 		}
 	}
 
-	async deploy(name: string, wasm: string, cwd: string = process.cwd()) {
+	async deploy(name : string, wasm : string, cwd : string = process.cwd()) {
 		if (this.type === 'dfx') {
 			await execaCommand(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
 			let canisterId = execSync(`dfx canister id ${name}`, {cwd}).toString().trim();
@@ -64,16 +69,16 @@ export class BenchReplica {
 		}
 	}
 
-	getActor(name: string): unknown {
+	getActor(name : string) : unknown {
 		return this.canisters[name]?.actor;
 	}
 
-	getCanisterId(name: string): string {
+	getCanisterId(name : string) : string {
 		return this.canisters[name]?.canisterId || '';
 	}
 
-	dfxJson(canisterName: string) {
-		let canisters: Record<string, any> = {};
+	dfxJson(canisterName : string) {
+		let canisters : Record<string, any> = {};
 		if (canisterName) {
 			canisters[canisterName] = {
 				type: 'custom',

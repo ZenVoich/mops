@@ -9,11 +9,11 @@ export class SilentReporter implements Reporter {
 	skipped = 0;
 	passedFiles = 0;
 	failedFiles = 0;
-	passedNamesFlat: string[] = [];
+	passedNamesFlat : string[] = [];
 
-	addFiles(_files: string[]) {}
+	addFiles(_files : string[]) {}
 
-	addRun(file: string, mmf: MMF1, state: Promise<void>, _wasiMode: boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, _wasiMode : boolean) {
 		state.then(() => {
 			this.passed += mmf.passed;
 			this.failed += mmf.failed;
@@ -36,7 +36,7 @@ export class SilentReporter implements Reporter {
 		});
 	}
 
-	done(): boolean {
+	done() : boolean {
 		return this.failed === 0;
 	}
 }

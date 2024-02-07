@@ -1,9 +1,10 @@
 {
   "name": "ic-mops",
-  "version": "0.37.0",
+  "version": "0.39.2",
   "type": "module",
   "bin": {
     "mops": "dist/bin/mops.js",
+    "ic-mops": "dist/bin/mops.js",
     "moc-wrapper": "bin/moc-wrapper.sh"
   },
   "files": [

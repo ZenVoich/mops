@@ -2,7 +2,7 @@ export function getNetwork() {
 	return globalThis.MOPS_NETWORK || 'ic';
 }
 
-export function getEndpoint(network: string) {
+export function getEndpoint(network : string) {
 	if (network === 'staging') {
 		return {
 			host: 'https://icp-api.io',

@@ -40,7 +40,7 @@ export async function sources({verbose = false, cwd = process.cwd()} = {}) {
 		}
 
 		// use pkgDir if baseDir doesn't exist for local packages
-		if (depType === 'local' && !fs.existsSync(pkgBaseDir)) {
+		if (depType === 'local' && !fs.existsSync(path.resolve(cwd, pkgBaseDir))) {
 			pkgBaseDir = pkgDir;
 		}
 

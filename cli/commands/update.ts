@@ -5,12 +5,12 @@ import {getAvailableUpdates} from './available-updates.js';
 import {checkIntegrity} from '../integrity.js';
 
 type UpdateOptions = {
-	verbose?: boolean;
-	dev?: boolean;
-	lock?: 'update' | 'ignore';
+	verbose ?: boolean;
+	dev ?: boolean;
+	lock ?: 'update' | 'ignore';
 };
 
-export async function update(pkg?: string, {lock}: UpdateOptions = {}) {
+export async function update(pkg ?: string, {lock} : UpdateOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}

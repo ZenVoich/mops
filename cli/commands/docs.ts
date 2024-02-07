@@ -10,7 +10,7 @@ import streamToPromise from 'stream-to-promise';
 import {getRootDir} from '../mops.js';
 import {toolchain} from './toolchain/index.js';
 
-let moDocPath: string;
+let moDocPath : string;
 
 export async function docs({silent = false} = {}) {
 	let rootDir = getRootDir();
@@ -25,7 +25,7 @@ export async function docs({silent = false} = {}) {
 	}
 	else {
 		// fallbacks to dfx moc if not specified in config
-		let mocPath = await toolchain.bin('moc');
+		let mocPath = await toolchain.bin('moc', {fallback: true});
 		moDocPath = mocPath.replace(/\/moc$/, '/mo-doc');
 	}
 

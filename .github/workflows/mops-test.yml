@@ -38,9 +38,8 @@ jobs:
             ~/.cache/mops
 
       - name: Install npm packages
-        run: |
-            cd cli
-            npm install
+        if: ${{ matrix.mops-version == './cli' }}
+        run: cd cli && npm install
 
       - name: Build local cli
         if: ${{ matrix.mops-version == './cli' }}

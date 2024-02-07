@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '@wooorm/starry-night/style/light.css';
+	import '@wooorm/starry-night/style/light';
 	import {markdownToHtml} from '/logic/markdown-to-html';
 
 	export let readme = '';

@@ -1,47 +1,67 @@
 <script lang="ts">
-	import {link, routeParams} from 'svelte-spa-history-router';
+	import {link, routeParams, push} from 'svelte-spa-history-router';
 	import pako from 'pako';
 	import untar from 'js-untar';
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
 	import asciidoctor from '@asciidoctor/core';
-	import '@wooorm/starry-night/style/light.css';
+	import '@wooorm/starry-night/style/light';
 	import {getStarryNight} from '/logic/get-starry-night';
 
 	type DefinitionKind = 'module' | 'class' | 'type' | 'func' | 'value' | 'type-actor';
 	type Definition = {
-		id: string;
-		name: string;
-		kind: DefinitionKind;
+		id : string;
+		name : string;
+		kind : DefinitionKind;
 	}
 
-	export let docsData: Uint8Array;
+	export let docsData : Uint8Array;
 
 	let docsHtml = 'Loading...';
-	let files: any[] = [];
-	let definitions: Definition[] = [];
+	let files : any[] = [];
+	let definitions : Definition[] = [];
 	let fileNameShadow = false;
 
-	function getDefaultFileName(files: any[]): string {
+	function getDefaultFileName(files : any[]) : string {
 		return files[0]?.name.replace('.adoc', '') || '';
 	}
 
 	$: selectedFileName = $routeParams.file ? $routeParams.file : getDefaultFileName(files);
 
-	function isFileSelected(file: any, selectedFileName = getDefaultFileName(files)) {
+	function isFileSelected(file : any, selectedFileName = getDefaultFileName(files)) {
 		return file.name.replace('.adoc', '') == selectedFileName;
 	}
 
-	let unpack = async (docsData: Uint8Array) => {
+	let unpack = async (docsData : Uint8Array) => {
 		let decompressed = pako.inflate(docsData);
 		files = await untar(decompressed.buffer);
+
+		// sort files by folder nesting
+		// place "lib" at the top of the folder
+		let getPath = (file : string) => {
+			return file.split('/').slice(0, -1).join('/');
+		};
+		files.sort((a, b) => {
+			let aNesting = a.name.split('/').length;
+			let bNesting = b.name.split('/').length;
+			if (aNesting == bNesting) {
+				if (getPath(a.name) === getPath(b.name) && a.name.endsWith('lib.adoc')) {
+					return -1;
+				}
+				if (getPath(a.name) === getPath(b.name) && b.name.endsWith('lib.adoc')) {
+					return 1;
+				}
+				return a.name.localeCompare(b.name);
+			}
+			return aNesting - bNesting;
+		});
 	};
 
-	function getModuleNesting(id: string): number {
+	function getModuleNesting(id : string) : number {
 		return [...id.replace('type.', '').matchAll(/\./g)].length;
 	}
 
-	let render = async (files: any[], fileName = getDefaultFileName(files)) => {
+	let render = async (files : any[], fileName = getDefaultFileName(files)) => {
 		let file = files.find((file) => file.name.replace('.adoc', '') == fileName);
 		if (!file) {
 			return;
@@ -59,7 +79,7 @@
 		let doc = asciidoctor().load(text);
 
 		// definitions
-		let getKind = (line: string): DefinitionKind => {
+		let getKind = (line : string) : DefinitionKind => {
 			if (line.match(/^\w+$/i)) {
 				return 'module';
 			}
@@ -77,7 +97,9 @@
 			}
 			return 'value';
 		};
-		definitions = Object.values(doc.getRefs()).slice(1).map((def: any) => {
+		definitions = Object.values(doc.getRefs()).slice(1).filter((def : any) => {
+			return !def.id.startsWith('_') && def.blocks[0]?.node_name !== 'paragraph' && def.blocks[0]?.node_name !== 'ulist';
+		}).map((def : any) => {
 			return {
 				id: def.id,
 				name: def.id.replace('type.', '').split('.').at(-1),
@@ -104,6 +126,19 @@
 					section.style.borderLeft = '1px solid rgb(222 222 222)';
 				}
 			}
+		});
+
+		// link to source code
+		div.querySelectorAll('h2, h3, h4').forEach((el : HTMLElement) => {
+			let link = document.createElement('a');
+			link.className = 'source-link';
+			link.href = `/${$routeParams.packageName}${$routeParams.version ? '@' + $routeParams.version : ''}/code/src/${selectedFileName}.mo#${el.id}`;
+			link.textContent = '[source]';
+			link.style.fontSize = '16px';
+			el.appendChild(link);
+			el.style.display = 'flex';
+			el.style.alignItems = 'center';
+			el.style.justifyContent = 'space-between';
 		});
 
 		let starryNight = await getStarryNight();
@@ -148,9 +183,9 @@
 		});
 	};
 
-	let docHeaderEl: HTMLElement;
-	let filesEl: HTMLElement;
-	let defsEl: HTMLElement;
+	let docHeaderEl : HTMLElement;
+	let filesEl : HTMLElement;
+	let defsEl : HTMLElement;
 
 	let filesPanelHeight = '';
 	let defsPanelHeight = '';
@@ -190,15 +225,26 @@
 		fileNameShadow = filesTop < 1;
 	};
 
+	let onClick = (e : MouseEvent) => {
+		let link = e.target as HTMLElement;
+		if (link.matches('a.source-link')) {
+			e.preventDefault();
+			push(link.getAttribute('href'));
+		}
+	};
+
 	onMount(() => {
 		filesEl && onScroll();
 		window.addEventListener('scroll', onScroll);
+		window.addEventListener('click', onClick);
+
 		return () => {
 			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('click', onClick);
 		};
 	});
 
-	function definitionOnClick(e: MouseEvent) {
+	function definitionOnClick(e : MouseEvent) {
 		e.preventDefault();
 		let id = (e.currentTarget as HTMLElement).getAttribute('href');
 		history.replaceState({}, '', id);
@@ -436,7 +482,7 @@
 		margin-bottom: 0.7em;
 	}
 
-	:global(h2, h3) {
+	:global(h2, h3, h4) {
 		transition: background-color cubic-bezier(0, 0.79, 0.76, 0.5) 700ms;
 	}
 
@@ -444,7 +490,7 @@
 		display: none;
 	}
 
-	:global(h2.highlight, h3.highlight) {
+	:global(h2.highlight, h3.highlight, h4.highlight) {
 		background: rgb(236 238 0 / 30%);
 	}
 

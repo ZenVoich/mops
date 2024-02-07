@@ -23,7 +23,7 @@ module {
 
 	public class Users() {
 		var _users = TrieMap.TrieMap<Principal, Types.User>(Principal.equal, Principal.hash);
-		var _names = Set.new<Text>(Set.thash);
+		var _names = Set.new<Text>();
 
 		public func toStable() : Stable {
 			?#v2({

@@ -30,7 +30,7 @@ import {Tool} from './types.js';
 
 declare global {
 	// eslint-disable-next-line no-var
-	var MOPS_NETWORK: string;
+	var MOPS_NETWORK : string;
 }
 
 let networkFile = getNetworkFile();
@@ -366,7 +366,7 @@ toolchainCommand
 	.command('update')
 	.description('Update specified tool or all tools to the latest version and update mops.toml')
 	.addArgument(new Argument('[tool]').choices(['moc', 'wasmtime', 'pocket-ic']))
-	.action(async (tool?: Tool) => {
+	.action(async (tool ?: Tool) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}

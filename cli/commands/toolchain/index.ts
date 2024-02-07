@@ -11,7 +11,7 @@ import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
 import * as wasmtime from './wasmtime.js';
 
-function getToolUtils(tool: Tool) {
+function getToolUtils(tool : Tool) {
 	if (tool === 'moc') {
 		return moc;
 	}
@@ -66,7 +66,11 @@ async function init({reset = false, silent = false} = {}) {
 			console.log('Steps to uninstall mocv:');
 			console.log('1. Run "mocv reset"');
 			console.log('2. Run "npm uninstall -g mocv"');
-			process.exit(1);
+			console.log('TIP: Alternative to "mocv use <version>" is "mops toolchain use moc <version>" (installs moc only for current project)');
+			console.log('TIP: More details at https://docs.mops.one/cli/toolchain');
+			if (!process.env.CI || !silent) {
+				process.exit(1);
+			}
 		}
 	}
 	catch {}
@@ -132,9 +136,20 @@ async function init({reset = false, silent = false} = {}) {
 	}
 }
 
-async function download(tool: Tool, version: string, {silent = false, verbose = false} = {}) {
+async function download(tool : Tool, version : string, {silent = false, verbose = false} = {}) {
 	let toolUtils = getToolUtils(tool);
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+
+	silent || logUpdate('Installing', tool, version);
+
 	await toolUtils.download(version, {silent, verbose});
+
+	if (verbose) {
+		logUpdate.done();
+	}
+	else if (!silent) {
+		logUpdate.clear();
+	}
 }
 
 async function installAll({silent = false, verbose = false} = {}) {
@@ -146,7 +161,7 @@ async function installAll({silent = false, verbose = false} = {}) {
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
-	let log = (...args: string[]) => {
+	let log = (...args : string[]) => {
 		if (silent) {
 			return;
 		}
@@ -161,16 +176,13 @@ async function installAll({silent = false, verbose = false} = {}) {
 	log('Installing toolchain...');
 
 	if (config.toolchain?.moc) {
-		log('Installing moc', config.toolchain.moc);
-		await download('moc', config.toolchain.moc, {verbose});
+		await download('moc', config.toolchain.moc, {silent, verbose});
 	}
 	if (config.toolchain?.wasmtime) {
-		log('Installing wasmtime', config.toolchain.wasmtime);
-		await download('wasmtime', config.toolchain.wasmtime, {verbose});
+		await download('wasmtime', config.toolchain.wasmtime, {silent, verbose});
 	}
 	if (config.toolchain?.['pocket-ic']) {
-		log('Installing pocket-ic', config.toolchain['pocket-ic']);
-		await download('pocket-ic', config.toolchain['pocket-ic'], {verbose});
+		await download('pocket-ic', config.toolchain['pocket-ic'], {silent, verbose});
 	}
 
 	if (!silent) {
@@ -179,21 +191,21 @@ async function installAll({silent = false, verbose = false} = {}) {
 	}
 }
 
-async function promptVersion(tool: Tool): Promise<string> {
+async function promptVersion(tool : Tool) : Promise<string> {
 	let config = readConfig();
 	config.toolchain = config.toolchain || {};
 	let current = config.toolchain[tool];
 
 	let toolUtils = getToolUtils(tool);
 	let releases = await toolUtils.getReleases();
-	let versions = releases.map((item: {tag_name: any;}) => item.tag_name);
+	let versions = releases.map((item : {tag_name : any;}) => item.tag_name);
 	let currentIndex = versions.indexOf(current);
 
 	let res = await prompts({
 		type: 'select',
 		name: 'version',
 		message: `Select ${tool} version`,
-		choices: releases.map((release: {published_at: string | number | Date; tag_name: string;}, i: any) => {
+		choices: releases.map((release : {published_at : string | number | Date; tag_name : string;}, i : any) => {
 			let date = new Date(release.published_at).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'});
 			return {
 				title: release.tag_name + chalk.gray(`  ${date}${currentIndex === i ? chalk.italic(' (current)') : ''}`),
@@ -207,7 +219,7 @@ async function promptVersion(tool: Tool): Promise<string> {
 }
 
 // download binary and set version in mops.toml
-async function use(tool: Tool, version?: string) {
+async function use(tool : Tool, version ?: string) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
 	}
@@ -240,7 +252,7 @@ async function use(tool: Tool, version?: string) {
 }
 
 // download latest binary and set version in mops.toml
-async function update(tool?: Tool) {
+async function update(tool ?: Tool) {
 	if (tool === 'moc') {
 		await ensureToolchainInited();
 	}
@@ -275,7 +287,7 @@ async function update(tool?: Tool) {
 }
 
 // return current version from mops.toml
-async function bin(tool: Tool, {fallback = false} = {}): Promise<string> {
+async function bin(tool : Tool, {fallback = false} = {}) : Promise<string> {
 	let hasConfig = getClosestConfigFile();
 
 	// fallback to dfx moc

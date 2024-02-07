@@ -74,8 +74,8 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 let mocPath = '';
 let wasmtimePath = '';
 
-export async function runAll(reporterName: ReporterName = 'verbose', filter = '', mode: TestMode = 'interpreter'): Promise<boolean> {
-	let reporter: Reporter;
+export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+	let reporter : Reporter;
 	if (reporterName == 'compact') {
 		reporter = new CompactReporter;
 	}
@@ -92,9 +92,9 @@ export async function runAll(reporterName: ReporterName = 'verbose', filter = ''
 	return done;
 }
 
-export async function testWithReporter(reporter: Reporter, filter = '', mode: TestMode = 'interpreter'): Promise<boolean> {
+export async function testWithReporter(reporter : Reporter, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
 	let rootDir = getRootDir();
-	let files: string[] = [];
+	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
 	if (libFiles[0]) {
 		files = [libFiles[0]];
@@ -122,13 +122,13 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 	let sourcesArr = await sources();
 
 	if (!mocPath) {
-		mocPath = await toolchain.bin('moc');
+		mocPath = await toolchain.bin('moc', {fallback: true});
 	}
 
 	let wasmDir = `${getRootDir()}/.mops/.test/`;
 	fs.mkdirSync(wasmDir, {recursive: true});
 
-	await parallel(os.cpus().length, files, async (file: string) => {
+	await parallel(os.cpus().length, files, async (file : string) => {
 		let mmf = new MMF1('store', absToRel(file));
 		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
@@ -203,7 +203,7 @@ export async function testWithReporter(reporter: Reporter, filter = '', mode: Te
 	return reporter.done();
 }
 
-function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf: MMF1) {
+function pipeMMF(proc : ChildProcessWithoutNullStreams, mmf : MMF1) {
 	return new Promise<void>((resolve) => {
 		// stdout
 		proc.stdout.on('data', (data) => {
@@ -217,9 +217,9 @@ function pipeMMF(proc: ChildProcessWithoutNullStreams, mmf: MMF1) {
 
 		// stderr
 		proc.stderr.on('data', (data) => {
-			let text: string = data.toString().trim();
+			let text : string = data.toString().trim();
 			let failedLine = '';
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1: string, m2: string, m3: string) => {
+			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
 				// change absolute file path to relative
 				// change :line:col-line:col to :line:col to work in vscode
 				let res = `${absToRel(m1)}:${m2}:${m3}`;

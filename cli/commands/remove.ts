@@ -6,19 +6,19 @@ import {Config, Dependency} from '../types.js';
 import {checkIntegrity} from '../integrity.js';
 
 type RemoveOptions = {
-	verbose?: boolean;
-	dev?: boolean;
-	dryRun?: boolean;
-	lock?: 'update' | 'ignore';
+	verbose ?: boolean;
+	dev ?: boolean;
+	dryRun ?: boolean;
+	lock ?: 'update' | 'ignore';
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function remove(name: string, {dev = false, verbose = false, dryRun = false, lock}: RemoveOptions = {}) {
+export async function remove(name : string, {dev = false, verbose = false, dryRun = false, lock} : RemoveOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
 
-	function getTransitiveDependencies(config: Config, exceptPkgId: string) {
+	function getTransitiveDependencies(config : Config, exceptPkgId : string) {
 		let deps = Object.values(config.dependencies || {});
 		let devDeps = Object.values(config['dev-dependencies'] || {});
 		return [...deps, ...devDeps]
@@ -30,7 +30,7 @@ export async function remove(name: string, {dev = false, verbose = false, dryRun
 			}).flat();
 	}
 
-	function getTransitiveDependenciesOf(name: string, version: string | undefined, repo?: string) {
+	function getTransitiveDependenciesOf(name : string, version : string | undefined, repo ?: string) {
 		let pkgDir = '';
 		if (repo) {
 			pkgDir = formatGithubDir(name, repo);
@@ -44,7 +44,7 @@ export async function remove(name: string, {dev = false, verbose = false, dryRun
 			return [];
 		}
 		let config = readConfig(configFile);
-		let deps: Dependency[] = Object.values(config.dependencies || {}).map((dep) => {
+		let deps : Dependency[] = Object.values(config.dependencies || {}).map((dep) => {
 			return [dep, ...getTransitiveDependenciesOf(dep.name, dep.version)];
 		}).flat();
 		return deps;

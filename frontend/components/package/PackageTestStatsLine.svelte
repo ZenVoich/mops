@@ -1,13 +1,13 @@
 <script lang="ts">
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
-	type NestedStats = { [key: string]: NestedStats | boolean };
+	type NestedStats = { [key : string] : NestedStats | boolean };
 
-	export let packageDetails: PackageDetails;
-	export let nestedStats: NestedStats;
+	export let packageDetails : PackageDetails;
+	export let nestedStats : NestedStats;
 	export let root = true;
 
-	function allNestedCount(nested: NestedStats | boolean): number {
+	function allNestedCount(nested : NestedStats | boolean) : number {
 		if (nested === false) {
 			return 1;
 		}

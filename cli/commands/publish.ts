@@ -17,7 +17,7 @@ import {Dependency} from '../types.js';
 import {testWithReporter} from './test/test.js';
 import {SilentReporter} from './test/reporters/silent-reporter.js';
 
-export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
+export async function publish(options : {docs ?: boolean, test ?: boolean} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -29,7 +29,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'dependencies', 'dev-dependencies', 'scripts'].includes(key)) {
+		if (!['package', 'dependencies', 'dev-dependencies', 'toolchain'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			process.exit(1);
 		}
@@ -43,7 +43,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	for (let key of ['name', 'version']) {
 		// @ts-ignore
 		if (!config.package[key]) {
-			console.log(chalk.red('Error: ') + `Please specify "${key}" in [config] section in your mops.toml`);
+			console.log(chalk.red('Error: ') + `Please specify "${key}" in [package] section in your mops.toml`);
 			process.exit(1);
 		}
 	}
@@ -160,16 +160,16 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 		}
 	}
 
-	let toBackendDep = (dep: Dependency): DependencyV2 => {
+	let toBackendDep = (dep : Dependency) : DependencyV2 => {
 		return {
 			...dep,
 			version: dep.version || '',
-			repo: dep.repo || ''
+			repo: dep.repo || '',
 		};
 	};
 
 	// map fields
-	let backendPkgConfig: PackageConfigV2 = {
+	let backendPkgConfig : PackageConfigV2 = {
 		name: config.package.name,
 		version: config.package.version,
 		keywords: config.package.keywords || [],
@@ -292,7 +292,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	}
 
 	// upload files
-	await parallel(8, files, async (file: string) => {
+	await parallel(8, files, async (file : string) => {
 		progress();
 
 		let chunkSize = 1024 * 1024 + 512 * 1024; // 1.5mb
@@ -338,7 +338,7 @@ export async function publish(options: {docs?: boolean, test?: boolean} = {}) {
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);
 }
 
-function parseChangelog(version: string): string {
+function parseChangelog(version : string) : string {
 	let rootDir = getRootDir();
 	let changelogFile = '';
 
@@ -365,7 +365,7 @@ function parseChangelog(version: string): string {
 	return changelog || '';
 }
 
-async function fetchGitHubReleaseNotes(repo: string, version: string): Promise<string> {
+async function fetchGitHubReleaseNotes(repo : string, version : string) : Promise<string> {
 	let repoPath = new URL(repo).pathname;
 	let res = await fetch(`https://api.github.com/repos${repoPath}/releases/tags/${version}`);
 	let release = await res.json();
@@ -383,7 +383,7 @@ async function fetchGitHubReleaseNotes(repo: string, version: string): Promise<s
 	return release.body;
 }
 
-function findChangelogEntry(changelog: string, version: string): string {
+function findChangelogEntry(changelog : string, version : string) : string {
 	let tree = fromMarkdown(changelog);
 	let found = false;
 	let nodes = [];

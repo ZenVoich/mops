@@ -7,7 +7,6 @@ import Principal "mo:base/Principal";
 
 import {test; suite; skip} "mo:test";
 import Fuzz "mo:fuzz";
-import Set "mo:map/Set";
 
 import Types "../backend/main/types";
 import Users "../backend/main/Users";

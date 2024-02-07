@@ -17,6 +17,7 @@
 		{path: '/docs/config', component: ConfigDoc},
 		// {path: '/@(?<username>.+)', component: UserPage},
 		{path: '/search/(?<search>.*)', component: SearchResults},
+		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)/(?<tab>code)/(?<file>.*)', component: Package},
 		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)/(?<tab>docs)/(?<file>.*)', component: Package},
 		{path: '/(?<packageId>(?<packageName>.*?)(@(?<version>.*?))?)(/(?<tab>.*?))?', component: Package},
 	];
@@ -27,7 +28,7 @@
 	}
 
 	// reset scroll on navigate
-	let resetScrollTimer: any;
+	let resetScrollTimer : any;
 	onMount(() => {
 		let popstate = () => {
 			clearTimeout(resetScrollTimer);

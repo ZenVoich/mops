@@ -245,6 +245,16 @@ export const idlFactory = ({ IDL }) => {
     'readme' : IDL.Text,
   });
   const Result_2 = IDL.Variant({ 'ok' : PublishingId, 'err' : Err });
+  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpResponse = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HttpHeader),
+  });
+  const HttpTransformArg = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : HttpResponse,
+  });
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
@@ -279,6 +289,11 @@ export const idlFactory = ({ IDL }) => {
           ),
         ],
         [],
+      ),
+    'getFileHashesQuery' : IDL.Func(
+        [PackageName, PackageVersion],
+        [Result_8],
+        ['query'],
       ),
     'getFileIds' : IDL.Func(
         [PackageName, PackageVersion],
@@ -332,7 +347,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         ['oneway'],
       ),
-    'restore' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
+    'restore' : IDL.Func([IDL.Nat], [], []),
     'search' : IDL.Func(
         [Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
         [IDL.Vec(PackageSummary), PageCount],
@@ -349,6 +364,11 @@ export const idlFactory = ({ IDL }) => {
         [PackageName, IDL.Principal],
         [Result_1],
         [],
+      ),
+    'transformRequest' : IDL.Func(
+        [HttpTransformArg],
+        [HttpResponse],
+        ['query'],
       ),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],

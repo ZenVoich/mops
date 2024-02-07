@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface DepChange {
   'oldVersion' : string,
@@ -27,6 +28,16 @@ export interface DownloadsSnapshot__1 {
 export type Err = string;
 export type FileId = string;
 export type Header = [string, string];
+export interface HttpHeader { 'value' : string, 'name' : string }
+export interface HttpResponse {
+  'status' : bigint,
+  'body' : Uint8Array | number[],
+  'headers' : Array<HttpHeader>,
+}
+export interface HttpTransformArg {
+  'context' : Uint8Array | number[],
+  'response' : HttpResponse,
+}
 export interface Main {
   'backup' : ActorMethod<[], undefined>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
@@ -50,6 +61,7 @@ export interface Main {
     [Array<PackageId>],
     Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
+  'getFileHashesQuery' : ActorMethod<[PackageName, PackageVersion], Result_8>,
   'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
     [Array<[PackageName, PackageVersion, SemverPart]>],
@@ -78,7 +90,7 @@ export interface Main {
     [Array<[PackageName, PackageVersion]>],
     undefined
   >,
-  'restore' : ActorMethod<[bigint, bigint], undefined>,
+  'restore' : ActorMethod<[bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]
@@ -90,6 +102,7 @@ export interface Main {
   >,
   'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
+  'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
@@ -314,3 +327,4 @@ export interface User__1 {
   'github' : string,
 }
 export interface _SERVICE extends Main {}
+export declare const idlFactory: IDL.InterfaceFactory;

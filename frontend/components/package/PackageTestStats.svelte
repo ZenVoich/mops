@@ -2,16 +2,16 @@
 	import PackageTestStatsLine from './PackageTestStatsLine.svelte';
 	import {PackageDetails} from '/declarations/main/main.did.js';
 
-	export let packageDetails: PackageDetails;
+	export let packageDetails : PackageDetails;
 
-	type NestedStats = { [key: string]: NestedStats | boolean };
+	type NestedStats = { [key : string] : NestedStats | boolean };
 
-	function createNestedStats(lines: string[]): NestedStats {
-		const result: NestedStats = {};
+	function createNestedStats(lines : string[]) : NestedStats {
+		const result : NestedStats = {};
 
 		lines.forEach(line => {
 			const parts = line.split(' › ');
-			let currentObj: NestedStats = result;
+			let currentObj : NestedStats = result;
 
 			parts.forEach((part, index) => {
 				if (!currentObj[part]) {
