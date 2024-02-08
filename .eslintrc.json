@@ -21,7 +21,8 @@
         ".dfx/",
         ".git/",
         ".mops/",
-        "dist/"
+        "dist/",
+        "bundle/"
     ],
     "rules": {
         "@stylistic/type-annotation-spacing": [
