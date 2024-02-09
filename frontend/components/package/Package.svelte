@@ -136,7 +136,7 @@
 </script>
 
 <svelte:head>
-	<title>{packageDetails ? `${packageDetails.config.name}⠀•⠀Motoko Package` : 'Motoko Package'}</title>
+	<title>{packageDetails ? `${packageDetails.config.name} • Motoko Package` : 'Motoko Package'}</title>
 </svelte:head>
 
 <Header></Header>

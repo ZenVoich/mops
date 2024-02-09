@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-	<title>Mops⠀•⠀Motoko Package Manager</title>
+	<title>Mops • Motoko Package Manager</title>
 </svelte:head>
 
 <Header searchText="{searchText}"></Header>
