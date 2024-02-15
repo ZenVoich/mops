@@ -3,8 +3,8 @@
   "version": "0.39.2",
   "type": "module",
   "bin": {
-    "mops": "dist/bin/mops.js",
-    "ic-mops": "dist/bin/mops.js",
+    "mops": "bin/mops.js",
+    "ic-mops": "bin/mops.js",
     "moc-wrapper": "bin/moc-wrapper.sh"
   },
   "files": [
@@ -27,9 +27,9 @@
     "build": "tsc",
     "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
     "bundle:fix": "npx rexreplace '^(#!.+\\n)?' '$1import { createRequire as createImportMetaRequire } from \"module\"; import.meta.require ||= (id) => createImportMetaRequire(import.meta.url)(id);\\n' -GM bundle/cli.js",
-    "bundle:copy": "cp -r commands/bench bundle/commands && cp -r declarations templates network.txt package.json bundle",
+    "bundle:copy": "cp -r commands/bench bundle/commands && cp -r bin declarations templates network.txt package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
-    "bundle:tar": "cd bundle && tar -czvf cli.tar.gz *",
+    "bundle:tar": "cd bundle && tar -czvf cli.tgz *",
     "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json dist | true",
     "save-network": "cp -r dist/network.txt . | true",
     "prepare": "npm run save-network && npm run build && npm run copy",

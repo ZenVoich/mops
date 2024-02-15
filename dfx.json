@@ -25,6 +25,14 @@
 			},
 			"source": ["docs/build/"]
 		},
+		"cli": {
+			"type": "assets",
+			"build": [""],
+			"frontend": {
+				"entrypoint": "cli-releases/index.html"
+			},
+			"source": ["cli-releases/"]
+		},
 		"bench": {
 			"type": "motoko",
 			"main": "cli/commands/bench/bench-canister.mo",
