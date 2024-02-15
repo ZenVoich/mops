@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Mops⠀•⠀mops.toml</title>
+	<title>Mops • mops.toml</title>
 </svelte:head>
 
 <Header></Header>
