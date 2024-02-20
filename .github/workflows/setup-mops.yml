@@ -12,7 +12,7 @@ jobs:
     name: Test with ZenVoich/setup-mops
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ZenVoich/setup-mops@v1
 
       - name: Run tests
