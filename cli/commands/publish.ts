@@ -5,8 +5,6 @@ import logUpdate from 'log-update';
 import {globbySync} from 'globby';
 import {minimatch} from 'minimatch';
 import prompts from 'prompts';
-import {fromMarkdown} from 'mdast-util-from-markdown';
-import {toMarkdown} from 'mdast-util-to-markdown';
 
 import {checkConfigFile, getIdentity, getRootDir, progressBar, readConfig} from '../mops.js';
 import {mainActor} from '../api/actors.js';
@@ -16,6 +14,7 @@ import {DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
 import {Dependency} from '../types.js';
 import {testWithReporter} from './test/test.js';
 import {SilentReporter} from './test/reporters/silent-reporter.js';
+import {findChangelogEntry} from '../helpers/find-changelog-entry.js';
 
 export async function publish(options : {docs ?: boolean, test ?: boolean} = {}) {
 	if (!checkConfigFile()) {
@@ -381,29 +380,4 @@ async function fetchGitHubReleaseNotes(repo : string, version : string) : Promis
 	}
 
 	return release.body;
-}
-
-function findChangelogEntry(changelog : string, version : string) : string {
-	let tree = fromMarkdown(changelog);
-	let found = false;
-	let nodes = [];
-
-	for (let node of tree.children) {
-		if (found) {
-			if (node.type === 'heading') {
-				break;
-			}
-			else {
-				nodes.push(node);
-			}
-		}
-		else if (node.type === 'heading' && toMarkdown(node).match(new RegExp(`\\b${version}\\b`))) {
-			found = true;
-		}
-	}
-
-	return toMarkdown({
-		type: 'root',
-		children: nodes,
-	});
 }

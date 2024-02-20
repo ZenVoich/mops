@@ -17,7 +17,7 @@
 		"build-frontend": "cd frontend && npm run build",
 		"build-docs": "cd docs && npm run build",
 		"prepare-cli": "cd cli && npm run prepare",
-		"release-cli": "node ./release-cli.js",
+		"release-cli": "cd cli && npm run release",
 		"prepare": "husky",
 		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
 		"test": "mops test"

@@ -33,6 +33,7 @@
     "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json dist | true",
     "save-network": "cp -r dist/network.txt . | true",
     "prepare": "npm run save-network && npm run build && npm run copy",
+    "release": "tsx release-cli.ts",
     "check": "tsc --project tsconfig.json --noEmit",
     "tsc": "tsc",
     "esbuild": "esbuild"
