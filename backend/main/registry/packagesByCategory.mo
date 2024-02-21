@@ -76,6 +76,9 @@ module {
 				"devefi-icrc-ledger",
 				"devefi-icrc-sender",
 				"devefi-icrc-reader",
+				"devefi-icp-ledger",
+				"icrc1-types",
+				"icrc2-types",
 			]
 		),
 		(
@@ -136,6 +139,8 @@ module {
 				"devefi-icrc-ledger",
 				"devefi-icrc-sender",
 				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
 			]
 		),
 	];
