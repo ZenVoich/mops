@@ -12,23 +12,24 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        # mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
+        mops-version: [./cli, ic-mops@0.37.0]
         moc-version: [0.10.1, latest]
-        mops-version: [./cli]
-        node-version: [18, 20]
+        node-version: [18, 21]
+        # runner: [ubuntu-latest, macos-latest]
+        runner: [ubuntu-latest]
 
-    runs-on: ubuntu-latest
-    name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.runner }}, node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache mops packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: mops-packages-${{ hashFiles('mops.toml') }}
           restore-keys: |
@@ -50,6 +51,9 @@ jobs:
 
       - name: Install mops packages
         run: mops install
+
+      - name: Print resolved mops packages
+        run: mops sources
 
       - name: Select moc version
         run: mops toolchain use moc ${{ matrix.moc-version }}

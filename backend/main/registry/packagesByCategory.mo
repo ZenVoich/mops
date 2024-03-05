@@ -18,6 +18,7 @@ module {
 				"augmented-btrees",
 				"stable-enum",
 				"stable-buffer",
+				"memory-hashtable",
 			]
 		),
 		(
@@ -34,6 +35,8 @@ module {
 				"memory-region",
 				"account",
 				"bench",
+				"random-class",
+				"time",
 			]
 		),
 		(
@@ -76,6 +79,9 @@ module {
 				"devefi-icrc-ledger",
 				"devefi-icrc-sender",
 				"devefi-icrc-reader",
+				"devefi-icp-ledger",
+				"icrc1-types",
+				"icrc2-types",
 			]
 		),
 		(
@@ -117,6 +123,7 @@ module {
 				"memory-buffer",
 				"stable-enum",
 				"stable-buffer",
+				"memory-hashtable",
 			]
 		),
 		(
@@ -136,6 +143,9 @@ module {
 				"devefi-icrc-ledger",
 				"devefi-icrc-sender",
 				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
+				"account-identifier",
 			]
 		),
 	];

@@ -93,7 +93,7 @@ module {
 			if (name == "mops") {
 				return #err("'mops' name is reserved");
 			};
-			if (name == "dfinity") {
+			if (name == "dfinity" and userId != Principal.fromText("uajwy-bzusi-36jtj-ajvmc-nep3q-b7zmb-wbdua-smdjo-j77n2-p7ciw-tae")) {
 				return #err("'dfinity' name is reserved");
 			};
 

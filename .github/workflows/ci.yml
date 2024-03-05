@@ -21,8 +21,8 @@ jobs:
     name: node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -30,10 +30,10 @@ jobs:
 
       - uses: dfinity/setup-dfx@main
         with:
-          dfx-version: 0.16.1
+          dfx-version: 0.17.0
 
       - name: Cache mops packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: mops-packages-${{ hashFiles('mops.toml') }}
           restore-keys: |
