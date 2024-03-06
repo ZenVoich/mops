@@ -1,6 +1,6 @@
 import child_process, {execSync} from 'node:child_process';
 import chalk from 'chalk';
-import {version} from './version.js';
+import {version} from '../mops.js';
 import {cleanCache} from '../cache.js';
 
 let url = 'https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io';
@@ -58,14 +58,12 @@ export async function update() {
 }
 
 export async function uninstall() {
-	console.log(chalk.yellow('Uninstalling...'));
-
-	console.log(chalk.yellow('Cleaning cache...'));
+	console.log('Cleaning cache...');
 	cleanCache();
 
-	console.log(chalk.yellow('Uninstalling mops CLI...'));
+	console.log('Uninstalling mops CLI...');
 	let pm = detectPackageManager();
-	child_process.spawn(pm, ['remove', '-g', 'ic-mops'], {stdio: 'inherit', detached: false});
+	child_process.spawn(pm, ['remove', '-g', '--silent', 'ic-mops'], {stdio: 'inherit', detached: false});
 
-	console.log('Successfully uninstalled');
+	console.log('Uninstalled');
 }

@@ -6,7 +6,7 @@ import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
 import {getNetwork} from './api/network.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
@@ -25,7 +25,6 @@ import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
 import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
-import {version} from './commands/version.js';
 import * as self from './commands/self.js';
 // import {docs} from './commands/docs.js';
 
