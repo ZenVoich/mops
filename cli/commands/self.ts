@@ -45,7 +45,7 @@ export async function update() {
 		let pm = detectPackageManager();
 		let npmArgs = pm === 'npm' ? ['--no-fund', '--silent'] : [];
 
-		let proc = child_process.spawn(pm, ['add', '-g', ...npmArgs, url + '/versions/latest/cli.tgz'], {stdio: 'inherit', detached: false});
+		let proc = child_process.spawn(pm, ['add', '-g', ...npmArgs, `${url}/versions/${latest}/cli.tgz`], {stdio: 'inherit', detached: false});
 
 		proc.on('exit', (res) => {
 			if (res !== 0) {

@@ -16,7 +16,8 @@ install_with_npm() {
 
 install_with_pnpm() {
 	echo "Installing mops with pnpm..."
-	pnpm add -g $url || exit 1
+	# ignore cache to always get the latest version
+	pnpm add -g "${url}?$(awk 'BEGIN{print srand(srand())}')" || exit 1
 }
 
 install_with_bun() {
