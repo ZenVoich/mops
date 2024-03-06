@@ -18,9 +18,9 @@ function detectPackageManager() {
 	if (res.includes('pnpm/')) {
 		return 'pnpm';
 	}
-	else if (res.includes('bun/')) {
-		return 'bun';
-	}
+	// else if (res.includes('bun/')) {
+	// 	return 'bun';
+	// }
 	else {
 		return 'npm';
 	}
@@ -35,7 +35,7 @@ export async function update() {
 	let latest = await getLatestVersion();
 	let current = version();
 
-	if (latest === current) {
+	if (latest !== current) {
 		console.log(chalk.green('You are up to date. Version: ' + current));
 	}
 	else {

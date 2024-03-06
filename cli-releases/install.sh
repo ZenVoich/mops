@@ -6,7 +6,7 @@ uninstall() {
 	echo "Uninstalling previous version"
 	npm remove -g ic-mops &> /dev/null
 	pnpm remove -g ic-mops &> /dev/null
-	bun remove -g ic-mops &> /dev/null
+	# bun remove -g ic-mops &> /dev/null
 }
 
 install_with_npm() {
@@ -21,8 +21,8 @@ install_with_pnpm() {
 }
 
 install_with_bun() {
-	echo "Installing mops with bun..."
-	bun add -g $url || exit 1
+	echo "Bun is not recommended for installing mops. Please use npm or pnpm."
+	exit 1
 }
 
 # uninstall previous version
