@@ -21,6 +21,8 @@ install_with_pnpm() {
 }
 
 install_with_bun() {
+	# bug with `mops self update`
+	# bug with `dhall-to-json` on `mops init`
 	echo "Bun is not recommended for installing mops. Please use npm or pnpm."
 	exit 1
 }
@@ -46,7 +48,7 @@ else
 	elif command -v bun &> /dev/null; then
 		install_with_bun
 	else
-		echo "No Node.js package manager found. Please install npm, pnpm, or bun."
+		echo "No Node.js package manager found. Please install npm or pnpm"
 		exit 1
 	fi
 fi
