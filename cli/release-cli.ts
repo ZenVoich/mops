@@ -28,13 +28,3 @@ fs.cpSync(path.resolve(__dirname, `../cli-releases/versions/${version}`), path.r
 fs.writeFileSync(path.resolve(__dirname, `../cli-releases/tags/${tag}`), version);
 
 console.log(`Release '${version}' created with tag '${tag}'`);
-
-// `npm install -g https://cli.mops.one/versions/0.11.2/RELEASE_NOTES.md`
-// `npm install -g https://cli.mops.one/versions/0.11.2/cli.tgz`
-
-// `npm install -g https://cli.mops.one/versions/notes/0.11.2.md`
-
-// `npm install -g https://cli.mops.one/versions/0.11.2.tgz`
-// `npm install -g https://cli.mops.one/versions/latest.tgz`
-
-// `curl https://cli.mops.one/tags/latest`
