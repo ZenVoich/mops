@@ -10,7 +10,15 @@
 - [DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart) >= 0.10.0
 
 ## 2. Install Mops CLI
+
+Install from on-chain storage
+
+```shell
+curl -fsSL cli.mops.one/install.sh | sh
 ```
+
+or install from npm registry
+```shell
 npm i -g ic-mops
 ```
 
