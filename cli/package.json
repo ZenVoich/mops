@@ -1,6 +1,6 @@
 {
   "name": "ic-mops",
-  "version": "0.39.4",
+  "version": "0.39.5",
   "type": "module",
   "bin": {
     "mops": "bin/mops.js",
@@ -27,7 +27,7 @@
     "build": "tsc",
     "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
     "bundle:fix": "npx rexreplace '^(#!.+\\n)?' '$1import { createRequire as createImportMetaRequire } from \"module\"; import.meta.require ||= (id) => createImportMetaRequire(import.meta.url)(id);\\n' -GM bundle/cli.js",
-    "bundle:copy": "cp -r commands/bench bundle/commands && cp -r bin declarations templates network.txt package.json bundle",
+    "bundle:copy": "cp -r commands/bench bundle && cp -r bin declarations templates network.txt package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
     "bundle:tar": "tar -czvf bundle/cli.tgz bundle",
     "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json dist | true",

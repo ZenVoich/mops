@@ -1,6 +1,6 @@
 import child_process, {execSync} from 'node:child_process';
 import chalk from 'chalk';
-import {version} from '../mops.js';
+import {version, globalConfigDir} from '../mops.js';
 import {cleanCache} from '../cache.js';
 
 let url = 'https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io';
@@ -64,6 +64,8 @@ export async function uninstall() {
 	console.log('Uninstalling mops CLI...');
 	let pm = detectPackageManager();
 	child_process.spawn(pm, ['remove', '-g', '--silent', 'ic-mops'], {stdio: 'inherit', detached: false});
+
+	console.log(chalk.yellow('Config directory has not been deleted: ' + globalConfigDir));
 
 	console.log('Uninstalled');
 }
