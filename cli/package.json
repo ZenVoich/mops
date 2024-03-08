@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma --format esm --define '__dirname=import.meta.dirname' && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
+    "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma --external fsevents --format esm --define '__dirname=import.meta.dirname' && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
     "bundle:fix": "npx rexreplace '^(#!.+\\n)?' '$1import { createRequire as createImportMetaRequire } from \"module\"; import.meta.require ||= (id) => createImportMetaRequire(import.meta.url)(id);\\n' -GM bundle/cli.js",
     "bundle:copy": "cp -r commands/bench bundle && cp -r bin declarations templates network.txt package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
@@ -90,6 +90,7 @@
     "@types/ncp": "^2.0.5",
     "@types/node": "20.11.24",
     "@types/prompts": "^2.4.4",
+    "@types/semver": "7.5.8",
     "@types/stream-to-promise": "^2.2.1",
     "@types/tar": "^6.1.5",
     "bun": "1.0.30",
