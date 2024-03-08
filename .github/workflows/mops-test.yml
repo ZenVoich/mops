@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        mops-version: [./cli/dist, ic-mops@0.37.0, https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io/versions/latest/cli.tgz]
+        mops-version: [./cli/dist, ic-mops@0.37.0, "https://cli.mops.one/versions/latest/cli.tgz"]
         moc-version: [0.10.1]
         node-version: [18, 21]
         # runner: [ubuntu-latest, macos-latest]
