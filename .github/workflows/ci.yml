@@ -14,7 +14,7 @@ jobs:
       matrix:
         moc-version: [0.10.1]
         # mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
-        mops-version: [./cli]
+        mops-version: [./cli/bundle]
         node-version: [20]
 
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
 
       - name: Build local cli
         if: ${{ matrix.mops-version == './cli' }}
-        run: cd cli && npm run prepare
+        run: cd cli && npm run prepare && npm run bundle
 
       - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
