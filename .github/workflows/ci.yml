@@ -46,7 +46,7 @@ jobs:
         run: bun install
 
       - name: Build local cli
-        if: ${{ matrix.mops-version == './cli' }}
+        if: ${{ matrix.mops-version == './cli/bundle' }}
         run: cd cli && npm run prepare && npm run bundle
 
       - name: Install mops
