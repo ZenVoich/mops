@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        mops-version: [./cli/bundle, ic-mops@0.37.0]
+        mops-version: [./cli/dist, ic-mops@0.37.0]
         moc-version: [0.10.1, latest]
         node-version: [18, 21]
         # runner: [ubuntu-latest, macos-latest]
@@ -39,12 +39,12 @@ jobs:
             ~/.cache/mops
 
       - name: Install npm packages
-        if: ${{ matrix.mops-version == './cli/bundle' }}
+        if: ${{ matrix.mops-version == './cli/dist' }}
         run: cd cli && npm install
 
       - name: Build local cli
-        if: ${{ matrix.mops-version == './cli/bundle' }}
-        run: cd cli && npm run prepare && npm run bundle
+        if: ${{ matrix.mops-version == './cli/dist' }}
+        run: cd cli && npm run prepare
 
       - name: Install mops
         run: npm i -g ${{ matrix.mops-version }}
