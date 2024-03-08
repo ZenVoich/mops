@@ -30,7 +30,7 @@
     "bundle:copy": "cp -r commands/bench bundle && cp -r bin declarations templates network.txt package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
     "bundle:tar": "tar -czvf bundle/cli.tgz bundle",
-    "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json dist | true",
+    "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json bin dist | true",
     "prepare": "npm run build && npm run copy && npm run remove-scripts",
     "remove-scripts": "tsx ./remove-scripts.ts",
     "release": "tsx release-cli.ts",
