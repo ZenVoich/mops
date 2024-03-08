@@ -15,6 +15,7 @@ execSync('npm run prepare', {stdio: 'inherit', cwd: __dirname});
 execSync('npm run bundle', {stdio: 'inherit', cwd: __dirname});
 
 let version = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')).version;
+let major = semver.parse(version)?.major;
 let tag = semver.parse(version)?.prerelease[0] || 'latest';
 let releaseNotes = findChangelogEntry(fs.readFileSync(path.resolve(__dirname, 'CHANGELOG.md'), 'utf8'), version);
 let hash = bytesToHex(sha256(fs.readFileSync(path.resolve(__dirname, 'bundle/cli.tgz'))));
@@ -24,6 +25,7 @@ fs.writeFileSync(path.resolve(__dirname, `../cli-releases/versions/${version}/RE
 fs.writeFileSync(path.resolve(__dirname, `../cli-releases/versions/${version}/cli.tgz.sha256`), hash);
 
 fs.cpSync(path.resolve(__dirname, `../cli-releases/versions/${version}`), path.resolve(__dirname, `../cli-releases/versions/${tag}`), {force: true, errorOnExist: false, recursive: true});
+fs.cpSync(path.resolve(__dirname, `../cli-releases/versions/${version}`), path.resolve(__dirname, `../cli-releases/versions/${major}`), {force: true, errorOnExist: false, recursive: true});
 
 fs.writeFileSync(path.resolve(__dirname, `../cli-releases/tags/${tag}`), version);
 
