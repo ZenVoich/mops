@@ -2,6 +2,7 @@ import child_process, {execSync} from 'node:child_process';
 import chalk from 'chalk';
 import {version, globalConfigDir} from '../mops.js';
 import {cleanCache} from '../cache.js';
+import {toolchain} from './toolchain/index.js';
 
 let url = 'https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io';
 
@@ -60,6 +61,9 @@ export async function update() {
 export async function uninstall() {
 	console.log('Cleaning cache...');
 	cleanCache();
+
+	console.log('Resetting toolchain management...');
+	toolchain.init({reset: true, silent: true});
 
 	console.log('Uninstalling mops CLI...');
 	let pm = detectPackageManager();
