@@ -57,7 +57,7 @@ module {
 				|> Text.endsWith(_, #text("\"" # packageName # "\""));
 
 			if (not hasName) {
-				return #err("Repository verification failed: Package name not found in mop.toml at " # repositoryUrl);
+				return #err("Repository verification failed: Package name not found in mops.toml at " # repositoryUrl);
 			};
 
 			#ok;
