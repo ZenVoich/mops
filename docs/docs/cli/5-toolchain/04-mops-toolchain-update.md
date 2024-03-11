@@ -18,7 +18,7 @@ Update all tools to the latest version
 mops toolchain update
 ```
 
-Install specific tool to the latest version
+Update specific tool to the latest version
 ```
 mops toolchain update moc
 mops toolchain update wasmtime
