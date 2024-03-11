@@ -2,8 +2,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "npm run replica && npm run deploy-local && npm run decl && cd frontend && npm run start && cd ..",
-		"create-canisters": "dfx canister create main --no-wallet --specified-id 2d2zu-vaaaa-aaaak-qb6pq-cai && dfx canister create assets --no-wallet",
-		"replica": "dfx stop && dfx start --clean --background && npm run create-canisters",
+		"replica": "dfx stop && dfx start --clean --background",
 		"decl": "npm run decl:cli && npm run decl:frontend",
 		"lint": "eslint .",
 		"fix": "eslint . --fix",

@@ -4,6 +4,7 @@
 		"main": {
 			"type": "motoko",
 			"main": "backend/main/main-canister.mo",
+			"specified_id": "2d2zu-vaaaa-aaaak-qb6pq-cai",
 			"declarations": {
 				"output": "cli/declarations/main/",
 				"node_compatibility": true
