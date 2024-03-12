@@ -18,6 +18,7 @@ module {
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageFileStats = Types.PackageFileStats;
 	public type TestStats = Types.TestStats;
+	public type Benchmarks = Types.Benchmarks;
 
 	type NewPackageReleaseArgs = {
 		userId : Principal;
@@ -28,6 +29,7 @@ module {
 		fileHashes : [(FileId, Blob)];
 		fileStats : ?PackageFileStats;
 		testStats : ?TestStats;
+		benchmarks : Benchmarks;
 	};
 
 	public class Registry(

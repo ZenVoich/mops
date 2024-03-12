@@ -24,6 +24,7 @@ module {
 	type PackageFileStats = Types.PackageFileStats;
 	type TestStats = Types.TestStats;
 	type FileId = Types.FileId;
+	type Benchmarks = Types.Benchmarks;
 
 	type PublishingId = Text;
 	type PublishingErr = Text;
@@ -48,6 +49,7 @@ module {
 		let publishingTestStats = TrieMap.TrieMap<PublishingId, TestStats>(Text.equal, Text.hash);
 		let publishingNotes = TrieMap.TrieMap<PublishingId, Text>(Text.equal, Text.hash);
 		let publishingFileHashers = TrieMap.TrieMap<FileId, Sha256.Digest>(Text.equal, Text.hash);
+		let publishingBenchmarks = TrieMap.TrieMap<PublishingId, Benchmarks>(Text.equal, Text.hash);
 
 		public func startPublish(caller : Principal, config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
 			if (Principal.isAnonymous(caller)) {
@@ -285,6 +287,63 @@ module {
 			#ok;
 		};
 
+		public func uploadBenchmarks(caller : Principal, publishingId : PublishingId, benchmarks : Benchmarks) : Result.Result<(), PublishingErr> {
+			assert(not Principal.isAnonymous(caller));
+
+			if (benchmarks.size() > 100) {
+				return #err("Max number of benchmarks is 100");
+			};
+
+			for (benchmark in benchmarks.vals()) {
+				if (benchmark.file.size() > 100) {
+					return #err("Benchmark filename max length is 100");
+				};
+				if (benchmark.name.size() > 100) {
+					return #err("Benchmark name max length is 100");
+				};
+				if (benchmark.description.size() > 1000) {
+					return #err("Benchmark description max length is 1000");
+				};
+				if (benchmark.compiler != "moc") {
+					return #err("Benchmark compiler must be 'moc'");
+				};
+				if (benchmark.compilerVersion.size() > 12) {
+					return #err("Benchmark compiler version max length is 12");
+				};
+				if (benchmark.replica != "dfx" and benchmark.replica != "pocket-ic") {
+					return #err("Benchmark replica must be one of 'dfx', 'pocket-ic'");
+				};
+				if (benchmark.replicaVersion.size() > 12) {
+					return #err("Benchmark replica version max length is 12");
+				};
+				if (benchmark.gc != "copying" and benchmark.gc != "compacting" and benchmark.gc != "generational" and benchmark.gc != "incremental") {
+					return #err("Benchmark GC must be one of 'copying', 'compacting', 'generational', 'incremental'");
+				};
+				if (benchmark.cells.size() > 250) {
+					return #err("Max number of benchmark cells is 250");
+				};
+				for (cell in benchmark.cells.vals()) {
+					if (cell.row.size() > 64 or cell.col.size() > 64) {
+						return #err("Benchmark row/col max length is 64");
+					};
+					for ((name, value) in cell.metrics.vals()) {
+						if (name != "instructions" and name != "heap") {
+							return #err("Benchmark metric must be one of 'instructions', 'heap'");
+						};
+						if (value > 1_000_000_000_000_000_000) {
+							return #err("Max benchmark metric value is 1_000_000_000_000_000_000");
+						};
+					};
+				};
+			};
+
+			let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
+			assert(publishing.user == caller);
+
+			publishingBenchmarks.put(publishingId, benchmarks);
+			#ok;
+		};
+
 		public func finishPublish(caller : Principal, publishingId : PublishingId) : async Result.Result<(), PublishingErr> {
 			assert(not Principal.isAnonymous(caller));
 
@@ -344,6 +403,7 @@ module {
 				userId = caller;
 				config = publishing.config;
 				notes = Option.get(publishingNotes.get(publishingId), "");
+				benchmarks = Option.get(publishingBenchmarks.get(publishingId), []);
 				storageId = publishing.storage;
 				fileIds = publicFileIds;
 				fileHashes = Iter.toArray(fileHashes.entries());
@@ -356,6 +416,7 @@ module {
 			publishingPackageFileStats.delete(publishingId);
 			publishingTestStats.delete(publishingId);
 			publishingNotes.delete(publishingId);
+			publishingBenchmarks.delete(publishingId);
 
 			#ok;
 		};

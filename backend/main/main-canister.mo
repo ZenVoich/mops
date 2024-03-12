@@ -54,6 +54,7 @@ actor class Main() {
 	public type SemverPart = Types.SemverPart;
 	public type TestStats = Types.TestStats;
 	public type PublishingId = Text;
+	public type Benchmarks = Types.Benchmarks;
 
 	let API_VERSION = "1.2"; // (!) make changes in pair with cli
 
@@ -163,6 +164,10 @@ actor class Main() {
 
 	public shared ({caller}) func uploadNotes(publishingId : PublishingId, notes : Text) : async Result.Result<(), Err> {
 		packagePublisher.uploadNotes(caller, publishingId, notes);
+	};
+
+	public shared ({caller}) func uploadBenchmarks(publishingId : PublishingId, benchmarks : Benchmarks) : async Result.Result<(), Err> {
+		packagePublisher.uploadBenchmarks(caller, publishingId, benchmarks);
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {

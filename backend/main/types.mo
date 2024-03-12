@@ -161,4 +161,23 @@ module {
 		#updatesAvailable;
 		#tooOld;
 	};
+
+	public type Benchmarks = [Benchmark];
+	public type Benchmark = {
+		file : Text;
+		name : Text;
+		description : Text;
+		compiler : Text;
+		compilerVersion : Text;
+		replica : Text;
+		replicaVersion : Text;
+		gc : Text; // copying, compacting, generational, incremental
+		forceGC : Bool;
+		cells : [BenchmarkCell];
+	};
+	public type BenchmarkCell = {
+		row : Text;
+		col : Text;
+		metrics : [(Text, Nat)]; // instructions, heap
+	};
 };
