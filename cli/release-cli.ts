@@ -30,3 +30,29 @@ fs.cpSync(path.resolve(__dirname, `../cli-releases/versions/${version}`), path.r
 fs.writeFileSync(path.resolve(__dirname, `../cli-releases/tags/${tag}`), version);
 
 console.log(`Release '${version}' created with tag '${tag}'`);
+
+
+// releases.json
+type Releases = {
+	tags : Record<string, string>;
+	versions : Record<string, {
+		relseaseNotes : string;
+		hash : string;
+		url : string;
+	}>;
+};
+
+if (!fs.existsSync(path.resolve(__dirname, '../cli-releases/releases.json'))) {
+	fs.writeFileSync(path.resolve(__dirname, '../cli-releases/releases.json'), JSON.stringify({tags: {}, versions: {}}, null, 2));
+}
+
+let releases : Releases = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../cli-releases/releases.json'), 'utf8'));
+
+releases.tags[tag] = version;
+releases.versions[version] = {
+	relseaseNotes: releaseNotes,
+	hash,
+	url: `https://cli.mops.one/versions/${version}/cli.tgz`,
+};
+
+fs.writeFileSync(path.resolve(__dirname, '../cli-releases/releases.json'), JSON.stringify(releases, null, 2));
