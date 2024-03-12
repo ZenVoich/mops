@@ -13,7 +13,7 @@ jobs:
       max-parallel: 3
       matrix:
         mops-version: [./cli, ic-mops@0.37.0]
-        moc-version: [0.10.1, latest]
+        moc-version: [0.10.1]
         node-version: [18, 21]
         # runner: [ubuntu-latest, macos-latest]
         runner: [ubuntu-latest]
