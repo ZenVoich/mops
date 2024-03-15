@@ -68,6 +68,7 @@ actor class Main() {
 	var hashByFileId = TrieMap.TrieMap<FileId, Blob>(Text.equal, Text.hash);
 	var packageFileStats = TrieMap.TrieMap<PackageId, PackageFileStats>(Text.equal, Text.hash);
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
+	var packageBenchmarks = TrieMap.TrieMap<PackageId, Benchmarks>(Text.equal, Text.hash);
 	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
 
 	var registry = Registry.Registry(
@@ -80,6 +81,7 @@ actor class Main() {
 		hashByFileId,
 		packageFileStats,
 		packageTestStats,
+		packageBenchmarks,
 		packageNotes,
 	);
 
@@ -511,7 +513,7 @@ actor class Main() {
 	let backupManager = Backup.BackupManager(backupStateV2, {maxBackups = 20});
 
 	type BackupChunk = {
-		#v5 : {
+		#v6 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
@@ -521,6 +523,7 @@ actor class Main() {
 			#hashByFileId : [(FileId, Blob)];
 			#packageFileStats : [(PackageId, PackageFileStats)];
 			#packageTestStats : [(PackageId, TestStats)];
+			#packageBenchmarks : [(PackageId, Benchmarks)];
 			#packageNotes : [(PackageId, Text)];
 			#downloadLog : DownloadLog.Stable;
 			#storageManager : StorageManager.Stable;
@@ -539,21 +542,22 @@ actor class Main() {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v5");
+		let backup = backupManager.NewBackup("v6");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v5(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v5(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v6(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -563,7 +567,7 @@ actor class Main() {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v5(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v6(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -586,6 +590,9 @@ actor class Main() {
 				};
 				case (#packageTestStats(packageTestStatsStable)) {
 					packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageBenchmarks(packageBenchmarksStable)) {
+					packageBenchmarks := TrieMap.fromEntries<PackageId, Benchmarks>(packageBenchmarksStable.vals(), Text.equal, Text.hash);
 				};
 				case (#packageNotes(packageNotesStable)) {
 					packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
@@ -621,6 +628,7 @@ actor class Main() {
 			hashByFileId,
 			packageFileStats,
 			packageTestStats,
+			packageBenchmarks,
 			packageNotes,
 		);
 		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);
@@ -637,6 +645,7 @@ actor class Main() {
 	stable var hashByFileIdStable : [(FileId, Blob)] = [];
 	stable var packageFileStatsStable : [(PackageId, PackageFileStats)] = [];
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
+	stable var packageBenchmarksStable : [(PackageId, Benchmarks)] = [];
 	stable var packageNotesStable : [(PackageId, Text)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
@@ -651,6 +660,7 @@ actor class Main() {
 		hashByFileIdStable := Iter.toArray(hashByFileId.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
+		packageBenchmarksStable := Iter.toArray(packageBenchmarks.entries());
 		packageNotesStable := Iter.toArray(packageNotes.entries());
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
@@ -688,6 +698,9 @@ actor class Main() {
 		packageTestStats := TrieMap.fromEntries<PackageId, TestStats>(packageTestStatsStable.vals(), Text.equal, Text.hash);
 		packageTestStatsStable := [];
 
+		packageBenchmarks := TrieMap.fromEntries<PackageId, Benchmarks>(packageBenchmarksStable.vals(), Text.equal, Text.hash);
+		packageBenchmarksStable := [];
+
 		packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
 		packageNotesStable := [];
 
@@ -712,6 +725,7 @@ actor class Main() {
 			hashByFileId,
 			packageFileStats,
 			packageTestStats,
+			packageBenchmarks,
 			packageNotes,
 		);
 

@@ -95,6 +95,7 @@ module {
 		downloadTrend : [DownloadsSnapshot];
 		fileStats : PackageFileStatsPublic;
 		testStats : TestStats;
+		benchmarks : Benchmarks;
 	};
 
 	public type DownloadsSnapshot = {
@@ -163,6 +164,7 @@ module {
 	};
 
 	public type Benchmarks = [Benchmark];
+
 	public type Benchmark = {
 		file : Text;
 		name : Text;
@@ -175,6 +177,7 @@ module {
 		forceGC : Bool;
 		cells : [BenchmarkCell];
 	};
+
 	public type BenchmarkCell = {
 		row : Text;
 		col : Text;

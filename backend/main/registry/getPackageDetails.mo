@@ -111,6 +111,7 @@ module {
 					sourceSize = fileStats.sourceSize;
 				};
 				testStats = registry.getPackageTestStats(name, version);
+				benchmarks = registry.getPackageBenchmarks(name, version);
 				changes = getPackageChanges(registry, name, version);
 			};
 		};

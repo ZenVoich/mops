@@ -327,8 +327,8 @@ module {
 						return #err("Benchmark row/col max length is 64");
 					};
 					for ((name, value) in cell.metrics.vals()) {
-						if (name != "instructions" and name != "heap") {
-							return #err("Benchmark metric must be one of 'instructions', 'heap'");
+						if (name != "instructions" and name != "rts_heap_size") {
+							return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size'");
 						};
 						if (value > 1_000_000_000_000_000_000) {
 							return #err("Max benchmark metric value is 1_000_000_000_000_000_000");

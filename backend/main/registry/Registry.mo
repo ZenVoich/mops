@@ -42,6 +42,7 @@ module {
 		hashByFileId : TrieMap.TrieMap<FileId, Blob>,
 		packageFileStats : TrieMap.TrieMap<PackageId, PackageFileStats>,
 		packageTestStats : TrieMap.TrieMap<PackageId, TestStats>,
+		packageBenchmarks : TrieMap.TrieMap<PackageId, Benchmarks>,
 		packageNotes : TrieMap.TrieMap<PackageId, Text>,
 	) {
 
@@ -85,8 +86,8 @@ module {
 				case (null) {};
 			};
 
+			packageBenchmarks.put(packageId, newRelease.benchmarks);
 			packageNotes.put(packageId, newRelease.notes);
-
 		};
 
 		func _updateHighestConfig(config : PackageConfigV2) {
@@ -154,6 +155,10 @@ module {
 
 		public func getPackageTestStats(name : PackageName, version : PackageVersion) : TestStats {
 			Option.get(packageTestStats.get(name # "@" # version), { passed = 0; passedNames = []; });
+		};
+
+		public func getPackageBenchmarks(name : PackageName, version : PackageVersion) : Benchmarks {
+			Option.get(packageBenchmarks.get(name # "@" # version), []);
 		};
 
 		public func getPackageReleaseNotes(name : PackageName, version : PackageVersion) : Text {
