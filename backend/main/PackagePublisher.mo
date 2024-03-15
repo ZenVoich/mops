@@ -330,6 +330,9 @@ module {
 						if (name != "instructions" and name != "rts_heap_size") {
 							return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size'");
 						};
+						if (value < -1_000_000_000_000_000_000) {
+							return #err("Min benchmark metric value is -1_000_000_000_000_000_000");
+						};
 						if (value > 1_000_000_000_000_000_000) {
 							return #err("Max benchmark metric value is 1_000_000_000_000_000_000");
 						};

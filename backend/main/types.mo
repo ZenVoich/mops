@@ -181,6 +181,6 @@ module {
 	public type BenchmarkCell = {
 		row : Text;
 		col : Text;
-		metrics : [(Text, Nat)]; // instructions, heap
+		metrics : [(Text, Int)]; // instructions, heap
 	};
 };
