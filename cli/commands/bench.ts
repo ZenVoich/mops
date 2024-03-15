@@ -108,7 +108,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		console.log('');
 	}
 
-	await replica.start();
+	await replica.start({silent: options.silent});
 
 	options.silent || console.log('Deploying canisters...');
 	await parallel(os.cpus().length, files, async (file : string) => {

@@ -18,8 +18,8 @@ export class BenchReplica {
 		this.verbose = verbose;
 	}
 
-	async start() {
-		console.log(`Starting ${this.type} replica...`);
+	async start({silent = false} = {}) {
+		silent || console.log(`Starting ${this.type} replica...`);
 
 		if (this.type == 'dfx') {
 			await this.stop();
