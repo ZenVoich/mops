@@ -8,7 +8,7 @@ import logUpdate from 'log-update';
 import {execaCommand} from 'execa';
 import stringWidth from 'string-width';
 
-import {getRootDir} from '../mops.js';
+import {getRootDir, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {absToRel} from './test/utils.js';
 import {getMocVersion} from '../helpers/get-moc-version.js';
@@ -16,7 +16,8 @@ import {getDfxVersion} from '../helpers/get-dfx-version.js';
 import {getMocPath} from '../helpers/get-moc-path.js';
 import {sources} from './sources.js';
 
-import {BenchResult, BenchSchema, _SERVICE} from '../declarations/bench/bench.did.js';
+import {Benchmark, Benchmarks} from '../declarations/main/main.did.js';
+import {BenchResult, _SERVICE} from '../declarations/bench/bench.did.js';
 import {BenchReplica} from './bench-replica.js';
 
 let ignore = [
@@ -34,29 +35,40 @@ let globConfig = {
 type BenchOptions = {
 	replica : 'dfx' | 'pocket-ic',
 	replicaVersion : string,
-	moc : string,
+	compiler : 'moc',
+	compilerVersion : string,
 	gc : 'copying' | 'compacting' | 'generational' | 'incremental',
 	forceGc : boolean,
 	save : boolean,
 	compare : boolean,
 	verbose : boolean,
+	silent : boolean,
+
 };
 
-export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<boolean> {
+export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<Benchmarks> {
 	let defaultOptions : BenchOptions = {
 		replica: 'dfx',
-		moc: getMocVersion(),
-		replicaVersion: '0.0.0',
+		replicaVersion: '',
+		compiler: 'moc',
+		compilerVersion: getMocVersion(),
 		gc: 'copying',
 		forceGc: true,
 		save: false,
 		compare: false,
 		verbose: false,
+		silent: false,
 	};
 
 	let options : BenchOptions = {...defaultOptions, ...optionsArg};
 
-	options.replicaVersion = options.replica == 'dfx' ? getDfxVersion() : '1.0.0';
+	if (options.replica == 'dfx') {
+		options.replicaVersion = getDfxVersion();
+	}
+	else if (options.replica == 'pocket-ic') {
+		let config = readConfig();
+		options.replicaVersion = config.toolchain?.['pocket-ic'] || '';
+	}
 
 	options.verbose && console.log(options);
 
@@ -70,12 +82,14 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	let files = globSync(path.join(rootDir, globStr), globConfig);
 	if (!files.length) {
 		if (filter) {
-			console.log(`No benchmark files found for filter '${filter}'`);
-			return false;
+			options.silent || console.log(`No benchmark files found for filter '${filter}'`);
+			return [];
 		}
-		console.log('No *.bench.mo files found');
-		console.log('Put your benchmark code in \'bench\' directory in *.bench.mo files');
-		return false;
+		if (!options.silent) {
+			console.log('No *.bench.mo files found');
+			console.log('Put your benchmark code in \'bench\' directory in *.bench.mo files');
+		}
+		return [];
 	}
 
 	files.sort();
@@ -84,17 +98,19 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	fs.rmSync(benchDir, {recursive: true, force: true});
 	fs.mkdirSync(benchDir, {recursive: true});
 
-	console.log('Benchmark files:');
-	for (let file of files) {
-		console.log(chalk.gray(`• ${absToRel(file)}`));
+	if (!options.silent) {
+		console.log('Benchmark files:');
+		for (let file of files) {
+			console.log(chalk.gray(`• ${absToRel(file)}`));
+		}
+		console.log('');
+		console.log('='.repeat(50));
+		console.log('');
 	}
-	console.log('');
-	console.log('='.repeat(50));
-	console.log('');
 
 	await replica.start();
 
-	console.log('Deploying canisters...');
+	options.silent || console.log('Deploying canisters...');
 	await parallel(os.cpus().length, files, async (file : string) => {
 		try {
 			await deployBenchFile(file, options, replica);
@@ -106,12 +122,17 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		}
 	});
 
+	let benchResults : Benchmarks = [];
+
 	await parallel(1, files, async (file : string) => {
-		console.log('\n' + '—'.repeat(50));
-		console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
-		console.log('');
+		if (!options.silent) {
+			console.log('\n' + '—'.repeat(50));
+			console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
+			console.log('');
+		}
 		try {
-			await runBenchFile(file, options, replica);
+			let benchResult = await runBenchFile(file, options, replica);
+			benchResults.push(benchResult);
 		}
 		catch (err) {
 			console.error('Unexpected error. Stopping replica...');
@@ -120,12 +141,12 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		}
 	});
 
-	console.log('Stopping replica...');
+	options.silent || console.log('Stopping replica...');
 	await replica.stop();
 
 	fs.rmSync(benchDir, {recursive: true, force: true});
 
-	return true;
+	return benchResults;
 }
 
 function getMocArgs(options : BenchOptions) : string {
@@ -173,12 +194,7 @@ async function deployBenchFile(file : string, options : BenchOptions, replica : 
 	options.verbose && console.timeEnd(`init ${canisterName}`);
 }
 
-type RunBenchFileResult = {
-	schema : BenchSchema,
-	results : Map<string, BenchResult>,
-};
-
-async function runBenchFile(file : string, options : BenchOptions, replica : BenchReplica) : Promise<RunBenchFileResult> {
+async function runBenchFile(file : string, options : BenchOptions, replica : BenchReplica) : Promise<Benchmark> {
 	let rootDir = getRootDir();
 	let canisterName = path.parse(file).name;
 
@@ -255,7 +271,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		`);
 	};
 
-	if (!process.env.CI) {
+	if (!process.env.CI && !options.silent) {
 		printResults();
 	}
 
@@ -266,7 +282,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
 			let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
-			if (!process.env.CI) {
+			if (!process.env.CI && !options.silent) {
 				printResults();
 			}
 		}
@@ -282,7 +298,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		console.log(`Saving results to ${chalk.gray(absToRel(resultsJsonFile))}`);
 		let json : Record<any, any> = {
 			version: 1,
-			moc: options.moc,
+			moc: options.compilerVersion,
 			replica: options.replica,
 			replicaVersion: options.replicaVersion,
 			gc: options.gc,
@@ -300,5 +316,26 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		}, 2));
 	}
 
-	return {schema, results};
+	// for backend
+	return {
+		name: schema.name,
+		description: schema.description,
+		file: absToRel(file),
+		gc: options.gc,
+		forceGC: options.forceGc,
+		replica: options.replica,
+		replicaVersion: options.replicaVersion,
+		compiler: options.compiler,
+		compilerVersion: options.compilerVersion,
+		cells: Array.from(results.entries()).map(([rowCol, result]) => {
+			return {
+				row: rowCol.split(':')[0] || '',
+				col: rowCol.split(':')[1] || '',
+				metrics: [
+					['instructions', result.instructions],
+					['rts_heap_size', result.rts_heap_size],
+				],
+			};
+		}),
+	};
 }

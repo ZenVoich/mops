@@ -95,6 +95,24 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
+  const BenchmarkCell = IDL.Record({
+    'col' : IDL.Text,
+    'row' : IDL.Text,
+    'metrics' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
+  });
+  const Benchmark = IDL.Record({
+    'gc' : IDL.Text,
+    'file' : IDL.Text,
+    'cells' : IDL.Vec(BenchmarkCell),
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'compilerVersion' : IDL.Text,
+    'compiler' : IDL.Text,
+    'replica' : IDL.Text,
+    'replicaVersion' : IDL.Text,
+    'forceGC' : IDL.Bool,
+  });
+  const Benchmarks__1 = IDL.Vec(Benchmark);
   const PackageSummary__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
@@ -145,6 +163,7 @@ export const idlFactory = ({ IDL }) => {
     'publication' : PackagePublication,
   });
   const PackageDetails = IDL.Record({
+    'benchmarks' : Benchmarks__1,
     'ownerInfo' : User,
     'owner' : IDL.Principal,
     'deps' : IDL.Vec(PackageSummary__1),
@@ -255,6 +274,7 @@ export const idlFactory = ({ IDL }) => {
     'context' : IDL.Vec(IDL.Nat8),
     'response' : HttpResponse,
   });
+  const Benchmarks = IDL.Vec(Benchmark);
   const TestStats = IDL.Record({
     'passedNames' : IDL.Vec(IDL.Text),
     'passed' : IDL.Nat,
@@ -370,6 +390,7 @@ export const idlFactory = ({ IDL }) => {
         [HttpResponse],
         ['query'],
       ),
+    'uploadBenchmarks' : IDL.Func([PublishingId, Benchmarks], [Result], []),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],

@@ -12,12 +12,13 @@ import {checkConfigFile, getIdentity, getRootDir, progressBar, readConfig} from 
 import {mainActor} from '../api/actors.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
-import {DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
+import {Benchmarks, DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
 import {Dependency} from '../types.js';
 import {testWithReporter} from './test/test.js';
 import {SilentReporter} from './test/reporters/silent-reporter.js';
+import {bench} from './bench.js';
 
-export async function publish(options : {docs ?: boolean, test ?: boolean} = {}) {
+export async function publish(options : {docs ?: boolean, test ?: boolean, bench ?: boolean} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -258,6 +259,25 @@ export async function publish(options : {docs ?: boolean, test ?: boolean} = {})
 		}
 	}
 
+	// bench
+	let benchmarks : Benchmarks = [];
+	if (options.bench) {
+		console.log('Running benchmarks...');
+		try {
+			benchmarks = await bench('', {
+				replica: 'pocket-ic',
+				gc: 'copying',
+				forceGc: true,
+				silent: true,
+			});
+		}
+		catch (err) {
+			console.error(err);
+			console.log(chalk.red('Error: ') + 'benchmarks failed');
+			process.exit(1);
+		}
+	}
+
 	// progress
 	let total = files.length + 2;
 	let step = 0;
@@ -284,6 +304,11 @@ export async function publish(options : {docs ?: boolean, test ?: boolean} = {})
 			passed: BigInt(reporter.passed),
 			passedNames: reporter.passedNamesFlat,
 		});
+	}
+
+	// upload benchmarks
+	if (options.bench) {
+		await actor.uploadBenchmarks(puiblishingId, benchmarks);
 	}
 
 	// upload changelog
