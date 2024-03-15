@@ -41,7 +41,7 @@ module {
 
 	public class PackagePublisher(registry : Registry.Registry, storageManager : StorageManager.StorageManager) {
 		let MAX_PACKAGE_FILES = 300;
-		let MAX_PACKAGE_SIZE = 1024 * 1024 * 50; // 50MB
+		let MAX_PACKAGE_SIZE = 1024 * 1024 * 28; // 28MB
 
 		let publishingPackages = TrieMap.TrieMap<PublishingId, PublishingPackage>(Text.equal, Text.hash);
 		let publishingFiles = TrieMap.TrieMap<PublishingId, Buffer.Buffer<PublishingFile>>(Text.equal, Text.hash);
@@ -425,7 +425,7 @@ module {
 			switch (publishingPackageFileStats.get(publishingId)) {
 				case (?fileStats) {
 					if (fileStats.sourceSize + fileStats.docsSize > MAX_PACKAGE_SIZE) {
-						return #err("Max package size is 50MB");
+						return #err("Max package size is 28MB");
 					};
 					#ok;
 				};
