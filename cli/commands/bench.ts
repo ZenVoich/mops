@@ -216,6 +216,9 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 
 	let results = new Map<string, BenchResult>();
 
+	let instructionsCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
+	let heapCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
+
 	let formatNumber = (n : bigint | number) : string => {
 		return n.toLocaleString('en-US').replaceAll(',', '_');
 	};
@@ -278,10 +281,14 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 	// run all cells
 	for (let [rowIndex, row] of schema.rows.entries()) {
 		for (let [colIndex, col] of schema.cols.entries()) {
-			// let res = await actor.runCellQuery(BigInt(rowIndex), BigInt(colIndex));
-			// let res = await actor.runCellUpdate(BigInt(rowIndex), BigInt(colIndex));
 			let res = await actor.runCellUpdateAwait(BigInt(rowIndex), BigInt(colIndex));
 			results.set(`${row}:${col}`, res);
+
+			// @ts-ignore
+			instructionsCells[rowIndex][colIndex] = res.instructions;
+			// @ts-ignore
+			heapCells[rowIndex][colIndex] = res.rts_heap_size;
+
 			if (!process.env.CI && !options.silent) {
 				printResults();
 			}
@@ -327,15 +334,11 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		replicaVersion: options.replicaVersion,
 		compiler: options.compiler,
 		compilerVersion: options.compilerVersion,
-		cells: Array.from(results.entries()).map(([rowCol, result]) => {
-			return {
-				row: rowCol.split(':')[0] || '',
-				col: rowCol.split(':')[1] || '',
-				metrics: [
-					['instructions', result.instructions],
-					['rts_heap_size', result.rts_heap_size],
-				],
-			};
-		}),
+		rows: schema.rows,
+		cols: schema.cols,
+		metrics: [
+			['instructions', instructionsCells],
+			['rts_heap_size', heapCells],
+		],
 	};
 }

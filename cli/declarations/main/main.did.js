@@ -95,16 +95,14 @@ export const idlFactory = ({ IDL }) => {
     'config' : PackageConfigV2__1,
     'publication' : PackagePublication,
   });
-  const BenchmarkCell = IDL.Record({
-    'col' : IDL.Text,
-    'row' : IDL.Text,
-    'metrics' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
-  });
+  const BenchmarkMetric = IDL.Text;
   const Benchmark = IDL.Record({
     'gc' : IDL.Text,
+    'metrics' : IDL.Vec(IDL.Tuple(BenchmarkMetric, IDL.Vec(IDL.Vec(IDL.Int)))),
+    'cols' : IDL.Vec(IDL.Text),
     'file' : IDL.Text,
-    'cells' : IDL.Vec(BenchmarkCell),
     'name' : IDL.Text,
+    'rows' : IDL.Vec(IDL.Text),
     'description' : IDL.Text,
     'compilerVersion' : IDL.Text,
     'compiler' : IDL.Text,
@@ -148,6 +146,8 @@ export const idlFactory = ({ IDL }) => {
   const PackageChanges = IDL.Record({
     'tests' : TestsChanges,
     'deps' : IDL.Vec(DepChange),
+    'curBenchmarks' : Benchmarks__1,
+    'prevBenchmarks' : Benchmarks__1,
     'notes' : IDL.Text,
     'devDeps' : IDL.Vec(DepChange),
   });

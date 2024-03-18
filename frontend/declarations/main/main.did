@@ -274,9 +274,11 @@ type PackageConfigV2 =
  };
 type PackageChanges = 
  record {
+   curBenchmarks: Benchmarks__1;
    deps: vec DepChange;
    devDeps: vec DepChange;
    notes: text;
+   prevBenchmarks: Benchmarks__1;
    tests: TestsChanges;
  };
 type Main = 
@@ -402,26 +404,23 @@ type DepChange =
  };
 type Benchmarks__1 = vec Benchmark;
 type Benchmarks = vec Benchmark;
-type BenchmarkCell = 
- record {
-   col: text;
-   metrics: vec record {
-                  text;
-                  nat;
-                };
-   row: text;
- };
+type BenchmarkMetric = text;
 type Benchmark = 
  record {
-   cells: vec BenchmarkCell;
+   cols: vec text;
    compiler: text;
    compilerVersion: text;
    description: text;
    file: text;
    forceGC: bool;
    gc: text;
+   metrics: vec record {
+                  BenchmarkMetric;
+                  vec vec int;
+                };
    name: text;
    replica: text;
    replicaVersion: text;
+   rows: vec text;
  };
 service : () -> Main

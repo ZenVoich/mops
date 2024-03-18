@@ -141,6 +141,8 @@ module {
 		tests : TestsChanges;
 		deps : [DepChange];
 		devDeps : [DepChange];
+		curBenchmarks : Benchmarks;
+		prevBenchmarks : Benchmarks;
 	};
 
 	public type PackageQuality = {
@@ -165,22 +167,20 @@ module {
 
 	public type Benchmarks = [Benchmark];
 
+	type BenchmarkMetric = Text; // instructions, rts_heap_size
+
 	public type Benchmark = {
 		file : Text;
 		name : Text;
 		description : Text;
+		rows : [Text];
+		cols : [Text];
 		compiler : Text;
 		compilerVersion : Text;
 		replica : Text;
 		replicaVersion : Text;
 		gc : Text; // copying, compacting, generational, incremental
 		forceGC : Bool;
-		cells : [BenchmarkCell];
-	};
-
-	public type BenchmarkCell = {
-		row : Text;
-		col : Text;
-		metrics : [(Text, Int)]; // instructions, heap
+		metrics : [(BenchmarkMetric, [[Int]])];
 	};
 };

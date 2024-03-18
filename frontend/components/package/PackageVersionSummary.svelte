@@ -4,6 +4,7 @@
 	import {DepChange, PackageSummaryWithChanges} from '/declarations/main/main.did.js';
 	import {markdownToHtml} from '/logic/markdown-to-html';
 	import Date from '../Date.svelte';
+	import PackageBenchmarksDiff from './PackageBenchmarksDiff.svelte';
 
 	export let summary : PackageSummaryWithChanges;
 
@@ -49,6 +50,20 @@
 		<div class="title">🧪 Tests
 			<span class="added-tests" class:zero="{summary.changes.tests.addedNames.length == 0}">+{summary.changes.tests.addedNames.length}</span>
 			/ <span class="removed-tests" class:zero="{summary.changes.tests.removedNames.length == 0}">-{summary.changes.tests.removedNames.length}</span>
+		</div>
+	{/if}
+
+	{#if summary.changes.tests.addedNames.length > 0 || summary.changes.tests.removedNames.length > 0}
+		<div class="title">🧪 Tests
+			<span class="added-tests" class:zero="{summary.changes.tests.addedNames.length == 0}">+{summary.changes.tests.addedNames.length}</span>
+			/ <span class="removed-tests" class:zero="{summary.changes.tests.removedNames.length == 0}">-{summary.changes.tests.removedNames.length}</span>
+		</div>
+	{/if}
+
+	{#if summary.changes.curBenchmarks.length && summary.changes.prevBenchmarks.length}
+		<div class="title">🔬 Benchmarks</div>
+		<div class="benchmarks">
+			<PackageBenchmarksDiff curBenchmarks={summary.changes.curBenchmarks} prevBenchmarks={summary.changes.prevBenchmarks}></PackageBenchmarksDiff>
 		</div>
 	{/if}
 </div>

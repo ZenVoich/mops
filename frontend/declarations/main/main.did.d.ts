@@ -4,9 +4,11 @@ import type { IDL } from '@dfinity/candid';
 
 export interface Benchmark {
   'gc' : string,
+  'metrics' : Array<[BenchmarkMetric, Array<Array<bigint>>]>,
+  'cols' : Array<string>,
   'file' : string,
-  'cells' : Array<BenchmarkCell>,
   'name' : string,
+  'rows' : Array<string>,
   'description' : string,
   'compilerVersion' : string,
   'compiler' : string,
@@ -14,11 +16,7 @@ export interface Benchmark {
   'replicaVersion' : string,
   'forceGC' : boolean,
 }
-export interface BenchmarkCell {
-  'col' : string,
-  'row' : string,
-  'metrics' : Array<[string, bigint]>,
-}
+export type BenchmarkMetric = string;
 export type Benchmarks = Array<Benchmark>;
 export type Benchmarks__1 = Array<Benchmark>;
 export interface DepChange {
@@ -133,6 +131,8 @@ export interface Main {
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
+  'curBenchmarks' : Benchmarks__1,
+  'prevBenchmarks' : Benchmarks__1,
   'notes' : string,
   'devDeps' : Array<DepChange>,
 }

@@ -319,22 +319,40 @@ module {
 				if (benchmark.gc != "copying" and benchmark.gc != "compacting" and benchmark.gc != "generational" and benchmark.gc != "incremental") {
 					return #err("Benchmark GC must be one of 'copying', 'compacting', 'generational', 'incremental'");
 				};
-				if (benchmark.cells.size() > 250) {
-					return #err("Max number of benchmark cells is 250");
+				if (benchmark.rows.size() > 50) {
+					return #err("Max number of benchmark rows is 50");
 				};
-				for (cell in benchmark.cells.vals()) {
-					if (cell.row.size() > 64 or cell.col.size() > 64) {
-						return #err("Benchmark row/col max length is 64");
+				if (benchmark.cols.size() > 50) {
+					return #err("Max number of benchmark cols is 50");
+				};
+				for (row in benchmark.rows.vals()) {
+					if (row.size() > 64) {
+						return #err("Benchmark row max length is 64");
 					};
-					for ((name, value) in cell.metrics.vals()) {
-						if (name != "instructions" and name != "rts_heap_size") {
-							return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size'");
+				};
+				for (col in benchmark.cols.vals()) {
+					if (col.size() > 64) {
+						return #err("Benchmark col max length is 64");
+					};
+				};
+				for ((metric, cells) in benchmark.metrics.vals()) {
+					if (metric != "instructions" and metric != "rts_heap_size") {
+						return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size'");
+					};
+					if (cells.size() != benchmark.rows.size()) {
+						return #err("Benchmark metrics and table schema row count mismatch");
+					};
+					for (rowOfCols in cells.vals()) {
+						if (rowOfCols.size() != benchmark.cols.size()) {
+							return #err("Benchmark metrics and table schema column count mismatch");
 						};
-						if (value < -1_000_000_000_000_000_000) {
-							return #err("Min benchmark metric value is -1_000_000_000_000_000_000");
-						};
-						if (value > 1_000_000_000_000_000_000) {
-							return #err("Max benchmark metric value is 1_000_000_000_000_000_000");
+						for (value in rowOfCols.vals()) {
+							if (value < -1_000_000_000_000_000_000) {
+								return #err("Min benchmark metric value is -1_000_000_000_000_000_000");
+							};
+							if (value > 1_000_000_000_000_000_000) {
+								return #err("Max benchmark metric value is 1_000_000_000_000_000_000");
+							};
 						};
 					};
 				};
