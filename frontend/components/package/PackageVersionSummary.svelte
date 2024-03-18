@@ -53,13 +53,6 @@
 		</div>
 	{/if}
 
-	{#if summary.changes.tests.addedNames.length > 0 || summary.changes.tests.removedNames.length > 0}
-		<div class="title">🧪 Tests
-			<span class="added-tests" class:zero="{summary.changes.tests.addedNames.length == 0}">+{summary.changes.tests.addedNames.length}</span>
-			/ <span class="removed-tests" class:zero="{summary.changes.tests.removedNames.length == 0}">-{summary.changes.tests.removedNames.length}</span>
-		</div>
-	{/if}
-
 	{#if summary.changes.curBenchmarks.length && summary.changes.prevBenchmarks.length}
 		<div class="title">🔬 Benchmarks</div>
 		<div class="benchmarks">
