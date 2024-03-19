@@ -37,7 +37,7 @@ module {
 	func _getPrevVersion(registry : Registry.Registry, name : PackageName, version : PackageVersion) : ?PackageVersion {
 		let ?versions = registry.getPackageVersions(name) else return null;
 		let verSorted = Array.sort(versions, Semver.compare);
-		let ?curIndex = Array.indexOf(version, versions, Semver.equal) else return null;
+		let ?curIndex = Array.indexOf(version, verSorted, Semver.equal) else return null;
 		if (curIndex > 0) {
 			return ?verSorted[curIndex - 1];
 		};
