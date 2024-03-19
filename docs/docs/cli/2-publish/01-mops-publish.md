@@ -24,7 +24,7 @@ Benchmark results will be published to the registry.
 
 You can view the results on the package page in the `Benchmarks` tab.
 
-You can also view the diff of the benchmark results between the current version and the previous version in the `Versions` tab.
+You can also view the diff of the benchmark results between the current version and the previous version in the `Versions` tab. Benchmarks compared by file name, not by the benchmark name.
 
 ## Options
 
