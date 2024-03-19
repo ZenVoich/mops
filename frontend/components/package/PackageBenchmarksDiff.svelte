@@ -69,9 +69,4 @@
 		display: inline-block;
 		font-weight: 600;
 	}
-
-	/* .bench-name::before {
-		content: '• ';
-		font-size: 22px;
-	} */
 </style>
