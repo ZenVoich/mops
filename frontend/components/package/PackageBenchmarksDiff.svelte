@@ -2,6 +2,7 @@
 	import {Benchmarks, Benchmark} from '/declarations/main/main.did.js';
 	import PackageBenchmark from './PackageBenchmark.svelte';
 	import ColorizedValue from '../ColorizedValue.svelte';
+	import {getMetricDiff} from '/logic/benchmark-utils';
 
 	export let curBenchmarks : Benchmarks;
 	export let prevBenchmarks : Benchmarks;
@@ -11,18 +12,18 @@
 	})]).filter((pair) => pair[1]);
 
 	function computeDiff(cur : Benchmark, prev : Benchmark, metric : 'instructions' | 'rts_heap_size') : number {
-		let curData = cur.metrics.find((m) => m[0] === metric);
-		let prevData = prev.metrics.find((m) => m[0] === metric);
+		let rows = cur.rows.filter((row) => prev.rows.includes(row));
+		let cols = cur.cols.filter((col) => prev.cols.includes(col));
 
-		if (curData && prevData) {
-			let curSum = curData[1].flat().reduce((a, b) => a + b, 0n);
-			let prevSum = prevData[1].flat().reduce((a, b) => a + b, 0n);
+		let diff = 0;
 
-			return Number((curSum - prevSum)) / Number(prevSum) * 100;
+		for (let row of rows) {
+			for (let col of cols) {
+				diff += getMetricDiff(cur, prev, row, col, metric);
+			}
 		}
-		else {
-			return 0;
-		}
+
+		return diff / (rows.length * cols.length);
 	}
 </script>
 
