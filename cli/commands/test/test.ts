@@ -166,14 +166,14 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 							'-C', 'cache=n',
 							'-W', 'bulk-memory',
 							'-W', 'multi-memory',
-							'-W', 'max-wasm-stack=2000000',
+							'-W', 'max-wasm-stack=4000000',
 							'-W', 'nan-canonicalization=y',
 							wasmFile,
 						];
 					}
 					else {
 						wasmtimeArgs = [
-							'--max-wasm-stack=2000000',
+							'--max-wasm-stack=4000000',
 							'--enable-cranelift-nan-canonicalization',
 							'--wasm-features',
 							'multi-memory,bulk-memory',
