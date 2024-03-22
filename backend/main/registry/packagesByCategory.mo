@@ -114,6 +114,7 @@ module {
 			[
 				"candb",
 				"rxmodb",
+				"nacdb"
 			]
 		),
 		(

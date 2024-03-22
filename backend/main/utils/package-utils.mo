@@ -40,6 +40,8 @@ module {
 			};
 			deps = [];
 			devDeps = [];
+			curBenchmarks = [];
+			prevBenchmarks = [];
 		};
 	};
 };

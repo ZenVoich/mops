@@ -216,6 +216,7 @@ type PackageFileStatsPublic =
  };
 type PackageDetails = 
  record {
+   benchmarks: Benchmarks__1;
    changes: PackageChanges;
    config: PackageConfigV2__1;
    dependents: vec PackageSummary__1;
@@ -273,9 +274,11 @@ type PackageConfigV2 =
  };
 type PackageChanges = 
  record {
+   curBenchmarks: Benchmarks__1;
    deps: vec DepChange;
    devDeps: vec DepChange;
    notes: text;
+   prevBenchmarks: Benchmarks__1;
    tests: TestsChanges;
  };
 type Main = 
@@ -341,6 +344,7 @@ type Main =
    startPublish: (PackageConfigV2) -> (Result_2);
    transferOwnership: (PackageName, principal) -> (Result_1);
    transformRequest: (HttpTransformArg) -> (HttpResponse) query;
+   uploadBenchmarks: (PublishingId, Benchmarks) -> (Result);
    uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
    uploadNotes: (PublishingId, text) -> (Result);
    uploadTestStats: (PublishingId, TestStats) -> (Result);
@@ -397,5 +401,26 @@ type DepChange =
    name: text;
    newVersion: text;
    oldVersion: text;
+ };
+type Benchmarks__1 = vec Benchmark;
+type Benchmarks = vec Benchmark;
+type BenchmarkMetric = text;
+type Benchmark = 
+ record {
+   cols: vec text;
+   compiler: text;
+   compilerVersion: text;
+   description: text;
+   file: text;
+   forceGC: bool;
+   gc: text;
+   metrics: vec record {
+                  BenchmarkMetric;
+                  vec vec int;
+                };
+   name: text;
+   replica: text;
+   replicaVersion: text;
+   rows: vec text;
  };
 service : () -> Main

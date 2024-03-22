@@ -1,0 +1,91 @@
+<script lang="ts">
+	import {Benchmark} from '/declarations/main/main.did.js';
+	import ColorizedValue from '../ColorizedValue.svelte';
+	import {getMetricDiff, getMetricNum} from '/logic/benchmark-utils';
+
+	export let benchmark : Benchmark;
+	export let otherBenchmark : Benchmark | undefined = undefined;
+
+	function getMetric(bench : Benchmark, row : string, col : string, metric : string) {
+		let value = getMetricNum(bench, row, col, metric);
+
+		if (value !== undefined) {
+			return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
+		}
+		else {
+			return '-';
+		}
+	}
+</script>
+
+<div class="test-stats">
+	<div>
+		{#if !otherBenchmark}
+			<h2>{benchmark.name}</h2>
+			<div>{benchmark.description}</div>
+			<br>
+		{/if}
+
+		<b>Instructions</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'instructions')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'instructions')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<b>Heap</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_heap_size')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_heap_size')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<style>
+	table {
+		margin-top: 6px;
+	}
+</style>
