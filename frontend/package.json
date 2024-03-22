@@ -9,7 +9,7 @@
     "vite": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "svelte-check --threshold error --no-tsconfig"
   },
   "author": "Zen Voich <zen.voich@gmail.com>",
   "license": "ISC",
@@ -43,7 +43,9 @@
     "buffer": "^6.0.3",
     "eslint-plugin-svelte": "2.35.0",
     "svelte": "4.2.3",
+    "svelte-check": "3.6.8",
     "svelte-preprocess": "5.1.0",
+    "typescript": "5.4.3",
     "vite": "5.0.12",
     "vite-plugin-static-copy": "1.0.1"
   },

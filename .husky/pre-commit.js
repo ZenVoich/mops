@@ -8,6 +8,7 @@ try {
 		execAsync('npm run lint'),
 		execAsync('npm run test'),
 		execAsync('npm run check', {cwd: 'cli'}),
+		execAsync('npm run check', {cwd: 'frontend'}),
 	]);
 }
 catch (error) {
