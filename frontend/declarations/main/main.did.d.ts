@@ -2,6 +2,23 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
+export interface Benchmark {
+  'gc' : string,
+  'metrics' : Array<[BenchmarkMetric, Array<Array<bigint>>]>,
+  'cols' : Array<string>,
+  'file' : string,
+  'name' : string,
+  'rows' : Array<string>,
+  'description' : string,
+  'compilerVersion' : string,
+  'compiler' : string,
+  'replica' : string,
+  'replicaVersion' : string,
+  'forceGC' : boolean,
+}
+export type BenchmarkMetric = string;
+export type Benchmarks = Array<Benchmark>;
+export type Benchmarks__1 = Array<Benchmark>;
 export interface DepChange {
   'oldVersion' : string,
   'name' : string,
@@ -103,6 +120,7 @@ export interface Main {
   'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
   'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
+  'uploadBenchmarks' : ActorMethod<[PublishingId, Benchmarks], Result>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
@@ -113,6 +131,8 @@ export interface Main {
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
+  'curBenchmarks' : Benchmarks__1,
+  'prevBenchmarks' : Benchmarks__1,
   'notes' : string,
   'devDeps' : Array<DepChange>,
 }
@@ -153,6 +173,7 @@ export interface PackageConfigV2__1 {
   'readme' : string,
 }
 export interface PackageDetails {
+  'benchmarks' : Benchmarks__1,
   'ownerInfo' : User,
   'owner' : Principal,
   'deps' : Array<PackageSummary__1>,

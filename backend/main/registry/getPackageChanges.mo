@@ -15,6 +15,7 @@ module {
 	public type TestsChanges = Types.TestsChanges;
 	public type PackageChanges = Types.PackageChanges;
 	public type DepChange = Types.DepChange;
+	public type Benchmarks = Types.Benchmarks;
 
 	// get package changes between this version and previous version
 	public func getPackageChanges(registry : Registry.Registry, name : PackageName, version : PackageVersion) : PackageChanges {
@@ -25,6 +26,8 @@ module {
 		{
 			notes = registry.getPackageReleaseNotes(name, version);
 			tests = _computeTestsChangesBetween(registry.getPackageTestStats(name, prevVersion), registry.getPackageTestStats(name, version));
+			curBenchmarks = registry.getPackageBenchmarks(name, version);
+			prevBenchmarks = registry.getPackageBenchmarks(name, prevVersion);
 			deps = _computeDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
 			devDeps = _computeDevDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
 		};
@@ -34,7 +37,7 @@ module {
 	func _getPrevVersion(registry : Registry.Registry, name : PackageName, version : PackageVersion) : ?PackageVersion {
 		let ?versions = registry.getPackageVersions(name) else return null;
 		let verSorted = Array.sort(versions, Semver.compare);
-		let ?curIndex = Array.indexOf(version, versions, Semver.equal) else return null;
+		let ?curIndex = Array.indexOf(version, verSorted, Semver.equal) else return null;
 		if (curIndex > 0) {
 			return ?verSorted[curIndex - 1];
 		};

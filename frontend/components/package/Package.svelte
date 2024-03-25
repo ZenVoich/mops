@@ -21,6 +21,7 @@
 	import {compareVersions} from '/logic/compare-versions';
 	import PackageVersionSummary from './PackageVersionSummary.svelte';
 	import PackageTestStats from './PackageTestStats.svelte';
+	import PackageBenchmarks from './PackageBenchmarks.svelte';
 
 	let pkgName : string;
 	$: pkgName = $routeParams.packageName;
@@ -179,6 +180,7 @@
 				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependencies')} tabindex="0" role="tab">Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependents')} tabindex="0" role="tab">Dependents ({packageDetails.dependents.length})</div>
 				<div class="tab" class:selected={isTabSelected('tests', selectedTab)} on:click={() => selectTab('tests')} on:keydown={(e) => e.key === 'Enter' && selectTab('tests')} tabindex="0" role="tab">Tests ({packageDetails.testStats.passed})</div>
+				<div class="tab" class:selected={isTabSelected('benchmarks', selectedTab)} on:click={() => selectTab('benchmarks')} on:keydown={(e) => e.key === 'Enter' && selectTab('benchmarks')} tabindex="0" role="tab">Benchmarks ({packageDetails.benchmarks.length})</div>
 			</div>
 
 			<div class="body">
@@ -243,6 +245,10 @@
 							{:else if selectedTab == 'tests'}
 								<div class="tests">
 									<PackageTestStats {packageDetails}></PackageTestStats>
+								</div>
+							{:else if selectedTab == 'benchmarks'}
+								<div class="benchmarks">
+									<PackageBenchmarks {packageDetails}></PackageBenchmarks>
 								</div>
 							{/if}
 						</div>
