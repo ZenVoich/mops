@@ -3,3 +3,4 @@ dist
 .dfx
 .vscode
 .mops
+.DS_Store

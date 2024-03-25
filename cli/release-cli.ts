@@ -36,9 +36,10 @@ console.log(`Release '${version}' created with tag '${tag}'`);
 type Releases = {
 	tags : Record<string, string>;
 	versions : Record<string, {
+		time : number;
 		relseaseNotes : string;
-		hash : string;
 		url : string;
+		hash : string;
 	}>;
 };
 
@@ -50,9 +51,10 @@ let releases : Releases = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..
 
 releases.tags[tag] = version;
 releases.versions[version] = {
+	time: new Date().getTime(),
 	relseaseNotes: releaseNotes,
-	hash,
 	url: `https://cli.mops.one/versions/${version}/cli.tgz`,
+	hash,
 };
 
 fs.writeFileSync(path.resolve(__dirname, '../cli-releases/releases.json'), JSON.stringify(releases, null, 2));

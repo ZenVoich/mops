@@ -1,5 +1,4 @@
 # Mops CLI Changelog
 
-## 0.39.5
-- Test
-- Test2
+## 0.40.0
+- Publish package benchmarks
