@@ -19,7 +19,7 @@
 		"prepare-cli": "cd cli && npm run prepare",
 		"release-cli": "cd cli && npm run release",
 		"prepare": "husky",
-		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install) && (cd cli-releases/frontend && npm install)",
 		"test": "mops test"
 	},
 	"devDependencies": {
