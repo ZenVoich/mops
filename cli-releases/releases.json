@@ -1,19 +1,14 @@
 {
   "tags": {
-    "latest": "0.40.1"
+    "latest": "0.40.0"
   },
   "versions": {
     "0.40.0": {
-      "time": 1667721600000,
-      "relseaseNotes": "",
-      "hash": "4d53d765c589dc96754d9bbba4d0bd3f64d394e8f987a6fa749f1a30f0087a43",
-      "url": "https://cli.mops.one/versions/0.40.0/cli.tgz"
-    },
-    "0.40.1": {
-      "time": 1677721600000,
-      "relseaseNotes": "* New things added\n* Old bugs fixed\n* New bugs added\n",
-      "hash": "bfcce98d8a46a24744b1e2cec6ea6dfde1fdfe5712e8a33db19fb822e68c07b3",
-      "url": "https://cli.mops.one/versions/0.40.1/cli.tgz"
+      "time": 1711433493772,
+      "size": 700783,
+      "relseaseNotes": "* Publish package benchmarks\n",
+      "url": "https://cli.mops.one/versions/0.40.0.tgz",
+      "hash": "f67234b8187a9c61e1173f2c795e3248599617ef58332eb6e48369ed2de3e0b3"
     }
   }
 }

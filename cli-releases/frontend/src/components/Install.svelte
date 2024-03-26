@@ -32,7 +32,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		margin: 20px;
+		margin: 30px;
 		gap: 14px;
 	}
 
@@ -58,6 +58,7 @@
 
 	.command::before {
 		content: "$ ";
+		color: gray;
 	}
 
 	.copy {

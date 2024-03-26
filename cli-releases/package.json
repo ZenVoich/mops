@@ -1,5 +1,6 @@
 {
   "scripts": {
-    "start": "cd frontend && npm run dev"
+    "start": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
   }
 }

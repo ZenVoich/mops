@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-url="https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io/versions/latest/cli.tgz"
+url="https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io/versions/latest.tgz"
 
 uninstall() {
 	echo "Uninstalling previous version"

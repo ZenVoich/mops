@@ -1,5 +1,7 @@
 <script lang="ts">
 	import {markdownToHtml} from '$lib/markdown-to-html';
+	import {filesize} from 'filesize';
+
 	import releasesJson from '../../../releases.json';
 	import Header from '../components/Header.svelte';
 	import Install from '../components/Install.svelte';
@@ -22,7 +24,9 @@
 			<div class="meta">
 				{new Date(release.time).toISOString().split('T')[0]}
 				<span class="bullet">•</span>
-				{release.hash.slice(0, 7)}
+				{filesize(release.size, {standard: 'iec', round: 0})}
+				<span class="bullet">•</span>
+				{release.hash}
 			</div>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			<p>{@html markdownToHtml(release.relseaseNotes)}</p>
@@ -36,7 +40,9 @@
 	}
 
 	.releases {
-		margin: 1rem;
+		max-width: 990px;
+		margin: 60px auto;
+		padding: 0 20px;
 	}
 
 	.release {
@@ -44,6 +50,8 @@
 	}
 
 	.meta {
+		display: flex;
+		gap: 0.5rem;
 		color: gray;
 		font-size: 0.8rem;
 		margin-bottom: 0.5rem;

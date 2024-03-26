@@ -28,11 +28,14 @@
 		},
 		"cli": {
 			"type": "assets",
-			"build": [""],
+			"build": ["npm run build-cli-releases"],
 			"frontend": {
-				"entrypoint": "cli-releases/index.html"
+				"entrypoint": "cli-releases/frontend/dist/index.html"
 			},
-			"source": ["cli-releases/"]
+			"source": [
+				"cli-releases/",
+				"cli-releases/frontend/dist/"
+			]
 		},
 		"bench": {
 			"type": "motoko",
@@ -54,7 +57,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.17.0",
+	"dfx": "0.18.0",
 	"networks": {
 		"staging": {
 			"type": "persistent",
