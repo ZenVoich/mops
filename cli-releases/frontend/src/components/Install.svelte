@@ -67,17 +67,4 @@
 		font-size: 20px;
 		user-select: none;
 	}
-
-	.button {
-		cursor: pointer;
-		border: none;
-		background-color: transparent;
-		color: gray;
-		padding: 5px 10px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 16px;
-		border-radius: 4px;
-	}
 </style>
