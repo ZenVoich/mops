@@ -1,14 +1,14 @@
 {
   "tags": {
-    "latest": "0.40.0"
+    "latest": "0.41.0"
   },
   "versions": {
-    "0.40.0": {
-      "time": 1711435435559,
-      "size": 700323,
-      "relseaseNotes": "* Publish package benchmarks\n",
-      "url": "https://cli.mops.one/versions/0.40.0.tgz",
-      "hash": "a35cb2153e24976d2a105fef6fa037260d91aed2d256dc193e72575882dc6358"
+    "0.41.0": {
+      "time": 1711525199047,
+      "size": 700358,
+      "relseaseNotes": "* Add `mops self update` command to update the CLI to the latest version\n* Add `mops self uninstall` command to uninstall the CLI\n",
+      "url": "https://cli.mops.one/versions/0.41.0.tgz",
+      "hash": "8ca26575e3a441d03304d9be9f94aba1c2c39eade0b5af0c0b6ac25f5c1194b8"
     }
   }
 }
