@@ -37,18 +37,17 @@
 	margin-top: 10px;
 }
 
-.theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible:hover {
+/* .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible:hover {
 	background: none;
 }
 .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link {
-	/* font-weight: 400; */
 	opacity: 0.8;
 	cursor: default;
 }
 
 :root[data-theme=light] .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link {
 	color: black !important;
-}
+} */
 
 .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link--active {
 	color: var(--ifm-menu-color);

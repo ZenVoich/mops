@@ -1,6 +1,6 @@
 {
   "position": 3,
   "label": "User",
-  "collapsible": false,
-  "collapsed": false
+  "collapsible": true,
+  "collapsed": true
 }
