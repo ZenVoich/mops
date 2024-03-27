@@ -29,8 +29,6 @@ jobs:
       - uses: oven-sh/setup-bun@v1.1.1
 
       - uses: dfinity/setup-dfx@main
-        with:
-          dfx-version: 0.17.0
 
       - name: Cache mops packages
         uses: actions/cache@v4
