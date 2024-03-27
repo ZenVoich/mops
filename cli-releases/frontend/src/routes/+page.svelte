@@ -29,7 +29,7 @@
 				{release.hash}
 			</div>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-			<p>{@html markdownToHtml(release.relseaseNotes)}</p>
+			<p class="release-notes">{@html markdownToHtml(release.relseaseNotes)}</p>
 		</div>
 	{/each}
 </div>
@@ -55,5 +55,9 @@
 		color: gray;
 		font-size: 0.8rem;
 		margin-bottom: 0.5rem;
+	}
+
+	.release-notes {
+		line-height: 1.55;
 	}
 </style>
