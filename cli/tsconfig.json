@@ -1,7 +1,7 @@
 {
 	"extends": ["@tsconfig/strictest/tsconfig.json"],
 	"include": ["**/*.ts", "**/*.js"],
-	"exclude": ["node_modules", "dist", "dist.js", "declarations/**/*.js"],
+	"exclude": ["node_modules", "dist", "bundle", "dist.js", "declarations/**/*.js"],
 	"compilerOptions": {
 		"types": ["node"],
 		"target": "ES2021",

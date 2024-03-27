@@ -10,11 +10,11 @@ on:
 jobs:
   build:
     strategy:
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         moc-version: [0.10.1]
         # mops-version: [./cli, ic-mops@latest, ic-mops@0.28.2]
-        mops-version: [./cli]
+        mops-version: [ic-mops@0.37.0, ./cli/dist]
         node-version: [20]
 
     runs-on: ubuntu-latest
@@ -29,8 +29,6 @@ jobs:
       - uses: oven-sh/setup-bun@v1.1.1
 
       - uses: dfinity/setup-dfx@main
-        with:
-          dfx-version: 0.17.0
 
       - name: Cache mops packages
         uses: actions/cache@v4
@@ -46,7 +44,7 @@ jobs:
         run: bun install
 
       - name: Build local cli
-        if: ${{ matrix.mops-version == './cli' }}
+        if: ${{ matrix.mops-version == './cli/dist' }}
         run: cd cli && npm run prepare
 
       - name: Install mops

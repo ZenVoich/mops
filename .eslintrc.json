@@ -22,6 +22,8 @@
         ".git/",
         ".mops/",
         "dist/",
+        "cli-releases/dist/",
+        "cli-releases/frontend/dist/",
         "bundle/"
     ],
     "rules": {

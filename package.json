@@ -2,8 +2,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "npm run replica && npm run deploy-local && npm run decl && cd frontend && npm run start && cd ..",
-		"create-canisters": "dfx canister create main --no-wallet --specified-id 2d2zu-vaaaa-aaaak-qb6pq-cai && dfx canister create assets --no-wallet",
-		"replica": "dfx stop && dfx start --clean --background && npm run create-canisters",
+		"replica": "dfx stop && dfx start --clean --background",
 		"decl": "npm run decl:cli && npm run decl:frontend",
 		"lint": "eslint .",
 		"fix": "eslint . --fix",
@@ -16,19 +15,21 @@
 		"deploy:main": "NODE_ENV=development IDENTITY=default DFX_NETWORK=local npm run deploy main",
 		"build-frontend": "cd frontend && npm run build",
 		"build-docs": "cd docs && npm run build",
+		"build-cli-releases": "cd cli-releases && npm run build",
 		"prepare-cli": "cd cli && npm run prepare",
+		"release-cli": "cd cli && npm run release",
 		"prepare": "husky",
-		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install)",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install) && (cd cli-releases/frontend && npm install)",
 		"test": "mops test"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin": "1.5.4",
-		"@stylistic/eslint-plugin-migrate": "1.5.4",
-		"@typescript-eslint/eslint-plugin": "6.20.0",
-		"@typescript-eslint/parser": "6.20.0",
-		"eslint": "8.56.0",
+		"@stylistic/eslint-plugin": "1.7.0",
+		"@stylistic/eslint-plugin-migrate": "1.7.0",
+		"@typescript-eslint/eslint-plugin": "7.4.0",
+		"@typescript-eslint/parser": "7.4.0",
+		"eslint": "8.57.0",
 		"eslint-plugin-svelte": "2.35.1",
-		"husky": "9.0.10",
-		"typescript": "5.3.3"
+		"husky": "9.0.11",
+		"typescript": "5.4.3"
 	}
 }

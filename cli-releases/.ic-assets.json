@@ -1,0 +1,10 @@
+[
+	{
+		"match": ".well-known",
+		"ignore": false
+	},
+	{
+		"match": "frontend/node_modules",
+		"ignore": true
+	}
+]

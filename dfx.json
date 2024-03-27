@@ -4,6 +4,7 @@
 		"main": {
 			"type": "motoko",
 			"main": "backend/main/main-canister.mo",
+			"specified_id": "2d2zu-vaaaa-aaaak-qb6pq-cai",
 			"declarations": {
 				"output": "cli/declarations/main/",
 				"node_compatibility": true
@@ -25,6 +26,17 @@
 			},
 			"source": ["docs/build/"]
 		},
+		"cli": {
+			"type": "assets",
+			"build": ["npm run build-cli-releases"],
+			"frontend": {
+				"entrypoint": "cli-releases/frontend/dist/index.html"
+			},
+			"source": [
+				"cli-releases/",
+				"cli-releases/frontend/dist/"
+			]
+		},
 		"bench": {
 			"type": "motoko",
 			"main": "cli/commands/bench/bench-canister.mo",
@@ -45,7 +57,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.17.0",
+	"dfx": "0.18.0",
 	"networks": {
 		"staging": {
 			"type": "persistent",

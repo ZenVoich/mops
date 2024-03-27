@@ -6,7 +6,7 @@ import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
 import {getNetwork} from './api/network.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install-all.js';
@@ -15,7 +15,6 @@ import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
 import {test} from './commands/test/test.js';
 import {template} from './commands/template.js';
-import {selfUpdate} from './commands/self-update.js';
 import {remove} from './commands/remove.js';
 import {getUserProp, setUserProp} from './commands/user.js';
 import {bump} from './commands/bump.js';
@@ -26,6 +25,7 @@ import {bench} from './commands/bench.js';
 import {transferOwnership} from './commands/transfer-ownership.js';
 import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
+import * as self from './commands/self.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -43,8 +43,7 @@ let program = new Command();
 program.name('mops');
 
 // --version
-let packageJson = JSON.parse(fs.readFileSync(new URL('package.json', import.meta.url)).toString());
-program.version(`CLI ${packageJson.version}\nAPI ${apiVersion}`, '-v --version');
+program.version(`CLI ${version()}\nAPI ${apiVersion}`, '-v --version');
 
 // init
 program
@@ -257,21 +256,6 @@ program
 // 		await docs();
 // 	});
 
-// self update
-program
-	.command('self-update')
-	.description('Update mops CLI to the latest version')
-	.option('--detached')
-	.option('--force')
-	.action(async (options) => {
-		if (options.force) {
-			selfUpdate(options);
-		}
-		else {
-			console.log('Please run \'npm i -g ic-mops\'');
-		}
-	});
-
 // user
 program
 	.command('user')
@@ -385,5 +369,24 @@ toolchainCommand
 	});
 
 program.addCommand(toolchainCommand);
+
+// self
+const selfCommand = new Command('self').description('Mops CLI management');
+
+selfCommand
+	.command('update')
+	.description('Update mops CLI to the latest version')
+	.action(async () => {
+		await self.update();
+	});
+
+selfCommand
+	.command('uninstall')
+	.description('Uninstall mops CLI')
+	.action(async () => {
+		await self.uninstall();
+	});
+
+program.addCommand(selfCommand);
 
 program.parse();
