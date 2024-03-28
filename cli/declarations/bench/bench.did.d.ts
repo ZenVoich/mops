@@ -26,4 +26,4 @@ export interface anon_class_10_1 {
 }
 export interface _SERVICE extends anon_class_10_1 {}
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

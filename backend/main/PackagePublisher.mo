@@ -20,7 +20,7 @@ import PackageUtils "./utils/package-utils";
 
 module {
 	type PackageVersion = Types.PackageVersion;
-	type PackageConfigV2 = Types.PackageConfigV2;
+	type PackageConfigV3 = Types.PackageConfigV3;
 	type PackageFileStats = Types.PackageFileStats;
 	type TestStats = Types.TestStats;
 	type FileId = Types.FileId;
@@ -31,7 +31,7 @@ module {
 	type PublishingPackage = {
 		time : Time.Time;
 		user : Principal;
-		config : PackageConfigV2;
+		config : PackageConfigV3;
 		storage : Principal;
 	};
 	type PublishingFile = {
@@ -51,7 +51,7 @@ module {
 		let publishingFileHashers = TrieMap.TrieMap<FileId, Sha256.Digest>(Text.equal, Text.hash);
 		let publishingBenchmarks = TrieMap.TrieMap<PublishingId, Benchmarks>(Text.equal, Text.hash);
 
-		public func startPublish(caller : Principal, config : PackageConfigV2) : async Result.Result<PublishingId, PublishingErr> {
+		public func startPublish(caller : Principal, config : PackageConfigV3) : async Result.Result<PublishingId, PublishingErr> {
 			if (Principal.isAnonymous(caller)) {
 				return #err("Unauthorized");
 			};

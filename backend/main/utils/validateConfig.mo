@@ -11,7 +11,7 @@ import {isLowerCaseLetter} "./is-letter";
 import {validateLicense} "./validateLicense";
 
 module {
-	type PackageConfigV2 = Types.PackageConfigV2;
+	type PackageConfigV3 = Types.PackageConfigV3;
 	type DependencyV2 = Types.DependencyV2;
 	type Err = Types.Err;
 
@@ -59,7 +59,7 @@ module {
 		"name",
 	];
 
-	public func validateConfig(config : PackageConfigV2) : Result.Result<(), Err> {
+	public func validateConfig(config : PackageConfigV3) : Result.Result<(), Err> {
 		// temporarily disabled fields
 		if (config.dfx.size() > 0) {
 			return #err("invalid config: 'dfx' field is not supported yet");
@@ -79,6 +79,8 @@ module {
 		if (config.donation.size() > 0) {
 			return #err("invalid config: 'donation' field is not supported yet");
 		};
+
+		// hardcoded fields
 		if (config.baseDir != "src") {
 			return #err("invalid config: 'baseDir' field must be equal to 'src'");
 		};
@@ -199,6 +201,18 @@ module {
 			let depValid = _validateDependency(dep);
 			if (Result.isErr(depValid)) {
 				return depValid;
+			};
+		};
+		if (config.requirements.size() > 1) {
+			return #err("invalid config: max requirements is 1");
+		};
+		for (req in config.requirements.vals()) {
+			if (req.name != "moc") {
+				return #err("invalid config: unknown requirement '" # req.name # "'");
+			};
+			let versionValid = Semver.validate(req.value);
+			if (Result.isErr(versionValid)) {
+				return versionValid;
 			};
 		};
 		#ok;
