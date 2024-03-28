@@ -7,6 +7,7 @@ import prompts from 'prompts';
 import {createLogUpdate} from 'log-update';
 import {checkConfigFile, getClosestConfigFile, getRootDir, globalCacheDir, readConfig, writeConfig} from '../../mops.js';
 import {Tool} from '../../types.js';
+import {checkRequirements} from '../../check-requirements.js';
 import * as moc from './moc.js';
 import * as pocketIc from './pocket-ic.js';
 import * as wasmtime from './wasmtime.js';
@@ -243,6 +244,8 @@ async function use(tool : Tool, version ?: string) {
 	config.toolchain[tool] = version;
 	writeConfig(config);
 
+	await checkRequirements();
+
 	if (oldVersion === version) {
 		console.log((`${tool} ${version} is already installed`));
 	}
@@ -276,6 +279,10 @@ async function update(tool ?: Tool) {
 		let oldVersion = config.toolchain[tool];
 		config.toolchain[tool] = version;
 		writeConfig(config);
+
+		if (tool === 'moc') {
+			await checkRequirements();
+		}
 
 		if (oldVersion === version) {
 			console.log((`Latest ${tool} ${version} is already installed`));
