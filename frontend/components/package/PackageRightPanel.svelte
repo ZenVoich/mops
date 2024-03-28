@@ -92,6 +92,14 @@
 			<div class="value">{packageDetails.owner}</div>
 		</div>
 	{/if}
+	{#if packageDetails.config.requirements}
+		<div class="detail">
+			<div class="label">Requirements</div>
+			{#each packageDetails.config.requirements as req}
+				<div class="sub-row"><span>{req.name}</span> <span>{req.value}</span></div>
+			{/each}
+		</div>
+	{/if}
 
 	<div class="quality">
 		<div class="label">
@@ -99,42 +107,42 @@
 			<PackageQualityIcon pkg={packageDetails}></PackageQualityIcon>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Dependencies</div>
 			<div class="quality-value" data-deps-status={Object.keys(packageDetails.quality.depsStatus)[0]}>{depsStatusText(packageDetails.quality.depsStatus)}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Description</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDescription}>{packageDetails.quality.hasDescription ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Keywords</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasKeywords}>{packageDetails.quality.hasKeywords ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">License</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasLicense}>{packageDetails.quality.hasLicense ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Repository</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasRepository}>{packageDetails.quality.hasRepository ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Documentation</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDocumentation}>{packageDetails.quality.hasDocumentation ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Release Notes</div>
 			<div class="quality-value extra-quality" data-yes={packageDetails.quality.hasReleaseNotes}>{packageDetails.quality.hasReleaseNotes ? 'Yes' : 'No'}</div>
 		</div>
 
-		<div class="quality-row">
+		<div class="sub-row">
 			<div class="quality-label">Tests</div>
 			<div class="quality-value extra-quality" data-yes={packageDetails.quality.hasTests}>{packageDetails.quality.hasTests ? 'Yes' : 'No'}</div>
 		</div>
@@ -215,7 +223,7 @@
 		gap: 5px;
 	}
 
-	.quality-row {
+	.sub-row {
 		display: flex;
 		justify-content: space-between;
 		/* padding-left: 5px; */
