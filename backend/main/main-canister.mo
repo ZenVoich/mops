@@ -9,6 +9,7 @@ import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Principal "mo:base/Principal";
 import Order "mo:base/Order";
+import Option "mo:base/Option";
 import Blob "mo:base/Blob";
 
 import IC "mo:ic";
@@ -43,6 +44,7 @@ actor class Main() {
 	public type FileId = Types.FileId;
 	public type Err = Text.Text;
 	public type PackageConfigV2 = Types.PackageConfigV2;
+	public type PackageConfigV3 = Types.PackageConfigV3;
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummary = Types.PackageSummary;
@@ -60,9 +62,11 @@ actor class Main() {
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
+	var highestConfigsV2 = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
+	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV3>(Text.equal, Text.hash);
 
-	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
+	var packageConfigsV2 = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
+	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV3>(Text.equal, Text.hash);
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
 	var hashByFileId = TrieMap.TrieMap<FileId, Blob>(Text.equal, Text.hash);
@@ -128,14 +132,19 @@ actor class Main() {
 		context = Blob.fromArray([]);
 	};
 
-	func _verifyPackageRepo(config : PackageConfigV2) : async Result.Result<(), Err> {
+	func _verifyPackageRepo(config : PackageConfigV3) : async Result.Result<(), Err> {
 		await verifyPackageRepository(config.name, config.repository, transform);
 	};
 
 	// PUBLIC
 
 	// Publication
-	public shared ({caller}) func startPublish(config : PackageConfigV2) : async Result.Result<PublishingId, Err> {
+	public shared ({caller}) func startPublish(configPub : Types.PackageConfigV3_Publishing) : async Result.Result<PublishingId, Err> {
+		let config : PackageConfigV3 = {
+			configPub with
+			requirements = Option.get(configPub.requirements, []);
+		};
+
 		let pubRes = await packagePublisher.startPublish(caller, config);
 		if (Result.isErr(pubRes)) {
 			return pubRes;
@@ -513,12 +522,12 @@ actor class Main() {
 	let backupManager = Backup.BackupManager(backupStateV2, {maxBackups = 20});
 
 	type BackupChunk = {
-		#v6 : {
+		#v7 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#packageOwners : [(PackageName, Principal)];
-			#packageConfigs : [(PackageId, PackageConfigV2)];
-			#highestConfigs : [(PackageName, PackageConfigV2)];
+			#packageConfigs : [(PackageId, PackageConfigV3)];
+			#highestConfigs : [(PackageName, PackageConfigV3)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
 			#hashByFileId : [(FileId, Blob)];
 			#packageFileStats : [(PackageId, PackageFileStats)];
@@ -542,22 +551,22 @@ actor class Main() {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v6");
+		let backup = backupManager.NewBackup("v7");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v6(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v6(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v7(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -567,7 +576,7 @@ actor class Main() {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v6(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v7(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -609,10 +618,10 @@ actor class Main() {
 					users.loadStable(usersStable);
 				};
 				case (#highestConfigs(highestConfigsStable)) {
-					highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStable.vals(), Text.equal, Text.hash);
+					highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV3>(highestConfigsStable.vals(), Text.equal, Text.hash);
 				};
 				case (#packageConfigs(packageConfigsStable)) {
-					packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStable.vals(), Text.equal, Text.hash);
+					packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV3>(packageConfigsStable.vals(), Text.equal, Text.hash);
 				};
 			};
 		});
@@ -638,8 +647,13 @@ actor class Main() {
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable : [(PackageName, [PackageVersion])] = [];
 	stable var packageOwnersStable : [(PackageName, Principal)] = [];
+
+	// todo: remove
 	stable var packageConfigsStableV2 : [(PackageId, PackageConfigV2)] = [];
 	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
+
+	stable var packageConfigsStableV3 : [(PackageId, PackageConfigV3)] = [];
+	stable var highestConfigsStableV3 : [(PackageName, PackageConfigV3)] = [];
 
 	stable var fileIdsByPackageStable : [(PackageId, [FileId])] = [];
 	stable var hashByFileIdStable : [(FileId, Blob)] = [];
@@ -666,15 +680,46 @@ actor class Main() {
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
 
-		highestConfigsStableV2 := Iter.toArray(highestConfigs.entries());
-		packageConfigsStableV2 := Iter.toArray(packageConfigs.entries());
+		// todo: remove
+		highestConfigsStableV2 := Iter.toArray(highestConfigsV2.entries());
+		packageConfigsStableV2 := Iter.toArray(packageConfigsV2.entries());
+
+		highestConfigsStableV3 := Iter.toArray(highestConfigs.entries());
+		packageConfigsStableV3 := Iter.toArray(packageConfigs.entries());
 	};
 
 	system func postupgrade() {
-		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
+		// todo: remove
+		packageConfigsV2 := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
 		packageConfigsStableV2 := [];
 
-		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
+		// todo: remove
+		highestConfigsV2 := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
+		highestConfigsStableV2 := [];
+
+		// todo: remove
+		if (packageConfigsStableV3.size() == 0) {
+			func config2to3(configV2 : PackageConfigV2) : PackageConfigV3 {
+				{
+					configV2 with
+					requirements = [];
+				};
+			};
+			// migrate packageConfigs v2 -> v3
+			packageConfigsStableV3 := Iter.map<(PackageId, PackageConfigV2), (PackageId, PackageConfigV3)>(packageConfigsV2.entries(), func((packageId, configV2)) {
+				(packageId, config2to3(configV2));
+			}) |> Iter.toArray(_);
+			// migrate highestConfigs v2 -> v3
+			highestConfigsStableV3 := Iter.map<(PackageId, PackageConfigV2), (PackageId, PackageConfigV3)>(highestConfigsV2.entries(), func((name, configV2)) {
+				(name, config2to3(configV2));
+			})|> Iter.toArray(_);
+		};
+
+		// step 2
+		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV3>(packageConfigsStableV3.vals(), Text.equal, Text.hash);
+		packageConfigsStableV2 := [];
+
+		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV3>(highestConfigsStableV3.vals(), Text.equal, Text.hash);
 		highestConfigsStableV2 := [];
 
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);

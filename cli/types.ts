@@ -18,6 +18,7 @@ export type Config = {
 	dependencies ?: Dependencies;
 	'dev-dependencies' ?: Dependencies;
 	toolchain ?: Toolchain;
+	requirements ?: Requirements;
 };
 
 export type Dependencies = Record<string, Dependency>;
@@ -27,7 +28,7 @@ export type Dependency = {
 	version ?: string; // mops package
 	repo ?: string; // github package
 	path ?: string; // local package
-}
+};
 
 export type Toolchain = {
 	moc ?: string;
@@ -36,3 +37,7 @@ export type Toolchain = {
 };
 
 export type Tool = 'moc' | 'wasmtime' | 'pocket-ic';
+
+export type Requirements = {
+	moc ?: string;
+};

@@ -117,7 +117,7 @@ export interface Main {
     [PublishingId, Text, bigint, Uint8Array | number[]],
     Result_3
   >,
-  'startPublish' : ActorMethod<[PackageConfigV2], Result_2>,
+  'startPublish' : ActorMethod<[PackageConfigV3_Publishing], Result_2>,
   'transferOwnership' : ActorMethod<[PackageName, Principal], Result_1>,
   'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
   'uploadBenchmarks' : ActorMethod<[PublishingId, Benchmarks], Result>,
@@ -136,7 +136,7 @@ export interface PackageChanges {
   'notes' : string,
   'devDeps' : Array<DepChange>,
 }
-export interface PackageConfigV2 {
+export interface PackageConfigV3 {
   'dfx' : string,
   'moc' : string,
   'scripts' : Array<Script>,
@@ -151,10 +151,11 @@ export interface PackageConfigV2 {
   'devDependencies' : Array<DependencyV2>,
   'repository' : string,
   'dependencies' : Array<DependencyV2>,
+  'requirements' : Array<Requirement>,
   'license' : string,
   'readme' : string,
 }
-export interface PackageConfigV2__1 {
+export interface PackageConfigV3_Publishing {
   'dfx' : string,
   'moc' : string,
   'scripts' : Array<Script>,
@@ -169,6 +170,7 @@ export interface PackageConfigV2__1 {
   'devDependencies' : Array<DependencyV2>,
   'repository' : string,
   'dependencies' : Array<DependencyV2>,
+  'requirements' : [] | [Array<Requirement>],
   'license' : string,
   'readme' : string,
 }
@@ -187,7 +189,7 @@ export interface PackageDetails {
   'dependents' : Array<PackageSummary__1>,
   'devDeps' : Array<PackageSummary__1>,
   'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV2__1,
+  'config' : PackageConfigV3,
   'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
@@ -220,7 +222,7 @@ export interface PackageSummary {
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV2__1,
+  'config' : PackageConfigV3,
   'publication' : PackagePublication,
 }
 export interface PackageSummaryWithChanges {
@@ -230,7 +232,7 @@ export interface PackageSummaryWithChanges {
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV2__1,
+  'config' : PackageConfigV3,
   'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
@@ -241,7 +243,7 @@ export interface PackageSummaryWithChanges__1 {
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV2__1,
+  'config' : PackageConfigV3,
   'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
@@ -252,7 +254,7 @@ export interface PackageSummary__1 {
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV2__1,
+  'config' : PackageConfigV3,
   'publication' : PackagePublication,
 }
 export type PackageVersion = string;
@@ -265,6 +267,7 @@ export interface Request {
   'headers' : Array<Header>,
   'certificate_version' : [] | [number],
 }
+export interface Requirement { 'value' : string, 'name' : string }
 export interface Response {
   'body' : Uint8Array | number[],
   'headers' : Array<Header>,
@@ -349,4 +352,4 @@ export interface User__1 {
 }
 export interface _SERVICE extends Main {}
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

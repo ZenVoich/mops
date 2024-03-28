@@ -10,7 +10,7 @@ import {checkConfigFile, getIdentity, getRootDir, progressBar, readConfig} from 
 import {mainActor} from '../api/actors.js';
 import {parallel} from '../parallel.js';
 import {docs} from './docs.js';
-import {Benchmarks, DependencyV2, PackageConfigV2} from '../declarations/main/main.did.js';
+import {Benchmarks, DependencyV2, PackageConfigV3_Publishing, Requirement} from '../declarations/main/main.did.js';
 import {Dependency} from '../types.js';
 import {testWithReporter} from './test/test.js';
 import {SilentReporter} from './test/reporters/silent-reporter.js';
@@ -29,7 +29,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 
 	// validate
 	for (let key of Object.keys(config)) {
-		if (!['package', 'dependencies', 'dev-dependencies', 'toolchain'].includes(key)) {
+		if (!['package', 'dependencies', 'dev-dependencies', 'toolchain', 'requirements'].includes(key)) {
 			console.log(chalk.red('Error: ') + `Unknown config section [${key}]`);
 			process.exit(1);
 		}
@@ -160,6 +160,15 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 		}
 	}
 
+	if (config.requirements) {
+		Object.keys(config.requirements).forEach((name) => {
+			if (name !== 'moc') {
+				console.log(chalk.red('Error: ') + `Unknown requirement "${name}"`);
+				return;
+			}
+		});
+	}
+
 	let toBackendDep = (dep : Dependency) : DependencyV2 => {
 		return {
 			...dep,
@@ -168,8 +177,12 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 		};
 	};
 
+	let toBackendReq = ([name, value] : [string, string]) : Requirement => {
+		return {name, value};
+	};
+
 	// map fields
-	let backendPkgConfig : PackageConfigV2 = {
+	let backendPkgConfig : PackageConfigV3_Publishing = {
 		name: config.package.name,
 		version: config.package.version,
 		keywords: config.package.keywords || [],
@@ -186,6 +199,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 		dependencies: Object.values(config.dependencies || {}).map(toBackendDep),
 		devDependencies: Object.values(config['dev-dependencies'] || {}).map(toBackendDep),
 		scripts: [],
+		requirements: [Object.entries(config.requirements || {}).map((req) => toBackendReq(req))],
 	};
 
 	let defaultFiles = [

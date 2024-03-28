@@ -14,7 +14,7 @@ import {getPackageSummary} "./getPackageSummary";
 
 module {
 	public type PackageSummary = Types.PackageSummary;
-	public type PackageConfigV2 = Types.PackageConfigV2;
+	public type PackageConfigV3 = Types.PackageConfigV3;
 	public type PageCount = Nat;
 
 	public func searchInRegistry(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, searchText : Text, limitOpt : ?Nat, pageIndexOpt : ?Nat) : ([PackageSummary], PageCount) {
@@ -26,7 +26,7 @@ module {
 		assert(searchText.size() <= 100);
 
 		type ConfigWithPoints = {
-			config : PackageConfigV2;
+			config : PackageConfigV3;
 			sortingPoints : Nat;
 		};
 		let matchedConfigs = Buffer.Buffer<ConfigWithPoints>(0);

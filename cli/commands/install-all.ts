@@ -7,6 +7,7 @@ import {installFromGithub} from '../vessel.js';
 import {notifyInstalls} from '../notify-installs.js';
 import {checkIntegrity} from '../integrity.js';
 import {installLocal} from './install-local.js';
+import {checkRequirements} from '../check-requirements.js';
 
 type InstallAllOptions = {
 	verbose ?: boolean;
@@ -51,6 +52,7 @@ export async function installAll({verbose = false, silent = false, lock} : Insta
 
 	if (!silent) {
 		logUpdate.clear();
+		await checkRequirements();
 		console.log(chalk.green('Packages installed'));
 	}
 }

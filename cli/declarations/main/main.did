@@ -132,6 +132,11 @@ type Response =
    streaming_strategy: opt StreamingStrategy;
    upgrade: opt bool;
  };
+type Requirement = 
+ record {
+   name: text;
+   value: text;
+ };
 type Request = 
  record {
    body: blob;
@@ -145,7 +150,7 @@ type PageCount = nat;
 type PackageVersion = text;
 type PackageSummary__1 = 
  record {
-   config: PackageConfigV2__1;
+   config: PackageConfigV3;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -157,7 +162,7 @@ type PackageSummary__1 =
 type PackageSummaryWithChanges__1 = 
  record {
    changes: PackageChanges;
-   config: PackageConfigV2__1;
+   config: PackageConfigV3;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -169,7 +174,7 @@ type PackageSummaryWithChanges__1 =
 type PackageSummaryWithChanges = 
  record {
    changes: PackageChanges;
-   config: PackageConfigV2__1;
+   config: PackageConfigV3;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -180,7 +185,7 @@ type PackageSummaryWithChanges =
  };
 type PackageSummary = 
  record {
-   config: PackageConfigV2__1;
+   config: PackageConfigV3;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -218,7 +223,7 @@ type PackageDetails =
  record {
    benchmarks: Benchmarks__1;
    changes: PackageChanges;
-   config: PackageConfigV2__1;
+   config: PackageConfigV3;
    dependents: vec PackageSummary__1;
    deps: vec PackageSummary__1;
    devDeps: vec PackageSummary__1;
@@ -234,7 +239,7 @@ type PackageDetails =
    testStats: TestStats__1;
    versionHistory: vec PackageSummaryWithChanges__1;
  };
-type PackageConfigV2__1 = 
+type PackageConfigV3_Publishing = 
  record {
    baseDir: text;
    dependencies: vec DependencyV2;
@@ -250,10 +255,11 @@ type PackageConfigV2__1 =
    name: PackageName__1;
    readme: text;
    repository: text;
+   requirements: opt vec Requirement;
    scripts: vec Script;
    version: text;
  };
-type PackageConfigV2 = 
+type PackageConfigV3 = 
  record {
    baseDir: text;
    dependencies: vec DependencyV2;
@@ -269,6 +275,7 @@ type PackageConfigV2 =
    name: PackageName__1;
    readme: text;
    repository: text;
+   requirements: vec Requirement;
    scripts: vec Script;
    version: text;
  };
@@ -341,7 +348,7 @@ type Main =
    search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
    setUserProp: (text, text) -> (Result_1);
    startFileUpload: (PublishingId, Text, nat, blob) -> (Result_3);
-   startPublish: (PackageConfigV2) -> (Result_2);
+   startPublish: (PackageConfigV3_Publishing) -> (Result_2);
    transferOwnership: (PackageName, principal) -> (Result_1);
    transformRequest: (HttpTransformArg) -> (HttpResponse) query;
    uploadBenchmarks: (PublishingId, Benchmarks) -> (Result);

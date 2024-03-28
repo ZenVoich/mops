@@ -22,7 +22,7 @@ module {
 	public type PackageDetails = Types.PackageDetails;
 	public type PackageSummaryWithChanges = Types.PackageSummaryWithChanges;
 	public type DependencyV2 = Types.DependencyV2;
-	public type PackageConfigV2 = Types.PackageConfigV2;
+	public type PackageConfigV3 = Types.PackageConfigV3;
 
 	// package details that appear on the package page
 	public func getPackageDetails(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageDetails {
@@ -62,7 +62,7 @@ module {
 
 		// dependents
 		func _getPackageDependents(name : PackageName) : [PackageSummary] {
-			func isDependent(config : PackageConfigV2) : Bool {
+			func isDependent(config : PackageConfigV3) : Bool {
 				let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
 					dep.name == name and dep.repo == "";
 				}));
@@ -72,17 +72,17 @@ module {
 				dependent or devDependent;
 			};
 
-			let dependentConfigs = Array.filter<PackageConfigV2>(registry.getAllConfigs(), isDependent);
+			let dependentConfigs = Array.filter<PackageConfigV3>(registry.getAllConfigs(), isDependent);
 
-			let pkgHash = func(a : PackageConfigV2) : Hash.Hash {
+			let pkgHash = func(a : PackageConfigV3) : Hash.Hash {
 				Text.hash(a.name);
 			};
-			let pkgEqual = func(a : PackageConfigV2, b : PackageConfigV2) : Bool {
+			let pkgEqual = func(a : PackageConfigV3, b : PackageConfigV3) : Bool {
 				a.name == b.name;
 			};
-			let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV2>(dependentConfigs, pkgHash, pkgEqual)).vals();
+			let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV3>(dependentConfigs, pkgHash, pkgEqual)).vals();
 
-			let summaries = Iter.map<PackageConfigV2, PackageSummary>(unique, func(config) {
+			let summaries = Iter.map<PackageConfigV3, PackageSummary>(unique, func(config) {
 				let ?summary = getPackageSummary(registry, users, downloadLog, config.name, config.version) else Debug.trap("Package '" # name # "' not found");
 				summary;
 			});

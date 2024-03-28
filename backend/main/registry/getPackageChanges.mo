@@ -10,7 +10,7 @@ module {
 	public type PackageName = Types.PackageName;
 	public type PackageVersion = Types.PackageVersion;
 	public type DependencyV2 = Types.DependencyV2;
-	public type PackageConfigV2 = Types.PackageConfigV2;
+	public type PackageConfigV3 = Types.PackageConfigV3;
 	public type TestStats = Types.TestStats;
 	public type TestsChanges = Types.TestsChanges;
 	public type PackageChanges = Types.PackageChanges;
@@ -61,7 +61,7 @@ module {
 	};
 
 	// deps changes
-	public func _computeDepsChangesBetween(prevPackageConfig : ?PackageConfigV2, curPackageConfig : ?PackageConfigV2) : [DepChange] {
+	public func _computeDepsChangesBetween(prevPackageConfig : ?PackageConfigV3, curPackageConfig : ?PackageConfigV3) : [DepChange] {
 		let oldDeps = switch (prevPackageConfig) {
 			case (?config) config.dependencies;
 			case (null) [];
@@ -74,7 +74,7 @@ module {
 	};
 
 	// dev deps changes
-	public func _computeDevDepsChangesBetween(prevPackageConfig : ?PackageConfigV2, curPackageConfig : ?PackageConfigV2) : [DepChange] {
+	public func _computeDevDepsChangesBetween(prevPackageConfig : ?PackageConfigV3, curPackageConfig : ?PackageConfigV3) : [DepChange] {
 		let oldDeps = switch (prevPackageConfig) {
 			case (?config) config.devDependencies;
 			case (null) [];

@@ -14,7 +14,7 @@ module {
 	public type PackageVersion = Types.PackageVersion;
 	public type PackageId = Types.PackageId;
 	public type FileId = Types.FileId;
-	public type PackageConfigV2 = Types.PackageConfigV2;
+	public type PackageConfigV3 = Types.PackageConfigV3;
 	public type PackagePublication = Types.PackagePublication;
 	public type PackageFileStats = Types.PackageFileStats;
 	public type TestStats = Types.TestStats;
@@ -22,7 +22,7 @@ module {
 
 	type NewPackageReleaseArgs = {
 		userId : Principal;
-		config : PackageConfigV2;
+		config : PackageConfigV3;
 		notes : Text;
 		storageId : Principal;
 		fileIds : [FileId];
@@ -35,8 +35,8 @@ module {
 	public class Registry(
 		packageVersions : TrieMap.TrieMap<PackageName, [PackageVersion]>,
 		packageOwners : TrieMap.TrieMap<PackageName, Principal>,
-		highestConfigs : TrieMap.TrieMap<PackageName, PackageConfigV2>,
-		packageConfigs : TrieMap.TrieMap<PackageId, PackageConfigV2>,
+		highestConfigs : TrieMap.TrieMap<PackageName, PackageConfigV3>,
+		packageConfigs : TrieMap.TrieMap<PackageId, PackageConfigV3>,
 		packagePublications : TrieMap.TrieMap<PackageId, PackagePublication>,
 		fileIdsByPackage : TrieMap.TrieMap<PackageId, [FileId]>,
 		hashByFileId : TrieMap.TrieMap<FileId, Blob>,
@@ -90,7 +90,7 @@ module {
 			packageNotes.put(packageId, newRelease.notes);
 		};
 
-		func _updateHighestConfig(config : PackageConfigV2) {
+		func _updateHighestConfig(config : PackageConfigV3) {
 			switch (getHighestVersion(config.name)) {
 				case (?ver) {
 					if (Semver.compare(config.version, ver) == #greater) {
@@ -107,11 +107,11 @@ module {
 		// All packages
 		// -----------------------------
 
-		public func getHighestConfigs() : [PackageConfigV2] {
+		public func getHighestConfigs() : [PackageConfigV3] {
 			Iter.toArray(highestConfigs.vals());
 		};
 
-		public func getAllConfigs() : [PackageConfigV2] {
+		public func getAllConfigs() : [PackageConfigV3] {
 			Iter.toArray(packageConfigs.vals());
 		};
 
@@ -141,7 +141,7 @@ module {
 		// By package name and version
 		// -----------------------------
 
-		public func getPackageConfig(name : PackageName, version : PackageVersion) : ?PackageConfigV2 {
+		public func getPackageConfig(name : PackageName, version : PackageVersion) : ?PackageConfigV3 {
 			packageConfigs.get(name # "@" # version);
 		};
 

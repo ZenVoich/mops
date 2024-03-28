@@ -62,7 +62,8 @@ export const idlFactory = ({ IDL }) => {
     'repo' : IDL.Text,
     'version' : IDL.Text,
   });
-  const PackageConfigV2__1 = IDL.Record({
+  const Requirement = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const PackageConfigV3 = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
     'scripts' : IDL.Vec(Script),
@@ -77,6 +78,7 @@ export const idlFactory = ({ IDL }) => {
     'devDependencies' : IDL.Vec(DependencyV2),
     'repository' : IDL.Text,
     'dependencies' : IDL.Vec(DependencyV2),
+    'requirements' : IDL.Vec(Requirement),
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
@@ -92,7 +94,7 @@ export const idlFactory = ({ IDL }) => {
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
-    'config' : PackageConfigV2__1,
+    'config' : PackageConfigV3,
     'publication' : PackagePublication,
   });
   const BenchmarkMetric = IDL.Text;
@@ -118,7 +120,7 @@ export const idlFactory = ({ IDL }) => {
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
-    'config' : PackageConfigV2__1,
+    'config' : PackageConfigV3,
     'publication' : PackagePublication,
   });
   const TestStats__1 = IDL.Record({
@@ -158,7 +160,7 @@ export const idlFactory = ({ IDL }) => {
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
-    'config' : PackageConfigV2__1,
+    'config' : PackageConfigV3,
     'changes' : PackageChanges,
     'publication' : PackagePublication,
   });
@@ -177,7 +179,7 @@ export const idlFactory = ({ IDL }) => {
     'dependents' : IDL.Vec(PackageSummary__1),
     'devDeps' : IDL.Vec(PackageSummary__1),
     'downloadsInLast7Days' : IDL.Nat,
-    'config' : PackageConfigV2__1,
+    'config' : PackageConfigV3,
     'changes' : PackageChanges,
     'publication' : PackagePublication,
   });
@@ -189,7 +191,7 @@ export const idlFactory = ({ IDL }) => {
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
     'downloadsInLast7Days' : IDL.Nat,
-    'config' : PackageConfigV2__1,
+    'config' : PackageConfigV3,
     'changes' : PackageChanges,
     'publication' : PackagePublication,
   });
@@ -245,7 +247,7 @@ export const idlFactory = ({ IDL }) => {
   const PageCount = IDL.Nat;
   const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Result_3 = IDL.Variant({ 'ok' : FileId, 'err' : Err });
-  const PackageConfigV2 = IDL.Record({
+  const PackageConfigV3_Publishing = IDL.Record({
     'dfx' : IDL.Text,
     'moc' : IDL.Text,
     'scripts' : IDL.Vec(Script),
@@ -260,6 +262,7 @@ export const idlFactory = ({ IDL }) => {
     'devDependencies' : IDL.Vec(DependencyV2),
     'repository' : IDL.Text,
     'dependencies' : IDL.Vec(DependencyV2),
+    'requirements' : IDL.Opt(IDL.Vec(Requirement)),
     'license' : IDL.Text,
     'readme' : IDL.Text,
   });
@@ -379,7 +382,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_3],
         [],
       ),
-    'startPublish' : IDL.Func([PackageConfigV2], [Result_2], []),
+    'startPublish' : IDL.Func([PackageConfigV3_Publishing], [Result_2], []),
     'transferOwnership' : IDL.Func(
         [PackageName, IDL.Principal],
         [Result_1],

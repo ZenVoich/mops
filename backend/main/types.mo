@@ -53,29 +53,44 @@ module {
 		version : Text; // max 20
 	};
 
+	public type Requirement = {
+		name : Text; // moc
+		value : Text; // version for moc
+	};
+
 	public type PackageConfigV2 = {
 		name : PackageName; // max 50
 		version : Text; // max 20
 		description : Text; // max 200
 		repository : Text; // max 300
 		keywords : [Text]; // max 5 items, max 20 chars
-		documentation : Text; // max 300
-		homepage : Text; // max 300
 		baseDir : Text; // max 50
 		readme : Text; // max 100
 		license : Text; // max 30
-		donation : Text; // empty or 64 chars
 		dependencies : [DependencyV2]; // max 100 items
 		devDependencies : [DependencyV2]; // max 100 items
+		// legacy for backward compatibility
+		documentation : Text; // max 300
+		homepage : Text; // max 300
+		donation : Text; // empty or 64 chars
 		scripts : [Script]; // max 40 items
 		dfx : Text; // max 10
 		moc : Text; // max 10
 	};
 
+	// legacy for backward compatibility
+	public type PackageConfigV3_Publishing = PackageConfigV2 and {
+		requirements : ?[Requirement]; // max 1 item
+	};
+
+	public type PackageConfigV3 = PackageConfigV2 and {
+		requirements : [Requirement]; // max 1 item
+	};
+
 	public type PackageSummary = {
 		owner : Principal; // TODO: ownerId?
 		ownerInfo : User;
-		config : PackageConfigV2;
+		config : PackageConfigV3;
 		publication : PackagePublication;
 		downloadsTotal : Nat;
 		downloadsInLast30Days : Nat;
