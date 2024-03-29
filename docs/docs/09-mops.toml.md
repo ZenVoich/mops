@@ -44,6 +44,8 @@ See [toolchain management](/cli/toolchain) page for more details.
 
 When a user installs your package(as a transitive dependency too), Mops will check if the requirements are met and display a warning if they are not.
 
+Use only if your package will not work with older versions of the `moc`.
+
 | Field                | Description                                      |
 | -------------------- | ------------------------------------------------ |
 | moc                  | Motoko compiler version  (e.g. `0.11.0` which means `>=0.11.0`)  |
