@@ -3,8 +3,8 @@
   "version": "0.41.0",
   "type": "module",
   "bin": {
-    "mops": "bin/mops.js",
-    "ic-mops": "bin/mops.js",
+    "mops": "dist/bin/mops.js",
+    "ic-mops": "dist/bin/mops.js",
     "moc-wrapper": "bin/moc-wrapper.sh"
   },
   "files": [
