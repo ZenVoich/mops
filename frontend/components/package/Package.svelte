@@ -394,12 +394,14 @@
 	.github-dep {
 		display: flex;
 		justify-content: space-between;
+		gap: 20px;
 		margin-right: 30px;
 	}
 
 	.github-dep-repo {
 		display: flex;
 		gap: 5px;
+		white-space: nowrap;
 	}
 
 	.body {
