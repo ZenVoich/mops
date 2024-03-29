@@ -62,10 +62,8 @@ actor class Main() {
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
 	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
-	var highestConfigsV2 = TrieMap.TrieMap<PackageName, PackageConfigV2>(Text.equal, Text.hash);
 	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV3>(Text.equal, Text.hash);
 
-	var packageConfigsV2 = TrieMap.TrieMap<PackageId, PackageConfigV2>(Text.equal, Text.hash);
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV3>(Text.equal, Text.hash);
 	var packagePublications = TrieMap.TrieMap<PackageId, PackagePublication>(Text.equal, Text.hash);
 	var fileIdsByPackage = TrieMap.TrieMap<PackageId, [FileId]>(Text.equal, Text.hash);
@@ -648,10 +646,6 @@ actor class Main() {
 	stable var packageVersionsStable : [(PackageName, [PackageVersion])] = [];
 	stable var packageOwnersStable : [(PackageName, Principal)] = [];
 
-	// todo: remove
-	stable var packageConfigsStableV2 : [(PackageId, PackageConfigV2)] = [];
-	stable var highestConfigsStableV2 : [(PackageName, PackageConfigV2)] = [];
-
 	stable var packageConfigsStableV3 : [(PackageId, PackageConfigV3)] = [];
 	stable var highestConfigsStableV3 : [(PackageName, PackageConfigV3)] = [];
 
@@ -680,41 +674,11 @@ actor class Main() {
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
 
-		// todo: remove
-		highestConfigsStableV2 := Iter.toArray(highestConfigsV2.entries());
-		packageConfigsStableV2 := Iter.toArray(packageConfigsV2.entries());
-
 		highestConfigsStableV3 := Iter.toArray(highestConfigs.entries());
 		packageConfigsStableV3 := Iter.toArray(packageConfigs.entries());
 	};
 
 	system func postupgrade() {
-		// todo: remove
-		packageConfigsV2 := TrieMap.fromEntries<PackageId, PackageConfigV2>(packageConfigsStableV2.vals(), Text.equal, Text.hash);
-		packageConfigsStableV2 := [];
-
-		// todo: remove
-		highestConfigsV2 := TrieMap.fromEntries<PackageName, PackageConfigV2>(highestConfigsStableV2.vals(), Text.equal, Text.hash);
-		highestConfigsStableV2 := [];
-
-		// todo: remove
-		if (packageConfigsStableV3.size() == 0) {
-			func config2to3(configV2 : PackageConfigV2) : PackageConfigV3 {
-				{
-					configV2 with
-					requirements = [];
-				};
-			};
-			// migrate packageConfigs v2 -> v3
-			packageConfigsStableV3 := Iter.map<(PackageId, PackageConfigV2), (PackageId, PackageConfigV3)>(packageConfigsV2.entries(), func((packageId, configV2)) {
-				(packageId, config2to3(configV2));
-			}) |> Iter.toArray(_);
-			// migrate highestConfigs v2 -> v3
-			highestConfigsStableV3 := Iter.map<(PackageId, PackageConfigV2), (PackageId, PackageConfigV3)>(highestConfigsV2.entries(), func((name, configV2)) {
-				(name, config2to3(configV2));
-			})|> Iter.toArray(_);
-		};
-
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV3>(packageConfigsStableV3.vals(), Text.equal, Text.hash);
 		packageConfigsStableV3 := [];
 
