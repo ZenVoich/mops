@@ -79,7 +79,8 @@ const config = {
 					// },
 					// {to: '/blog', label: 'Blog', position: 'left'},
 					{
-						href: 'https://mops.one',
+						to: 'https://mops.one',
+						target: '_self',
 						label: 'mops.one',
 						position: 'right',
 					},
