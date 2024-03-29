@@ -64,6 +64,14 @@
 			</div>
 		</div>
 	{/if}
+	{#if packageDetails.config.requirements}
+		<div class="detail">
+			<div class="label">Requirements</div>
+			{#each packageDetails.config.requirements as req}
+				<div class="sub-row"><span>{req.name}</span> <span>{req.value}</span></div>
+			{/each}
+		</div>
+	{/if}
 	{#if packageDetails.ownerInfo.name}
 		<div class="detail">
 			<div class="label">Owner</div>
@@ -90,14 +98,6 @@
 		<div class="detail">
 			<div class="label">Owner</div>
 			<div class="value">{packageDetails.owner}</div>
-		</div>
-	{/if}
-	{#if packageDetails.config.requirements}
-		<div class="detail">
-			<div class="label">Requirements</div>
-			{#each packageDetails.config.requirements as req}
-				<div class="sub-row"><span>{req.name}</span> <span>{req.value}</span></div>
-			{/each}
 		</div>
 	{/if}
 
