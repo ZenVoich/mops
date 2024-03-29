@@ -26,7 +26,8 @@
 
 			<div class="getting-started">
 				<div class="buttons">
-					<a class="button" href="https://docs.mops.one/quick-start" target="_blank">Documentation</a>
+					<a class="button" href="https://docs.mops.one/quick-start">Documentation</a>
+					<a href="https://cli.mops.one">CLI Releases</a>
 				</div>
 			</div>
 		</div>
@@ -96,15 +97,15 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 50px;
+		padding: 30px 50px;
 		gap: 30px;
 	}
 
 	.getting-started .buttons {
 		display: flex;
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: 40px;
+		flex-direction: column;
+		align-items: center;
+		gap: 20px;
 	}
 
 	.getting-started .button {
