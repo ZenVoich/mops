@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.41.0"
+    "latest": "0.41.1"
   },
   "versions": {
     "0.41.0": {
@@ -9,6 +9,13 @@
       "relseaseNotes": "* Add `mops self update` command to update the CLI to the latest version\n* Add `mops self uninstall` command to uninstall the CLI\n",
       "url": "https://cli.mops.one/versions/0.41.0.tgz",
       "hash": "8ca26575e3a441d03304d9be9f94aba1c2c39eade0b5af0c0b6ac25f5c1194b8"
+    },
+    "0.41.1": {
+      "time": 1711698076707,
+      "size": 700652,
+      "relseaseNotes": "* Fix bin path for npm\n",
+      "url": "https://cli.mops.one/versions/0.41.1.tgz",
+      "hash": "0fca9334bc1390db2eb2c5c3076958045088a9b8a8b6abf9503a953c1c4958c4"
     }
   }
 }
