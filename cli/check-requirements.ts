@@ -1,16 +1,21 @@
 import path from 'node:path';
-
-import {getDependencyType, readConfig} from './mops.js';
-import {resolvePackages} from './resolve-packages.js';
 import {SemVer} from 'semver';
 import chalk from 'chalk';
 
+import {getDependencyType, readConfig} from './mops.js';
+import {resolvePackages} from './resolve-packages.js';
+import {getMocVersion} from './helpers/get-moc-version.js';
+
 export async function checkRequirements({verbose = false} = {}) {
 	let config = readConfig();
-	if (!config.toolchain?.moc) {
+	let mocVersion = config.toolchain?.moc;
+	if (!mocVersion) {
+		mocVersion = getMocVersion();
+	}
+	if (!mocVersion) {
 		return;
 	}
-	let installedMoc = new SemVer(config.toolchain.moc);
+	let installedMoc = new SemVer(mocVersion);
 	let highestRequiredMoc = new SemVer('0.0.0');
 	let highestRequiredMocPkgId = '';
 
