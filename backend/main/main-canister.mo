@@ -715,12 +715,11 @@ actor class Main() {
 			})|> Iter.toArray(_);
 		};
 
-		// step 2
 		packageConfigs := TrieMap.fromEntries<PackageId, PackageConfigV3>(packageConfigsStableV3.vals(), Text.equal, Text.hash);
-		packageConfigsStableV2 := [];
+		packageConfigsStableV3 := [];
 
 		highestConfigs := TrieMap.fromEntries<PackageName, PackageConfigV3>(highestConfigsStableV3.vals(), Text.equal, Text.hash);
-		highestConfigsStableV2 := [];
+		highestConfigsStableV3 := [];
 
 		packagePublications := TrieMap.fromEntries<PackageId, PackagePublication>(packagePublicationsStable.vals(), Text.equal, Text.hash);
 		packagePublicationsStable := [];
