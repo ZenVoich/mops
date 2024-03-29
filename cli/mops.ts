@@ -206,7 +206,16 @@ export function readConfig(configFile = getClosestConfigFile()) : Config {
 	processDeps(toml.dependencies || {});
 	processDeps(toml['dev-dependencies'] || {});
 
-	return toml;
+	let config : Config = {...toml};
+
+	Object.entries(config.requirements || {}).forEach(([name, value]) => {
+		if (name === 'moc') {
+			config.requirements = config.requirements || {};
+			config.requirements.moc = value;
+		}
+	});
+
+	return config;
 }
 
 export function writeConfig(config : Config, configFile = getClosestConfigFile()) {

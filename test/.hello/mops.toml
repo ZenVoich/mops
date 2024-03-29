@@ -8,3 +8,6 @@ keywords = [ "test", "map" ]
 
 [dependencies]
 # ccc = "../.flat/ccc"
+
+[requirements]
+moc = "0.11.0"
