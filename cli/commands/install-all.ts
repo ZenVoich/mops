@@ -13,9 +13,10 @@ type InstallAllOptions = {
 	verbose ?: boolean;
 	silent ?: boolean;
 	lock ?: 'check' | 'update' | 'ignore';
+	threads ?: number;
 }
 
-export async function installAll({verbose = false, silent = false, lock} : InstallAllOptions = {}) {
+export async function installAll({verbose = false, silent = false, threads, lock} : InstallAllOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -31,7 +32,7 @@ export async function installAll({verbose = false, silent = false, lock} : Insta
 			await installFromGithub(name, repo, {verbose, silent});
 		}
 		else {
-			let res = await (path ? installLocal(name, path, {silent, verbose}) : install(name, version, {silent, verbose}));
+			let res = await (path ? installLocal(name, path, {silent, verbose}) : install(name, version, {silent, verbose, threads}));
 			if (res === false) {
 				return;
 			}

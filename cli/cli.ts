@@ -169,7 +169,7 @@ program
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await installAll({silent: true, lock: 'ignore'});
+		await installAll({silent: true, lock: 'ignore', threads: 6});
 		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
