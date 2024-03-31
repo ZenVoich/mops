@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {createLogUpdate} from 'log-update';
 import {checkConfigFile, readConfig} from '../mops.js';
 import {install} from './install.js';
