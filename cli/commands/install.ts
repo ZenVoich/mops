@@ -11,7 +11,7 @@ import {addCache, copyCache, isCached} from '../cache.js';
 import {downloadFile, getPackageFilesInfo} from '../api/downloadPackageFiles.js';
 import {installLocal} from './install-local.js';
 
-export async function install(pkg : string, version = '', {verbose = false, silent = false, dep = false} = {}) : Promise<Record<string, string> | false> {
+export async function install(pkg : string, version = '', {verbose = false, silent = false, dep = false, threads = 12} = {}) : Promise<Record<string, string> | false> {
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -50,8 +50,6 @@ export async function install(pkg : string, version = '', {verbose = false, sile
 	}
 	// download
 	else {
-		let threads = 16;
-
 		// GitHub Actions fails with "fetch failed" if there are multiple concurrent actions
 		if (process.env.GITHUB_ENV) {
 			threads = 4;
