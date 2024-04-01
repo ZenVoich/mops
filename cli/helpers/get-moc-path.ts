@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {execSync} from 'node:child_process';
 
 export function getMocPath() : string {

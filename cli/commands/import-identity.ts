@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {Buffer} from 'node:buffer';
 import chalk from 'chalk';
 import prompts from 'prompts';
 import {deleteSync} from 'del';

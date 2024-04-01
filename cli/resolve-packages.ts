@@ -1,3 +1,4 @@
+import process from 'node:process';
 import path from 'node:path';
 import chalk from 'chalk';
 import {checkConfigFile, formatDir, formatGithubDir, getRootDir, parseGithubURL, readConfig} from './mops.js';

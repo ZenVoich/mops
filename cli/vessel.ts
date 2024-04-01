@@ -1,12 +1,13 @@
+import process from 'node:process';
 import {existsSync, mkdirSync, createWriteStream, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {pipeline} from 'node:stream';
 import {deleteSync} from 'del';
 import {execaCommand} from 'execa';
 import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
 import got from 'got';
 import decompress from 'decompress';
-import {pipeline} from 'stream';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
 import {addCache, copyCache, isCached} from './cache.js';
 

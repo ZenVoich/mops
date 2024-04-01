@@ -1,3 +1,4 @@
+import process from 'node:process';
 import child_process, {execSync} from 'node:child_process';
 import chalk from 'chalk';
 import {version, globalConfigDir} from '../mops.js';

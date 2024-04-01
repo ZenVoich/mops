@@ -1,3 +1,4 @@
+import process from 'node:process';
 import chalk from 'chalk';
 import {checkConfigFile, getIdentity, readConfig} from '../mops.js';
 import {mainActor} from '../api/actors.js';

@@ -1,3 +1,4 @@
+import process from 'node:process';
 import path from 'node:path';
 import fs from 'node:fs';
 import {Identity} from '@dfinity/agent';
@@ -14,8 +15,8 @@ import {getNetwork} from './api/network.js';
 import {getHighestVersion} from './api/getHighestVersion.js';
 
 
-if (!global.fetch) {
-	global.fetch = fetch as any;
+if (!globalThis.fetch) {
+	globalThis.fetch = fetch as any;
 }
 
 // (!) make changes in pair with backend

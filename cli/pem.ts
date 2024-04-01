@@ -1,8 +1,9 @@
 import fs from 'node:fs';
+import {Buffer} from 'node:buffer';
+import crypto from 'node:crypto';
 import {Ed25519KeyIdentity} from '@dfinity/identity';
 import {Secp256k1KeyIdentity} from '@dfinity/identity-secp256k1';
 import pemfile from 'pem-file';
-import crypto from 'crypto';
 
 export function decodeFile(file : string, password ?: string) {
 	let rawKey = fs.readFileSync(file);

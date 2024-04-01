@@ -1,3 +1,4 @@
+import process from 'node:process';
 import fs from 'node:fs';
 import {Command, Argument, Option} from 'commander';
 import chalk from 'chalk';

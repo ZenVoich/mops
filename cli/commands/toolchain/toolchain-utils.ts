@@ -1,4 +1,6 @@
+import process from 'node:process';
 import path from 'node:path';
+import {Buffer} from 'node:buffer';
 import {unzipSync} from 'node:zlib';
 import {chmodSync} from 'node:fs';
 import fs from 'fs-extra';

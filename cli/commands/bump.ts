@@ -1,3 +1,4 @@
+import process from 'node:process';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import {checkConfigFile, readConfig, writeConfig} from '../mops.js';

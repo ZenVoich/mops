@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';

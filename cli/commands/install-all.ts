@@ -1,3 +1,4 @@
+import process from 'node:process';
 import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
 import {checkConfigFile, readConfig} from '../mops.js';

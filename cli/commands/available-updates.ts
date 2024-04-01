@@ -1,3 +1,4 @@
+import process from 'node:process';
 import chalk from 'chalk';
 import {mainActor} from '../api/actors.js';
 import {Config} from '../types.js';

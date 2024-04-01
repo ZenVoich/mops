@@ -1,3 +1,4 @@
+import process from 'node:process';
 import asTable from 'as-table';
 import chalk from 'chalk';
 import {mainActor} from '../api/actors.js';

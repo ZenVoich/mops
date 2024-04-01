@@ -1,9 +1,8 @@
 import {Actor, HttpAgent, Identity} from '@dfinity/agent';
 import {Principal} from '@dfinity/principal';
 
-import {idlFactory} from '../declarations/main/index.js';
-import {_SERVICE} from '../declarations/main/main.did.js';
-import {idlFactory as storageIdlFactory} from '../declarations/storage/index.js';
+import {_SERVICE, idlFactory} from '../declarations/main/main.did.js';
+import {idlFactory as storageIdlFactory} from '../declarations/storage/storage.did.js';
 import {_SERVICE as _STORAGE_SERVICE} from '../declarations/storage/storage.did.js';
 
 import {getEndpoint} from './network.js';
