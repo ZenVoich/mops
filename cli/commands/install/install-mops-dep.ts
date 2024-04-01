@@ -1,18 +1,27 @@
 import process from 'node:process';
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
+import {Buffer} from 'node:buffer';
 import {createLogUpdate} from 'log-update';
 import chalk from 'chalk';
-import {checkConfigFile, formatDir, progressBar, readConfig} from '../mops.js';
-import {getHighestVersion} from '../api/getHighestVersion.js';
-import {storageActor} from '../api/actors.js';
-import {parallel} from '../parallel.js';
-import {installFromGithub} from '../vessel.js';
-import {addCache, copyCache, isCached} from '../cache.js';
-import {downloadFile, getPackageFilesInfo} from '../api/downloadPackageFiles.js';
-import {installLocal} from './install-local.js';
+import {checkConfigFile, formatDir, progressBar, readConfig} from '../../mops.js';
+import {getHighestVersion} from '../../api/getHighestVersion.js';
+import {storageActor} from '../../api/actors.js';
+import {parallel} from '../../parallel.js';
+import {addCache, copyCache, isCached} from '../../cache.js';
+import {downloadFile, getPackageFilesInfo} from '../../api/downloadPackageFiles.js';
+import {installDeps} from './install-deps.js';
 
-export async function install(pkg : string, version = '', {verbose = false, silent = false, dep = false, threads = 12} = {}) : Promise<Record<string, string> | false> {
+type InstallMopsDepOptions = {
+	verbose ?: boolean;
+	silent ?: boolean;
+	dep ?: boolean;
+	threads ?: number;
+};
+
+export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads} : InstallMopsDepOptions = {}) : Promise<Record<string, string> | false> {
+	threads = threads || 12;
+
 	if (!checkConfigFile()) {
 		return false;
 	}
@@ -95,31 +104,17 @@ export async function install(pkg : string, version = '', {verbose = false, sile
 	}
 
 	// install dependencies
-	let ok = true;
 	let config = readConfig(path.join(dir, 'mops.toml'));
-	let deps = Object.values(config.dependencies || {});
-	let installedDeps = {};
-	for (const {name, repo, version, path: depPath} of deps) {
-		if (repo) {
-			await installFromGithub(name, repo, {silent, verbose});
-		}
-		else {
-			let res = await (depPath ? installLocal(name, depPath, {silent, verbose}) : install(name, version, {silent, verbose}));
-			if (res) {
-				installedDeps = {...installedDeps, ...res};
-			}
-			else {
-				ok = false;
-			}
-		}
-	}
+	let res = await installDeps(Object.values(config.dependencies || {}), {silent, verbose});
 
+	if (!res) {
+		return false;
+	}
+	let installedDeps = res;
+
+	// add self to installed deps
 	if (!alreadyInstalled) {
 		installedDeps = {...installedDeps, [pkg]: version};
-	}
-
-	if (!ok) {
-		return false;
 	}
 	return installedDeps;
 }

@@ -7,7 +7,7 @@ import prompts from 'prompts';
 
 import {checkApiCompatibility, writeConfig} from '../mops.js';
 import {mainActor} from '../api/actors.js';
-import {installAll} from './install-all.js';
+import {installAll} from './install/install-all.js';
 import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {Config, Dependencies} from '../types.js';
 import {template} from './template.js';

@@ -96,7 +96,7 @@
     "bun": "1.0.35",
     "esbuild": "0.20.1",
     "tsx": "4.7.1",
-    "typescript": "5.3.2"
+    "typescript": "5.4.3"
   },
   "overrides": {
     "@dfinity/agent": "^0.19.3",

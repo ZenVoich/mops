@@ -1,13 +1,11 @@
 import process from 'node:process';
 import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
-import {checkConfigFile, readConfig} from '../mops.js';
-import {install} from './install.js';
-import {installFromGithub} from '../vessel.js';
-import {notifyInstalls} from '../notify-installs.js';
-import {checkIntegrity} from '../integrity.js';
-import {installLocal} from './install-local.js';
-import {checkRequirements} from '../check-requirements.js';
+import {checkConfigFile, readConfig} from '../../mops.js';
+import {notifyInstalls} from '../../notify-installs.js';
+import {checkIntegrity} from '../../integrity.js';
+import {installDeps} from './install-deps.js';
+import {checkRequirements} from '../../check-requirements.js';
 
 type InstallAllOptions = {
 	verbose ?: boolean;
@@ -25,20 +23,12 @@ export async function installAll({verbose = false, silent = false, threads, lock
 	let deps = Object.values(config.dependencies || {});
 	let devDeps = Object.values(config['dev-dependencies'] || {});
 	let allDeps = [...deps, ...devDeps];
-	let installedPackages = {};
 
-	for (let {name, repo, path, version} of allDeps) {
-		if (repo) {
-			await installFromGithub(name, repo, {verbose, silent});
-		}
-		else {
-			let res = await (path ? installLocal(name, path, {silent, verbose}) : install(name, version, {silent, verbose, threads}));
-			if (res === false) {
-				return;
-			}
-			installedPackages = {...installedPackages, ...res};
-		}
+	let res = await installDeps(allDeps, {silent, verbose, threads});
+	if (!res) {
+		return;
 	}
+	let installedDeps = res;
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
@@ -47,7 +37,7 @@ export async function installAll({verbose = false, silent = false, threads, lock
 	}
 
 	await Promise.all([
-		notifyInstalls(Object.keys(installedPackages)),
+		notifyInstalls(Object.keys(installedDeps)),
 		checkIntegrity(lock),
 	]);
 

@@ -4,8 +4,8 @@ import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
 import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig, writeConfig} from '../mops.js';
 import {getHighestVersion} from '../api/getHighestVersion.js';
+import {installMopsDep} from './install/install-mops-dep.js';
 import {installFromGithub} from '../vessel.js';
-import {install} from './install.js';
 import {notifyInstalls} from '../notify-installs.js';
 import {checkIntegrity} from '../integrity.js';
 import {checkRequirements} from '../check-requirements.js';
@@ -93,7 +93,7 @@ export async function add(name : string, {verbose = false, dev = false, lock} : 
 		await installFromGithub(pkgDetails.name, pkgDetails.repo, {verbose: verbose});
 	}
 	else if (!pkgDetails.path) {
-		let res = await install(pkgDetails.name, pkgDetails.version, {verbose: verbose});
+		let res = await installMopsDep(pkgDetails.name, pkgDetails.version, {verbose: verbose});
 		if (res === false) {
 			return;
 		}

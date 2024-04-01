@@ -10,7 +10,7 @@ import {sources} from './commands/sources.js';
 import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
 import {getNetwork} from './api/network.js';
 import {whoami} from './commands/whoami.js';
-import {installAll} from './commands/install-all.js';
+import {installAll} from './commands/install/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
 import {cacheSize, cleanCache} from './cache.js';
