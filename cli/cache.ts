@@ -28,27 +28,6 @@ export function getGithubDepCacheName(name : string, repo : string) {
 	return `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
 }
 
-// ------
-// export let getMopsDepCacheDir = (name : string, version : string) => {
-// 	let dir = `${name}@${version}`;
-// 	return path.join(globalCacheDir, 'packages', dir);
-// };
-
-// export let getGithubDepCacheDir = (name : string, branch : string, commitHash : string) => {
-// 	let dir = `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
-// 	return path.join(globalCacheDir, 'packages', dir);
-// };
-
-// export let isMopsDepCached = (name : string, version : string) => {
-// 	let dir = getMopsDepCacheDir(name, version);
-// 	return fs.existsSync(dir);
-// };
-
-// export let isGithubDepCached = (name : string, branch : string, commitHash : string) => {
-// 	let dir = getGithubDepCacheDir(name, branch, commitHash);
-// 	return fs.existsSync(dir);
-// };
-
 export let addCache = (cacheName : string, source : string) => {
 	let dest = path.join(globalCacheDir, 'packages', cacheName);
 	fs.mkdirSync(dest, {recursive: true});
