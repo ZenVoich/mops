@@ -9,7 +9,7 @@ import {createLogUpdate} from 'log-update';
 import got from 'got';
 import decompress from 'decompress';
 import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
-import {addCache, copyCache, isCached} from './cache.js';
+import {getDepCacheDir, getGithubDepCacheName, isDepCached} from './cache.js';
 
 const dhallFileToJson = async (filePath : string, silent : boolean) => {
 	if (existsSync(filePath)) {
@@ -150,38 +150,35 @@ export const downloadFromGithub = async (repo : string, dest : string, onProgres
 };
 
 export const installFromGithub = async (name : string, repo : string, {verbose = false, dep = false, silent = false} = {}) => {
-	let {branch, commitHash} = parseGithubURL(repo);
 	let dir = formatGithubDir(name, repo);
-	let cacheName = `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
+	let cacheName = getGithubDepCacheName(name, repo);
+	let cacheDir = getDepCacheDir(cacheName);
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
 	if (existsSync(dir)) {
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache)`);
 	}
-	else if (isCached(cacheName)) {
-		await copyCache(cacheName, dir);
+	else if (isDepCached(cacheName)) {
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (global cache)`);
 	}
 	else {
-		mkdirSync(dir, {recursive: true});
 
 		let progress = (step : number, total : number) => {
 			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} ${progressBar(step, total)}`);
 		};
 
-		progress(0, 2 * (1024 ** 2));
+		progress(0, 1024 * 500);
+
+		mkdirSync(cacheDir, {recursive: true});
 
 		try {
-			await downloadFromGithub(repo, dir, progress);
+			await downloadFromGithub(repo, cacheDir, progress);
 		}
 		catch (err) {
-			deleteSync([dir]);
+			deleteSync([cacheDir]);
 			process.exit(1);
 		}
-
-		// add to cache
-		await addCache(cacheName, dir);
 	}
 
 	if (verbose) {

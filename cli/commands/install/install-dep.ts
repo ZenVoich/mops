@@ -3,6 +3,7 @@ import {installFromGithub} from '../../vessel.js';
 import {installMopsDep} from './install-mops-dep.js';
 import {Dependency} from '../../types.js';
 import {installLocalDep} from './install-local-dep.js';
+import {getRootDir} from '../../mops.js';
 
 type InstallDepOptions = {
 	verbose ?: boolean;
@@ -19,6 +20,7 @@ export async function installDep(dep : Dependency, {verbose, silent, threads} : 
 	}
 	else if (dep.path) {
 		let depPath = dep.path;
+		parentPkgPath = parentPkgPath || getRootDir();
 		if (parentPkgPath) {
 			depPath = path.resolve(parentPkgPath, dep.path);
 		}

@@ -6,9 +6,10 @@ import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig, writeConfi
 import {getHighestVersion} from '../api/getHighestVersion.js';
 import {installMopsDep} from './install/install-mops-dep.js';
 import {installFromGithub} from '../vessel.js';
-import {notifyInstalls} from '../notify-installs.js';
 import {checkIntegrity} from '../integrity.js';
 import {checkRequirements} from '../check-requirements.js';
+import {syncLocalCache} from './install/sync-local-cache.js';
+import {notifyInstalls} from '../notify-installs.js';
 
 type AddOptions = {
 	verbose ?: boolean;
@@ -87,8 +88,6 @@ export async function add(name : string, {verbose = false, dev = false, lock} : 
 		};
 	}
 
-	let installedPackages = {};
-
 	if (pkgDetails.repo) {
 		await installFromGithub(pkgDetails.name, pkgDetails.repo, {verbose: verbose});
 	}
@@ -97,7 +96,6 @@ export async function add(name : string, {verbose = false, dev = false, lock} : 
 		if (res === false) {
 			return;
 		}
-		installedPackages = {...installedPackages, ...res};
 	}
 
 	const depsProp = dev ? 'dev-dependencies' : 'dependencies';
@@ -116,8 +114,11 @@ export async function add(name : string, {verbose = false, dev = false, lock} : 
 	if (lock !== 'ignore') {
 		logUpdate('Checking integrity...');
 	}
+
+	let installedPackages = await syncLocalCache();
+
 	await Promise.all([
-		notifyInstalls(Object.keys(installedPackages)),
+		notifyInstalls(installedPackages),
 		checkIntegrity(lock),
 	]);
 

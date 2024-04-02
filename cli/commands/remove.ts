@@ -1,9 +1,12 @@
 import fs from 'node:fs';
 import {deleteSync} from 'del';
 import chalk from 'chalk';
-import {formatDir, formatGithubDir, checkConfigFile, readConfig, writeConfig} from '../mops.js';
+import {checkConfigFile, getRootDir, readConfig, writeConfig} from '../mops.js';
 import {Config, Dependency} from '../types.js';
 import {checkIntegrity} from '../integrity.js';
+import {getDepCacheDir, getDepCacheName} from '../cache.js';
+import path from 'node:path';
+import {syncLocalCache} from './install/sync-local-cache.js';
 
 type RemoveOptions = {
 	verbose ?: boolean;
@@ -12,7 +15,6 @@ type RemoveOptions = {
 	lock ?: 'update' | 'ignore';
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function remove(name : string, {dev = false, verbose = false, dryRun = false, lock} : RemoveOptions = {}) {
 	if (!checkConfigFile()) {
 		return;
@@ -31,13 +33,12 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 	}
 
 	function getTransitiveDependenciesOf(name : string, version : string | undefined, repo ?: string) {
-		let pkgDir = '';
-		if (repo) {
-			pkgDir = formatGithubDir(name, repo);
+		let value = version || repo;
+		if (!value) {
+			return [];
 		}
-		else if (version) {
-			pkgDir = formatDir(name, version);
-		}
+		let cacheName = getDepCacheName(name, value);
+		let pkgDir = getDepCacheDir(cacheName);
 		let configFile = pkgDir + '/mops.toml';
 		if (!fs.existsSync(configFile)) {
 			verbose && console.log('no config', configFile);
@@ -78,16 +79,11 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 			verbose && console.log(`Ignored transitive dependency ${depId} (other deps depend on it)`);
 			continue;
 		}
-		let pkgDir;
-		if (dep.repo) {
-			pkgDir = formatGithubDir(dep.name, dep.repo);
-		}
-		else if (dep.version) {
-			pkgDir = formatDir(dep.name, dep.version);
-		}
-		if (pkgDir && fs.existsSync(pkgDir)) {
-			dryRun || deleteSync([`${pkgDir}`], {force: true});
-			verbose && console.log(`Removed local cache ${pkgDir}`);
+		let cacheName = getDepCacheName(dep.name, dep.version || dep.repo || '');
+		let localCacheDir = path.join(getRootDir(), '.mops', cacheName);
+		if (localCacheDir && fs.existsSync(localCacheDir)) {
+			dryRun || deleteSync([localCacheDir], {force: true});
+			verbose && console.log(`Removed local cache ${localCacheDir}`);
 		}
 	}
 
@@ -100,6 +96,7 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 	}
 	dryRun || writeConfig(config);
 
+	await syncLocalCache();
 	await checkIntegrity(lock);
 
 	console.log(chalk.green('Package removed ') + `${name} = "${version}"`);
