@@ -12,6 +12,12 @@
 </html>
 
 <style>
+	:root {
+		--color-primary: hsl(73deg 20% 44%);
+		--color-primary-light: hsl(72deg 24% 55%);
+		--color-secondary: rgb(213 217 208);
+	}
+
 	body {
 		margin: 0;
 		font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
@@ -22,5 +28,14 @@
 		border-radius: 3px;
 		overflow-x: auto;
 		background: #eceeee;
+	}
+
+	a {
+		color: var(--color-primary);
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
 	}
 </style>
