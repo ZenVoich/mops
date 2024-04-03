@@ -1,6 +1,8 @@
 # Mops CLI Changelog
 
 ## unreleased
+
+## 0.42.1
 - Fix package requirements check from subdirectories
 - Fix local and global cache inconsistency
 

@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.42.0"
+    "latest": "0.42.1"
   },
   "versions": {
     "0.41.0": {
@@ -23,6 +23,13 @@
       "relseaseNotes": "* Package requirements support ([docs](https://docs.mops.one/mops.toml#requirements))\n* Refactor `mops install` command\n* Reduce install threads to 12 (was 16)\n* Reduce install threads to 6 when install called from `mops sources`\n* Install dependencies directly to global cache, copy to local cache only final resolved dependencies\n",
       "url": "https://cli.mops.one/versions/0.42.0.tgz",
       "hash": "55372f0988cf2eace4bdc08fc032c32b674d897980da3fa8e786dee656c27bed"
+    },
+    "0.42.1": {
+      "time": 1712130803441,
+      "size": 693603,
+      "relseaseNotes": "* Fix package requirements check from subdirectories\n* Fix local and global cache inconsistency\n",
+      "url": "https://cli.mops.one/versions/0.42.1.tgz",
+      "hash": "d068c4f50fb6649a5b06c74c98805a3611f97270ed4d8ecb1b9735058651f6de"
     }
   }
 }
