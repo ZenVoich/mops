@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.41.1"
+    "latest": "0.42.0"
   },
   "versions": {
     "0.41.0": {
@@ -16,6 +16,13 @@
       "relseaseNotes": "* Fix bin path for npm\n",
       "url": "https://cli.mops.one/versions/0.41.1.tgz",
       "hash": "0fca9334bc1390db2eb2c5c3076958045088a9b8a8b6abf9503a953c1c4958c4"
+    },
+    "0.42.0": {
+      "time": 1712122892996,
+      "size": 701073,
+      "relseaseNotes": "* Package requirements support ([docs](https://docs.mops.one/mops.toml#requirements))\n* Refactor `mops install` command\n* Reduce install threads to 12 (was 16)\n* Reduce install threads to 6 when install called from `mops sources`\n* Install dependencies directly to global cache, copy to local cache only final resolved dependencies\n",
+      "url": "https://cli.mops.one/versions/0.42.0.tgz",
+      "hash": "55372f0988cf2eace4bdc08fc032c32b674d897980da3fa8e786dee656c27bed"
     }
   }
 }

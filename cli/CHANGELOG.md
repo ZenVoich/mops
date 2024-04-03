@@ -1,7 +1,9 @@
 # Mops CLI Changelog
 
 ## unreleased
-- Package requirements support
+
+## 0.42.0
+- Package requirements support ([docs](https://docs.mops.one/mops.toml#requirements))
 - Refactor `mops install` command
 - Reduce install threads to 12 (was 16)
 - Reduce install threads to 6 when install called from `mops sources`
