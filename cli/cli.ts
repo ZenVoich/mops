@@ -110,8 +110,11 @@ program
 			await add(pkg, options);
 		}
 		else {
-			await installAll(options);
+			let ok = await installAll(options);
 			await toolchain.installAll(options);
+			if (!ok) {
+				process.exit(1);
+			}
 		}
 	});
 

@@ -15,9 +15,9 @@ type InstallAllOptions = {
 	threads ?: number;
 }
 
-export async function installAll({verbose = false, silent = false, threads, lock} : InstallAllOptions = {}) {
+export async function installAll({verbose = false, silent = false, threads, lock} : InstallAllOptions = {}) : Promise<boolean> {
 	if (!checkConfigFile()) {
-		return;
+		return false;
 	}
 
 	let config = readConfig();
@@ -25,9 +25,9 @@ export async function installAll({verbose = false, silent = false, threads, lock
 	let devDeps = Object.values(config['dev-dependencies'] || {});
 	let allDeps = [...deps, ...devDeps];
 
-	let res = await installDeps(allDeps, {silent, verbose, threads});
-	if (!res) {
-		return;
+	let ok = await installDeps(allDeps, {silent, verbose, threads});
+	if (!ok) {
+		return false;
 	}
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
@@ -48,4 +48,6 @@ export async function installAll({verbose = false, silent = false, threads, lock
 		await checkRequirements();
 		console.log(chalk.green('Packages installed'));
 	}
+
+	return true;
 }

@@ -13,10 +13,10 @@ type InstallDepOptions = {
 
 // install dependency
 // returns false if failed
-export async function installDep(dep : Dependency, {verbose, silent, threads} : InstallDepOptions = {}, parentPkgPath ?: string) : Promise<Record<string, string> | false> {
+export async function installDep(dep : Dependency, {verbose, silent, threads} : InstallDepOptions = {}, parentPkgPath ?: string) : Promise<boolean> {
 	if (dep.repo) {
 		await installFromGithub(dep.name, dep.repo, {silent, verbose});
-		return {};
+		return true;
 	}
 	else if (dep.path) {
 		let depPath = dep.path;
@@ -30,5 +30,5 @@ export async function installDep(dep : Dependency, {verbose, silent, threads} : 
 		return installMopsDep(dep.name, dep.version, {silent, verbose, threads});
 	}
 
-	return {};
+	return true;
 }

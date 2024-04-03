@@ -10,22 +10,15 @@ type InstallDepsOptions = {
 // install all dependencies
 // returns actual installed dependencies
 // returns false if failed
-export async function installDeps(deps : Dependency[], {verbose, silent, threads} : InstallDepsOptions = {}, parentPkgPath ?: string) : Promise<Record<string, string> | false> {
-	let installedDeps = {};
+export async function installDeps(deps : Dependency[], {verbose, silent, threads} : InstallDepsOptions = {}, parentPkgPath ?: string) : Promise<boolean> {
 	let ok = true;
+
 	for (const dep of deps) {
 		let res = await installDep(dep, {verbose, silent, threads}, parentPkgPath);
-		if (res) {
-			installedDeps = {...installedDeps, ...res};
-		}
-		else {
+		if (!res) {
 			ok = false;
 		}
 	}
 
-	if (!ok) {
-		return false;
-	}
-
-	return installedDeps;
+	return ok;
 }

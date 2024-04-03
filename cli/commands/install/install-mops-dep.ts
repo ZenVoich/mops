@@ -5,7 +5,7 @@ import {Buffer} from 'node:buffer';
 import {createLogUpdate} from 'log-update';
 import chalk from 'chalk';
 import {deleteSync} from 'del';
-import {checkConfigFile, formatDir, progressBar, readConfig} from '../../mops.js';
+import {checkConfigFile, progressBar, readConfig} from '../../mops.js';
 import {getHighestVersion} from '../../api/getHighestVersion.js';
 import {storageActor} from '../../api/actors.js';
 import {parallel} from '../../parallel.js';
@@ -20,7 +20,7 @@ type InstallMopsDepOptions = {
 	threads ?: number;
 };
 
-export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads} : InstallMopsDepOptions = {}) : Promise<Record<string, string> | false> {
+export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads} : InstallMopsDepOptions = {}) : Promise<boolean> {
 	threads = threads || 12;
 
 	if (!checkConfigFile()) {
@@ -46,19 +46,12 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 		version = versionRes.ok;
 	}
 
-	let dir = formatDir(pkg, version);
 	let cacheName = getMopsDepCacheName(pkg, version);
 	let cacheDir = getDepCacheDir(cacheName);
-	let alreadyInstalled = false;
 
-	// already installed
-	if (fs.existsSync(dir)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (local cache)`);
-		alreadyInstalled = true;
-	}
-	// copy from cache
-	else if (isDepCached(cacheName)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (global cache)`);
+	// global cache hit
+	if (isDepCached(cacheName)) {
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
 	}
 	// download
 	else {
@@ -81,18 +74,26 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 				progress();
 			});
 
+			let onSigInt = () => {
+				deleteSync([cacheDir], {force: true});
+				process.exit();
+			};
+			process.on('SIGINT', onSigInt);
+
 			// write files to global cache
 			try {
-				for (let [filePath, data] of filesData.entries()) {
-					fs.mkdirSync(path.join(cacheDir, path.dirname(filePath)), {recursive: true});
-					fs.writeFileSync(path.join(cacheDir, filePath), Buffer.from(data));
-				}
+				await Promise.all(Array.from(filesData.entries()).map(async ([filePath, data]) => {
+					await fs.promises.mkdir(path.join(cacheDir, path.dirname(filePath)), {recursive: true});
+					await fs.promises.writeFile(path.join(cacheDir, filePath), Buffer.from(data));
+				}));
 			}
 			catch (err) {
 				console.error(chalk.red('Error: ') + err);
 				deleteSync([cacheDir], {force: true});
 				return false;
 			}
+
+			process.off('SIGINT', onSigInt);
 		}
 		catch (err) {
 			console.error(chalk.red('Error: ') + err);
@@ -116,11 +117,6 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 	if (!res) {
 		return false;
 	}
-	let installedDeps = res;
 
-	// add self to installed deps
-	if (!alreadyInstalled) {
-		installedDeps = {...installedDeps, [pkg]: version};
-	}
-	return installedDeps;
+	return true;
 }

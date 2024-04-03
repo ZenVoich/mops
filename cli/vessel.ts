@@ -156,14 +156,10 @@ export const installFromGithub = async (name : string, repo : string, {verbose =
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
-	if (existsSync(dir)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (local cache)`);
-	}
-	else if (isDepCached(cacheName)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (global cache)`);
+	if (isDepCached(cacheName)) {
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} (cache)`);
 	}
 	else {
-
 		let progress = (step : number, total : number) => {
 			silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${repo} ${progressBar(step, total)}`);
 		};

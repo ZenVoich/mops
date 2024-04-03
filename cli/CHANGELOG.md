@@ -2,6 +2,7 @@
 
 ## unreleased
 - Fix package requirements check from subdirectories
+- Fix local and global cache inconsistency
 
 ## 0.42.0
 - Package requirements support ([docs](https://docs.mops.one/mops.toml#requirements))

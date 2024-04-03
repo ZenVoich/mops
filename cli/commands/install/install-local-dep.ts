@@ -11,7 +11,7 @@ type InstallLocalDepOptions = {
 
 // skip install and just find non-local dependencies to install
 // pkgPath should be relative to the current root dir or absolute
-export async function installLocalDep(pkg : string, pkgPath = '', {verbose, silent} : InstallLocalDepOptions = {}) : Promise<Record<string, string> | false> {
+export async function installLocalDep(pkg : string, pkgPath = '', {verbose, silent} : InstallLocalDepOptions = {}) : Promise<boolean> {
 	if (!silent) {
 		let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 		logUpdate(`Local dependency ${pkg} = "${pkgPath}"`);
