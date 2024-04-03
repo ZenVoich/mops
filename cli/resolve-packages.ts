@@ -1,9 +1,10 @@
 import process from 'node:process';
 import path from 'node:path';
 import chalk from 'chalk';
-import {checkConfigFile, formatDir, formatGithubDir, getRootDir, parseGithubURL, readConfig} from './mops.js';
+import {checkConfigFile, getRootDir, parseGithubURL, readConfig} from './mops.js';
 import {VesselConfig, readVesselConfig} from './vessel.js';
 import {Config, Dependency} from './types.js';
+import {getDepCacheDir, getDepCacheName} from './cache.js';
 
 export async function resolvePackages({verbose = false} = {}) : Promise<Record<string, string>> {
 	if (!checkConfigFile()) {
@@ -76,25 +77,25 @@ export async function resolvePackages({verbose = false} = {}) : Promise<Record<s
 			}
 
 			let nestedConfig;
-			let nestedDir = '';
+			let localNestedDir = '';
 
 			// read nested config
 			if (repo) {
-				nestedDir = formatGithubDir(name, repo);
-				nestedConfig = await readVesselConfig(nestedDir, {silent: true}) || {};
+				let cacheDir = getDepCacheName(name, repo);
+				nestedConfig = await readVesselConfig(getDepCacheDir(cacheDir), {silent: true}) || {};
 			}
 			else if (pkgDetails.path) {
-				nestedDir = path.resolve(configDir, pkgDetails.path);
-				nestedConfig = readConfig(nestedDir + '/mops.toml');
+				localNestedDir = path.resolve(configDir, pkgDetails.path);
+				nestedConfig = readConfig(localNestedDir + '/mops.toml');
 			}
 			else if (version) {
-				nestedDir = formatDir(name, version);
-				nestedConfig = readConfig(nestedDir + '/mops.toml');
+				let cacheDir = getDepCacheName(name, version);
+				nestedConfig = readConfig(getDepCacheDir(cacheDir) + '/mops.toml');
 			}
 
 			// collect nested deps
 			if (nestedConfig) {
-				await collectDeps(nestedConfig, nestedDir);
+				await collectDeps(nestedConfig, localNestedDir);
 			}
 
 			if (!versions[name]) {

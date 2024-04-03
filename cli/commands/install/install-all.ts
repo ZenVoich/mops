@@ -2,10 +2,11 @@ import process from 'node:process';
 import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
 import {checkConfigFile, readConfig} from '../../mops.js';
-import {notifyInstalls} from '../../notify-installs.js';
 import {checkIntegrity} from '../../integrity.js';
 import {installDeps} from './install-deps.js';
 import {checkRequirements} from '../../check-requirements.js';
+import {syncLocalCache} from './sync-local-cache.js';
+import {notifyInstalls} from '../../notify-installs.js';
 
 type InstallAllOptions = {
 	verbose ?: boolean;
@@ -28,7 +29,6 @@ export async function installAll({verbose = false, silent = false, threads, lock
 	if (!res) {
 		return;
 	}
-	let installedDeps = res;
 
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
@@ -36,8 +36,10 @@ export async function installAll({verbose = false, silent = false, threads, lock
 		logUpdate('Checking integrity...');
 	}
 
+	let installedPackages = await syncLocalCache();
+
 	await Promise.all([
-		notifyInstalls(Object.keys(installedDeps)),
+		notifyInstalls(installedPackages),
 		checkIntegrity(lock),
 	]);
 

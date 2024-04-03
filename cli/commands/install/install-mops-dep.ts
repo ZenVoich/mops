@@ -4,11 +4,12 @@ import path from 'node:path';
 import {Buffer} from 'node:buffer';
 import {createLogUpdate} from 'log-update';
 import chalk from 'chalk';
+import {deleteSync} from 'del';
 import {checkConfigFile, formatDir, progressBar, readConfig} from '../../mops.js';
 import {getHighestVersion} from '../../api/getHighestVersion.js';
 import {storageActor} from '../../api/actors.js';
 import {parallel} from '../../parallel.js';
-import {addCache, copyCache, isCached} from '../../cache.js';
+import {getDepCacheDir, getMopsDepCacheName, isDepCached} from '../../cache.js';
 import {downloadFile, getPackageFilesInfo} from '../../api/downloadPackageFiles.js';
 import {installDeps} from './install-deps.js';
 
@@ -46,6 +47,8 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 	}
 
 	let dir = formatDir(pkg, version);
+	let cacheName = getMopsDepCacheName(pkg, version);
+	let cacheDir = getDepCacheDir(cacheName);
 	let alreadyInstalled = false;
 
 	// already installed
@@ -54,8 +57,7 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 		alreadyInstalled = true;
 	}
 	// copy from cache
-	else if (isCached(`${pkg}@${version}`)) {
-		await copyCache(`${pkg}@${version}`, dir);
+	else if (isDepCached(cacheName)) {
 		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (global cache)`);
 	}
 	// download
@@ -79,19 +81,23 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 				progress();
 			});
 
-			// write files to disk
-			for (let [filePath, data] of filesData.entries()) {
-				fs.mkdirSync(path.join(dir, path.dirname(filePath)), {recursive: true});
-				fs.writeFileSync(path.join(dir, filePath), Buffer.from(data));
+			// write files to global cache
+			try {
+				for (let [filePath, data] of filesData.entries()) {
+					fs.mkdirSync(path.join(cacheDir, path.dirname(filePath)), {recursive: true});
+					fs.writeFileSync(path.join(cacheDir, filePath), Buffer.from(data));
+				}
+			}
+			catch (err) {
+				console.error(chalk.red('Error: ') + err);
+				deleteSync([cacheDir], {force: true});
+				return false;
 			}
 		}
 		catch (err) {
 			console.error(chalk.red('Error: ') + err);
 			return false;
 		}
-
-		// add to cache
-		await addCache(`${pkg}@${version}`, dir);
 
 		progress();
 	}
@@ -104,7 +110,7 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 	}
 
 	// install dependencies
-	let config = readConfig(path.join(dir, 'mops.toml'));
+	let config = readConfig(path.join(cacheDir, 'mops.toml'));
 	let res = await installDeps(Object.values(config.dependencies || {}), {silent, verbose});
 
 	if (!res) {
