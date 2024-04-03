@@ -1,6 +1,7 @@
 # Mops CLI Changelog
 
 ## unreleased
+- Fix package requirements check from subdirectories
 
 ## 0.42.0
 - Package requirements support ([docs](https://docs.mops.one/mops.toml#requirements))

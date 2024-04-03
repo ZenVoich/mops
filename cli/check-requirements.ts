@@ -2,7 +2,7 @@ import path from 'node:path';
 import {SemVer} from 'semver';
 import chalk from 'chalk';
 
-import {getDependencyType, readConfig} from './mops.js';
+import {getDependencyType, getRootDir, readConfig} from './mops.js';
 import {resolvePackages} from './resolve-packages.js';
 import {getMocVersion} from './helpers/get-moc-version.js';
 
@@ -18,12 +18,13 @@ export async function checkRequirements({verbose = false} = {}) {
 	let installedMoc = new SemVer(mocVersion);
 	let highestRequiredMoc = new SemVer('0.0.0');
 	let highestRequiredMocPkgId = '';
+	let rootDir = getRootDir();
 
 	let resolvedPackages = await resolvePackages();
 	for (let [name, version] of Object.entries(resolvedPackages)) {
 		if (getDependencyType(version) === 'mops') {
 			let pkgId = `${name}@${version}`;
-			let depConfig = readConfig(path.join('.mops', pkgId, 'mops.toml'));
+			let depConfig = readConfig(path.join(rootDir, '.mops', pkgId, 'mops.toml'));
 			let moc = depConfig.requirements?.moc;
 
 			if (moc) {
