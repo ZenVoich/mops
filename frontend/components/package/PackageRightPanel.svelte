@@ -64,7 +64,7 @@
 			</div>
 		</div>
 	{/if}
-	{#if packageDetails.config.requirements}
+	{#if packageDetails.config.requirements.length}
 		<div class="detail">
 			<div class="label">Requirements</div>
 			{#each packageDetails.config.requirements as req}
