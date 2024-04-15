@@ -28,7 +28,9 @@ export async function syncLocalCache({verbose = false} = {}) : Promise<Record<st
 		}
 
 		return Promise.resolve();
-	}));
+	})).catch((errors) => {
+		throw errors?.[0];
+	});
 
 	return installedDeps;
 }

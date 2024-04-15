@@ -36,7 +36,7 @@ export async function installAll({verbose = false, silent = false, threads, lock
 		logUpdate('Checking integrity...');
 	}
 
-	let installedPackages = await syncLocalCache();
+	let installedPackages = await syncLocalCache({verbose});
 
 	await Promise.all([
 		notifyInstalls(installedPackages),

@@ -8,7 +8,7 @@ import chalk from 'chalk';
 import {createLogUpdate} from 'log-update';
 import got from 'got';
 import decompress from 'decompress';
-import {formatGithubDir, parseGithubURL, progressBar} from './mops.js';
+import {parseGithubURL, progressBar} from './mops.js';
 import {getDepCacheDir, getGithubDepCacheName, isDepCached} from './cache.js';
 
 const dhallFileToJson = async (filePath : string, silent : boolean) => {
@@ -150,7 +150,6 @@ export const downloadFromGithub = async (repo : string, dest : string, onProgres
 };
 
 export const installFromGithub = async (name : string, repo : string, {verbose = false, dep = false, silent = false} = {}) => {
-	let dir = formatGithubDir(name, repo);
 	let cacheName = getGithubDepCacheName(name, repo);
 	let cacheDir = getDepCacheDir(cacheName);
 
@@ -184,7 +183,7 @@ export const installFromGithub = async (name : string, repo : string, {verbose =
 		logUpdate.clear();
 	}
 
-	const config = await readVesselConfig(dir, {silent});
+	const config = await readVesselConfig(cacheDir, {silent});
 
 	if (config) {
 		for (const {name, repo} of config.dependencies) {
