@@ -5,6 +5,10 @@ import getFolderSize from 'get-folder-size';
 
 import {getDependencyType, globalCacheDir, parseGithubURL} from './mops.js';
 
+export let show = () => {
+	return globalCacheDir;
+};
+
 export let getDepCacheDir = (cacheName : string) => {
 	return path.join(globalCacheDir, 'packages', cacheName);
 };

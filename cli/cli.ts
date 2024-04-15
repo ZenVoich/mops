@@ -13,7 +13,7 @@ import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
-import {cacheSize, cleanCache} from './cache.js';
+import {cacheSize, cleanCache, show} from './cache.js';
 import {test} from './commands/test/test.js';
 import {template} from './commands/template.js';
 import {remove} from './commands/remove.js';
@@ -199,7 +199,7 @@ program
 program
 	.command('cache')
 	.description('Manage cache')
-	.addArgument(new Argument('<sub>').choices(['size', 'clean']))
+	.addArgument(new Argument('<sub>').choices(['size', 'clean', 'show']))
 	.action(async (sub) => {
 		if (sub == 'clean') {
 			await cleanCache();
@@ -208,6 +208,9 @@ program
 		else if (sub == 'size') {
 			let size = await cacheSize();
 			console.log('Cache size is ' + size);
+		}
+		else if (sub == 'show') {
+			console.log(show());
 		}
 	});
 
