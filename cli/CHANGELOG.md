@@ -2,6 +2,10 @@
 
 ## unreleased
 
+## 0.43.0
+- Add `mops cache show` command
+- Fix github legacy deps install
+
 ## 0.42.1
 - Fix package requirements check from subdirectories
 - Fix local and global cache inconsistency
