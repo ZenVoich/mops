@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.43.0"
+    "latest": "0.44.0"
   },
   "versions": {
     "0.41.0": {
@@ -37,6 +37,13 @@
       "relseaseNotes": "* Add `mops cache show` command\n* Fix github legacy deps install\n",
       "url": "https://cli.mops.one/versions/0.43.0.tgz",
       "hash": "cffed53f9c952628ae54b83dbcdc56878b0352e0ee2ccd517a9a52506c3f6de2"
+    },
+    "0.44.0": {
+      "time": 1713778133506,
+      "size": 693923,
+      "relseaseNotes": "* Optimized `moc` toolchain resolving (~30% faster builds)\n",
+      "url": "https://cli.mops.one/versions/0.44.0.tgz",
+      "hash": "4d3c5b867b829adfdc7f247e340ab6de33ba7ad14377f5b354374e8cdb6297c2"
     }
   }
 }

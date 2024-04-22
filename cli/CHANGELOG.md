@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 0.44.0
+- Optimized `moc` toolchain resolving (~30% faster builds)
+
 ## 0.43.0
 - Add `mops cache show` command
 - Fix github legacy deps install
