@@ -1,15 +1,29 @@
 #!/bin/bash
 
-# TODO: find nearest mops.toml if we are inside subfolders
-rootDir="$(pwd)"
+# set -e
+
+findRootDir() {
+  dir="$(pwd)"
+  while [[ "$dir" != "" && ! -e "$dir/mops.toml" ]]; do
+    dir=${dir%/*}
+  done
+  echo "$dir"
+}
+
+rootDir=$(findRootDir)
 mopsToml="$rootDir/mops.toml"
 
-if [ ! -f $mopsToml ]; then
-  echo "$mopsToml not found"
+if [[ $rootDir == "" ]] || [[ ! -f $mopsToml ]]; then
+  echo "mops.toml not found in $rootDir or its parent directories"
   exit 1;
 fi;
 
-mopsTomlHash=$(openssl sha256 $mopsToml | awk -F'= ' '{print $2}')
+if command -v openssl &> /dev/null; then
+  mopsTomlHash=$(openssl sha256 $mopsToml | awk -F'= ' '{print $2}')
+else
+  mopsTomlHash=$(shasum $mopsToml -a 256 | awk -F' ' '{print $1}')
+fi;
+
 cached="$rootDir/.mops/moc-$mopsTomlHash"
 
 if [ -f $cached ]; then
