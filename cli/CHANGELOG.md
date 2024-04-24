@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 0.44.1
+- Fixed fallback to dfx moc if there is no mops.toml
+
 ## 0.44.0
 - Optimized `moc` toolchain resolving (~30% faster builds)
 

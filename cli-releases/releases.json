@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.44.0"
+    "latest": "0.44.1"
   },
   "versions": {
     "0.41.0": {
@@ -44,6 +44,13 @@
       "relseaseNotes": "* Optimized `moc` toolchain resolving (~30% faster builds)\n",
       "url": "https://cli.mops.one/versions/0.44.0.tgz",
       "hash": "4d3c5b867b829adfdc7f247e340ab6de33ba7ad14377f5b354374e8cdb6297c2"
+    },
+    "0.44.1": {
+      "time": 1713945474575,
+      "size": 693903,
+      "relseaseNotes": "* Fixed fallback to dfx moc if there is no mops.toml\n",
+      "url": "https://cli.mops.one/versions/0.44.1.tgz",
+      "hash": "b10db8562b5cc2e4ab77bef7dae95912c34ba1dfe5bc96c43932e2dbcef5af8d"
     }
   }
 }
