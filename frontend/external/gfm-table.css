@@ -41,6 +41,7 @@ td,
 th {
 	padding: 6px 13px;
 	border: 1px solid var(--color-border-default);
+	word-break: normal;
 }
 
 th {
