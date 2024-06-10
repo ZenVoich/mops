@@ -119,10 +119,18 @@ module {
 		};
 
 		public func getDownloadTrendByPackageName(name : PackageName) : [DownloadsSnapshot] {
-			_getTrend(dailySnapshotsByPackageName.get(name), 14);
+			_getTrend(weeklySnapshotsByPackageName.get(name), 48);
 		};
 
 		public func getDownloadTrendByPackageId(packageId : PackageId) : [DownloadsSnapshot] {
+			_getTrend(weeklySnapshotsByPackageId.get(packageId), 48);
+		};
+
+		public func getDailyDownloadTrendByPackageName(name : PackageName) : [DownloadsSnapshot] {
+			_getTrend(dailySnapshotsByPackageName.get(name), 14);
+		};
+
+		public func getDailyDownloadTrendByPackageId(packageId : PackageId) : [DownloadsSnapshot] {
 			_getTrend(dailySnapshotsByPackageId.get(packageId), 14);
 		};
 

@@ -61,7 +61,7 @@
 			return;
 		}
 
-		let dowloadReadme = async () => {
+		let downloadReadme = async () => {
 			let res = await storageActor(packageDetails.publication.storage).downloadChunk(`${packageDetails.config.name}@${packageDetails.config.version}/${packageDetails.config.readme}`, 0n);
 			if ('ok' in res) {
 				readme = new TextDecoder().decode(new Uint8Array(res.ok));
@@ -86,7 +86,7 @@
 			fileIds = await getFileIds(packageDetails.config.name, packageDetails.config.version);
 		};
 
-		await Promise.all([dowloadReadme(), downloadDocs(), downloadCode()]);
+		await Promise.all([downloadReadme(), downloadDocs(), downloadCode()]);
 
 		loaded = true;
 	});

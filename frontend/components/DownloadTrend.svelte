@@ -1,19 +1,19 @@
 <script lang="ts">
-	import {Bar} from 'svelte-chartjs';
-	import {Chart as ChartJS, BarElement, LinearScale, CategoryScale, TimeScale} from 'chart.js';
+	import {Line} from 'svelte-chartjs';
+	import {Chart as ChartJS, LineElement, LinearScale, CategoryScale, TimeScale, PointElement, Filler} from 'chart.js';
 	import 'chartjs-adapter-date-fns';
 	import {DownloadsSnapshot} from '/declarations/main/main.did.js';
 
-	ChartJS.register([BarElement, LinearScale, CategoryScale, TimeScale]);
+	ChartJS.register([LineElement, PointElement, LinearScale, CategoryScale, TimeScale, Filler]);
 
 	export let snapshots : DownloadsSnapshot[] = [];
 </script>
 
 <div class="download-trend">
 	{#if snapshots.length}
-		<Bar
+		<Line
 			width={100}
-			height={30}
+			height={40}
 			data={{
 				datasets: [{
 					// @ts-ignore
@@ -23,16 +23,17 @@
 							y: Number(snapshot.downloads),
 						};
 					}),
-					backgroundColor: window.getComputedStyle(document.body).getPropertyValue('--color-primary-light'),
-					borderWidth: 0,
-					barPercentage: 1,
-					barThickness: 4,
-					minBarLength: 0,
+					// backgroundColor: window.getComputedStyle(document.body).getPropertyValue('--color-primary-light'),
+					borderColor: window.getComputedStyle(document.body).getPropertyValue('--color-primary-light'),
+					borderCapStyle: 'butt',
+					borderWidth: 2,
+					fill: true,
+					pointRadius: 0,
+					pointHoverRadius: 0,
 				}],
 			}}
 			options={{
 				animation: false,
-				events: [],
 				layout: {
 					padding: 0,
 				},
@@ -41,9 +42,8 @@
 						display: false,
 						type: 'time',
 						time: {
-							unit: 'day',
+							unit: 'week',
 						},
-						min: Number(snapshots.at(-1).startTime / 1_000_000n) - 1000 * 60 * 60 * 24 * 13,
 					},
 					y: {
 						beginAtZero: true,
@@ -51,12 +51,15 @@
 					},
 				},
 				plugins: {
+					tooltip: {
+						enabled: false,
+					},
 					legend: {
 						display: false,
 					},
 				},
 			}}
-		></Bar>
+		></Line>
 	{/if}
 </div>
 

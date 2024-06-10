@@ -127,7 +127,7 @@ suite("download trend with 0 downloads", func() {
 	});
 
 	test("check download trend for pkg1", func() {
-		let snapshots = downloadLog.getDownloadTrendByPackageName("pkg1");
+		let snapshots = downloadLog.getDailyDownloadTrendByPackageName("pkg1");
 		assert snapshots.size() == 3;
 		assert snapshots[0].downloads == 1;
 		assert snapshots[1].downloads == 0;
