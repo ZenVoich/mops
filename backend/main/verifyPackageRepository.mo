@@ -39,7 +39,7 @@ module {
 			});
 
 			if (response.status != 200) {
-				return #err("Repository verification failed: Response status " # Nat.toText(response.status));
+				return #err("Repository verification failed: Response status " # Nat.toText(response.status) # ". Please double-check the repository URL and make sure the mops.toml file exists in the repository root.");
 			};
 
 			let textOpt = Text.decodeUtf8(response.body);
