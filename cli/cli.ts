@@ -168,12 +168,15 @@ program
 program
 	.command('sources')
 	.description('for dfx packtool')
+	.option('--no-install', 'Do not install dependencies before running sources')
 	.option('--verbose')
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
-		await installAll({silent: true, lock: 'ignore', threads: 6});
+		if (options.install) {
+			await installAll({silent: true, lock: 'ignore', threads: 6});
+		}
 		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));

@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- Added `--no-install` flag to `mops sources` command
+
 ## 0.44.1
 - Fixed fallback to dfx moc if there is no mops.toml
 
