@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 
-url="https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io/versions/latest.tgz"
+url="https://x344g-ziaaa-aaaap-abl7a-cai.icp0.io/versions/${MOPS_VERSION:-latest}.tgz"
 
 uninstall() {
 	echo "Uninstalling previous version"
-	npm remove -g ic-mops &> /dev/null
-	pnpm remove -g ic-mops &> /dev/null
-	# bun remove -g ic-mops &> /dev/null
+	npm remove -g ic-mops >/dev/null 2>&1
+	pnpm remove -g ic-mops >/dev/null 2>&1
+	# bun remove -g ic-mops >/dev/null 2>&1
 }
 
 install_with_npm() {
@@ -28,24 +28,24 @@ install_with_bun() {
 }
 
 # uninstall previous version
-if command -v mops &> /dev/null; then
+if command -v mops >/dev/null 2>&1; then
 	uninstall
 fi
 
 # use specified package manager
-if [[ $PM == "npm" ]]; then
+if [ "$PM" = "npm" ]; then
 	install_with_npm
-elif [[ $PM == "pnpm" ]]; then
+elif [ "$PM" = "pnpm" ]; then
 	install_with_pnpm
-elif [[ $PM == "bun" ]]; then
+elif [ "$PM" = "bun" ]; then
 	install_with_bun
 # use the first package manager found
 else
-	if command -v npm &> /dev/null; then
+	if command -v npm >/dev/null 2>&1; then
 		install_with_npm
-	elif command -v pnpm &> /dev/null; then
+	elif command -v pnpm >/dev/null 2>&1; then
 		install_with_pnpm
-	elif command -v bun &> /dev/null; then
+	elif command -v bun >/dev/null 2>&1; then
 		install_with_bun
 	else
 		echo "No Node.js package manager found. Please install npm or pnpm"
