@@ -18,6 +18,7 @@
         "declarations/",
         "backend/",
         "docs/",
+        "blog/",
         ".dfx/",
         ".git/",
         ".mops/",

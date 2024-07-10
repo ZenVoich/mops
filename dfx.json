@@ -26,6 +26,14 @@
 			},
 			"source": ["docs/build/"]
 		},
+		"blog": {
+			"type": "assets",
+			"build": ["npm run build-blog"],
+			"frontend": {
+				"entrypoint": "blog/build/index.html"
+			},
+			"source": ["blog/build/"]
+		},
 		"cli": {
 			"type": "assets",
 			"build": ["npm run build-cli-releases"],

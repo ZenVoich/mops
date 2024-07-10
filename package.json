@@ -15,12 +15,13 @@
 		"deploy:main": "NODE_ENV=development IDENTITY=default DFX_NETWORK=local npm run deploy main",
 		"build-frontend": "cd frontend && npm run build",
 		"build-docs": "cd docs && npm run build",
+		"build-blog": "cd blog && npm run build",
 		"build-cli-releases": "cd cli-releases && npm run build",
 		"prepare-cli": "cd cli && npm run prepare",
 		"release-cli": "cd cli && npm run release",
 		"build-cli": "npm run prepare-cli && npm run release-cli",
 		"prepare": "husky",
-		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install) && (cd cli-releases && npm install)",
+		"postinstall": "(cd frontend && npm install) && (cd cli && npm install) && (cd docs && npm install) && (cd blog && npm install) && (cd cli-releases && npm install)",
 		"test": "mops test"
 	},
 	"devDependencies": {
