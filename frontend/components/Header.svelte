@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {push} from 'svelte-spa-history-router';
-	import Logo from './links/Logo.svelte';
 
 	export let searchText = '';
 
@@ -21,7 +20,7 @@
 </script>
 
 <header>
-	<Logo />
+	<mops-navbar></mops-navbar>
 	<div class="search">
 		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="50">
 		<div class="button" on:click="{search}">Search</div>
