@@ -51,31 +51,19 @@ const config = {
 			}),
 		],
 	],
-
+	clientModules: [
+		require.resolve('../ui-kit/index.js'),
+	],
 	themeConfig:
 		/** @type {import('@docusaurus/preset-classic').ThemeConfig} */
 		({
 			// Replace with your project's social card
 			image: 'img/logo.svg',
 			navbar: {
-				title: 'Documentation',
-				logo: {
-					alt: 'Mops logo',
-					src: 'img/logo.svg',
-				},
 				items: [
-					// {
-					// 	type: 'docSidebar',
-					// 	sidebarId: 'tutorialSidebar',
-					// 	position: 'left',
-					// 	label: 'Documentation',
-					// },
-					// {to: '/blog', label: 'Blog', position: 'left'},
 					{
-						to: 'https://mops.one',
-						target: '_self',
-						label: 'mops.one',
-						position: 'right',
+						html: '<mops-navbar></mops-navbar>',
+						to: '#',
 					},
 				],
 			},

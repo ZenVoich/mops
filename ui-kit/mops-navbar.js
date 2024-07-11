@@ -1,16 +1,10 @@
 import mopsSvg from './mops.svg.js';
 
-
-// Create a class for the element
 class MyCustomElement extends HTMLElement {
-	static observedAttributes = ['color', 'size'];
-
-	constructor() {
-		// Always call super first in constructor
-		super();
-	}
-
 	_isActive(url) {
+		if (url === 'https://mops.one' && window.location.href.includes('localhost')) {
+			return 'active';
+		}
 		return window.location.href.startsWith(url) ? 'active' : '';
 	}
 
@@ -20,16 +14,21 @@ class MyCustomElement extends HTMLElement {
 			<style>
 				:host {
 					display: flex;
+					align-items: center;
 					gap: 30px;
 				}
 				svg {
-					width: 75px;
-					height: 75px;
+					width: 52px;
+					height: 52px;
+					margin: -10px 0;
 				}
 				nav {
 					display: flex;
 					gap: 10px;
 					align-items: center;
+					line-height: 1;
+					max-width: 60vw;
+					overflow-x: auto;
 				}
 				a {
 					text-decoration: none;
@@ -39,20 +38,21 @@ class MyCustomElement extends HTMLElement {
 					border-radius: 5px;
 				}
 				a.active {
-					// color: #7c8659;
-					background-color: #f1f1f1;
 					font-weight: 700;
+					border-bottom: 2px solid hsl(73deg 20% 44%);
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
 				}
 				a:hover {
-					background-color: #f0f0f0;
+					background-color: #f1f1f1;
 				}
 			</style>
 			${mopsSvg}
 			<nav>
-				<a href="https://mops.one" class="active ${this._isActive('https://mops.one')}">Packages</a>
+				<a href="https://mops.one" class="${this._isActive('https://mops.one')}">Packages</a>
 				<a href="https://docs.mops.one" class="${this._isActive('https://docs.mops.one')}">Docs</a>
-				<a href="https://cli.mops.one" class="${this._isActive('https://cli.mops.one')}">CLI</a>
 				<a href="https://blog.mops.one" class="${this._isActive('https://blog.mops.one')}">Blog</a>
+				<a href="https://cli.mops.one" class="${this._isActive('https://cli.mops.one')}">CLI releases</a>
 			</nav>
 		`;
 	}
