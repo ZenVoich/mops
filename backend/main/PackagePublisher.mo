@@ -89,7 +89,7 @@ module {
 						ver == config.version;
 					});
 					if (sameVersionOpt != null) {
-						return #err(config.name # "@" # config.version # " already published");
+						return #err(config.name # "@" # config.version # " already published\nPlease increment the package version in the mops.toml file.");
 					};
 				};
 				case (null) {};
