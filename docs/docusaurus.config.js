@@ -71,12 +71,7 @@ const config = {
 				style: 'dark',
 				links: [
 					{
-						title: 'More',
 						items: [
-							{
-								label: 'mops.one',
-								href: 'https://mops.one',
-							},
 							{
 								label: 'GitHub',
 								href: 'https://github.com/ZenVoich/mops',

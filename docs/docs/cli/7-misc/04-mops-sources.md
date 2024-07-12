@@ -27,3 +27,9 @@ Example output:
 --package map .mops/map@9.0.1/src
 --package ic .mops/ic@1.0.1/src
 ```
+
+## Options
+
+### `--no-install`
+
+Do not install dependencies before resolving sources.
