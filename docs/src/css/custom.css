@@ -58,12 +58,3 @@
 .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link--active {
 	color: var(--ifm-menu-color);
 }
-
-.navbar__item[href="#"] {
-	pointer-events: none;
-	cursor: default;
-}
-
-.navbar__item[href="#"] > * {
-	pointer-events: auto;
-}

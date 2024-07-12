@@ -62,8 +62,8 @@ const config = {
 			navbar: {
 				items: [
 					{
-						html: '<mops-navbar></mops-navbar>',
-						to: '#',
+						type: 'html',
+						value: '<mops-navbar></mops-navbar>',
 					},
 				],
 			},

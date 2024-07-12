@@ -51,18 +51,22 @@ const config = {
 		],
 	],
 
+	clientModules: [
+		require.resolve('../ui-kit/index.js'),
+	],
+
 	themeConfig:
 		/** @type {import('@docusaurus/preset-classic').ThemeConfig} */
 		({
 			// Replace with your project's social card
 			image: 'img/logo.svg',
 			navbar: {
-				title: 'Mops Blog',
-				logo: {
-					alt: 'Mops Logo',
-					src: 'img/logo.svg',
-				},
-				items: [],
+				items: [
+					{
+						type: 'html',
+						value: '<mops-navbar></mops-navbar>',
+					},
+				],
 			},
 			footer: {
 				style: 'dark',
