@@ -1,5 +1,20 @@
 import mopsSvg from './mops.svg.js';
 
+let urls = window.location.href.includes('localhost')
+	? {
+		packages: 'http://localhost:3000',
+		docs: 'http://localhost:3001',
+		blog: 'http://localhost:3002',
+		cli: 'http://localhost:3003',
+
+	}
+	: {
+		packages: 'https://mops.one',
+		docs: 'https://docs.mops.one',
+		blog: 'https://blog.mops.one',
+		cli: 'https://cli.mops.one',
+	};
+
 class MyCustomElement extends HTMLElement {
 	_isActive(url) {
 		if (url === 'https://mops.one' && window.location.href.includes('localhost')) {
@@ -49,10 +64,10 @@ class MyCustomElement extends HTMLElement {
 			</style>
 			${mopsSvg}
 			<nav>
-				<a href="https://mops.one" class="${this._isActive('https://mops.one')}">Packages</a>
-				<a href="https://docs.mops.one" class="${this._isActive('https://docs.mops.one')}">Docs</a>
-				<a href="https://blog.mops.one" class="${this._isActive('https://blog.mops.one')}">Blog</a>
-				<a href="https://cli.mops.one" class="${this._isActive('https://cli.mops.one')}">CLI releases</a>
+				<a href="${urls.packages}" class="${this._isActive(urls.packages)}">Packages</a>
+				<a href="${urls.docs}" class="${this._isActive(urls.docs)}">Docs</a>
+				<a href="${urls.blog}" class="${this._isActive(urls.blog)}">Blog</a>
+				<a href="${urls.cli}" class="${this._isActive(urls.cli)}">CLI releases</a>
 			</nav>
 		`;
 	}
