@@ -62,6 +62,13 @@ if (globalThis.location) {
 					a:hover {
 						background-color: #f1f1f1;
 					}
+					/* dark theme */
+					:host-context([data-theme="dark"]) a {
+						color: white;
+					}
+					:host-context([data-theme="dark"]) a:hover {
+						background-color: #333;
+					}
 				</style>
 				${mopsSvg}
 				<nav>

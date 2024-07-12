@@ -55,6 +55,10 @@
 	padding: 10px 2px;
 }
 
+.navbar__items--right {
+	padding-right: 12px;
+}
+
 .theme-doc-sidebar-item-category-level-2 > .menu__list-item-collapsible > .menu__link--active {
 	color: var(--ifm-menu-color);
 }
