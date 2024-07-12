@@ -11,6 +11,10 @@
     "staging": "iwejr-6iaaa-aaaal-qcema-cai",
     "ic": "iwejr-6iaaa-aaaal-qcema-cai"
   },
+  "blog": {
+    "staging": "zktta-iaaaa-aaaap-qhobq-cai",
+    "ic": "zktta-iaaaa-aaaap-qhobq-cai"
+  },
   "cli": {
     "staging": "x344g-ziaaa-aaaap-abl7a-cai",
     "ic": "x344g-ziaaa-aaaap-abl7a-cai"
