@@ -7,6 +7,7 @@ import Types "../types";
 import Registry "./Registry";
 import DownloadLog "../DownloadLog";
 import Users "../Users";
+import PackageUtils "../utils/package-utils";
 
 import {getPackageChanges} "./getPackageChanges";
 
@@ -80,13 +81,15 @@ module {
 				continue l;
 			};
 
-			let ?highestVersion = registry.getHighestVersion(dep.name) else Debug.trap("Package '" # dep.name # "' not found");
+			let depName = PackageUtils.getDepName(dep.name);
+
+			let ?highestVersion = registry.getHighestVersion(depName) else Debug.trap("Package '" # dep.name # "' not found");
 
 			if (dep.version != highestVersion) {
 				status := #updatesAvailable;
 
-				let depId = dep.name # "@" # dep.version;
-				let ?publication = registry.getPackagePublication(dep.name, dep.version) else Debug.trap("Package '" # depId # "' not found");
+				let depId = depName # "@" # dep.version;
+				let ?publication = registry.getPackagePublication(depName, dep.version) else Debug.trap("Package '" # depId # "' not found");
 
 				if (publication.time < Time.now() - 180 * DAY) {
 					status := #tooOld;

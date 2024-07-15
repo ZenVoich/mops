@@ -17,10 +17,12 @@ import Types "./types";
 import {generateId} "../generate-id";
 import {validateConfig} "./utils/validateConfig";
 import PackageUtils "./utils/package-utils";
+import Semver "./utils/semver";
 
 module {
 	type PackageVersion = Types.PackageVersion;
 	type PackageConfigV3 = Types.PackageConfigV3;
+	type DependencyV2 = Types.DependencyV2;
 	type PackageFileStats = Types.PackageFileStats;
 	type TestStats = Types.TestStats;
 	type FileId = Types.FileId;
@@ -97,16 +99,16 @@ module {
 
 			// check dependencies
 			for (dep in config.dependencies.vals()) {
-				let packageId = dep.name # "@" # dep.version;
-				if (dep.repo.size() == 0 and registry.getPackageConfig(dep.name, dep.version) == null) {
+				let packageId = PackageUtils.getDepName(dep.name) # "@" # dep.version;
+				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dependency " # packageId # " not found in registry");
 				};
 			};
 
 			// check devDependencies
 			for (dep in config.devDependencies.vals()) {
-				let packageId = dep.name # "@" # dep.version;
-				if (dep.repo.size() == 0 and registry.getPackageConfig(dep.name, dep.version) == null) {
+				let packageId = PackageUtils.getDepName(dep.name) # "@" # dep.version;
+				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dev Dependency " # packageId # " not found in registry");
 				};
 			};

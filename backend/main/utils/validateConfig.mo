@@ -9,6 +9,7 @@ import Types "../types";
 import Semver "../utils/semver";
 import {isLowerCaseLetter} "./is-letter";
 import {validateLicense} "./validateLicense";
+import PackageUtils "package-utils";
 
 module {
 	type PackageConfigV3 = Types.PackageConfigV3;
@@ -241,6 +242,14 @@ module {
 			let arr = Iter.toArray(Text.split(dep.repo, #text("@")));
 			if (arr.size() < 2 or arr[1].size() != 40) {
 				return #err("invalid config: dependency repo url must contain commit hash with 40 chars after '@'\nPlease run 'mops update " # dep.name # "' to fix it");
+			};
+		};
+
+		let (_name, aliasVersion) = PackageUtils.parseDepName(dep.name);
+		if (aliasVersion.size() > 0) {
+			// check alias prefix
+			if (not Text.startsWith(aliasVersion, #text(dep.version))) {
+				return #err("Dependency alias version must be a prefix of the dependency version");
 			};
 		};
 

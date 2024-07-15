@@ -114,7 +114,6 @@ module {
 					newVersion = _getDepVer(newDep);
 				});
 			};
-
 		};
 
 		// removed deps

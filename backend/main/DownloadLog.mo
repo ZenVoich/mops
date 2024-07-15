@@ -397,9 +397,9 @@ module {
 			});
 		};
 
-		public func setTimers() {
+		public func setTimers<system>() {
 			cancelTimers();
-			timerId := Timer.recurringTimer(#nanoseconds(5 * MINUTE), func() : async () {
+			timerId := Timer.recurringTimer<system>(#nanoseconds(5 * MINUTE), func() : async () {
 				takeSnapshotsIfNeeded(Time.now());
 			});
 		};

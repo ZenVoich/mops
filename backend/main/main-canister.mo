@@ -607,7 +607,6 @@ actor class Main() {
 				case (#downloadLog(downloadLogStable)) {
 					downloadLog.cancelTimers();
 					downloadLog.loadStable(downloadLogStable);
-					downloadLog.setTimers();
 				};
 				case (#storageManager(storageManagerStable)) {
 					storageManager.loadStable(storageManagerStable);
@@ -623,6 +622,8 @@ actor class Main() {
 				};
 			};
 		});
+
+		downloadLog.setTimers<system>();
 
 		// re-init registry
 		registry := Registry.Registry(
@@ -714,7 +715,7 @@ actor class Main() {
 
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
-		downloadLog.setTimers();
+		downloadLog.setTimers<system>();
 		downloadLogStable := null;
 
 		storageManager.loadStable(storageManagerStable);
@@ -739,8 +740,8 @@ actor class Main() {
 
 		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);
 
-		backupManager.setTimer(#hours(24), _backup);
+		backupManager.setTimer<system>(#hours(24), _backup);
 	};
 
-	backupManager.setTimer(#hours(24), _backup);
+	backupManager.setTimer<system>(#hours(24), _backup);
 };

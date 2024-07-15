@@ -4,6 +4,7 @@ module {
 	public type PackageName = Text; // lib
 	public type PackageId = Text; // lib@1.2.3
 	public type PackageVersion = Text; // 1.2.3
+	public type AliasVersion = Text; // x.y.z or x.y or x or empty
 	public type FileId = Text; // <pkg>@<ver>/<path>
 	public type Err = Text;
 
