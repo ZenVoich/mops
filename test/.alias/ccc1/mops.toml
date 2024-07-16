@@ -1,0 +1,8 @@
+[package]
+name = 'ccc'
+version = '1.0.0'
+description = 'ccc'
+keywords = [ "ccc" ]
+
+# [dependencies]
+# bbb = "../bbb"

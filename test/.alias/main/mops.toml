@@ -1,0 +1,13 @@
+[package]
+name = "main"
+version = "1.0.0"
+description = "main lib"
+license = "Apache-2.0"
+keywords = [ "test", "map" ]
+
+[dependencies]
+ccc = "1.0.0"
+"ccc@0.1.0" = "0.1.0"
+
+[requirements]
+moc = "0.11.0"
