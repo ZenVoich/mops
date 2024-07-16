@@ -13,6 +13,7 @@ import {Config} from './types.js';
 import {mainActor, storageActor} from './api/actors.js';
 import {getNetwork} from './api/network.js';
 import {getHighestVersion} from './api/getHighestVersion.js';
+import {getPackageId} from './helpers/get-package-id.js';
 
 
 if (!globalThis.fetch) {
@@ -240,7 +241,7 @@ export function writeConfig(config : Config, configFile = getClosestConfigFile()
 }
 
 export function formatDir(name : string, version : string) {
-	return path.join(getRootDir(), '.mops', `${name}@${version}`);
+	return path.join(getRootDir(), '.mops', getPackageId(name, version));
 }
 
 export function formatGithubDir(name : string, repo : string) {

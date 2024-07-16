@@ -19,7 +19,7 @@
 				<div class="quality-icon">
 					<PackageQualityIcon pkg={pkg}></PackageQualityIcon>
 				</div>
-				<a class="name" href="/{pkg.config.name}" use:link>{pkg.config.name}</a>
+				<a class="name" href="/{pkg.config.name}" use:link>{pkg.depAlias || pkg.config.name}</a>
 				<div class="version">{pkg.config.version}</div>
 			</div>
 		</div>

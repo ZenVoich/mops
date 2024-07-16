@@ -7,6 +7,7 @@ import {checkIntegrity} from '../integrity.js';
 import {getDepCacheDir, getDepCacheName} from '../cache.js';
 import path from 'node:path';
 import {syncLocalCache} from './install/sync-local-cache.js';
+import {getPackageId} from '../helpers/get-package-id.js';
 
 type RemoveOptions = {
 	verbose ?: boolean;
@@ -25,7 +26,7 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 		let devDeps = Object.values(config['dev-dependencies'] || {});
 		return [...deps, ...devDeps]
 			.filter((dep) => {
-				let depId = dep.name + '@' + dep.version;
+				let depId = getPackageId(dep.name, dep.version || '');
 				return depId !== exceptPkgId;
 			}).map((dep) => {
 				return [dep, ...getTransitiveDependenciesOf(dep.name, dep.version, dep.repo)];
@@ -61,12 +62,12 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 	}
 
 	let version = pkgDetails.version;
-	let packageId = `${name}@${version}`;
+	let packageId = getPackageId(name, version || '');
 
 	// transitive deps ignoring deps of this package
 	let transitiveDeps = getTransitiveDependencies(config, packageId);
 	let transitiveDepIds = new Set(transitiveDeps.map((dep) => {
-		return dep.name + '@' + dep.version;
+		return getPackageId(dep.name, dep.version || '');
 	}));
 
 	// transitive deps of this package (including itself)
@@ -74,7 +75,7 @@ export async function remove(name : string, {dev = false, verbose = false, dryRu
 
 	// remove local cache
 	for (let dep of transitiveDepsOfPackage) {
-		let depId = dep.name + '@' + dep.version;
+		let depId = getPackageId(dep.name, dep.version || '');
 		if (transitiveDepIds.has(depId)) {
 			verbose && console.log(`Ignored transitive dependency ${depId} (other deps depend on it)`);
 			continue;
