@@ -248,8 +248,8 @@ module {
 		let (_name, aliasVersion) = PackageUtils.parseDepName(dep.name);
 		if (aliasVersion.size() > 0) {
 			// check alias prefix
-			if (not Text.startsWith(aliasVersion, #text(dep.version))) {
-				return #err("Dependency alias version must be a prefix of the dependency version");
+			if (not Text.startsWith(dep.version, #text(aliasVersion))) {
+				return #err("Dependency alias version must be a prefix of the dependency version\nName: " # dep.name # "\nAlias: " # aliasVersion # "\nVersion: " # dep.version);
 			};
 		};
 

@@ -21,8 +21,6 @@ module {
 
 	// lightweight package summary
 	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
-		let packageId = name # "@" # version;
-
 		do ? {
 			let config = registry.getPackageConfig(name, version)!;
 			let publication = registry.getPackagePublication(name, version)!;
@@ -31,6 +29,7 @@ module {
 			users.ensureUser(owner);
 
 			return ?{
+				depAlias = "";
 				owner = owner;
 				ownerInfo = users.getUser(owner);
 				config = config;

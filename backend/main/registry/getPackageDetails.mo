@@ -43,7 +43,10 @@ module {
 			});
 			Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
 				let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version) else Debug.trap("Package '" # dep.name # "' not found");
-				summary;
+				{
+					summary with
+					depAlias = dep.name;
+				};
 			});
 		};
 
