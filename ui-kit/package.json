@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "mops-uikit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "author": "Zen Voich <zen.voich@gmail.com>",
+  "license": "MIT"
+}

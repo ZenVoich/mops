@@ -1,7 +1,12 @@
 {
 	"type": "module",
 	"scripts": {
-		"start": "npm run replica && npm run deploy-local && npm run decl && cd frontend && npm run start && cd ..",
+		"start": "npm run replica && npm run deploy-local && npm run decl && npm run frontends",
+		"frontends": "npm run start-registry & npm run start-docs & npm run start-blog & npm run start-cli-releases",
+		"start-registry": "cd frontend && npm run start",
+		"start-docs": "cd docs && npm run start",
+		"start-blog": "cd blog && npm run start",
+		"start-cli-releases": "cd cli-releases && npm run start",
 		"replica": "dfx stop && dfx start --clean --background",
 		"decl": "npm run decl:cli && npm run decl:frontend",
 		"lint": "eslint .",
