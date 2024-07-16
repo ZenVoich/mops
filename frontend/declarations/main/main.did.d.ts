@@ -178,6 +178,7 @@ export interface PackageDetails {
   'benchmarks' : Benchmarks__1,
   'ownerInfo' : User,
   'owner' : Principal,
+  'depAlias' : string,
   'deps' : Array<PackageSummary__1>,
   'quality' : PackageQuality,
   'testStats' : TestStats__1,
@@ -218,6 +219,7 @@ export interface PackageQuality {
 export interface PackageSummary {
   'ownerInfo' : User,
   'owner' : Principal,
+  'depAlias' : string,
   'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -228,6 +230,7 @@ export interface PackageSummary {
 export interface PackageSummaryWithChanges {
   'ownerInfo' : User,
   'owner' : Principal,
+  'depAlias' : string,
   'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -239,6 +242,7 @@ export interface PackageSummaryWithChanges {
 export interface PackageSummaryWithChanges__1 {
   'ownerInfo' : User,
   'owner' : Principal,
+  'depAlias' : string,
   'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -250,6 +254,7 @@ export interface PackageSummaryWithChanges__1 {
 export interface PackageSummary__1 {
   'ownerInfo' : User,
   'owner' : Principal,
+  'depAlias' : string,
   'quality' : PackageQuality,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,

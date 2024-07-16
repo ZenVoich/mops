@@ -90,6 +90,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'depAlias' : IDL.Text,
     'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -116,6 +117,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummary__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'depAlias' : IDL.Text,
     'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -156,6 +158,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummaryWithChanges__1 = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'depAlias' : IDL.Text,
     'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -168,6 +171,7 @@ export const idlFactory = ({ IDL }) => {
     'benchmarks' : Benchmarks__1,
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'depAlias' : IDL.Text,
     'deps' : IDL.Vec(PackageSummary__1),
     'quality' : PackageQuality,
     'testStats' : TestStats__1,
@@ -187,6 +191,7 @@ export const idlFactory = ({ IDL }) => {
   const PackageSummaryWithChanges = IDL.Record({
     'ownerInfo' : User,
     'owner' : IDL.Principal,
+    'depAlias' : IDL.Text,
     'quality' : PackageQuality,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,

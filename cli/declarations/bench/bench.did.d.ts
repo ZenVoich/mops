@@ -16,7 +16,7 @@ export interface BenchSchema {
   'rows' : Array<string>,
   'description' : string,
 }
-export interface anon_class_10_1 {
+export interface _anon_class_10_1 {
   'getSchema' : ActorMethod<[], BenchSchema>,
   'getStats' : ActorMethod<[], BenchResult>,
   'init' : ActorMethod<[], BenchSchema>,
@@ -24,6 +24,6 @@ export interface anon_class_10_1 {
   'runCellUpdate' : ActorMethod<[bigint, bigint], BenchResult>,
   'runCellUpdateAwait' : ActorMethod<[bigint, bigint], BenchResult>,
 }
-export interface _SERVICE extends anon_class_10_1 {}
+export interface _SERVICE extends _anon_class_10_1 {}
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
