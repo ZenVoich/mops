@@ -1,7 +1,6 @@
 # Mops CLI Changelog
 
 ## unreleased
-
 - Updated npm dependencies
 - Added `--no-install` flag to `mops sources` command
 - Added support for dependency version pinning

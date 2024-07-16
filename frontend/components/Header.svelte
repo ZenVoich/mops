@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {push} from 'svelte-spa-history-router';
-	import Logo from './links/Logo.svelte';
 
 	export let searchText = '';
 
@@ -21,7 +20,7 @@
 </script>
 
 <header>
-	<Logo />
+	<mops-navbar></mops-navbar>
 	<div class="search">
 		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="50">
 		<div class="button" on:click="{search}">Search</div>
@@ -37,13 +36,16 @@
 		justify-content: center;
 		gap: 20px;
 		padding: 10px 30px;
-		box-shadow: 0 0 5px #a7a7a7;
+		box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 	}
 
 	.search {
 		display: flex;
 		justify-content: center;
 		min-width: 0;
+		margin-left: auto;
+		margin-right: auto;
+		transform: translateX(-50%);
 	}
 
 	.input {
@@ -74,5 +76,15 @@
 		cursor: pointer;
 		border-radius: 0 3px 3px 0;
 		user-select: none;
+	}
+
+	@media (width < 1600px) {
+		header {
+			justify-content: flex-start;
+		}
+
+		.search {
+			display: none;
+		}
 	}
 </style>

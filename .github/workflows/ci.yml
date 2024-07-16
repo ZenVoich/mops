@@ -67,3 +67,9 @@ jobs:
 
       - name: Build docs
         run: npm run build-docs
+
+      - name: Build blog
+        run: npm run build-blog
+
+      - name: Build CLI releases
+        run: npm run build-cli-releases
