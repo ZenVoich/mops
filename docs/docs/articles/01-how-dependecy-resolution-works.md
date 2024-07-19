@@ -6,6 +6,7 @@ sidebar_label: How dependency resolution works
 # How dependency resolution works
 
 1. Direct dependencies listed in `mops.toml` are always resolved to the specified version.
+_Only for project's root `mops.toml` file. Does not apply to `mops.toml` files of dependencies_
 
 2. Compatible transitive dependency versions are resolved to the highest version in the dependency graph.
 

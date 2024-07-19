@@ -41,3 +41,9 @@ If you are using the action in this way:
 ```
 
 no changes are required from your side.
+
+## Documentation updates
+
+- Added a new page [How dependency resolution works](https://docs.mops.one/how-dependency-resolution-works) (by [@ZenVoich](https://github.com/ZenVoich))
+- Added a new page [How to version a package](https://docs.mops.one/how-to-version-a-package) (by [@ZenVoich](https://github.com/ZenVoich))
+- Added a new page [Dependency version pinning](https://docs.mops.one/dependency-version-pinning) (by [@ZenVoich](https://github.com/ZenVoich))
