@@ -26,7 +26,7 @@
 				<span class="bullet">•</span>
 				{filesize(release.size, {standard: 'iec', round: 0})}
 				<span class="bullet">•</span>
-				{release.hash}
+				<div class="hash">{release.hash}</div>
 			</div>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			<p class="release-notes">{@html markdownToHtml(release.relseaseNotes)}</p>
@@ -55,9 +55,15 @@
 		color: gray;
 		font-size: 0.8rem;
 		margin-bottom: 0.5rem;
+		white-space: nowrap;
 	}
 
 	.release-notes {
 		line-height: 1.55;
+	}
+
+	.hash {
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 </style>
