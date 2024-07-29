@@ -1,10 +1,15 @@
 # Mops CLI Changelog
 
 ## unreleased
+
+## 0.45.0
 - Updated npm dependencies
 - Added `--no-install` flag to `mops sources` command
+- Added `--verbose` flag to `mops publish` command
 - Added support for [dependency version pinning](https://docs.mops.one/dependency-version-pinning)
 - Suppress hashing tool detecting error in `moc-wrapper.sh` on Linux
+- Fixed `moc-wrapper` error when no `.mops` folder exists
+- Fixed cache folder delete on github install error
 
 ## 0.44.1
 - Fixed fallback to dfx moc if there is no mops.toml
