@@ -31,7 +31,7 @@ else
       echo -n $mocPath > "$cached"
     fi;
   else
-    mkdir -p $(dirname $cached)
+    mkdir -p "$(dirname $cached)"
     mocPath="$(mops toolchain bin moc --fallback)"
     echo -n $mocPath > "$cached"
   fi;
