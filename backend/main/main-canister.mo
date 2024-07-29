@@ -36,6 +36,7 @@ import {getPackageChanges} "./registry/getPackageChanges";
 import {packagesByCategory} "./registry/packagesByCategory";
 import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages";
 import {verifyPackageRepository} "./verifyPackageRepository";
+import PackageUtils "./utils/package-utils";
 
 actor class Main() {
 	public type PackageName = Text.Text; // lib
@@ -220,8 +221,9 @@ actor class Main() {
 	};
 
 	func _getHighestSemver(name : PackageName, currentVersion : PackageVersion, semverPart : SemverPart) : Result.Result<PackageVersion, Err> {
-		if (packageConfigs.get(name # "@" # currentVersion) == null) {
-			return #err("Package '" # name # "@" # currentVersion # "' not found");
+		let packageId = PackageUtils.getPackageId(name, currentVersion);
+		if (packageConfigs.get(packageId) == null) {
+			return #err("Package '" # packageId # "' not found");
 		};
 		let ?versions = packageVersions.get(name) else return #err("Package '" # name # "' not found");
 
@@ -279,7 +281,7 @@ actor class Main() {
 	};
 
 	public shared query ({caller}) func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
 
@@ -294,12 +296,12 @@ actor class Main() {
 	};
 
 	public shared ({caller}) func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		_getFileHashes(packageId);
 	};
 
 	public query ({caller}) func getFileHashesQuery(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		_getFileHashes(packageId);
 	};
 
@@ -318,7 +320,7 @@ actor class Main() {
 	};
 
 	func _notifyInstall(name : PackageName, version : PackageVersion, downloader : Principal) {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 
 		if (packageConfigs.get(packageId) == null) {
 			// Debug.trap("Package '" # packageId # "' not found");

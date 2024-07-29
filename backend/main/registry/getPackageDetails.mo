@@ -52,14 +52,14 @@ module {
 
 		// dependencies
 		func _getPackageDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = name # "@" # version;
+			let packageId = PackageUtils.getPackageId(name, version);
 			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 			_getDepsSummaries(config.dependencies);
 		};
 
 		// dev dependencies
 		func _getPackageDevDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = name # "@" # version;
+			let packageId = PackageUtils.getPackageId(name, version);
 			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 			_getDepsSummaries(config.devDependencies);
 		};

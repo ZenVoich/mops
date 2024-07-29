@@ -53,7 +53,7 @@ module {
 
 	// package quality
 	func _computePackageQuality(registry : Registry.Registry, name : PackageName, version : PackageVersion) : PackageQuality {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 
 		{
@@ -70,7 +70,7 @@ module {
 
 	// deps status
 	func _computeDepsStatus(registry : Registry.Registry, name : PackageName, version : PackageVersion) : DepsStatus {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 
 		var status : DepsStatus = #allLatest;
@@ -87,7 +87,7 @@ module {
 			if (dep.version != highestVersion) {
 				status := #updatesAvailable;
 
-				let depId = depName # "@" # dep.version;
+				let depId = PackageUtils.getPackageId(dep.name, dep.version);
 				let ?publication = registry.getPackagePublication(depName, dep.version) else Debug.trap("Package '" # depId # "' not found");
 
 				if (publication.time < Time.now() - 180 * DAY) {

@@ -19,6 +19,7 @@ import DateComponents "mo:datetime/Components";
 
 import Utils "../utils";
 import Types "./types";
+import PackageUtils "./utils/package-utils";
 
 module {
 	public type DownloadsSnapshot = Types.DownloadsSnapshot;
@@ -75,7 +76,7 @@ module {
 		var timerId = 0;
 
 		public func add(record : Record) {
-			let packageId = record.name # "@" # record.version;
+			let packageId = PackageUtils.getPackageId(record.name, record.version);
 			dailyTempRecords.add(record);
 			weeklyTempRecords.add(record);
 			downloadsByPackageName.put(record.name, Option.get(downloadsByPackageName.get(record.name), 0) + 1);
@@ -192,7 +193,7 @@ module {
 				let byPackageId = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in dailyTempRecords.vals()) {
 					if (record.time >= startOfPrevDay) {
-						let packageId = record.name # "@" # record.version;
+						let packageId = PackageUtils.getPackageId(record.name, record.version);
 						byPackageId.put(packageId, Option.get(byPackageId.get(packageId), 0) + 1);
 					};
 				};
@@ -289,7 +290,7 @@ module {
 				let byPackageId = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
 				for (record in weeklyTempRecords.vals()) {
 					if (record.time >= startOfPrevWeek) {
-						let packageId = record.name # "@" # record.version;
+						let packageId = PackageUtils.getPackageId(record.name, record.version);
 						byPackageId.put(packageId, Option.get(byPackageId.get(packageId), 0) + 1);
 					};
 				};

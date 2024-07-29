@@ -11,7 +11,7 @@ module {
 	public type PackageChanges = Types.PackageChanges;
 
 	public func getPackageId(name : PackageName, version : PackageVersion) : PackageId {
-		name # "@" # version;
+		getDepName(name) # "@" # version;
 	};
 
 	public func parsePackageId(packageId : PackageId) : (PackageName, PackageVersion) {

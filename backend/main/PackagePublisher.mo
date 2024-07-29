@@ -99,7 +99,7 @@ module {
 
 			// check dependencies
 			for (dep in config.dependencies.vals()) {
-				let packageId = PackageUtils.getDepName(dep.name) # "@" # dep.version;
+				let packageId = PackageUtils.getPackageId(dep.name, dep.version);
 				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dependency " # packageId # " not found in registry");
 				};
@@ -107,7 +107,7 @@ module {
 
 			// check devDependencies
 			for (dep in config.devDependencies.vals()) {
-				let packageId = PackageUtils.getDepName(dep.name) # "@" # dep.version;
+				let packageId = PackageUtils.getPackageId(dep.name, dep.version);
 				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dev Dependency " # packageId # " not found in registry");
 				};
@@ -373,7 +373,6 @@ module {
 			let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
 			assert(publishing.user == caller);
 
-			let packageId = publishing.config.name # "@" # publishing.config.version;
 			let ?pubFiles = publishingFiles.get(publishingId) else return #err("Publishing files not found");
 
 			var mopsToml = false;

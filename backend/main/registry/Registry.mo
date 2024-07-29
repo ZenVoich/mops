@@ -51,7 +51,7 @@ module {
 		// -----------------------------
 
 		public func newPackageRelease(newRelease : NewPackageReleaseArgs) {
-			let packageId = newRelease.config.name # "@" # newRelease.config.version;
+			let packageId = PackageUtils.getPackageId(newRelease.config.name, newRelease.config.version);
 
 			_updateHighestConfig(newRelease.config);
 
@@ -142,27 +142,27 @@ module {
 		// -----------------------------
 
 		public func getPackageConfig(name : PackageName, version : PackageVersion) : ?PackageConfigV3 {
-			packageConfigs.get(name # "@" # version);
+			packageConfigs.get(PackageUtils.getPackageId(name, version));
 		};
 
 		public func getPackagePublication(name : PackageName, version : PackageVersion) : ?PackagePublication {
-			packagePublications.get(name # "@" # version);
+			packagePublications.get(PackageUtils.getPackageId(name, version));
 		};
 
 		public func getPackageFileStats(name : PackageName, version : PackageVersion) : PackageFileStats {
-			Option.get(packageFileStats.get(name # "@" # version), PackageUtils.defaultPackageFileStats());
+			Option.get(packageFileStats.get(PackageUtils.getPackageId(name, version)), PackageUtils.defaultPackageFileStats());
 		};
 
 		public func getPackageTestStats(name : PackageName, version : PackageVersion) : TestStats {
-			Option.get(packageTestStats.get(name # "@" # version), { passed = 0; passedNames = []; });
+			Option.get(packageTestStats.get(PackageUtils.getPackageId(name, version)), { passed = 0; passedNames = []; });
 		};
 
 		public func getPackageBenchmarks(name : PackageName, version : PackageVersion) : Benchmarks {
-			Option.get(packageBenchmarks.get(name # "@" # version), []);
+			Option.get(packageBenchmarks.get(PackageUtils.getPackageId(name, version)), []);
 		};
 
 		public func getPackageReleaseNotes(name : PackageName, version : PackageVersion) : Text {
-			Option.get(packageNotes.get(name # "@" # version), "")
+			Option.get(packageNotes.get(PackageUtils.getPackageId(name, version)), "")
 		};
 
 		// -----------------------------
