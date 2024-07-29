@@ -4,6 +4,7 @@ import ncp from 'ncp';
 import getFolderSize from 'get-folder-size';
 
 import {getDependencyType, globalCacheDir, parseGithubURL} from './mops.js';
+import {getPackageId} from './helpers/get-package-id.js';
 
 export let show = () => {
 	return globalCacheDir;
@@ -24,7 +25,7 @@ export function getDepCacheName(name : string, version : string) {
 }
 
 export function getMopsDepCacheName(name : string, version : string) {
-	return `${name}@${version}`;
+	return getPackageId(name, version);
 }
 
 export function getGithubDepCacheName(name : string, repo : string) {

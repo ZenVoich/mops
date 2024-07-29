@@ -6,6 +6,7 @@ import {bytesToHex} from '@noble/hashes/utils';
 import {getDependencyType, getRootDir, readConfig} from './mops.js';
 import {mainActor} from './api/actors.js';
 import {resolvePackages} from './resolve-packages.js';
+import {getPackageId} from './helpers/get-package-id.js';
 
 type LockFileGeneric = {
 	version : number;
@@ -56,7 +57,7 @@ async function getResolvedMopsPackageIds() : Promise<string[]> {
 	let resolvedPackages = await resolvePackages();
 	let packageIds = Object.entries(resolvedPackages)
 		.filter(([_, version]) => getDependencyType(version) === 'mops')
-		.map(([name, version]) => `${name}@${version}`);
+		.map(([name, version]) => getPackageId(name, version));
 	return packageIds;
 }
 

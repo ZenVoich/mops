@@ -5,7 +5,7 @@ sidebar_label: mops.toml
 
 # `mops.toml` file
 
-### [package]
+## [package]
 
 | Field        | Description                                      |
 | ------------ | ------------------------------------------------ |
@@ -16,21 +16,28 @@ sidebar_label: mops.toml
 | keywords     | Array of keywords (max 10 items, max 20 chars)   |
 | license      | Package license. Use [SPDX license identifier](https://spdx.org/licenses/) |
 
-### [dependencies]
+## [dependencies]
 
 | Field                 | Description                                     |
 | --------------------- | ----------------------------------------------- |
-| <mops_package_name>        | Version in format x.y.z (e.g. `0.1.2`)              |
-| <github_package_name> | Format: `https://github.com/<repo>#<branch/tag/ref>`<br/>Example: `https://github.com/dfinity/motoko-base#moc-0.11.0` |
+| <mops_package_name><br/>Example: `base`        | Version in format x.y.z (e.g. `0.1.2`)              |
+| <mops_package_name>@<pinned_version><br/>Example: `base@0.11.0`        | Version in format x.y.z (e.g. `0.1.2`)              |
+| <github_package_name><br/>Example: `gh-pkg` | Format: `https://github.com/<repo>#<branch/tag/ref>`<br/>Example: `https://github.com/dfinity/motoko-base#moc-0.11.0` |
 
-### [dev-dependencies]
+
+Learn how Mops resolves dependencies [here](/how-dependency-resolution-works).
+
+Learn about version pinning [here](/dependency-version-pinning).
+
+
+## [dev-dependencies]
 
 Same structure as `[dependencies]`.
 
 `dev-dependencies` are only used for testing and benchmarking purposes. They are not installed when the package is used as a dependency.
 
 
-### [toolchain]
+## [toolchain]
 See [toolchain management](/cli/toolchain) page for more details.
 
 | Field                | Description                                      |
@@ -40,7 +47,7 @@ See [toolchain management](/cli/toolchain) page for more details.
 | pocket-ic            | Local IC replica used to run [benchmarks](/cli/mops-bench#--replica)   |
 
 
-### [requirements]
+## [requirements]
 
 When a user installs your package(as a transitive dependency too), Mops will check if the requirements are met and display a warning if they are not.
 

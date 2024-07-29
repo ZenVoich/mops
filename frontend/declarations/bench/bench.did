@@ -1,4 +1,4 @@
-type anon_class_10_1 = 
+type _anon_class_10_1 = 
  service {
    getSchema: () -> (BenchSchema) query;
    getStats: () -> (BenchResult) query;
@@ -23,4 +23,4 @@ type BenchResult =
    rts_mutator_instructions: int;
    rts_total_allocation: int;
  };
-service : () -> anon_class_10_1
+service : () -> _anon_class_10_1

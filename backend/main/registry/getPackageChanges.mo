@@ -19,10 +19,7 @@ module {
 
 	// get package changes between this version and previous version
 	public func getPackageChanges(registry : Registry.Registry, name : PackageName, version : PackageVersion) : PackageChanges {
-		let curId = name # "@" # version;
 		let prevVersion = Option.get(_getPrevVersion(registry, name, version), version);
-		let prevId = name # "@" # prevVersion;
-
 		{
 			notes = registry.getPackageReleaseNotes(name, version);
 			tests = _computeTestsChangesBetween(registry.getPackageTestStats(name, prevVersion), registry.getPackageTestStats(name, version));
@@ -114,7 +111,6 @@ module {
 					newVersion = _getDepVer(newDep);
 				});
 			};
-
 		};
 
 		// removed deps

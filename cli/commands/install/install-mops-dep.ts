@@ -12,6 +12,7 @@ import {parallel} from '../../parallel.js';
 import {getDepCacheDir, getMopsDepCacheName, isDepCached} from '../../cache.js';
 import {downloadFile, getPackageFilesInfo} from '../../api/downloadPackageFiles.js';
 import {installDeps} from './install-deps.js';
+import {getDepName} from '../../helpers/get-dep-name.js';
 
 type InstallMopsDepOptions = {
 	verbose ?: boolean;
@@ -22,6 +23,7 @@ type InstallMopsDepOptions = {
 
 export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads} : InstallMopsDepOptions = {}) : Promise<boolean> {
 	threads = threads || 12;
+	let depName = getDepName(pkg);
 
 	if (!checkConfigFile()) {
 		return false;
@@ -33,12 +35,12 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 	let step = 0;
 	let progress = () => {
 		step++;
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} ${progressBar(step, total)}`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${depName}@${version} ${progressBar(step, total)}`);
 	};
 	progress();
 
 	if (!version) {
-		let versionRes = await getHighestVersion(pkg);
+		let versionRes = await getHighestVersion(depName);
 		if ('err' in versionRes) {
 			console.log(chalk.red('Error: ') + versionRes.err);
 			return false;
@@ -46,12 +48,12 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 		version = versionRes.ok;
 	}
 
-	let cacheName = getMopsDepCacheName(pkg, version);
+	let cacheName = getMopsDepCacheName(depName, version);
 	let cacheDir = getDepCacheDir(cacheName);
 
 	// global cache hit
 	if (isDepCached(cacheName)) {
-		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${pkg}@${version} (cache)`);
+		silent || logUpdate(`${dep ? 'Dependency' : 'Installing'} ${depName}@${version} (cache)`);
 	}
 	// download
 	else {
@@ -61,7 +63,7 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 		}
 
 		try {
-			let {storageId, fileIds} = await getPackageFilesInfo(pkg, version);
+			let {storageId, fileIds} = await getPackageFilesInfo(depName, version);
 
 			total = fileIds.length + 2;
 

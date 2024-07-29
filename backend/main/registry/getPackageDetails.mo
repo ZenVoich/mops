@@ -11,6 +11,7 @@ import Types "../types";
 import Registry "./Registry";
 import DownloadLog "../DownloadLog";
 import Users "../Users";
+import PackageUtils "../utils/package-utils";
 
 import {getPackageSummary; getPackageSummaryWithChanges} "./getPackageSummary";
 import {getPackageChanges} "./getPackageChanges";
@@ -41,21 +42,24 @@ module {
 				dep.repo == "";
 			});
 			Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-				let ?summary = getPackageSummary(registry, users, downloadLog, dep.name, dep.version) else Debug.trap("Package '" # dep.name # "' not found");
-				summary;
+				let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version) else Debug.trap("Package '" # dep.name # "' not found");
+				{
+					summary with
+					depAlias = dep.name;
+				};
 			});
 		};
 
 		// dependencies
 		func _getPackageDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = name # "@" # version;
+			let packageId = PackageUtils.getPackageId(name, version);
 			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 			_getDepsSummaries(config.dependencies);
 		};
 
 		// dev dependencies
 		func _getPackageDevDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = name # "@" # version;
+			let packageId = PackageUtils.getPackageId(name, version);
 			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 			_getDepsSummaries(config.devDependencies);
 		};
@@ -64,10 +68,10 @@ module {
 		func _getPackageDependents(name : PackageName) : [PackageSummary] {
 			func isDependent(config : PackageConfigV3) : Bool {
 				let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
-					dep.name == name and dep.repo == "";
+					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
 				}));
 				let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
-					dep.name == name and dep.repo == "";
+					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
 				}));
 				dependent or devDependent;
 			};

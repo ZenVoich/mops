@@ -5,17 +5,30 @@ import Text "mo:base/Text";
 module {
 	public type PackageName = Types.PackageName;
 	public type PackageVersion = Types.PackageVersion;
+	public type AliasVersion = Types.AliasVersion;
 	public type PackageId = Types.PackageId;
 	public type PackageFileStats = Types.PackageFileStats;
 	public type PackageChanges = Types.PackageChanges;
 
 	public func getPackageId(name : PackageName, version : PackageVersion) : PackageId {
-		name # "@" # version;
+		getDepName(name) # "@" # version;
 	};
 
 	public func parsePackageId(packageId : PackageId) : (PackageName, PackageVersion) {
-		let parts = Iter.toArray(Text.split(packageId, #text("@")));
+		let parts = Iter.toArray(Text.split(packageId, #char('@')));
 		(parts[0], parts[1]);
+	};
+
+	public func parseDepName(depName : PackageName) : (PackageName, AliasVersion) {
+		let parts = Iter.toArray(Text.split(depName, #char('@')));
+		if (parts.size() == 1) {
+			return (parts[0], "");
+		};
+		(parts[0], parts[1]);
+	};
+
+	public func getDepName(depName : PackageName) : Text {
+		parseDepName(depName).0;
 	};
 
 	public func defaultPackageFileStats() : PackageFileStats {

@@ -4,6 +4,7 @@ module {
 	public type PackageName = Text; // lib
 	public type PackageId = Text; // lib@1.2.3
 	public type PackageVersion = Text; // 1.2.3
+	public type AliasVersion = Text; // x.y.z or x.y or x or empty
 	public type FileId = Text; // <pkg>@<ver>/<path>
 	public type Err = Text;
 
@@ -96,6 +97,7 @@ module {
 		downloadsInLast30Days : Nat;
 		downloadsInLast7Days : Nat;
 		quality : PackageQuality;
+		depAlias : Text; // dep alias (e.g. "lib@1" or "lib")
 	};
 
 	public type PackageSummaryWithChanges = PackageSummary and {

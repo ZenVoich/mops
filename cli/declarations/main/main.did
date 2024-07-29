@@ -151,6 +151,7 @@ type PackageVersion = text;
 type PackageSummary__1 = 
  record {
    config: PackageConfigV3;
+   depAlias: text;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -163,6 +164,7 @@ type PackageSummaryWithChanges__1 =
  record {
    changes: PackageChanges;
    config: PackageConfigV3;
+   depAlias: text;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -175,6 +177,7 @@ type PackageSummaryWithChanges =
  record {
    changes: PackageChanges;
    config: PackageConfigV3;
+   depAlias: text;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -186,6 +189,7 @@ type PackageSummaryWithChanges =
 type PackageSummary = 
  record {
    config: PackageConfigV3;
+   depAlias: text;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
@@ -224,6 +228,7 @@ type PackageDetails =
    benchmarks: Benchmarks__1;
    changes: PackageChanges;
    config: PackageConfigV3;
+   depAlias: text;
    dependents: vec PackageSummary__1;
    deps: vec PackageSummary__1;
    devDeps: vec PackageSummary__1;

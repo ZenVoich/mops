@@ -13,7 +13,7 @@ export const idlFactory = ({ IDL }) => {
     'rts_mutator_instructions' : IDL.Int,
     'rts_heap_size' : IDL.Int,
   });
-  const anon_class_10_1 = IDL.Service({
+  const _anon_class_10_1 = IDL.Service({
     'getSchema' : IDL.Func([], [BenchSchema], ['query']),
     'getStats' : IDL.Func([], [BenchResult], ['query']),
     'init' : IDL.Func([], [BenchSchema], []),
@@ -21,6 +21,6 @@ export const idlFactory = ({ IDL }) => {
     'runCellUpdate' : IDL.Func([IDL.Nat, IDL.Nat], [BenchResult], []),
     'runCellUpdateAwait' : IDL.Func([IDL.Nat, IDL.Nat], [BenchResult], []),
   });
-  return anon_class_10_1;
+  return _anon_class_10_1;
 };
 export const init = ({ IDL }) => { return []; };

@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import {getDependencyType, getRootDir, readConfig} from './mops.js';
 import {resolvePackages} from './resolve-packages.js';
 import {getMocVersion} from './helpers/get-moc-version.js';
+import {getPackageId} from './helpers/get-package-id.js';
 
 export async function checkRequirements({verbose = false} = {}) {
 	let config = readConfig();
@@ -23,7 +24,7 @@ export async function checkRequirements({verbose = false} = {}) {
 	let resolvedPackages = await resolvePackages();
 	for (let [name, version] of Object.entries(resolvedPackages)) {
 		if (getDependencyType(version) === 'mops') {
-			let pkgId = `${name}@${version}`;
+			let pkgId = getPackageId(name, version);
 			let depConfig = readConfig(path.join(rootDir, '.mops', pkgId, 'mops.toml'));
 			let moc = depConfig.requirements?.moc;
 

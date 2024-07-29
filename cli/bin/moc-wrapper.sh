@@ -16,7 +16,7 @@ mopsToml="$rootDir/mops.toml"
 if [[ $rootDir == "" ]] || [[ ! -f $mopsToml ]]; then
   mocPath="$(mops toolchain bin moc --fallback)"
 else
-  if command -v openssl &> /dev/null; then
+  if command -v openssl >/dev/null 2>&1; then
     mopsTomlHash=$(openssl sha256 $mopsToml | awk -F'= ' '{print $2}')
   else
     mopsTomlHash=$(shasum $mopsToml -a 256 | awk -F' ' '{print $1}')

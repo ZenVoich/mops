@@ -1,6 +1,6 @@
 ---
-slug: 2024-07-15-updates
-title: Updates 15 July, 2024
+slug: 2024-07-30-updates
+title: Updates 30 July, 2024
 authors: [zen]
 tags: []
 ---
@@ -22,9 +22,11 @@ Further Mops updates will be posted here. Previous updates can be found in the [
 Added a common nav bar to all subdomains for easier navigation.
 
 ## Mops CLI updates
-**`0.45.0`**
-- Added `--no-install` flag to `mops sources` command (by [@ZenVoich](https://github.com/ZenVoich))
-- Updated npm dependencies (by [@ZenVoich](https://github.com/ZenVoich))
+**`0.45.0`** by [@ZenVoich](https://github.com/ZenVoich)
+- Updated npm dependencies
+- Added `--no-install` flag to `mops sources` command
+- Added support for [dependency version pinning](https://docs.mops.one/dependency-version-pinning)
+- Suppress hashing tool detecting error in `moc-wrapper.sh` on Linux
 
 ## GitHub Action update
 
@@ -41,3 +43,9 @@ If you are using the action in this way:
 ```
 
 no changes are required from your side.
+
+## Documentation updates
+
+- Added a new page [How dependency resolution works](https://docs.mops.one/how-dependency-resolution-works) (by [@ZenVoich](https://github.com/ZenVoich))
+- Added a new page [How to version a package](https://docs.mops.one/how-to-version-a-package) (by [@ZenVoich](https://github.com/ZenVoich))
+- Added a new page [Dependency version pinning](https://docs.mops.one/dependency-version-pinning) (by [@ZenVoich](https://github.com/ZenVoich))

@@ -7,6 +7,7 @@ import Types "../types";
 import Registry "./Registry";
 import DownloadLog "../DownloadLog";
 import Users "../Users";
+import PackageUtils "../utils/package-utils";
 
 import {getPackageChanges} "./getPackageChanges";
 
@@ -20,8 +21,6 @@ module {
 
 	// lightweight package summary
 	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
-		let packageId = name # "@" # version;
-
 		do ? {
 			let config = registry.getPackageConfig(name, version)!;
 			let publication = registry.getPackagePublication(name, version)!;
@@ -30,6 +29,7 @@ module {
 			users.ensureUser(owner);
 
 			return ?{
+				depAlias = "";
 				owner = owner;
 				ownerInfo = users.getUser(owner);
 				config = config;
@@ -53,7 +53,7 @@ module {
 
 	// package quality
 	func _computePackageQuality(registry : Registry.Registry, name : PackageName, version : PackageVersion) : PackageQuality {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 
 		{
@@ -70,7 +70,7 @@ module {
 
 	// deps status
 	func _computeDepsStatus(registry : Registry.Registry, name : PackageName, version : PackageVersion) : DepsStatus {
-		let packageId = name # "@" # version;
+		let packageId = PackageUtils.getPackageId(name, version);
 		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
 
 		var status : DepsStatus = #allLatest;
@@ -80,13 +80,15 @@ module {
 				continue l;
 			};
 
-			let ?highestVersion = registry.getHighestVersion(dep.name) else Debug.trap("Package '" # dep.name # "' not found");
+			let depName = PackageUtils.getDepName(dep.name);
+
+			let ?highestVersion = registry.getHighestVersion(depName) else Debug.trap("Package '" # dep.name # "' not found");
 
 			if (dep.version != highestVersion) {
 				status := #updatesAvailable;
 
-				let depId = dep.name # "@" # dep.version;
-				let ?publication = registry.getPackagePublication(dep.name, dep.version) else Debug.trap("Package '" # depId # "' not found");
+				let depId = PackageUtils.getPackageId(dep.name, dep.version);
+				let ?publication = registry.getPackagePublication(depName, dep.version) else Debug.trap("Package '" # depId # "' not found");
 
 				if (publication.time < Time.now() - 180 * DAY) {
 					status := #tooOld;

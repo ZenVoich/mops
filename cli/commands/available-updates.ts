@@ -2,6 +2,7 @@ import process from 'node:process';
 import chalk from 'chalk';
 import {mainActor} from '../api/actors.js';
 import {Config} from '../types.js';
+import {getDepName} from '../helpers/get-dep-name.js';
 
 // [pkg, oldVersion, newVersion]
 export async function getAvailableUpdates(config : Config, pkg ?: string) : Promise<Array<[string, string, string]>> {
@@ -9,6 +10,9 @@ export async function getAvailableUpdates(config : Config, pkg ?: string) : Prom
 	let devDeps = Object.values(config['dev-dependencies'] || {});
 	let allDeps = [...deps, ...devDeps].filter((dep) => dep.version);
 	let depsToUpdate = pkg ? allDeps.filter((dep) => dep.name === pkg) : allDeps;
+
+	// skip pinned dependencies
+	depsToUpdate = depsToUpdate.filter((dep) => getDepName(dep.name) === dep.name);
 
 	let getCurrentVersion = (pkg : string) => {
 		for (let dep of allDeps) {
