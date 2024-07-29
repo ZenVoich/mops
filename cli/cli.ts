@@ -125,6 +125,7 @@ program
 	.option('--no-docs', 'Do not generate docs')
 	.option('--no-test', 'Do not run tests')
 	.option('--no-bench', 'Do not run benchmarks')
+	.option('--verbose')
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
