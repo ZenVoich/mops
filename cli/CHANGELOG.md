@@ -3,7 +3,7 @@
 ## unreleased
 - Updated npm dependencies
 - Added `--no-install` flag to `mops sources` command
-- Added support for dependency version pinning
+- Added support for [dependency version pinning](https://docs.mops.one/dependency-version-pinning)
 - Suppress hashing tool detecting error in `moc-wrapper.sh` on Linux
 
 ## 0.44.1

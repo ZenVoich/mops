@@ -8,8 +8,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-	title: 'My Site',
-	tagline: 'Dinosaurs are cool',
+	title: 'Mops Blog',
 	favicon: 'img/logo.svg',
 
 	// Set the production url of your site here
@@ -43,6 +42,7 @@ const config = {
 				blog: {
 					showReadingTime: true,
 					routeBasePath: '/',
+					blogTitle: 'Mops Blog',
 				},
 				theme: {
 					customCss: './src/css/custom.css',
