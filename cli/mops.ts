@@ -21,7 +21,7 @@ if (!globalThis.fetch) {
 }
 
 // (!) make changes in pair with backend
-export let apiVersion = '1.2';
+export let apiVersion = '1.3';
 
 export let globalConfigDir = '';
 export let globalCacheDir = '';
@@ -270,13 +270,13 @@ export async function checkApiCompatibility() {
 	let backendApiVer = await actor.getApiVersion();
 	if (backendApiVer.split('.')[0] !== apiVersion.split('.')[0]) {
 		console.log(chalk.red('ERR: ') + `CLI incompatible with backend. CLI v${apiVersion}, Backend v${backendApiVer}`);
-		console.log('Run ' + chalk.greenBright('npm i -g ic-mops') + ' to upgrade cli.');
+		console.log('Run ' + chalk.greenBright('mops self update') + ' to upgrade cli.');
 		return false;
 	}
 	else if (backendApiVer.split('.')[1] !== apiVersion.split('.')[1]) {
 		console.log('-'.repeat(50));
 		console.log(chalk.yellow('WARN: ') + `CLI probably incompatible with backend. CLI v${apiVersion}, Backend v${backendApiVer}`);
-		console.log('Recommended to run ' + chalk.greenBright('npm i -g ic-mops') + ' to upgrade cli.');
+		console.log('Recommended to run ' + chalk.greenBright('mops self update') + ' to upgrade cli.');
 		console.log('-'.repeat(50));
 	}
 	return true;
