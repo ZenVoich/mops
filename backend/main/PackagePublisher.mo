@@ -103,6 +103,9 @@ module {
 				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dependency " # packageId # " not found in registry");
 				};
+				if (dep.repo.size() != 0 and registry.getPackageOwner(PackageUtils.getDepName(dep.name)) != null) {
+					return #err("GitHub dependency `" # dep.name # "` conflicts with an existing package in the Mops registry. Please change the dependency name in mops.toml file.");
+				};
 			};
 
 			// check devDependencies

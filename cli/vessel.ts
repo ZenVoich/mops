@@ -171,7 +171,7 @@ export const installFromGithub = async (name : string, repo : string, {verbose =
 			await downloadFromGithub(repo, cacheDir, progress);
 		}
 		catch (err) {
-			deleteSync([cacheDir]);
+			deleteSync([cacheDir], {force: true});
 			process.exit(1);
 		}
 	}

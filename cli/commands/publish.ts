@@ -18,7 +18,7 @@ import {SilentReporter} from './test/reporters/silent-reporter.js';
 import {findChangelogEntry} from '../helpers/find-changelog-entry.js';
 import {bench} from './bench.js';
 
-export async function publish(options : {docs ?: boolean, test ?: boolean, bench ?: boolean} = {}) {
+export async function publish(options : {docs ?: boolean, test ?: boolean, bench ?: boolean, verbose ?: boolean} = {}) {
 	if (!checkConfigFile()) {
 		return;
 	}
@@ -222,6 +222,11 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	files = [...files, ...defaultFiles];
 	files = globbySync([...files, ...defaultFiles]);
 
+	if (options.verbose) {
+		console.log('Files:');
+		console.log(files.map((file) => '  ' + file).join('\n'));
+	}
+
 	// generate docs
 	let docsFile = path.join(rootDir, '.mops/.docs/docs.tgz');
 	if (options.docs) {
@@ -308,7 +313,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	let publishing = await actor.startPublish(backendPkgConfig);
 	if ('err' in publishing) {
 		console.log(chalk.red('Error: ') + publishing.err);
-		return;
+		process.exit(1);
 	}
 	let puiblishingId = publishing.ok;
 
@@ -347,7 +352,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 		let res = await actor.startFileUpload(puiblishingId, file, BigInt(chunkCount), firstChunk);
 		if ('err' in res) {
 			console.log(chalk.red('Error: ') + res.err);
-			return;
+			process.exit(1);
 		}
 		let fileId = res.ok;
 
@@ -357,7 +362,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 			let res = await actor.uploadFileChunk(puiblishingId, fileId, BigInt(i), chunk);
 			if ('err' in res) {
 				console.log(chalk.red('Error: ') + res.err);
-				return;
+				process.exit(1);
 			}
 		}
 	});
@@ -371,7 +376,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	let res = await actor.finishPublish(puiblishingId);
 	if ('err' in res) {
 		console.log(chalk.red('Error: ') + res.err);
-		return;
+		process.exit(1);
 	}
 
 	console.log(chalk.green('Published ') + `${config.package.name}@${config.package.version}`);

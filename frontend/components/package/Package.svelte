@@ -227,6 +227,7 @@
 									<div class="packages">
 										{#each githubDeps as dep}
 											<div class="github-dep">
+												<div class="github-dep-name">{dep.name}</div>
 												<a class="github-dep-repo" href="{dep.repo}" target="_blank">
 													<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
 													<div>{dep.repo.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '').split('#')[0]}</div>
@@ -401,6 +402,10 @@
 	.github-dep-repo {
 		display: flex;
 		gap: 5px;
+		white-space: nowrap;
+	}
+
+	.github-dep-name {
 		white-space: nowrap;
 	}
 
