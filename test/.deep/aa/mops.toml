@@ -1,6 +1,9 @@
 [package]
 name = 'aa'
-version = '0.1.0'
+version = '0.1.1'
 description = 'aa'
-repository = 'repo'
+# repository = 'repo'
 files = ['test.mo']
+
+[dependencies]
+base = "0.10.0"

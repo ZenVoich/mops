@@ -1,12 +1,14 @@
 [package]
 name = "hello"
-version = "0.9.7"
+version = "1.0.3"
 description = "hello lib"
 # repository = "https://github.com/ZenVoich/hello"
 license = "Apache-2.0"
 keywords = [ "test", "map" ]
 
 [dependencies]
+base = "0.10.3"
+# base = "https://github.com/dfinity/motoko-base#moc-0.10.1@80ededb39954739b18b88fc0e5561264003cf9ab"
 # ccc = "../.flat/ccc"
 
 [requirements]
