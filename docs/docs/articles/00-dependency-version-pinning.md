@@ -16,15 +16,12 @@ Example:
 ```toml
 "package@1.2.3" = "1.2.3" # good
 "package@1.1.0" = "2.1.0" # bad
-
-"package@2" = "2.1.0" # good
-"package@3" = "2.1.0" # bad
 ```
+<!--
+"package@2" = "2.1.0" # good
+"package@3" = "2.1.0" # bad -->
 
-<!-- Version pinning makes sense only to use in a package that is published to the registry.
-In project, it's guaranteed that the version of depenencies is exactly the same as in the `mops.toml` file. -->
-
-## Use case
+## Use case 1
 
 Version pinning is useful when you need two different versions of the same package.
 
@@ -46,3 +43,30 @@ import Map_9 "mo:map";
 
 let newMap = Map_9.fromIter(Map_8.entries(oldMap), Map_9.x_hash);
 ```
+
+## Use case 2
+
+Version pinning is useful when you want to hard pin a dependency version in your package published to the Mops registry.
+
+For example, you can pin the `base` dependency to version `0.11.0`, so you can be sure that the new version of the `base` package will not break your package published to the Mops registry.
+
+`mops.toml`
+```toml
+[package]
+name = "your-package"
+version = "1.0.0"
+
+[dependencies]
+"base@0.11.0" = "0.11.0"
+```
+
+User's `mops.toml`
+```toml
+[dependencies]
+your-package = "1.0.0"
+base = "0.20.0"
+```
+
+User want to use `your-package` alongside with the `0.20.0` version of `base` package.
+
+Here, user will use the `base` package version `0.20.0`, but your package is guaranteed to use the `base` package version `0.11.0`.
