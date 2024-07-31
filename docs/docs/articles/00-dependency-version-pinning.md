@@ -67,6 +67,6 @@ your-package = "1.0.0"
 base = "0.20.0"
 ```
 
-User want to use `your-package` alongside with the `0.20.0` version of `base` package.
+User wants to use `your-package` alongside with the `0.20.0` version of `base` package.
 
 Here, user will use the `base` package version `0.20.0`, but your package is guaranteed to use the `base` package version `0.11.0`.
