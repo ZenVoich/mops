@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.44.1"
+    "latest": "0.45.0"
   },
   "versions": {
     "0.41.0": {
@@ -51,6 +51,13 @@
       "relseaseNotes": "* Fixed fallback to dfx moc if there is no mops.toml\n",
       "url": "https://cli.mops.one/versions/0.44.1.tgz",
       "hash": "b10db8562b5cc2e4ab77bef7dae95912c34ba1dfe5bc96c43932e2dbcef5af8d"
+    },
+    "0.45.0": {
+      "time": 1722412699500,
+      "size": 739109,
+      "relseaseNotes": "* Updated npm dependencies\n* Added `--no-install` flag to `mops sources` command\n* Added `--verbose` flag to `mops publish` command\n* Added support for [dependency version pinning](https://docs.mops.one/dependency-version-pinning)\n* Suppress hashing tool detecting error in `moc-wrapper.sh` on Linux\n* Fixed `moc-wrapper` error when no `.mops` folder exists\n* Fixed cache folder delete on github install error\n",
+      "url": "https://cli.mops.one/versions/0.45.0.tgz",
+      "hash": "010dd32ab1b0cfd2cc27de657cf947231c1c30a306dc4dfc36a2c5d9fee76d7a"
     }
   }
 }
