@@ -5,7 +5,7 @@ import path from 'node:path';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import {deleteSync} from 'del';
-import tar from 'tar';
+import {create as createTar} from 'tar';
 import streamToPromise from 'stream-to-promise';
 
 import {getRootDir} from '../mops.js';
@@ -82,7 +82,7 @@ export async function docs({silent = false} = {}) {
 	let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
 	files.sort();
 	if (files.length) {
-		let stream = tar.create(
+		let stream = createTar(
 			{
 				cwd: docsDir,
 				gzip: true,

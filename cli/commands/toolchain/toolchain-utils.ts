@@ -8,7 +8,7 @@ import decompress from 'decompress';
 // import decompressTarxz from 'decomp-tarxz';
 import {deleteSync} from 'del';
 import {Octokit} from 'octokit';
-import tar from 'tar';
+import {extract as extractTar} from 'tar';
 
 import {getRootDir} from '../../mops.js';
 
@@ -41,7 +41,7 @@ export let downloadAndExtract = async (url : string, destDir : string, destFileN
 		fs.cpSync(path.join(tmpDir, path.parse(archive).name.replace('.tar', '')), destDir, {recursive: true});
 	}
 	else if (archive.endsWith('tar.gz')) {
-		await tar.extract({
+		await extractTar({
 			file: archive,
 			cwd: destDir,
 		});
