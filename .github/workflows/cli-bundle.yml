@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
-    name: node ${{ matrix.node-version }}
+    name: ${{ matrix.os }}, node ${{ matrix.node-version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +28,10 @@ jobs:
         run: cd cli && npm i
 
       - name: Prepare
-        run: npm run prepare
+        run: cd cli && npm run prepare
 
       - name: Bundle
-        run: npm run bundle
+        run: cd cli && npm run bundle
 
       - name: Check local bundle
         run: node ./cli/bundle/cli.js -v
