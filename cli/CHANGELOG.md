@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 0.45.2
+- Updated npm dependencies
+
 ## 0.45.0
 - Updated npm dependencies
 - Added `--no-install` flag to `mops sources` command
