@@ -1,0 +1,40 @@
+name: CLI bundle
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        node-version: [20, 22]
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+    name: node ${{ matrix.node-version }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: cd cli && npm version 0.0.1 && npm i
+
+      - name: Bundle CLI
+        run: npm run release-cli
+
+      - name: Check local bundle
+        run: node ./cli/bundle/cli.js -v
+
+      - name: Install CLI bundle
+        run: npm i -g ./cli-releases/versions/0.0.1.tgz
+
+      - name: Check global bundle
+        run: mops -v
