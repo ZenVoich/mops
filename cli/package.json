@@ -58,7 +58,6 @@
     "decompress": "4.2.1",
     "del": "7.1.0",
     "dhall-to-json-cli": "1.7.6",
-    "eslint": "9.8.0",
     "execa": "9.3.0",
     "fs-extra": "11.2.0",
     "get-folder-size": "5.0.0",
@@ -72,14 +71,13 @@
     "minimatch": "10.0.1",
     "ncp": "2.0.0",
     "node-fetch": "3.3.2",
-    "octokit": "4.0.2",
+    "octokit": "3.1.2",
     "pem-file": "1.0.1",
     "pic-ic": "0.3.3",
     "prompts": "2.4.2",
     "semver": "7.6.3",
     "stream-to-promise": "3.0.0",
-    "string-width": "7.2.0",
-    "tar": "7.4.3"
+    "string-width": "7.2.0"
   },
   "devDependencies": {
     "@tsconfig/strictest": "2.0.5",
@@ -93,10 +91,12 @@
     "@types/semver": "7.5.8",
     "@types/stream-to-promise": "2.2.4",
     "@types/tar": "6.1.13",
+    "eslint": "8.57.0",
     "bun": "1.0.35",
     "esbuild": "0.23.0",
-    "tsx": "4.16.4",
-    "typescript": "5.5.4"
+    "tsx": "4.16.5",
+    "typescript": "5.5.4",
+    "tar": "7.4.3"
   },
   "overrides": {
     "@dfinity/agent": "2.0.0",
