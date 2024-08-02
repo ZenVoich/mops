@@ -29,7 +29,7 @@
     "bundle:fix": "npx -y rexreplace 'new URL\\(\"\\.\\./templates' 'new URL(\"./templates' bundle/cli.js",
     "bundle:copy": "cp -r commands/bench bundle && cp -r bin declarations templates package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
-    "bundle:tar": "tar --exclude bundle/cli.tgz -czvf bundle/cli.tgz bundle",
+    "bundle:tar": "touch bundle/cli.tgz && tar --exclude bundle/cli.tgz -czvf bundle/cli.tgz bundle",
     "copy": "cp -r commands/bench dist/commands && cp -r declarations templates package.json bin dist | true",
     "prepare": "npm run build && npm run copy && npm run fix-dist",
     "fix-dist": "tsx ./fix-dist.ts",
