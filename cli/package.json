@@ -77,7 +77,8 @@
     "prompts": "2.4.2",
     "semver": "7.6.3",
     "stream-to-promise": "3.0.0",
-    "string-width": "7.2.0"
+    "string-width": "7.2.0",
+    "tar": "7.4.3"
   },
   "devDependencies": {
     "@tsconfig/strictest": "2.0.5",
@@ -95,8 +96,7 @@
     "bun": "1.0.35",
     "esbuild": "0.23.0",
     "tsx": "4.16.5",
-    "typescript": "5.5.4",
-    "tar": "7.4.3"
+    "typescript": "5.5.4"
   },
   "overrides": {
     "@dfinity/agent": "2.0.0",
