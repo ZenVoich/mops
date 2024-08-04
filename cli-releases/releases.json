@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "0.45.2"
+    "latest": "0.45.3"
   },
   "versions": {
     "0.41.0": {
@@ -65,6 +65,13 @@
       "relseaseNotes": "* Updated npm dependencies\n",
       "url": "https://cli.mops.one/versions/0.45.2.tgz",
       "hash": "2d156825313a0beabdc9c88f11cd321409fe24a65538f3663608a5f0150cc20b"
+    },
+    "0.45.3": {
+      "time": 1722777731005,
+      "size": 760252,
+      "relseaseNotes": "* Fixed bug with missing `tar` package\n",
+      "url": "https://cli.mops.one/versions/0.45.3.tgz",
+      "hash": "a4d65bed21c204f1984fddc327f936427296dff182944cc3ad141ab6d770d907"
     }
   }
 }

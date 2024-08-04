@@ -2,6 +2,9 @@
 
 ## unreleased
 
+## 0.45.3
+- Fixed bug with missing `tar` package
+
 ## 0.45.2
 - Updated npm dependencies
 
