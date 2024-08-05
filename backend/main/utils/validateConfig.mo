@@ -183,6 +183,26 @@ module {
 			if (keyword.size() > CONFIG_MAX_SIZES.keywords.1) {
 				return #err("invalid config: max keyword length is " # Nat.toText(CONFIG_MAX_SIZES.keywords.1));
 			};
+			if (keyword.size() < 2) {
+				return #err("invalid config: min keyword length is 2");
+			};
+			// [a-z0-9-]
+			var prevChar = '-';
+			for (char in keyword.chars()) {
+				let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in keyword '" # keyword # "'. Keyword must contain only lowercase letters, digits and '-'");
+				if (not isLowerCaseLetter(char) and not Char.isDigit(char) and char != '-') {
+					return err;
+				};
+				// deny -kw
+				if (prevChar == '-' and char == '-') {
+					return err;
+				};
+				prevChar := char;
+			};
+			// deny kw-
+			if (prevChar == '-') {
+				return #err("invalid config: keyword cannot end with '-' in keyword '" # keyword # "'. Keyword must contain only lowercase letters, digits and '-'");
+			};
 		};
 		for (script in config.scripts.vals()) {
 			if (script.name.size() > CONFIG_MAX_SIZES.scripts.1) {
