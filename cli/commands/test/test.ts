@@ -34,7 +34,7 @@ let globConfig = {
 };
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
-type TestMode = 'interpreter' | 'wasi';
+type TestMode = 'interpreter' | 'wasi' | 'replica';
 
 export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
 	let rootDir = getRootDir();
@@ -131,9 +131,17 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 
 	await parallel(os.cpus().length, files, async (file : string) => {
 		let mmf = new MMF1('store', absToRel(file));
-		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
-		if (wasiMode && !wasmtimePath) {
+		// mode overrides
+		let lines = fs.readFileSync(file, 'utf8').split('\n');
+		if (lines.includes('// @testmode wasi')) {
+			mode = 'wasi';
+		}
+		else if (lines.includes('actor {')) {
+			mode = 'replica';
+		}
+
+		if (mode === 'wasi' && !wasmtimePath) {
 			// ensure wasmtime is installed or specified in config
 			if (config.toolchain?.wasmtime) {
 				wasmtimePath = await toolchain.bin('wasmtime');
@@ -150,7 +158,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
 			// build and run wasm
-			if (wasiMode) {
+			if (mode === 'wasi') {
 				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
 
 				// build
@@ -189,13 +197,18 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 				}).then(resolve);
 			}
 			// interpret
-			else {
+			else if (mode === 'interpreter') {
 				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
+				pipeMMF(proc, mmf).then(resolve);
+			}
+			// build and execute in replica
+			else if (mode === 'replica') {
+				let proc = spawn(mocPath, ['-r', '-replica-system-api', ...mocArgs]);
 				pipeMMF(proc, mmf).then(resolve);
 			}
 		});
 
-		reporter.addRun(file, mmf, promise, wasiMode);
+		reporter.addRun(file, mmf, promise, mode === 'wasi');
 
 		await promise;
 	});

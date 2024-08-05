@@ -96,7 +96,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	files.sort();
 
 	let benchDir = `${getRootDir()}/.mops/.bench/`;
-	fs.rmSync(benchDir, {recursive: true, force: true});
+	// fs.rmSync(benchDir, {recursive: true, force: true});
 	fs.mkdirSync(benchDir, {recursive: true});
 
 	if (!options.silent) {
@@ -145,7 +145,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	options.silent || console.log('Stopping replica...');
 	await replica.stop();
 
-	fs.rmSync(benchDir, {recursive: true, force: true});
+	// fs.rmSync(benchDir, {recursive: true, force: true});
 
 	return benchResults;
 }
