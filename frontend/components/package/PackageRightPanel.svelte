@@ -97,7 +97,7 @@
 	{:else if packageDetails.owner}
 		<div class="detail">
 			<div class="label">Owner</div>
-			<div class="value">{packageDetails.owner}</div>
+				<a class="value" href="/search/owner:{packageDetails.owner}" use:link>{packageDetails.owner}</a>
 		</div>
 		<a class="fill-user-info" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a>
 	{/if}

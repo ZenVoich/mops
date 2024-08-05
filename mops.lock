@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "mopsTomlDepsHash": "92f06f5dbd5dbd3925c12abbad30610a2bd04b2948b9cc41bf9165000ea40274",
+  "mopsTomlDepsHash": "f451449065820aac555df898935004bef90b9a81f776f80538e0c3062ddac6a6",
   "hashes": {
     "base@0.12.0": {
       "base@0.12.0/NOTICE": "3960a8d25fa5fc909325817b08b36c1146970930ca15b6352f8ea6db803cab47",
@@ -420,6 +420,14 @@
       "xtended-numbers@0.3.1/README.md": "df334a5b7f8774bffe09495de9bacb4616d20ad431d50dd7f04fb3e923044cef",
       "xtended-numbers@0.3.1/src/IntX.mo": "a82947577982a37841ede78c7a4e27568c11bffeb86bb76d03d27eb9ef99a0b3",
       "xtended-numbers@0.3.1/src/NatX.mo": "735ec54844fe8cd6640c4fb0909e8312608db18c192fe278ee9faeb0187217cc"
+    },
+    "principal-ext@0.1.0": {
+      "principal-ext@0.1.0/mops.toml": "d2722acc434d2feaaedf3f5c5eeb4e8854024ad81c3456f03bbb3cb70823c2c7",
+      "principal-ext@0.1.0/LICENSE": "6196a6d89602da7057b74b05527d6427ec4674960c5eeebea6f5c884d56bdd3e",
+      "principal-ext@0.1.0/src/lib.mo": "8105de12a81ce5c326d2f2ba8a768371d1079df85d69482c87b8329bb70838c7",
+      "principal-ext@0.1.0/README.md": "b0a6251f9b36177257a53d99721a2d69f259492f7374fa9dc3640829c7c0dfa6",
+      "principal-ext@0.1.0/src/Base32.mo": "62477a9eac7fef077da963d7aad2bc3fc786f5c3da0a8d4990c37297e425a0a6",
+      "principal-ext@0.1.0/src/Crc32.mo": "d6968b951e2031bb2a0e4766b4fe64d9c65d04ad549c6a525042d250e25d07b9"
     },
     "test@2.0.0": {
       "test@2.0.0/src/lib.mo": "298edb69885954debeeaa87a78943a1e1e3de7f61afa53f3eaf287868a292905",
