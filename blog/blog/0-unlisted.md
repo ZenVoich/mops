@@ -6,4 +6,12 @@ authors: [zen]
 tags: []
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet
+
+### Summary
+- Keywords validation
+
+<!-- truncate -->
+
+## Keywords validation
+
+Now, the keywords are validated when publishing a package. Keywords should conform to the following pattern: `[a-z0-9-]`.
