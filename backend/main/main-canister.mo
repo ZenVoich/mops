@@ -426,9 +426,14 @@ actor class Main() {
 
 		packagesByCategory
 			|> Array.map<(Text, [Text]), (Text, [PackageSummary])>(_, func((category, packageNames)) {
-				(category, _sortByUpdated(_summariesFromNames(packageNames, 1000)))
-			})
-			|> Array.take(_, limit);
+				(
+					category,
+					packageNames
+						|> _summariesFromNames(_, 1000)
+						|> _sortByUpdated(_)
+						|> Array.take(_, limit)
+				)
+			});
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
