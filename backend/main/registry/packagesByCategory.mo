@@ -1,4 +1,5 @@
 module {
+	// legacy, use keywords for new packages
 	public let packagesByCategory = [
 		(
 			"Data Structures",
@@ -142,6 +143,19 @@ module {
 				"icrc-fungible",
 				"icrc4-mo",
 				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
+				"account-identifier",
+			]
+		),
+		(
+			"DeFi",
+			[
+				"icrc1",
+				"auction",
+				"account",
 				"devefi-icrc-sender",
 				"devefi-icrc-reader",
 				"icrc1-types",
