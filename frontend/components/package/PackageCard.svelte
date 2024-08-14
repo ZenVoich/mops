@@ -7,6 +7,7 @@
 
 	export let pkg : PackageSummary;
 	export let showVersion = false;
+	export let showFirstPublished = false;
 	export let showUpdated = false;
 	export let showDownloads = false;
 	export let show7DayDownloads = false;
@@ -29,6 +30,9 @@
 			{/if}
 			{#if showUpdated}
 				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+			{/if}
+			{#if showFirstPublished}
+				<div><Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
 			{/if}
 			{#if show7DayDownloads}
 				<div>Downloads: {pkg.downloadsInLast7Days.toLocaleString()}</div>

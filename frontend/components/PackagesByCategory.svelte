@@ -21,7 +21,7 @@
 			if (cat === category) {
 				packages = pkgs.slice().sort((a, b) => {
 					return getQualityPoints(b.quality).total - getQualityPoints(a.quality).total;
-				}).slice(0, 7);
+				}).slice(0, 8);
 				break;
 			}
 		}
@@ -82,27 +82,23 @@
 	.body {
 		display: flex;
 		align-items: flex-start;
-		gap: 25px;
+		gap: 30px;
 		margin-bottom: 20px;
 	}
 
 	.categories {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-		padding-top: 10px;
+		margin-top: 10px;
 	}
 
 	.category.selected {
-		background: var(--color-primary);
-		color: white;
+		background: var(--color-secondary);
 	}
 
 	.category {
-		padding: 12px 20px;
+		padding: 20px 20px;
 		padding-right: 50px;
-		background: var(--color-secondary);
-		border-radius: 4px;
 		font-size: 18px;
 		font-weight: 500;
 		user-select: none;
@@ -111,6 +107,7 @@
 		white-space: nowrap;
 		min-width: 155px;
 		cursor: pointer;
+		border-bottom: 1px solid hsl(0deg 0% 90.66%);
 	}
 
 	.packages {
@@ -125,8 +122,6 @@
 	}
 
 	.package {
-		/* width: 390px; */
-		/* max-width: 100%; */
 		min-width: 0;
 	}
 

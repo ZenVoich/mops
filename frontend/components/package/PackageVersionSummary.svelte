@@ -7,13 +7,17 @@
 	import PackageBenchmarksDiff from './PackageBenchmarksDiff.svelte';
 
 	export let summary : PackageSummaryWithChanges;
+	export let showName = false;
 
 	let dd : [string, DepChange[]][] = [['Dependencies', summary.changes.deps], ['Dev Dependencies', summary.changes.devDeps]];
 </script>
 
-<div class="version-summary">
+<div class="version-summary" class:show-name={showName}>
 	<div class="header">
-		<a class="version" href="/{summary.config.name}@{summary.config.version}" use:link>{summary.config.version}</a>
+		<a class="link" href="/{summary.config.name}@{summary.config.version}" use:link>
+			<div class="name">{summary.config.name}</div>
+			<div class="version">{summary.config.version}</div>
+		</a>
 		<div class="version-published"><Date date="{Number(summary.publication.time / 1000000n)}"></Date></div>
 	</div>
 	{#if summary.changes.notes}
@@ -74,8 +78,26 @@
 		justify-content: space-between;
 	}
 
-	.version {
+	.link {
+		display: flex;
+		align-items: baseline;
+		gap: 10px;
+	}
+
+	.version-summary:not(.show-name) .name {
+		display: none;
+	}
+
+	.version-summary:not(.show-name) .version {
 		font-size: 24px;
+	}
+
+	.version-summary.show-name .name {
+		font-size: 24px;
+	}
+
+	.version-summary.show-name .version {
+		/* font-weight: 100; */
 	}
 
 	.title {
