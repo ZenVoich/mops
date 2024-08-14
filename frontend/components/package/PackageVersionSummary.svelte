@@ -9,12 +9,14 @@
 	export let summary : PackageSummaryWithChanges;
 	export let showName = false;
 
+	let url = showName ? `/${summary.config.name}` : `/${summary.config.name}@${summary.config.version}`;
+
 	let dd : [string, DepChange[]][] = [['Dependencies', summary.changes.deps], ['Dev Dependencies', summary.changes.devDeps]];
 </script>
 
 <div class="version-summary" class:show-name={showName}>
 	<div class="header">
-		<a class="link" href="/{summary.config.name}@{summary.config.version}" use:link>
+		<a class="link" href={url} use:link>
 			<div class="name">{summary.config.name}</div>
 			<div class="version">{summary.config.version}</div>
 		</a>
