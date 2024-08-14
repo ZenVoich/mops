@@ -54,7 +54,7 @@
 		width: 600px;
 		max-width: 100%;
 		gap: 10px;
-		border-bottom: 1px solid var(--color-primary);
+		border-bottom: 1px solid var(--color-secondary);
 	}
 
 	.summary {
@@ -94,6 +94,7 @@
 	.description {
 		font-size: 15px;
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;

@@ -154,6 +154,7 @@
 							<a class="new-version-available" href="/{pkgName}" use:link>Newer version available: {getHighestVersion()}</a>
 						</div>
 					{/if}
+					<div class="description">{packageDetails.config.description}</div>
 
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
@@ -299,14 +300,25 @@
 		font-size: 14px;
 	}
 
+	.description {
+		display: inline-block;
+		margin-top: 10px;
+		padding: 10px;
+		border-radius: 3px;
+		background: #c9cec3;
+		color: #202020;
+		font-size: 15px;
+	}
+
 	.header-content {
 		width: 900px;
 		padding: 20px;
 		box-sizing: border-box;
+		min-width: 0;
 	}
 
 	.header .install {
-		display: inline-flex;
+		display: flex;
 		padding: 0px;
 		align-items: center;
 		margin: 10px 0;
