@@ -415,7 +415,7 @@ actor class Main() {
 		_summariesFromNames(packageNames, 5);
 	};
 
-	func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+	func _sortByPublicationTime(summaries : [PackageSummary]) : [PackageSummary] {
 		Array.sort<PackageSummary>(summaries, func(a, b) {
 			Int.compare(b.publication.time, a.publication.time);
 		});
@@ -430,7 +430,7 @@ actor class Main() {
 					category,
 					packageNames
 						|> _summariesFromNames(_, 1000)
-						|> _sortByUpdated(_)
+						|> _sortByPublicationTime(_)
 						|> Array.take(_, limit)
 				)
 			});
@@ -456,8 +456,9 @@ actor class Main() {
 
 		packagesFirstPub.vals()
 			|> Iter.toArray(_)
-			|> _sortByUpdated(_)
-			|> Array.take(_, 10)
+			|> _sortByPublicationTime(_)
+			|> Array.reverse(_)
+			|> Array.take(_, 5)
 			|> Array.reverse(_);
 	};
 
