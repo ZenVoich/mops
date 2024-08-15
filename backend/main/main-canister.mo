@@ -425,10 +425,10 @@ actor class Main() {
 		let limit = 10;
 
 		packagesByCategory
-			|> Array.map<(Text, [Text]), (Text, [PackageSummary])>(_, func((category, packageNames)) {
+			|> Array.map<{legacyNames : [Text]; title : Text}, (Text, [PackageSummary])>(_, func({title; legacyNames}) {
 				(
-					category,
-					packageNames
+					title,
+					legacyNames
 						|> _summariesFromNames(_, 1000)
 						|> _sortByPublicationTime(_)
 						|> Array.take(_, limit)
