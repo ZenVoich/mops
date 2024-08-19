@@ -3,7 +3,7 @@ module {
 	public let packagesByCategory = [
 		{
 			title = "Data Structures";
-			keywords = ["data-structure", "datastructure"];
+			keywords = ["data-structure", "datastructure", "array", "map", "list", "buffer"];
 			legacyNames = [
 				"bitbuffer",
 				"enumeration",
@@ -25,7 +25,7 @@ module {
 		},
 		{
 			title = "Utilities";
-			keywords = ["util", "utility", "utils", "utilities"];
+			keywords = ["util", "utility", "utils", "utilities", "helper"];
 			legacyNames = [
 				"datetime",
 				"itertools",
@@ -57,7 +57,7 @@ module {
 		},
 		{
 			title = "Cryptography";
-			keywords = ["crypto",  "hash", "encryption", "signature", "cryptography", "cryptographic", "decryption", "hashing", "signing", "verify", "verification"];
+			keywords = ["crypto",  "hash", "encryption", "encrypt", "signature", "cryptography", "cryptographic", "decryption", "hashing", "signing", "verify", "verification"];
 			legacyNames = [
 				"sha2",
 				"sha3",
