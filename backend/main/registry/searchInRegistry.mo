@@ -4,6 +4,8 @@ import Option "mo:base/Option";
 import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
 import Debug "mo:base/Debug";
+import Principal "mo:base/Principal";
+import PrincipalExt "mo:principal-ext";
 
 import Registry "./Registry";
 import DownloadLog "../DownloadLog";
@@ -38,11 +40,21 @@ module {
 			// search by owner
 			if (Text.startsWith(searchText, #text("owner:"))) {
 				ignore do ? {
-					let searchOwnerName = Text.stripStart(searchText, #text("owner:"))!;
+					let searchOwnerNameOrId = Text.stripStart(searchText, #text("owner:"))!;
 					let ownerId = registry.getPackageOwner(config.name)!;
-					let ownerInfo = users.getUserOpt(ownerId)!;
-					if (searchOwnerName == ownerInfo.name) {
-						sortingPoints += 3;
+
+					// search by owner id
+					if (Option.isSome(PrincipalExt.fromText(searchOwnerNameOrId))) {
+						if (searchOwnerNameOrId == Principal.toText(ownerId)) {
+							sortingPoints += 3;
+						};
+					}
+					// search by owner name
+					else {
+						let ownerInfo = users.getUserOpt(ownerId)!;
+						if (searchOwnerNameOrId == ownerInfo.name) {
+							sortingPoints += 3;
+						};
 					};
 				};
 			}

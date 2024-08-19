@@ -415,7 +415,7 @@ actor class Main() {
 		_summariesFromNames(packageNames, 5);
 	};
 
-	func _sortByUpdated(summaries : [PackageSummary]) : [PackageSummary] {
+	func _sortByPublicationTime(summaries : [PackageSummary]) : [PackageSummary] {
 		Array.sort<PackageSummary>(summaries, func(a, b) {
 			Int.compare(b.publication.time, a.publication.time);
 		});
@@ -425,10 +425,15 @@ actor class Main() {
 		let limit = 10;
 
 		packagesByCategory
-			|> Array.map<(Text, [Text]), (Text, [PackageSummary])>(_, func((category, packageNames)) {
-				(category, _sortByUpdated(_summariesFromNames(packageNames, 1000)))
-			})
-			|> Array.take(_, limit);
+			|> Array.map<{legacyNames : [Text]; title : Text}, (Text, [PackageSummary])>(_, func({title; legacyNames}) {
+				(
+					title,
+					legacyNames
+						|> _summariesFromNames(_, 1000)
+						|> _sortByPublicationTime(_)
+						|> Array.take(_, limit)
+				)
+			});
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
@@ -451,8 +456,9 @@ actor class Main() {
 
 		packagesFirstPub.vals()
 			|> Iter.toArray(_)
-			|> _sortByUpdated(_)
-			|> Array.take(_, 10)
+			|> _sortByPublicationTime(_)
+			|> Array.reverse(_)
+			|> Array.take(_, 5)
 			|> Array.reverse(_);
 	};
 
