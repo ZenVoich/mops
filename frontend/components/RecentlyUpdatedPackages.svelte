@@ -38,11 +38,13 @@
 		gap: 10px;
 		margin-top: 10px;
 		flex-grow: 1;
+		min-height: 0;
 	}
 
 	.title {
 		font-size: 22px;
 		font-weight: 600;
 		margin-bottom: 22px;
+		text-align: center;
 	}
 </style>

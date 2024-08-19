@@ -50,7 +50,7 @@
 
 		<div class="delimiter"></div>
 
-		<div class="section">
+		<div class="section block">
 			<RecentlyUpdatedPackages></RecentlyUpdatedPackages>
 		</div>
 
@@ -140,6 +140,10 @@
 		width: 100%;
 		padding: 0 40px;
 		box-sizing: border-box;
+	}
+
+	.section.block {
+		display: block;
 	}
 
 	.section img {

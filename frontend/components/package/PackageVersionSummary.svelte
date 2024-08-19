@@ -78,6 +78,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 20px;
 	}
 
 	.link {
@@ -110,6 +111,10 @@
 
 	:global(.version-summary .notes > :not(ul, ol)) {
 		padding-left: 20px;
+	}
+
+	.dependency {
+		word-break: break-word;
 	}
 
 	.old-version {
