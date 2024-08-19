@@ -78,7 +78,7 @@ export let cacheSize = async () => {
 };
 
 export let cleanCache = async () => {
-	if (!getGlobalCacheDir().endsWith('mops/cache') && !getGlobalCacheDir().endsWith('/mops')) {
+	if (!getGlobalCacheDir().endsWith('mops/cache') && !getGlobalCacheDir().endsWith('/mops') && !getGlobalCacheDir().endsWith('/mops/' + getNetwork())) {
 		throw new Error('Invalid cache directory: ' + getGlobalCacheDir());
 	}
 
