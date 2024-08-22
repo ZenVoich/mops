@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import {checkConfigFile, formatDir, formatGithubDir, getDependencyType, readConfig} from '../mops.js';
 import {resolvePackages} from '../resolve-packages.js';
 
-// TODO: resolve conflicts
 export async function sources({conflicts = 'ignore' as 'warning' | 'error' | 'ignore', cwd = process.cwd()} = {}) {
 	if (!checkConfigFile()) {
 		return [];
