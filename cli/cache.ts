@@ -3,7 +3,7 @@ import path from 'node:path';
 import ncp from 'ncp';
 import getFolderSize from 'get-folder-size';
 
-import {getDependencyType, globalCacheDir, parseGithubURL} from './mops.js';
+import {getDependencyType, getRootDir, globalCacheDir, parseGithubURL} from './mops.js';
 import {getPackageId} from './helpers/get-package-id.js';
 
 export let show = () => {
@@ -73,6 +73,13 @@ export let cacheSize = async () => {
 };
 
 export let cleanCache = async () => {
-	let dir = path.join(globalCacheDir);
-	fs.rmSync(dir, {recursive: true, force: true});
+	if (!globalCacheDir.endsWith('mops/cache') && !globalCacheDir.endsWith('/mops')) {
+		throw new Error('Invalid cache directory: ' + globalCacheDir);
+	}
+
+	// local cache
+	fs.rmSync(path.join(getRootDir(), '.mops'), {recursive: true, force: true});
+
+	// global cache
+	fs.rmSync(globalCacheDir, {recursive: true, force: true});
 };

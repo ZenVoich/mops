@@ -84,6 +84,13 @@
 		}
 
 		.search {
+			transform: none;
+			margin-left: 0;
+		}
+	}
+
+	@media (width < 700px) {
+		.search {
 			display: none;
 		}
 	}

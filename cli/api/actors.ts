@@ -8,17 +8,33 @@ import {_SERVICE as _STORAGE_SERVICE} from '../declarations/storage/storage.did.
 import {getEndpoint} from './network.js';
 import {getNetwork} from './network.js';
 
-export let mainActor = async (identity ?: Identity) : Promise<_SERVICE> => {
-	let network = getNetwork();
-	let host = getEndpoint(network).host;
-	let canisterId = getEndpoint(network).canisterId;
+let agentPromiseByPrincipal = new Map <string, Promise<HttpAgent>>();
 
-	// @ts-ignore exactOptionalPropertyTypes
-	let agent = new HttpAgent({host, identity});
+let getAgent = async (identity ?: Identity) : Promise<HttpAgent> => {
+	let principal = identity ? identity?.getPrincipal().toText() : '';
+	let agentPromise = agentPromiseByPrincipal.get(principal);
 
-	if (network === 'local') {
-		await agent.fetchRootKey();
+	if (!agentPromise) {
+		let network = getNetwork();
+		let host = getEndpoint(network).host;
+
+		agentPromise = HttpAgent.create({
+			host,
+			identity,
+			shouldFetchRootKey: network === 'local',
+			verifyQuerySignatures: process.env.MOPS_VERIFY_QUERY_SIGNATURES !== 'false',
+		});
+
+		agentPromiseByPrincipal.set(principal, agentPromise);
 	}
+
+	return agentPromise;
+};
+
+export let mainActor = async (identity ?: Identity) : Promise<_SERVICE> => {
+	let agent = await getAgent(identity);
+	let network = getNetwork();
+	let canisterId = getEndpoint(network).canisterId;
 
 	return Actor.createActor(idlFactory, {
 		agent,
@@ -27,15 +43,7 @@ export let mainActor = async (identity ?: Identity) : Promise<_SERVICE> => {
 };
 
 export let storageActor = async (storageId : Principal, identity ?: Identity) : Promise<_STORAGE_SERVICE> => {
-	let network = getNetwork();
-	let host = getEndpoint(network).host;
-
-	// @ts-ignore exactOptionalPropertyTypes
-	let agent = new HttpAgent({host, identity});
-
-	if (network === 'local') {
-		await agent.fetchRootKey();
-	}
+	let agent = await getAgent(identity);
 
 	return Actor.createActor(storageIdlFactory, {
 		agent,

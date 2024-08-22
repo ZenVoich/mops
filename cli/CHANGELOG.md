@@ -1,6 +1,7 @@
 # Mops CLI Changelog
 
 ## unreleased
+- `mops cache clean` now cleans local cache too (`.mops` folder)
 
 ## 0.45.3
 - Fixed bug with missing `tar` package
