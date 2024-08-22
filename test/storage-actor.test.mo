@@ -1,6 +1,7 @@
 import {test; suite; skip} "mo:test/async";
 import Result "mo:base/Result";
 import Blob "mo:base/Blob";
+import Debug "mo:base/Debug";
 
 import Storage "../backend/storage/storage-canister";
 
@@ -8,6 +9,8 @@ actor {
 	public func runTests() : async () {
 		var storage = await Storage.Storage();
 		let fileId = "test";
+
+		Debug.print(debug_show("lalalalalalala"));
 
 		// upload
 		await suite("storage upload", func() : async () {

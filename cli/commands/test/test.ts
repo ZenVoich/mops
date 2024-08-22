@@ -20,6 +20,8 @@ import {FilesReporter} from './reporters/files-reporter.js';
 import {CompactReporter} from './reporters/compact-reporter.js';
 import {SilentReporter} from './reporters/silent-reporter.js';
 import {toolchain} from '../toolchain/index.js';
+import {Replica} from '../replica.js';
+import {ActorMethod} from '@dfinity/agent';
 
 let ignore = [
 	'**/node_modules/**',
@@ -180,6 +182,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 							wasmFile,
 						];
 					}
+					// backcompat
 					else {
 						wasmtimeArgs = [
 							'--max-wasm-stack=4000000',
@@ -203,8 +206,49 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 			}
 			// build and execute in replica
 			else if (mode === 'replica') {
-				let proc = spawn(mocPath, ['-r', '-replica-system-api', ...mocArgs]);
-				pipeMMF(proc, mmf).then(resolve);
+				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+
+				// build
+				// let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
+
+				console.log('Building...');
+				// pipeMMF(buildProc, mmf).then(async () => {
+				(async () => {
+					if (mmf.failed > 0) {
+						return;
+					}
+					console.log('Running replica...');
+					let replica = new Replica('pocket-ic', wasmDir);
+					await replica.start();
+
+
+					let canisterName = path.parse(file).name;
+					let idlFactory = ({IDL} : any) => {
+						return IDL.Service({'runTests': IDL.Func([], [], [])});
+					};
+					interface _SERVICE {'runTests' : ActorMethod<[], undefined>;}
+
+					console.log('Deploying...');
+					await replica.deploy(canisterName, wasmFile, idlFactory);
+
+					console.log('Getting actor...');
+					console.log(replica.getCanisterId(canisterName));
+					let actor = await replica.getActor(canisterName) as _SERVICE;
+
+					console.log('Running tests...');
+					await actor.runTests();
+
+					// // run
+					// let proc = spawn(wasmtimePath, wasmtimeArgs);
+					// await pipeMMF(proc, mmf);
+
+					// run
+					// let proc = spawn(wasmtimePath, wasmtimeArgs);
+					// await pipeMMF(proc, mmf);
+				})().finally(() => {
+				// }).finally(() => {
+					// fs.rmSync(wasmFile, {force: true});
+				}).then(resolve);
 			}
 		});
 
