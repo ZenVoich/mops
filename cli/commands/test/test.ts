@@ -22,6 +22,8 @@ import {SilentReporter} from './reporters/silent-reporter.js';
 import {toolchain} from '../toolchain/index.js';
 import {Replica} from '../replica.js';
 import {ActorMethod} from '@dfinity/agent';
+import {PassThrough, Readable} from 'node:stream';
+import {TestMode} from '../../types.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -36,7 +38,6 @@ let globConfig = {
 };
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
-type TestMode = 'interpreter' | 'wasi' | 'replica';
 
 export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
 	let rootDir = getRootDir();
@@ -95,7 +96,7 @@ export async function runAll(reporterName : ReporterName = 'verbose', filter = '
 	return done;
 }
 
-export async function testWithReporter(reporter : Reporter, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter') : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -137,7 +138,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 	async function startReplicaOnce(replica : Replica) {
 		if (!replicaStartPromise) {
 			replicaStartPromise = new Promise((resolve) => {
-				replica.start().then(resolve);
+				replica.start({silent: true}).then(resolve);
 			});
 		}
 		return replicaStartPromise;
@@ -148,6 +149,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 
 		// mode overrides
 		let lines = fs.readFileSync(file, 'utf8').split('\n');
+		let mode = defaultMode;
 		if (lines.includes('// @testmode wasi')) {
 			mode = 'wasi';
 		}
@@ -171,8 +173,13 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 		let promise = new Promise<void>((resolve) => {
 			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
+			// interpret
+			if (mode === 'interpreter') {
+				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
+				pipeMMF(proc, mmf).then(resolve);
+			}
 			// build and run wasm
-			if (mode === 'wasi') {
+			else if (mode === 'wasi') {
 				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
 
 				// build
@@ -211,25 +218,18 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 					fs.rmSync(wasmFile, {force: true});
 				}).then(resolve);
 			}
-			// interpret
-			else if (mode === 'interpreter') {
-				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
-				pipeMMF(proc, mmf).then(resolve);
-			}
 			// build and execute in replica
 			else if (mode === 'replica') {
 				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
 
 				// build
-				// let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
+				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
 
-				console.log('Building...');
-				// pipeMMF(buildProc, mmf).then(async () => {
-				(async () => {
+				pipeMMF(buildProc, mmf).then(async () => {
 					if (mmf.failed > 0) {
 						return;
 					}
-					console.log('Running replica...');
+
 					await startReplicaOnce(replica);
 
 					let canisterName = path.parse(file).name;
@@ -238,86 +238,94 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 					};
 					interface _SERVICE {'runTests' : ActorMethod<[], undefined>;}
 
-					console.log('Deploying...');
-					await replica.deploy(canisterName, wasmFile, idlFactory);
+					let {stream} = await replica.deploy(canisterName, wasmFile, idlFactory);
 
-					console.log('Getting actor...');
-					console.log(replica.getCanisterId(canisterName));
+					pipeStdoutToMMF(stream, mmf);
+
 					let actor = await replica.getActor(canisterName) as _SERVICE;
 
-					console.log('Running tests...');
-					await actor.runTests();
-					console.log('Ready');
-
-					// // run
-					// let proc = spawn(wasmtimePath, wasmtimeArgs);
-					// await pipeMMF(proc, mmf);
-
-					// run
-					// let proc = spawn(wasmtimePath, wasmtimeArgs);
-					// await pipeMMF(proc, mmf);
-				})().finally(async () => {
-				// }).finally(async () => {
-					// fs.rmSync(wasmFile, {force: true});
-					await replica.stop();
+					try {
+						await actor.runTests();
+						mmf.pass();
+					}
+					catch (e : any) {
+						let stderrStream = new PassThrough();
+						pipeStderrToMMF(stderrStream, mmf, path.dirname(file));
+						stderrStream.write(e.message);
+					}
+				}).finally(async () => {
+					fs.rmSync(wasmFile, {force: true});
 				}).then(resolve);
 			}
 		});
 
-		reporter.addRun(file, mmf, promise, mode === 'wasi');
+		reporter.addRun(file, mmf, promise, mode);
 
 		await promise;
 	});
 
-	// fs.rmSync(wasmDir, {recursive: true, force: true});
+	fs.rmSync(wasmDir, {recursive: true, force: true});
+	if (replicaStartPromise) {
+		await replica.stop();
+	}
+
 	return reporter.done();
+}
+
+function pipeStdoutToMMF(stdout : Readable, mmf : MMF1) {
+	stdout.on('data', (data) => {
+		for (let line of data.toString().split('\n')) {
+			line = line.trim();
+			if (line) {
+				mmf.parseLine(line);
+			}
+		}
+	});
+}
+
+function pipeStderrToMMF(stderr : Readable, mmf : MMF1, dir = '') {
+	stderr.on('data', (data) => {
+		let text : string = data.toString().trim();
+		let failedLine = '';
+
+		text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
+			// change absolute file path to relative
+			// change :line:col-line:col to :line:col to work in vscode
+			let res = `${absToRel(m1)}:${m2}:${m3}`;
+			let file = path.join(dir, m1);
+
+			if (!fs.existsSync(file)) {
+				return res;
+			}
+
+			// show failed line
+			let content = fs.readFileSync(file);
+			let lines = content.toString().split('\n') || [];
+
+			failedLine += chalk.dim('\n   ...');
+
+			let lineBefore = lines[+m2 - 2];
+			if (lineBefore) {
+				failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
+			}
+			failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
+			if (lines.length > +m2) {
+				failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
+			}
+			failedLine += chalk.dim('\n   ...');
+			return res;
+		});
+		if (failedLine) {
+			text += failedLine;
+		}
+		mmf.fail(text);
+	});
 }
 
 function pipeMMF(proc : ChildProcessWithoutNullStreams, mmf : MMF1) {
 	return new Promise<void>((resolve) => {
-		// stdout
-		proc.stdout.on('data', (data) => {
-			for (let line of data.toString().split('\n')) {
-				line = line.trim();
-				if (line) {
-					mmf.parseLine(line);
-				}
-			}
-		});
-
-		// stderr
-		proc.stderr.on('data', (data) => {
-			let text : string = data.toString().trim();
-			let failedLine = '';
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
-				// change absolute file path to relative
-				// change :line:col-line:col to :line:col to work in vscode
-				let res = `${absToRel(m1)}:${m2}:${m3}`;
-
-				if (!fs.existsSync(m1)) {
-					return res;
-				}
-
-				// show failed line
-				let content = fs.readFileSync(m1);
-				let lines = content.toString().split('\n') || [];
-				failedLine += chalk.dim('\n   ...');
-				let lineBefore = lines[+m2 - 2];
-				if (lineBefore) {
-					failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
-				}
-				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
-				if (lines.length > +m2) {
-					failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
-				}
-				failedLine += chalk.dim('\n   ...');
-				return res;
-			});
-			if (failedLine) {
-				text += failedLine;
-			}
-			mmf.fail(text);
-		});
+		pipeStdoutToMMF(proc.stdout, mmf);
+		pipeStderrToMMF(proc.stderr, mmf);
 
 		// exit
 		proc.on('close', (code) => {

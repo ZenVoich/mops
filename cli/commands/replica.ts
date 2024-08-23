@@ -5,15 +5,15 @@ import fs from 'node:fs';
 import {execaCommand} from 'execa';
 import {IDL} from '@dfinity/candid';
 import {Actor, HttpAgent} from '@dfinity/agent';
-// import {PocketIc} from 'pic-ic';
 import {PocketIc, PocketIcServer} from 'pic-ic';
 import {readConfig} from '../mops.js';
 import {toolchain} from './toolchain/index.js';
+import {PassThrough} from 'node:stream';
 
 export class Replica {
 	type : 'dfx' | 'pocket-ic';
 	verbose = false;
-	canisters : Record<string, {cwd : string; canisterId : string; actor : any;}> = {};
+	canisters : Record<string, {cwd : string; canisterId : string; actor : any; stream : PassThrough;}> = {};
 	pocketIcServer ?: PocketIcServer;
 	pocketIc ?: PocketIc;
 	dir : string; // absolute path (.mops/.test/)
@@ -45,14 +45,34 @@ export class Replica {
 				process.exit(1);
 			}
 
-			// this.pocketIc = await PocketIc.create(pocketIcBin);
-
 			this.pocketIcServer = await PocketIcServer.start({
-				showRuntimeLogs: true,
-				showCanisterLogs: true,
+				showRuntimeLogs: false,
+				showCanisterLogs: false,
 				binPath: pocketIcBin,
 			});
 			this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
+
+			// process canister logs
+			let curData = '';
+			this.pocketIcServer.serverProcess.stderr.on('data', (data) => {
+				curData = curData + data.toString();
+
+				if (curData.includes('\n')) {
+					let m = curData.match(/\[Canister ([a-z0-9-]+)\] (.*)/);
+					if (!m) {
+						return;
+					}
+					let [, canisterId, msg] = m;
+
+					let stream = this.getCanisterStream(canisterId || '');
+					if (stream) {
+						stream.write(msg);
+					}
+
+					curData = '';
+				}
+
+			});
 		}
 	}
 
@@ -62,9 +82,7 @@ export class Replica {
 		}
 		// else if (this.pocketIc) {
 		else if (this.pocketIc && this.pocketIcServer) {
-			console.log('stop');
 			await this.pocketIc.tearDown();
-			console.log('stopped');
 			await this.pocketIcServer.stop();
 		}
 	}
@@ -98,7 +116,12 @@ export class Replica {
 				canisterId,
 			});
 
-			this.canisters[name] = {cwd, canisterId, actor};
+			this.canisters[name] = {
+				cwd,
+				canisterId,
+				actor,
+				stream: new PassThrough(),
+			};
 		}
 		else if (this.pocketIc) {
 			// let {canisterId, actor} = await this.pocketIc.setupCanister(idlFactory, wasm);
@@ -111,8 +134,15 @@ export class Replica {
 				cwd,
 				canisterId: canisterId.toText(),
 				actor,
+				stream: new PassThrough(),
 			};
 		}
+
+		if (!this.canisters[name]) {
+			throw new Error(`Canister ${name} not found`);
+		}
+
+		return this.canisters[name];
 	}
 
 	getActor(name : string) : unknown {
@@ -122,8 +152,21 @@ export class Replica {
 		return this.canisters[name]?.actor;
 	}
 
+	getCanister(name : string) {
+		return this.canisters[name];
+	}
+
 	getCanisterId(name : string) : string {
 		return this.canisters[name]?.canisterId || '';
+	}
+
+	getCanisterStream(canisterId : string) : PassThrough | null {
+		for (let canister of Object.values(this.canisters)) {
+			if (canister.canisterId === canisterId) {
+				return canister.stream;
+			}
+		}
+		return null;
 	}
 
 	dfxJson(canisterName : string, wasmPath = 'canister.wasm', didPath = 'canister.did') {

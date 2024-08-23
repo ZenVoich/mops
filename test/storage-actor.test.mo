@@ -7,13 +7,13 @@ import ExperimentalCycles "mo:base/ExperimentalCycles";
 import Storage "../backend/storage/storage-canister";
 
 actor {
-	public func runTests<system>() : async () {
+	public func runTests() : async () {
 		ExperimentalCycles.add<system>(1_000_000_000_000);
 		var storage = await Storage.Storage();
 
 		let fileId = "test";
 
-		Debug.print(debug_show("lalalalalalala"));
+		Debug.print("lalalalalalala");
 
 		// upload
 		await suite("storage upload", func() : async () {
@@ -21,8 +21,6 @@ actor {
 				let res = await storage.finishUploads([fileId]);
 				assert Result.isErr(res);
 			});
-
-			// assert false;
 
 			await test("try to upload chunk before upload start", func() : async () {
 				assert Result.isErr(await storage.uploadChunk(fileId, 0, Blob.fromArray([])));

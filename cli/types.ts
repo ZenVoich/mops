@@ -41,3 +41,5 @@ export type Tool = 'moc' | 'wasmtime' | 'pocket-ic';
 export type Requirements = {
 	moc ?: string;
 };
+
+export type TestMode = 'interpreter' | 'wasi' | 'replica';

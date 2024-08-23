@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import {absToRel} from '../utils.js';
 import {MMF1} from '../mmf1.js';
 import {Reporter} from './reporter.js';
+import {TestMode} from '../../../types.js';
 
 export class SilentReporter implements Reporter {
 	passed = 0;
@@ -13,7 +14,7 @@ export class SilentReporter implements Reporter {
 
 	addFiles(_files : string[]) {}
 
-	addRun(file : string, mmf : MMF1, state : Promise<void>, _wasiMode : boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, _mode : TestMode) {
 		state.then(() => {
 			this.passed += mmf.passed;
 			this.failed += mmf.failed;

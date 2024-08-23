@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import {absToRel} from '../utils.js';
 import {MMF1} from '../mmf1.js';
 import {Reporter} from './reporter.js';
+import {TestMode} from '../../../types.js';
 
 export class VerboseReporter implements Reporter {
 	passed = 0;
@@ -19,7 +20,7 @@ export class VerboseReporter implements Reporter {
 		console.log('='.repeat(50));
 	}
 
-	addRun(file : string, mmf : MMF1, state : Promise<void>, wasiMode : boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, mode : TestMode) {
 		state.then(() => {
 			this.passed += mmf.passed;
 			this.failed += mmf.failed;
@@ -30,7 +31,7 @@ export class VerboseReporter implements Reporter {
 			}
 
 			this.#curFileIndex++ && console.log('-'.repeat(50));
-			console.log(`Running ${chalk.gray(absToRel(file))} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
+			console.log(`Running ${chalk.gray(absToRel(file))} ${mode === 'interpreter' ? '' : chalk.gray(`(${mode})`)}`);
 			mmf.flush();
 		});
 	}
