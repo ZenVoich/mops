@@ -8,7 +8,7 @@ import {_SERVICE as _STORAGE_SERVICE} from '../declarations/storage/storage.did.
 import {getEndpoint} from './network.js';
 import {getNetwork} from './network.js';
 
-let agentPromiseByPrincipal = new Map <string, Promise<HttpAgent>>();
+let agentPromiseByPrincipal = new Map<string, Promise<HttpAgent>>();
 
 let getAgent = async (identity ?: Identity) : Promise<HttpAgent> => {
 	let principal = identity ? identity?.getPrincipal().toText() : '';

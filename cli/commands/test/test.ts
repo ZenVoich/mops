@@ -128,8 +128,20 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 		mocPath = await toolchain.bin('moc', {fallback: true});
 	}
 
-	let wasmDir = `${getRootDir()}/.mops/.test/`;
+	let wasmDir = path.join(getRootDir(), '.mops/.test/');
 	fs.mkdirSync(wasmDir, {recursive: true});
+
+	let replica = new Replica('pocket-ic', wasmDir);
+	let replicaStartPromise : Promise<void> | undefined;
+
+	async function startReplicaOnce(replica : Replica) {
+		if (!replicaStartPromise) {
+			replicaStartPromise = new Promise((resolve) => {
+				replica.start().then(resolve);
+			});
+		}
+		return replicaStartPromise;
+	}
 
 	await parallel(os.cpus().length, files, async (file : string) => {
 		let mmf = new MMF1('store', absToRel(file));
@@ -139,7 +151,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 		if (lines.includes('// @testmode wasi')) {
 			mode = 'wasi';
 		}
-		else if (lines.includes('actor {')) {
+		else if (lines.includes('actor {') || lines.includes('// @testmode replica')) {
 			mode = 'replica';
 		}
 
@@ -218,9 +230,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 						return;
 					}
 					console.log('Running replica...');
-					let replica = new Replica('pocket-ic', wasmDir);
-					await replica.start();
-
+					await startReplicaOnce(replica);
 
 					let canisterName = path.parse(file).name;
 					let idlFactory = ({IDL} : any) => {
@@ -237,6 +247,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 
 					console.log('Running tests...');
 					await actor.runTests();
+					console.log('Ready');
 
 					// // run
 					// let proc = spawn(wasmtimePath, wasmtimeArgs);
@@ -245,9 +256,10 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 					// run
 					// let proc = spawn(wasmtimePath, wasmtimeArgs);
 					// await pipeMMF(proc, mmf);
-				})().finally(() => {
-				// }).finally(() => {
+				})().finally(async () => {
+				// }).finally(async () => {
 					// fs.rmSync(wasmFile, {force: true});
+					await replica.stop();
 				}).then(resolve);
 			}
 		});
@@ -257,7 +269,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 		await promise;
 	});
 
-	fs.rmSync(wasmDir, {recursive: true, force: true});
+	// fs.rmSync(wasmDir, {recursive: true, force: true});
 	return reporter.done();
 }
 

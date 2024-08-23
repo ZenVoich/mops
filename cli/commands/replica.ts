@@ -5,8 +5,9 @@ import fs from 'node:fs';
 import {execaCommand} from 'execa';
 import {IDL} from '@dfinity/candid';
 import {Actor, HttpAgent} from '@dfinity/agent';
+// import {PocketIc} from 'pic-ic';
 import {PocketIc, PocketIcServer} from 'pic-ic';
-import {getRootDir, readConfig} from '../mops.js';
+import {readConfig} from '../mops.js';
 import {toolchain} from './toolchain/index.js';
 
 export class Replica {
@@ -15,7 +16,7 @@ export class Replica {
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any;}> = {};
 	pocketIcServer ?: PocketIcServer;
 	pocketIc ?: PocketIc;
-	dir : string; // '.mops/.bench/'
+	dir : string; // absolute path (.mops/.test/)
 
 	constructor(type : 'dfx' | 'pocket-ic', dir : string, verbose = false) {
 		this.type = type;
@@ -27,46 +28,67 @@ export class Replica {
 		silent || console.log(`Starting ${this.type} replica...`);
 
 		if (this.type == 'dfx') {
+			fs.mkdirSync(this.dir, {recursive: true});
+			fs.writeFileSync(path.join(this.dir, 'dfx.json'), JSON.stringify(this.dfxJson(''), null, 2));
+			fs.writeFileSync(path.join(this.dir, 'canister.did'), 'service : { runTests: () -> (); }');
+
 			await this.stop();
-			let dir = path.join(getRootDir(), this.dir);
-			fs.writeFileSync(path.join(dir, 'dfx.json'), JSON.stringify(this.dfxJson(''), null, 2));
-			execSync('dfx start --background --clean --artificial-delay 0' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['inherit', this.verbose ? 'inherit' : 'ignore', 'inherit']});
+			execSync('dfx start --background --clean --artificial-delay 0' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, stdio: ['inherit', this.verbose ? 'inherit' : 'ignore', 'inherit']});
 		}
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
 
 			// eslint-disable-next-line
 			let config = readConfig();
-			// if (config.toolchain?.['pocket-ic'] !== '4.0.0') {
-			// 	console.error('Current Mops CLI only supports pocket-ic 4.0.0');
-			// 	process.exit(1);
-			// }
+			if (config.toolchain?.['pocket-ic'] !== '4.0.0') {
+				console.error('Current Mops CLI only supports pocket-ic 4.0.0');
+				process.exit(1);
+			}
+
+			// this.pocketIc = await PocketIc.create(pocketIcBin);
 
 			this.pocketIcServer = await PocketIcServer.start({
 				showRuntimeLogs: true,
 				showCanisterLogs: true,
 				binPath: pocketIcBin,
 			});
-
 			this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
 		}
 	}
 
 	async stop() {
 		if (this.type == 'dfx') {
-			let dir = path.join(getRootDir(), this.dir);
-			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
 		}
+		// else if (this.pocketIc) {
 		else if (this.pocketIc && this.pocketIcServer) {
+			console.log('stop');
 			await this.pocketIc.tearDown();
+			console.log('stopped');
 			await this.pocketIcServer.stop();
 		}
 	}
 
 	async deploy(name : string, wasm : string, idlFactory : IDL.InterfaceFactory, cwd : string = process.cwd()) {
 		if (this.type === 'dfx') {
-			await execaCommand(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
-			let canisterId = execSync(`dfx canister id ${name}`, {cwd}).toString().trim();
+			// prepare dfx.json for current canister
+			let dfxJson = path.join(this.dir, 'dfx.json');
+
+			let oldDfxJsonData;
+			if (fs.existsSync(dfxJson)) {
+				oldDfxJsonData = JSON.parse(fs.readFileSync(dfxJson).toString());
+			}
+			let newDfxJsonData = this.dfxJson(name, name + '.wasm');
+
+			if (oldDfxJsonData.canisters) {
+				newDfxJsonData.canisters = Object.assign(oldDfxJsonData.canisters, newDfxJsonData.canisters);
+			}
+
+			fs.mkdirSync(this.dir, {recursive: true});
+			fs.writeFileSync(dfxJson, JSON.stringify(newDfxJsonData, null, 2));
+
+			await execaCommand(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd: this.dir, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+			let canisterId = execSync(`dfx canister id ${name}`, {cwd: this.dir}).toString().trim();
 
 			let actor = Actor.createActor(idlFactory, {
 				agent: await HttpAgent.create({
@@ -79,6 +101,7 @@ export class Replica {
 			this.canisters[name] = {cwd, canisterId, actor};
 		}
 		else if (this.pocketIc) {
+			// let {canisterId, actor} = await this.pocketIc.setupCanister(idlFactory, wasm);
 			let {canisterId, actor} = await this.pocketIc.setupCanister({
 				idlFactory,
 				wasm,
@@ -103,13 +126,13 @@ export class Replica {
 		return this.canisters[name]?.canisterId || '';
 	}
 
-	dfxJson(canisterName : string) {
+	dfxJson(canisterName : string, wasmPath = 'canister.wasm', didPath = 'canister.did') {
 		let canisters : Record<string, any> = {};
 		if (canisterName) {
 			canisters[canisterName] = {
 				type: 'custom',
-				wasm: 'canister.wasm',
-				candid: 'canister.did',
+				wasm: wasmPath,
+				candid: didPath,
 			};
 		}
 
