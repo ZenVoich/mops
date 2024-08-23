@@ -16,9 +16,9 @@ export class Replica {
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any; stream : PassThrough;}> = {};
 	pocketIcServer ?: PocketIcServer;
 	pocketIc ?: PocketIc;
-	dir : string; // absolute path (.mops/.test/)
+	dir : string; // absolute path (/.../.mops/.test/)
 
-	constructor(type : 'dfx' | 'pocket-ic', dir : string, verbose = false) {
+	constructor(type : 'dfx' | 'pocket-ic', dir = '', verbose = false) {
 		this.type = type;
 		this.verbose = verbose;
 		this.dir = dir;
@@ -73,6 +73,15 @@ export class Replica {
 				}
 
 			});
+		}
+	}
+
+	stopSync() {
+		if (this.type == 'dfx') {
+			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+		}
+		else if (this.pocketIc) {
+			throw new Error('Not supported');
 		}
 	}
 

@@ -39,16 +39,43 @@ let globConfig = {
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
 
+let replica = new Replica('pocket-ic');
+let replicaStartPromise : Promise<void> | undefined;
+
+async function startReplicaOnce(replica : Replica) {
+	if (!replicaStartPromise) {
+		replicaStartPromise = new Promise((resolve) => {
+			replica.start({silent: true}).then(resolve);
+		});
+	}
+	return replicaStartPromise;
+}
+
 export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
 	let rootDir = getRootDir();
 
 	if (watch) {
+		let sigint = false;
+		process.on('SIGINT', () => {
+			if (sigint) {
+				process.exit(0);
+			}
+			sigint = true;
+
+			if (replicaStartPromise) {
+				if (replica.type == 'dfx') {
+					replica.stopSync();
+				}
+				process.exit(0);
+			}
+		});
+
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(reporter, filter, mode);
+			await runAll(reporter, filter, mode, true);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -78,7 +105,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 let mocPath = '';
 let wasmtimePath = '';
 
-export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter', watch = false) : Promise<boolean> {
 	let reporter : Reporter;
 	if (reporterName == 'compact') {
 		reporter = new CompactReporter;
@@ -92,11 +119,11 @@ export async function runAll(reporterName : ReporterName = 'verbose', filter = '
 	else {
 		reporter = new VerboseReporter;
 	}
-	let done = await testWithReporter(reporter, filter, mode);
+	let done = await testWithReporter(reporter, filter, mode, watch);
 	return done;
 }
 
-export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter') : Promise<boolean> {
+export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter', watch = false) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -129,20 +156,10 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 		mocPath = await toolchain.bin('moc', {fallback: true});
 	}
 
-	let wasmDir = path.join(getRootDir(), '.mops/.test/');
-	fs.mkdirSync(wasmDir, {recursive: true});
+	let testTempDir = path.join(getRootDir(), '.mops/.test/');
+	replica.dir = testTempDir;
 
-	let replica = new Replica('pocket-ic', wasmDir);
-	let replicaStartPromise : Promise<void> | undefined;
-
-	async function startReplicaOnce(replica : Replica) {
-		if (!replicaStartPromise) {
-			replicaStartPromise = new Promise((resolve) => {
-				replica.start({silent: true}).then(resolve);
-			});
-		}
-		return replicaStartPromise;
-	}
+	fs.mkdirSync(testTempDir, {recursive: true});
 
 	await parallel(os.cpus().length, files, async (file : string) => {
 		let mmf = new MMF1('store', absToRel(file));
@@ -180,7 +197,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 			}
 			// build and run wasm
 			else if (mode === 'wasi') {
-				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
 				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
@@ -220,7 +237,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 			}
 			// build and execute in replica
 			else if (mode === 'replica') {
-				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
 				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
@@ -264,8 +281,8 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 		await promise;
 	});
 
-	fs.rmSync(wasmDir, {recursive: true, force: true});
-	if (replicaStartPromise) {
+	fs.rmSync(testTempDir, {recursive: true, force: true});
+	if (replicaStartPromise && !watch) {
 		await replica.stop();
 	}
 
