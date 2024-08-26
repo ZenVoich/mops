@@ -244,7 +244,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 			}
 			// build and execute in replica
 			else if (mode === 'replica') {
-				mmf.strategy = 'print'; // because we run replica tests one-by-one
+				// mmf.strategy = 'print'; // because we run replica tests one-by-one
 
 				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
