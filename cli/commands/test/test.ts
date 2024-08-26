@@ -3,6 +3,7 @@ import {spawn, ChildProcessWithoutNullStreams} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import chokidar from 'chokidar';
@@ -38,35 +39,41 @@ let globConfig = {
 };
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
+type ReplicaName = 'dfx' | 'pocket-ic';
 
-let replica = new Replica('pocket-ic');
+let replica = new Replica();
 let replicaStartPromise : Promise<void> | undefined;
 
-async function startReplicaOnce(replica : Replica) {
+async function startReplicaOnce(replica : Replica, type : ReplicaName) {
 	if (!replicaStartPromise) {
 		replicaStartPromise = new Promise((resolve) => {
-			replica.start({silent: true}).then(resolve);
+			replica.start({type, silent: true}).then(resolve);
 		});
 	}
 	return replicaStartPromise;
 }
 
-export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
+export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode, replica : replicaType = 'dfx' as ReplicaName} = {}) {
+	replica.type = replicaType;
+
 	let rootDir = getRootDir();
 
 	if (watch) {
+		replica.ttl = 60 * 15; // 15 minutes
+
 		let sigint = false;
 		process.on('SIGINT', () => {
 			if (sigint) {
+				console.log('Force exit');
 				process.exit(0);
 			}
 			sigint = true;
 
 			if (replicaStartPromise) {
-				if (replica.type == 'dfx') {
-					replica.stopSync();
-				}
-				process.exit(0);
+				console.log('Stopping replica...');
+				replica.stop(true).then(() => {
+					process.exit(0);
+				});
 			}
 		});
 
@@ -75,7 +82,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(reporter, filter, mode, true);
+			await runAll(reporter, filter, mode, replicaType, true);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -95,7 +102,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 		run();
 	}
 	else {
-		let passed = await runAll(reporter, filter, mode);
+		let passed = await runAll(reporter, filter, mode, replicaType);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -105,7 +112,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 let mocPath = '';
 let wasmtimePath = '';
 
-export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter', watch = false) : Promise<boolean> {
+export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
 	let reporter : Reporter;
 	if (reporterName == 'compact') {
 		reporter = new CompactReporter;
@@ -119,11 +126,11 @@ export async function runAll(reporterName : ReporterName = 'verbose', filter = '
 	else {
 		reporter = new VerboseReporter;
 	}
-	let done = await testWithReporter(reporter, filter, mode, watch);
+	let done = await testWithReporter(reporter, filter, mode, replicaType, watch);
 	return done;
 }
 
-export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter', watch = false) : Promise<boolean> {
+export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -237,6 +244,8 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 			}
 			// build and execute in replica
 			else if (mode === 'replica') {
+				mmf.strategy = 'print'; // because we run replica tests one-by-one
+
 				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
@@ -247,7 +256,7 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 						return;
 					}
 
-					await startReplicaOnce(replica);
+					await startReplicaOnce(replica, replicaType);
 
 					let canisterName = path.parse(file).name;
 					let idlFactory = ({IDL} : any) => {
@@ -262,7 +271,20 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 					let actor = await replica.getActor(canisterName) as _SERVICE;
 
 					try {
+						if (globalThis.mopsReplicaTestRunning) {
+							await new Promise<void>((resolve) => {
+								setInterval(() => {
+									if (!globalThis.mopsReplicaTestRunning) {
+										resolve();
+									}
+								}, Math.random() * 1000 |0);
+							});
+						}
+
+						globalThis.mopsReplicaTestRunning = true;
 						await actor.runTests();
+						globalThis.mopsReplicaTestRunning = false;
+
 						mmf.pass();
 					}
 					catch (e : any) {
@@ -281,8 +303,8 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 		await promise;
 	});
 
-	fs.rmSync(testTempDir, {recursive: true, force: true});
 	if (replicaStartPromise && !watch) {
+		fs.rmSync(testTempDir, {recursive: true, force: true});
 		await replica.stop();
 	}
 
@@ -347,7 +369,7 @@ function pipeMMF(proc : ChildProcessWithoutNullStreams, mmf : MMF1) {
 		// exit
 		proc.on('close', (code) => {
 			if (code === 0) {
-				mmf.pass();
+				mmf.strategy !== 'print' && mmf.pass();
 			}
 			else if (code !== 1) {
 				mmf.fail(`unknown exit code: ${code}`);

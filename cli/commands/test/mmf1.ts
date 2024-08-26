@@ -15,7 +15,7 @@ export class MMF1 {
 	failed = 0;
 	passed = 0;
 	skipped = 0;
-	srategy : Strategy;
+	strategy : Strategy;
 	output : {
 		type : MessageType;
 		message : string;
@@ -27,19 +27,19 @@ export class MMF1 {
 	// or <file> › <suite> › <test> › <nested-test>...
 	passedNamesFlat : string[] = [];
 
-	constructor(srategy : Strategy, file : string) {
-		this.srategy = srategy;
+	constructor(strategy : Strategy, file : string) {
+		this.strategy = strategy;
 		this.file = file;
 	}
 
 	_log(type : MessageType,  ...args : string[]) {
-		if (this.srategy === 'store') {
+		if (this.strategy === 'store') {
 			this.output.push({
 				type,
 				message: args.join(' '),
 			});
 		}
-		else if (this.srategy === 'print') {
+		else if (this.strategy === 'print') {
 			console.log(...args);
 		}
 	}

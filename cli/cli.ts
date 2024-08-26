@@ -32,6 +32,8 @@ import * as self from './commands/self.js';
 declare global {
 	// eslint-disable-next-line no-var
 	var MOPS_NETWORK : string;
+	// eslint-disable-next-line no-var
+	var mopsReplicaTestRunning : boolean;
 }
 
 let networkFile = getNetworkFile();
@@ -223,7 +225,8 @@ program
 	.command('test [filter]')
 	.description('Run tests')
 	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
-	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
+	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi', 'replica']).default('interpreter'))
+	.addOption(new Option('--replica <replica>', 'Which replica to use to run tests in replica mode').choices(['dfx', 'pocket-ic']).default('dfx'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		await installAll({silent: true, lock: 'ignore'});
