@@ -127,10 +127,13 @@ export function getRootDir() {
 	return path.dirname(configFile);
 }
 
-export function checkConfigFile() {
+export function checkConfigFile(exit = false) {
 	let configFile = getClosestConfigFile();
 	if (!configFile) {
 		console.log(chalk.red('Error: ') + `Config file 'mops.toml' not found. Please run ${chalk.green('mops init')} first`);
+		if (exit) {
+			process.exit(1);
+		}
 		return false;
 	}
 	return true;

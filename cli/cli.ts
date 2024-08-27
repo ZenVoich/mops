@@ -7,7 +7,7 @@ import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
 import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
-import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
+import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version, readConfig} from './mops.js';
 import {getNetwork} from './api/network.js';
 import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install/install-all.js';
@@ -226,10 +226,13 @@ program
 	.description('Run tests')
 	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi', 'replica']).default('interpreter'))
-	.addOption(new Option('--replica <replica>', 'Which replica to use to run tests in replica mode').choices(['dfx', 'pocket-ic']).default('dfx'))
+	.addOption(new Option('--replica <replica>', 'Which replica to use to run tests in replica mode').choices(['dfx', 'pocket-ic']).default('pocket-ic'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
+		checkConfigFile(true);
 		await installAll({silent: true, lock: 'ignore'});
+		let config = readConfig();
+		options.replica = config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx';
 		await test(filter, options);
 	});
 
@@ -237,14 +240,17 @@ program
 program
 	.command('bench [filter]')
 	.description('Run benchmarks')
-	.addOption(new Option('--replica <replica>', 'Which replica to use to run benchmarks').choices(['dfx', 'pocket-ic']).default('dfx'))
+	.addOption(new Option('--replica <replica>', 'Which replica to use to run benchmarks').choices(['dfx', 'pocket-ic']).default('pocket-ic'))
 	.addOption(new Option('--gc <gc>', 'Garbage collector').choices(['copying', 'compacting', 'generational', 'incremental']).default('copying'))
 	.addOption(new Option('--save', 'Save benchmark results to .bench/<filename>.json'))
 	.addOption(new Option('--compare', 'Run benchmark and compare results with .bench/<filename>.json'))
 	// .addOption(new Option('--force-gc', 'Force GC'))
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
+		checkConfigFile(true);
 		await installAll({silent: true, lock: 'ignore'});
+		let config = readConfig();
+		options.replica = config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx';
 		await bench(filter, options);
 	});
 
