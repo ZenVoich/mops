@@ -314,8 +314,8 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 	});
 
 	if (replicaStartPromise && !watch) {
-		fs.rmSync(testTempDir, {recursive: true, force: true});
 		await replica.stop();
+		fs.rmSync(testTempDir, {recursive: true, force: true});
 	}
 
 	return reporter.done();

@@ -24,6 +24,7 @@ export class Replica {
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any; stream : PassThrough;}> = {};
 	pocketIcServer ?: PocketIcServer;
 	pocketIc ?: PocketIc;
+	dfxProcess ?: ChildProcessWithoutNullStreams;
 	dir : string = ''; // absolute path (/.../.mops/.test/)
 	ttl = 60;
 
@@ -41,12 +42,12 @@ export class Replica {
 
 			await this.stop();
 
-			let proc = spawn('dfx', ['start', '--clean', '--background', '--artificial-delay', '0', (this.verbose ? '' : '-qqqq')].filter(x => x), {cwd: this.dir});
+			this.dfxProcess = spawn('dfx', ['start', '--clean', '--artificial-delay', '0', (this.verbose ? '' : '-qqqq')].filter(x => x), {cwd: this.dir});
 
 			// process canister logs
-			this._attachCanisterLogHandler(proc);
+			this._attachCanisterLogHandler(this.dfxProcess);
 
-			proc.stdout.on('data', (data) => {
+			this.dfxProcess.stdout.on('data', (data) => {
 				console.log('DFX:', data.toString());
 			});
 
@@ -112,7 +113,8 @@ export class Replica {
 
 	async stop(sigint = false) {
 		if (this.type == 'dfx') {
-			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+			this.dfxProcess?.kill();
+			// execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, timeout: 10_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
 		}
 		else if (this.pocketIc && this.pocketIcServer) {
 			if (!sigint) {
