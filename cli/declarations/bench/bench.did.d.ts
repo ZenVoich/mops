@@ -5,6 +5,9 @@ import type { IDL } from '@dfinity/candid';
 export interface BenchResult {
   'instructions' : bigint,
   'rts_memory_size' : bigint,
+  'stable_memory_size' : bigint,
+  'rts_stable_memory_size' : bigint,
+  'rts_logical_stable_memory_size' : bigint,
   'rts_total_allocation' : bigint,
   'rts_collector_instructions' : bigint,
   'rts_mutator_instructions' : bigint,

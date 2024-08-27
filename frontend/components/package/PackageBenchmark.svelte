@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {filesize} from 'filesize';
 	import {Benchmark} from '/declarations/main/main.did.js';
 	import ColorizedValue from '../ColorizedValue.svelte';
 	import {getMetricDiff, getMetricNum} from '/logic/benchmark-utils';
@@ -10,6 +11,9 @@
 		let value = getMetricNum(bench, row, col, metric);
 
 		if (value !== undefined) {
+			if (metric === 'rts_heap_size') {
+				return filesize(value, {standard: 'iec', round: 2});
+			}
 			return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
 		}
 		else {
@@ -87,5 +91,9 @@
 <style>
 	table {
 		margin-top: 6px;
+	}
+
+	td {
+		white-space: nowrap;
 	}
 </style>

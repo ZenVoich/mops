@@ -219,6 +219,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 
 	let instructionsCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
 	let heapCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
+	let stableMemoryCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
 
 	let formatNumber = (n : bigint | number) : string => {
 		return n.toLocaleString('en-US').replaceAll(',', '_');
@@ -272,6 +273,11 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			${schema.description ? '\n' + chalk.gray(schema.description) : ''}
 			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
 			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
+			\n\n${chalk.blue('Stable memory')}\n\n${getTable('stable_memory_size')}
+			\n\n${chalk.blue('rts_stable_memory_size')}\n\n${getTable('rts_stable_memory_size')}
+			\n\n${chalk.blue('rts_logical_stable_memory_size')}\n\n${getTable('rts_logical_stable_memory_size')}
+			\n\n${chalk.blue('rts_memory_size')}\n\n${getTable('rts_memory_size')}
+			\n\n${chalk.blue('rts_total_allocation')}\n\n${getTable('rts_total_allocation')}
 		`);
 	};
 
@@ -289,6 +295,8 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			instructionsCells[rowIndex][colIndex] = res.instructions;
 			// @ts-ignore
 			heapCells[rowIndex][colIndex] = res.rts_heap_size;
+			// @ts-ignore
+			stableMemoryCells[rowIndex][colIndex] = res.rts_stable_memory_size;
 
 			if (!process.env.CI && !options.silent) {
 				printResults();
@@ -340,6 +348,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		metrics: [
 			['instructions', instructionsCells],
 			['rts_heap_size', heapCells],
+			['rts_stable_memory_size', stableMemoryCells],
 		],
 	};
 }
