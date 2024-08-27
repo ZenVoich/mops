@@ -48,8 +48,10 @@ type BenchOptions = {
 };
 
 export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<Benchmarks> {
+	let config = readConfig();
+
 	let defaultOptions : BenchOptions = {
-		replica: 'dfx',
+		replica: config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx',
 		replicaVersion: '',
 		compiler: 'moc',
 		compilerVersion: getMocVersion(),
@@ -67,7 +69,6 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		options.replicaVersion = getDfxVersion();
 	}
 	else if (options.replica == 'pocket-ic') {
-		let config = readConfig();
 		options.replicaVersion = config.toolchain?.['pocket-ic'] || '';
 	}
 

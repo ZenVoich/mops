@@ -41,6 +41,14 @@ let globConfig = {
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
 type ReplicaName = 'dfx' | 'pocket-ic';
 
+type TestOptions = {
+	watch : boolean;
+	reporter : ReporterName;
+	mode : TestMode;
+	replica : ReplicaName;
+};
+
+
 let replica = new Replica();
 let replicaStartPromise : Promise<void> | undefined;
 
@@ -53,12 +61,14 @@ async function startReplicaOnce(replica : Replica, type : ReplicaName) {
 	return replicaStartPromise;
 }
 
-export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode, replica : replicaType = 'dfx' as ReplicaName} = {}) {
-	replica.type = replicaType;
-
+export async function test(filter = '', options : Partial<TestOptions> = {}) {
+	let config = readConfig();
 	let rootDir = getRootDir();
 
-	if (watch) {
+	let replicaType = options.replica ?? (config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx' as ReplicaName);
+	replica.type = replicaType;
+
+	if (options.watch) {
 		replica.ttl = 60 * 15; // 15 minutes
 
 		let sigint = false;
@@ -82,7 +92,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(reporter, filter, mode, replicaType, true);
+			await runAll(options.reporter, filter, options.mode, replicaType, true);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -102,7 +112,7 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 		run();
 	}
 	else {
-		let passed = await runAll(reporter, filter, mode, replicaType);
+		let passed = await runAll(options.reporter, filter, options.mode, replicaType);
 		if (!passed) {
 			process.exit(1);
 		}
