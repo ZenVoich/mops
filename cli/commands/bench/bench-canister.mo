@@ -4,6 +4,7 @@ import Debug "mo:base/Debug";
 import ExperimentalInternetComputer "mo:base/ExperimentalInternetComputer";
 import ExperimentalStableMemory "mo:base/ExperimentalStableMemory";
 import Int64 "mo:base/Int64";
+import Region "mo:base/Region";
 import Prim "mo:prim";
 import Bench "mo:bench";
 
@@ -20,6 +21,7 @@ actor class() {
 		rts_heap_size : Int;
 		rts_memory_size : Int;
 		rts_total_allocation : Int;
+		rts_reclaimed : Int;
 	};
 
 	var benchOpt : ?Bench.Bench = null;
@@ -27,6 +29,8 @@ actor class() {
 	public func init() : async Bench.BenchSchema {
 		let bench = UserBench.init();
 		benchOpt := ?bench;
+		// ignore ExperimentalStableMemory.grow(1);
+		ignore Region.grow(Region.new(), 1);
 		bench.getSchema();
 	};
 
@@ -44,6 +48,7 @@ actor class() {
 			rts_logical_stable_memory_size = Prim.rts_logical_stable_memory_size();
 			rts_memory_size = Prim.rts_memory_size();
 			rts_total_allocation = Prim.rts_total_allocation();
+			rts_reclaimed = Prim.rts_reclaimed();
 			rts_mutator_instructions = Prim.rts_mutator_instructions();
 			rts_collector_instructions = Prim.rts_collector_instructions();
 		}
@@ -58,6 +63,7 @@ actor class() {
 			rts_logical_stable_memory_size = after.rts_logical_stable_memory_size - before.rts_logical_stable_memory_size;
 			rts_memory_size = after.rts_memory_size - before.rts_memory_size;
 			rts_total_allocation = after.rts_total_allocation - before.rts_total_allocation;
+			rts_reclaimed = after.rts_reclaimed - before.rts_reclaimed;
 			rts_mutator_instructions = after.rts_mutator_instructions - before.rts_mutator_instructions;
 			rts_collector_instructions = after.rts_collector_instructions - before.rts_collector_instructions;
 		}

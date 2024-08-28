@@ -12,6 +12,7 @@ export interface BenchResult {
   'rts_collector_instructions' : bigint,
   'rts_mutator_instructions' : bigint,
   'rts_heap_size' : bigint,
+  'rts_reclaimed' : bigint,
 }
 export interface BenchSchema {
   'cols' : Array<string>,

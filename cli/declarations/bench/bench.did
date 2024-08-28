@@ -24,5 +24,7 @@ type BenchResult =
    rts_memory_size: int;
    rts_mutator_instructions: int;
    rts_total_allocation: int;
+   rts_logical_stable_memory_size: int;
+   rts_reclaimed: int;
  };
 service : () -> _anon_class_10_1

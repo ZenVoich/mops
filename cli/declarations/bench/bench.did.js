@@ -15,6 +15,7 @@ export const idlFactory = ({ IDL }) => {
     'rts_collector_instructions' : IDL.Int,
     'rts_mutator_instructions' : IDL.Int,
     'rts_heap_size' : IDL.Int,
+    'rts_reclaimed' : IDL.Int,
   });
   const _anon_class_10_1 = IDL.Service({
     'getSchema' : IDL.Func([], [BenchSchema], ['query']),

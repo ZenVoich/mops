@@ -8,18 +8,19 @@ import Blob "mo:base/Blob";
 import Nat64 "mo:base/Nat64";
 import Vector "mo:vector/Class";
 import Bench "mo:bench";
+import Fuzz "mo:fuzz";
 
 module {
 	public func init() : Bench.Bench {
 		let bench = Bench.Bench();
+		let fuzz = Fuzz.Fuzz();
+		let page = 1024 * 64;
 
-		bench.name("Add");
-		bench.description("Add items one-by-one");
+		bench.name("Stable Memory and Region");
+		bench.description("Grow Region and store blobs in it");
 
-		bench.cols(["StableMemory", "Region"]);
+		bench.cols(["Region (fill 1/100)", "Region (fill 1/50)", "StableMemory"]);
 		bench.rows(["10 pages", "100 pages", "256 pages"]);
-
-		let region = Region.new();
 
 		bench.runner(func(row, col) {
 			// StableMemory
@@ -34,34 +35,46 @@ module {
 					ignore ExperimentalStableMemory.grow(256);
 				};
 			}
-			// Region
-			else if (col == "Region") {
+			// Region (fill 1/50)
+			else if (col == "Region (fill 1/50)") {
 				if (row == "10 pages") {
+					let region = Region.new();
 					ignore Region.grow(region, 10);
-
-					// for (i in Iter.range(0, 10)) {
-					// 	let offset = i * 10;
-					// 	let value = Blob.fromArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-					// 	Region.storeBlob(region, Nat64.fromNat(offset), value);
-					// };
+					let value = fuzz.blob.randomBlob(page * 10 / 50);
+					Region.storeBlob(region, 0, value);
 				}
 				else if (row == "100 pages") {
+					let region = Region.new();
 					ignore Region.grow(region, 100);
-
-					// for (i in Iter.range(0, 50)) {
-					// 	let offset = i * 10;
-					// 	let value = Blob.fromArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-					// 	Region.storeBlob(region, Nat64.fromNat(offset), value);
-					// };
+					let value = fuzz.blob.randomBlob(page * 100 / 50);
+					Region.storeBlob(region, 0, value);
 				}
 				else if (row == "256 pages") {
+					let region = Region.new();
 					ignore Region.grow(region, 256);
-
-					// for (i in Iter.range(0, 100)) {
-					// 	let offset = i * 10;
-					// 	let value = Blob.fromArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-					// 	Region.storeBlob(region, Nat64.fromNat(offset), value);
-					// };
+					let value = fuzz.blob.randomBlob(page * 256 / 50);
+					Region.storeBlob(region, 0, value);
+				}
+			}
+			// Region (fill 1/100)
+			else if (col == "Region (fill 1/100)") {
+				if (row == "10 pages") {
+					let region = Region.new();
+					ignore Region.grow(region, 10);
+					let value = fuzz.blob.randomBlob(page * 5 / 100);
+					Region.storeBlob(region, 0, value);
+				}
+				else if (row == "100 pages") {
+					let region = Region.new();
+					ignore Region.grow(region, 100);
+					let value = fuzz.blob.randomBlob(page * 100 / 100);
+					Region.storeBlob(region, 0, value);
+				}
+				else if (row == "256 pages") {
+					let region = Region.new();
+					ignore Region.grow(region, 256);
+					let value = fuzz.blob.randomBlob(page * 256 / 100);
+					Region.storeBlob(region, 0, value);
 				}
 			};
 		});

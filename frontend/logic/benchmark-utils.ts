@@ -4,8 +4,9 @@ export function getMetricNum(benchmark : Benchmark, row : string, col : string, 
 	let metricData = benchmark.metrics.find((m) => m[0] === metric);
 	let rowIndex = benchmark.rows.indexOf(row);
 	let colIndex = benchmark.cols.indexOf(col);
+	let value = metricData?.[1]?.[rowIndex]?.[colIndex];
 
-	return Number(metricData?.[1]?.[rowIndex]?.[colIndex]);
+	return value ? Number(value) : undefined;
 }
 
 export function getMetricDiff(benchmark : Benchmark, otherBenchmark : Benchmark, row : string, col : string, metric : string) : number {

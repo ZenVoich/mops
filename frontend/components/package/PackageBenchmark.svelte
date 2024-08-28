@@ -11,10 +11,10 @@
 		let value = getMetricNum(bench, row, col, metric);
 
 		if (value !== undefined) {
-			if (metric === 'rts_heap_size') {
-				return filesize(value, {standard: 'iec', round: 2});
+			if (metric === 'instructions') {
+				return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
 			}
-			return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
+			return filesize(value, {standard: 'iec', round: 2});
 		}
 		else {
 			return '-';
@@ -78,6 +78,62 @@
 									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_heap_size')}></ColorizedValue>
 								{:else}
 									{getMetric(benchmark, row, col, 'rts_heap_size')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<b>Stable Memory</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_logical_stable_memory_size')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_logical_stable_memory_size')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<b>Garbage Collection</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_reclaimed')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_reclaimed')}
 								{/if}
 							</td>
 						{/each}
