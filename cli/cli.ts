@@ -220,7 +220,7 @@ program
 program
 	.command('test [filter]')
 	.description('Run tests')
-	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
+	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']))
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi']).default('interpreter'))
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {

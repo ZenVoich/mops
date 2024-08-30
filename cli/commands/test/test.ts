@@ -35,8 +35,13 @@ let globConfig = {
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
 type TestMode = 'interpreter' | 'wasi';
+type TestOptions = {
+	watch ?: boolean;
+	reporter ?: ReporterName;
+	mode ?: TestMode;
+};
 
-export async function test(filter = '', {watch = false, reporter = 'verbose' as ReporterName, mode = 'interpreter' as TestMode} = {}) {
+export async function test(filter = '', {watch = false, reporter, mode = 'interpreter'} : TestOptions = {}) {
 	let rootDir = getRootDir();
 
 	if (watch) {
@@ -75,25 +80,12 @@ export async function test(filter = '', {watch = false, reporter = 'verbose' as 
 let mocPath = '';
 let wasmtimePath = '';
 
-export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
-	let reporter : Reporter;
-	if (reporterName == 'compact') {
-		reporter = new CompactReporter;
-	}
-	else if (reporterName == 'files') {
-		reporter = new FilesReporter;
-	}
-	else if (reporterName == 'silent') {
-		reporter = new SilentReporter;
-	}
-	else {
-		reporter = new VerboseReporter;
-	}
-	let done = await testWithReporter(reporter, filter, mode);
+async function runAll(reporterName ?: ReporterName, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+	let done = await testWithReporter(reporterName, filter, mode);
 	return done;
 }
 
-export async function testWithReporter(reporter : Reporter, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+export async function testWithReporter(reporterName ?: ReporterName, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -115,6 +107,24 @@ export async function testWithReporter(reporter : Reporter, filter = '', mode : 
 		console.log('No test files found');
 		console.log('Put your tests in \'test\' directory in *.test.mo files');
 		return false;
+	}
+
+	if (!reporterName) {
+		reporterName = files.length > 1 ? 'files' : 'verbose';
+	}
+
+	let reporter : Reporter;
+	if (reporterName == 'compact') {
+		reporter = new CompactReporter;
+	}
+	else if (reporterName == 'files') {
+		reporter = new FilesReporter;
+	}
+	else if (reporterName == 'silent') {
+		reporter = new SilentReporter;
+	}
+	else {
+		reporter = new VerboseReporter;
 	}
 
 	reporter.addFiles(files);
