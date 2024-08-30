@@ -5,7 +5,6 @@ import {Identity} from '@dfinity/agent';
 import TOML from '@iarna/toml';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import ncp from 'ncp';
 import fetch from 'node-fetch';
 
 import {decodeFile} from './pem.js';
@@ -46,35 +45,6 @@ if (process.env.XDG_CONFIG_HOME) {
 if (process.env.XDG_CACHE_HOME) {
 	globalCacheDir = path.join(process.env.XDG_CACHE_HOME, 'mops');
 }
-
-// temp: move old config to new location
-let oldGlobalConfigDir = path.resolve(process.env.HOME || process.env.APPDATA || '/', 'mops');
-if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalConfigDir)) {
-	fs.mkdirSync(globalConfigDir, {recursive: true});
-	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem'))) {
-		fs.copyFileSync(path.join(oldGlobalConfigDir, 'identity.pem'), path.join(globalConfigDir, 'identity.pem'));
-	}
-	if (fs.existsSync(path.join(oldGlobalConfigDir, 'identity.pem.encrypted'))) {
-		fs.copyFileSync(path.join(oldGlobalConfigDir, 'identity.pem.encrypted'), path.join(globalConfigDir, 'identity.pem.encrypted'));
-	}
-	console.log('Moved config to ' + chalk.green(globalConfigDir));
-}
-
-// temp: move old cache to new location
-if (fs.existsSync(oldGlobalConfigDir) && !fs.existsSync(globalCacheDir)) {
-	fs.mkdirSync(globalCacheDir, {recursive: true});
-	ncp.ncp(path.join(oldGlobalConfigDir, 'packages'), path.join(globalCacheDir, 'packages'), {
-		stopOnErr: true,
-		clobber: false,
-	}, (err) => {
-		if (err) {
-			console.log('Error moving config: ', err);
-			fs.rmSync(globalCacheDir, {recursive: true, force: true});
-		}
-	});
-	console.log('Moved cache to ' + chalk.green(globalCacheDir));
-}
-
 
 export function getNetworkFile() : string | URL {
 	let networkFile : string | URL = '';
