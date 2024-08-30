@@ -3,6 +3,7 @@ import {spawn, ChildProcessWithoutNullStreams} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import chokidar from 'chokidar';
@@ -20,6 +21,10 @@ import {FilesReporter} from './reporters/files-reporter.js';
 import {CompactReporter} from './reporters/compact-reporter.js';
 import {SilentReporter} from './reporters/silent-reporter.js';
 import {toolchain} from '../toolchain/index.js';
+import {Replica} from '../replica.js';
+import {ActorMethod} from '@dfinity/agent';
+import {PassThrough, Readable} from 'node:stream';
+import {TestMode} from '../../types.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -34,23 +39,60 @@ let globConfig = {
 };
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
-type TestMode = 'interpreter' | 'wasi';
+type ReplicaName = 'dfx' | 'pocket-ic';
+
 type TestOptions = {
-	watch ?: boolean;
-	reporter ?: ReporterName;
-	mode ?: TestMode;
+	watch : boolean;
+	reporter : ReporterName;
+	mode : TestMode;
+	replica : ReplicaName;
 };
 
-export async function test(filter = '', {watch = false, reporter, mode = 'interpreter'} : TestOptions = {}) {
+
+let replica = new Replica();
+let replicaStartPromise : Promise<void> | undefined;
+
+async function startReplicaOnce(replica : Replica, type : ReplicaName) {
+	if (!replicaStartPromise) {
+		replicaStartPromise = new Promise((resolve) => {
+			replica.start({type, silent: true}).then(resolve);
+		});
+	}
+	return replicaStartPromise;
+}
+
+export async function test(filter = '', options : Partial<TestOptions> = {}) {
+	let config = readConfig();
 	let rootDir = getRootDir();
 
-	if (watch) {
+	let replicaType = options.replica ?? (config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx' as ReplicaName);
+	replica.type = replicaType;
+
+	if (options.watch) {
+		replica.ttl = 60 * 15; // 15 minutes
+
+		let sigint = false;
+		process.on('SIGINT', () => {
+			if (sigint) {
+				console.log('Force exit');
+				process.exit(0);
+			}
+			sigint = true;
+
+			if (replicaStartPromise) {
+				console.log('Stopping replica...');
+				replica.stop(true).then(() => {
+					process.exit(0);
+				});
+			}
+		});
+
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
 		let run = debounce(async () => {
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(reporter, filter, mode);
+			await runAll(options.reporter, filter, options.mode, replicaType, true);
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -70,7 +112,7 @@ export async function test(filter = '', {watch = false, reporter, mode = 'interp
 		run();
 	}
 	else {
-		let passed = await runAll(reporter, filter, mode);
+		let passed = await runAll(options.reporter, filter, options.mode, replicaType);
 		if (!passed) {
 			process.exit(1);
 		}
@@ -80,12 +122,12 @@ export async function test(filter = '', {watch = false, reporter, mode = 'interp
 let mocPath = '';
 let wasmtimePath = '';
 
-async function runAll(reporterName ?: ReporterName, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
-	let done = await testWithReporter(reporterName, filter, mode);
+async function runAll(reporterName : ReporterName | undefined, filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
+	let done = await testWithReporter(reporterName, filter, mode, replicaType, watch);
 	return done;
 }
 
-export async function testWithReporter(reporterName ?: ReporterName, filter = '', mode : TestMode = 'interpreter') : Promise<boolean> {
+export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -109,22 +151,29 @@ export async function testWithReporter(reporterName ?: ReporterName, filter = ''
 		return false;
 	}
 
-	if (!reporterName) {
-		reporterName = files.length > 1 ? 'files' : 'verbose';
-	}
 
 	let reporter : Reporter;
-	if (reporterName == 'compact') {
-		reporter = new CompactReporter;
-	}
-	else if (reporterName == 'files') {
-		reporter = new FilesReporter;
-	}
-	else if (reporterName == 'silent') {
-		reporter = new SilentReporter;
+
+	if (!reporterName || typeof reporterName === 'string') {
+		if (!reporterName) {
+			reporterName = files.length > 1 ? 'files' : 'verbose';
+		}
+
+		if (reporterName == 'compact') {
+			reporter = new CompactReporter;
+		}
+		else if (reporterName == 'files') {
+			reporter = new FilesReporter;
+		}
+		else if (reporterName == 'silent') {
+			reporter = new SilentReporter;
+		}
+		else {
+			reporter = new VerboseReporter;
+		}
 	}
 	else {
-		reporter = new VerboseReporter;
+		reporter = reporterName;
 	}
 
 	reporter.addFiles(files);
@@ -136,14 +185,25 @@ export async function testWithReporter(reporterName ?: ReporterName, filter = ''
 		mocPath = await toolchain.bin('moc', {fallback: true});
 	}
 
-	let wasmDir = `${getRootDir()}/.mops/.test/`;
-	fs.mkdirSync(wasmDir, {recursive: true});
+	let testTempDir = path.join(getRootDir(), '.mops/.test/');
+	replica.dir = testTempDir;
+
+	fs.mkdirSync(testTempDir, {recursive: true});
 
 	await parallel(os.cpus().length, files, async (file : string) => {
 		let mmf = new MMF1('store', absToRel(file));
-		let wasiMode = mode === 'wasi' || fs.readFileSync(file, 'utf8').startsWith('// @testmode wasi');
 
-		if (wasiMode && !wasmtimePath) {
+		// mode overrides
+		let lines = fs.readFileSync(file, 'utf8').split('\n');
+		let mode = defaultMode;
+		if (lines.includes('// @testmode wasi')) {
+			mode = 'wasi';
+		}
+		else if (lines.includes('actor {') || lines.includes('// @testmode replica')) {
+			mode = 'replica';
+		}
+
+		if (mode === 'wasi' && !wasmtimePath) {
 			// ensure wasmtime is installed or specified in config
 			if (config.toolchain?.wasmtime) {
 				wasmtimePath = await toolchain.bin('wasmtime');
@@ -159,9 +219,14 @@ export async function testWithReporter(reporterName ?: ReporterName, filter = ''
 		let promise = new Promise<void>((resolve) => {
 			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
 
+			// interpret
+			if (mode === 'interpreter') {
+				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
+				pipeMMF(proc, mmf).then(resolve);
+			}
 			// build and run wasm
-			if (wasiMode) {
-				let wasmFile = `${path.join(wasmDir, path.parse(file).name)}.wasm`;
+			else if (mode === 'wasi') {
+				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
 				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
@@ -182,6 +247,7 @@ export async function testWithReporter(reporterName ?: ReporterName, filter = ''
 							wasmFile,
 						];
 					}
+					// backcompat
 					else {
 						wasmtimeArgs = [
 							'--max-wasm-stack=4000000',
@@ -198,72 +264,135 @@ export async function testWithReporter(reporterName ?: ReporterName, filter = ''
 					fs.rmSync(wasmFile, {force: true});
 				}).then(resolve);
 			}
-			// interpret
-			else {
-				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
-				pipeMMF(proc, mmf).then(resolve);
+			// build and execute in replica
+			else if (mode === 'replica') {
+				// mmf.strategy = 'print'; // because we run replica tests one-by-one
+
+				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
+
+				// build
+				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
+
+				pipeMMF(buildProc, mmf).then(async () => {
+					if (mmf.failed > 0) {
+						return;
+					}
+
+					await startReplicaOnce(replica, replicaType);
+
+					let canisterName = path.parse(file).name;
+					let idlFactory = ({IDL} : any) => {
+						return IDL.Service({'runTests': IDL.Func([], [], [])});
+					};
+					interface _SERVICE {'runTests' : ActorMethod<[], undefined>;}
+
+					let {stream} = await replica.deploy(canisterName, wasmFile, idlFactory);
+
+					pipeStdoutToMMF(stream, mmf);
+
+					let actor = await replica.getActor(canisterName) as _SERVICE;
+
+					try {
+						if (globalThis.mopsReplicaTestRunning) {
+							await new Promise<void>((resolve) => {
+								let timerId = setInterval(() => {
+									if (!globalThis.mopsReplicaTestRunning) {
+										resolve();
+										clearInterval(timerId);
+									}
+								}, Math.random() * 1000 |0);
+							});
+						}
+
+						globalThis.mopsReplicaTestRunning = true;
+						await actor.runTests();
+						globalThis.mopsReplicaTestRunning = false;
+
+						mmf.pass();
+					}
+					catch (e : any) {
+						let stderrStream = new PassThrough();
+						pipeStderrToMMF(stderrStream, mmf, path.dirname(file));
+						stderrStream.write(e.message);
+					}
+				}).finally(async () => {
+					fs.rmSync(wasmFile, {force: true});
+				}).then(resolve);
 			}
 		});
 
-		reporter.addRun(file, mmf, promise, wasiMode);
+		reporter.addRun(file, mmf, promise, mode);
 
 		await promise;
 	});
 
-	fs.rmSync(wasmDir, {recursive: true, force: true});
+	if (replicaStartPromise && !watch) {
+		await replica.stop();
+		fs.rmSync(testTempDir, {recursive: true, force: true});
+	}
+
 	return reporter.done();
+}
+
+function pipeStdoutToMMF(stdout : Readable, mmf : MMF1) {
+	stdout.on('data', (data) => {
+		for (let line of data.toString().split('\n')) {
+			line = line.trim();
+			if (line) {
+				mmf.parseLine(line);
+			}
+		}
+	});
+}
+
+function pipeStderrToMMF(stderr : Readable, mmf : MMF1, dir = '') {
+	stderr.on('data', (data) => {
+		let text : string = data.toString().trim();
+		let failedLine = '';
+
+		text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
+			// change absolute file path to relative
+			// change :line:col-line:col to :line:col to work in vscode
+			let res = `${absToRel(m1)}:${m2}:${m3}`;
+			let file = path.join(dir, m1);
+
+			if (!fs.existsSync(file)) {
+				return res;
+			}
+
+			// show failed line
+			let content = fs.readFileSync(file);
+			let lines = content.toString().split('\n') || [];
+
+			failedLine += chalk.dim('\n   ...');
+
+			let lineBefore = lines[+m2 - 2];
+			if (lineBefore) {
+				failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
+			}
+			failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
+			if (lines.length > +m2) {
+				failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
+			}
+			failedLine += chalk.dim('\n   ...');
+			return res;
+		});
+		if (failedLine) {
+			text += failedLine;
+		}
+		mmf.fail(text);
+	});
 }
 
 function pipeMMF(proc : ChildProcessWithoutNullStreams, mmf : MMF1) {
 	return new Promise<void>((resolve) => {
-		// stdout
-		proc.stdout.on('data', (data) => {
-			for (let line of data.toString().split('\n')) {
-				line = line.trim();
-				if (line) {
-					mmf.parseLine(line);
-				}
-			}
-		});
-
-		// stderr
-		proc.stderr.on('data', (data) => {
-			let text : string = data.toString().trim();
-			let failedLine = '';
-			text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
-				// change absolute file path to relative
-				// change :line:col-line:col to :line:col to work in vscode
-				let res = `${absToRel(m1)}:${m2}:${m3}`;
-
-				if (!fs.existsSync(m1)) {
-					return res;
-				}
-
-				// show failed line
-				let content = fs.readFileSync(m1);
-				let lines = content.toString().split('\n') || [];
-				failedLine += chalk.dim('\n   ...');
-				let lineBefore = lines[+m2 - 2];
-				if (lineBefore) {
-					failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
-				}
-				failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
-				if (lines.length > +m2) {
-					failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
-				}
-				failedLine += chalk.dim('\n   ...');
-				return res;
-			});
-			if (failedLine) {
-				text += failedLine;
-			}
-			mmf.fail(text);
-		});
+		pipeStdoutToMMF(proc.stdout, mmf);
+		pipeStderrToMMF(proc.stderr, mmf);
 
 		// exit
 		proc.on('close', (code) => {
 			if (code === 0) {
-				mmf.pass();
+				mmf.strategy !== 'print' && mmf.pass();
 			}
 			else if (code !== 1) {
 				mmf.fail(`unknown exit code: ${code}`);

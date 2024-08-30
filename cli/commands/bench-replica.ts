@@ -3,7 +3,7 @@ import {execSync} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
-import {PocketIc} from 'pic-ic';
+import {PocketIc, PocketIcServer} from 'pic-ic';
 import {getRootDir, readConfig} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 import {toolchain} from './toolchain/index.js';
@@ -12,6 +12,7 @@ export class BenchReplica {
 	type : 'dfx' | 'pocket-ic';
 	verbose = false;
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any;}> = {};
+	pocketIcServer ?: PocketIcServer;
 	pocketIc ?: PocketIc;
 
 	constructor(type : 'dfx' | 'pocket-ic', verbose = false) {
@@ -31,11 +32,14 @@ export class BenchReplica {
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
 			let config = readConfig();
-			if (config.toolchain?.['pocket-ic'] !== '1.0.0') {
-				console.error('Currently only pocket-ic 1.0.0 is supported');
+			if (config.toolchain?.['pocket-ic'] !== '4.0.0') {
+				console.error('Current Mops CLI only supports pocket-ic 4.0.0');
 				process.exit(1);
 			}
-			this.pocketIc = await PocketIc.create(pocketIcBin);
+			this.pocketIcServer = await PocketIcServer.start({
+				binPath: pocketIcBin,
+			});
+			this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
 		}
 	}
 
@@ -44,8 +48,9 @@ export class BenchReplica {
 			let dir = path.join(getRootDir(), '.mops/.bench');
 			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: dir, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
 		}
-		else if (this.pocketIc) {
+		else if (this.pocketIc && this.pocketIcServer) {
 			await this.pocketIc.tearDown();
+			await this.pocketIcServer.stop();
 		}
 	}
 
@@ -61,7 +66,7 @@ export class BenchReplica {
 			this.canisters[name] = {cwd, canisterId, actor};
 		}
 		else if (this.pocketIc) {
-			let {canisterId, actor} = await this.pocketIc.setupCanister(idlFactory, wasm);
+			let {canisterId, actor} = await this.pocketIc.setupCanister({idlFactory, wasm});
 			this.canisters[name] = {
 				cwd,
 				canisterId: canisterId.toText(),

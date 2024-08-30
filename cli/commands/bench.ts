@@ -49,8 +49,10 @@ type BenchOptions = {
 };
 
 export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<Benchmarks> {
+	let config = readConfig();
+
 	let defaultOptions : BenchOptions = {
-		replica: 'dfx',
+		replica: config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx',
 		replicaVersion: '',
 		compiler: 'moc',
 		compilerVersion: getMocVersion(),
@@ -68,7 +70,6 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		options.replicaVersion = getDfxVersion();
 	}
 	else if (options.replica == 'pocket-ic') {
-		let config = readConfig();
 		options.replicaVersion = config.toolchain?.['pocket-ic'] || '';
 	}
 
@@ -97,7 +98,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	files.sort();
 
 	let benchDir = `${getRootDir()}/.mops/.bench/`;
-	fs.rmSync(benchDir, {recursive: true, force: true});
+	// fs.rmSync(benchDir, {recursive: true, force: true});
 	fs.mkdirSync(benchDir, {recursive: true});
 
 	if (!options.silent) {
@@ -146,7 +147,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	options.silent || console.log('Stopping replica...');
 	await replica.stop();
 
-	fs.rmSync(benchDir, {recursive: true, force: true});
+	// fs.rmSync(benchDir, {recursive: true, force: true});
 
 	return benchResults;
 }

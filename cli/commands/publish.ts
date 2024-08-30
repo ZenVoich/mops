@@ -271,7 +271,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	let reporter = new SilentReporter;
 	if (options.test) {
 		console.log('Running tests...');
-		await testWithReporter('silent');
+		await testWithReporter(reporter, '', 'interpreter', config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx');
 		if (reporter.failed > 0) {
 			console.log(chalk.red('Error: ') + 'tests failed');
 			process.exit(1);

@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import {absToRel} from '../utils.js';
 import {MMF1} from '../mmf1.js';
 import {Reporter} from './reporter.js';
+import {TestMode} from '../../../types.js';
 
 export class FilesReporter implements Reporter {
 	passed = 0;
@@ -15,7 +16,7 @@ export class FilesReporter implements Reporter {
 		console.log('='.repeat(50));
 	}
 
-	addRun(file : string, mmf : MMF1, state : Promise<void>, wasiMode : boolean) {
+	addRun(file : string, mmf : MMF1, state : Promise<void>, mode : TestMode) {
 		state.then(() => {
 			this.passed += Number(mmf.failed === 0);
 			this.failed += Number(mmf.failed !== 0);
@@ -27,7 +28,7 @@ export class FilesReporter implements Reporter {
 				console.log('-'.repeat(50));
 			}
 			else {
-				console.log(`${chalk.green('✓')} ${absToRel(file)} ${wasiMode ? chalk.gray('(wasi)') : ''}`);
+				console.log(`${chalk.green('✓')} ${absToRel(file)} ${mode === 'interpreter' ? '' : chalk.gray(`(${mode})`)}`);
 			}
 		});
 	}
