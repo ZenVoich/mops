@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {PackageSummary} from '/declarations/main/main.did.js';
+	import {getQualityPoints} from '/logic/get-quality-points';
 
 	export let pkg : PackageSummary;
 
@@ -10,25 +11,14 @@
 	let innerLineY = 0;
 
 	$: {
-		let basePoints =
-			Number(pkg.quality.hasDescription)
-			+ Number(pkg.quality.hasDocumentation)
-			+ Number(pkg.quality.hasKeywords)
-			+ Number(pkg.quality.hasLicense)
-			+ Number(pkg.quality.hasRepository)
-			+ Number(!('tooOld' in pkg.quality.depsStatus));
-		let extraPoints = Number(pkg.quality.hasTests) + Number(pkg.quality.hasReleaseNotes) + Number('allLatest' in pkg.quality.depsStatus);
-
-		if (basePoints !== maxBasePoints) {
-			extraPoints = 0;
-		}
+		let points = getQualityPoints(pkg.quality);
 
 		function convertRange(value : number, r1 : [number, number], r2 : [number, number]) {
 			return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
 		}
 
-		outerCircleDashOffset = convertRange(maxBasePoints - basePoints, [0, maxBasePoints], [18, 100]);
-		innerLineY = convertRange(maxExtraPoints - extraPoints, [0, maxExtraPoints], [13, 30]);
+		outerCircleDashOffset = convertRange(maxBasePoints - points.base, [0, maxBasePoints], [18, 100]);
+		innerLineY = convertRange(maxExtraPoints - points.extra, [0, maxExtraPoints], [13, 30]);
 	}
 </script>
 

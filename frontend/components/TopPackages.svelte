@@ -5,7 +5,7 @@
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import {mainActor} from '/logic/actors';
 
-	export let type : 'recently-updated' | 'most-downloaded' = 'recently-updated';
+	export let type : 'recently-updated' | 'most-downloaded' | 'new' = 'recently-updated';
 	let loaded = false;
 	let packages : PackageSummary[] = [];
 
@@ -16,18 +16,33 @@
 		else if (type === 'most-downloaded') {
 			packages = await mainActor().getMostDownloadedPackagesIn7Days();
 		}
+		else if (type === 'new') {
+			packages = await mainActor().getNewPackages();
+		}
 		loaded = true;
 	});
+
+	let title = '';
+	$: if (type === 'recently-updated') {
+		title = 'Recently Updated';
+	}
+	else if (type === 'most-downloaded') {
+		title = 'Most Downloaded in 7 days';
+	}
+	else if (type === 'new') {
+		title = 'New Packages';
+	}
 </script>
 
 <div class="top-packages">
-	<div class="title">{type === 'recently-updated' ? 'Recently Updated' : 'Most Downloaded in 7 days'}</div>
+	<div class="title">{title}</div>
 
 	{#if loaded}
 		{#each packages as pkg}
 			<PackageCard
 				{pkg}
 				showUpdated={type === 'recently-updated'}
+				showFirstPublished={type === 'new'}
 				showVersion={type === 'recently-updated'}
 				show7DayDownloads={type === 'most-downloaded'}
 			></PackageCard>

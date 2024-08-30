@@ -7,6 +7,7 @@
 	import PackagesByCategory from './PackagesByCategory.svelte';
 	import mopsImg from '/img/mops.svg';
 	import motokoImg from '/img/motoko.svg';
+	import RecentlyUpdatedPackages from './RecentlyUpdatedPackages.svelte';
 </script>
 
 <svelte:head>
@@ -44,7 +45,13 @@
 
 		<div class="section">
 			<TopPackages type="most-downloaded"></TopPackages>
-			<TopPackages type="recently-updated"></TopPackages>
+			<TopPackages type="new"></TopPackages>
+		</div>
+
+		<div class="delimiter"></div>
+
+		<div class="section block">
+			<RecentlyUpdatedPackages></RecentlyUpdatedPackages>
 		</div>
 
 		<br><br>
@@ -133,6 +140,10 @@
 		width: 100%;
 		padding: 0 40px;
 		box-sizing: border-box;
+	}
+
+	.section.block {
+		display: block;
 	}
 
 	.section img {

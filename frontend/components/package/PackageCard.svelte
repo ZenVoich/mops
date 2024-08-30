@@ -7,6 +7,7 @@
 
 	export let pkg : PackageSummary;
 	export let showVersion = false;
+	export let showFirstPublished = false;
 	export let showUpdated = false;
 	export let showDownloads = false;
 	export let show7DayDownloads = false;
@@ -30,6 +31,9 @@
 			{#if showUpdated}
 				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
 			{/if}
+			{#if showFirstPublished}
+				<div><Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+			{/if}
 			{#if show7DayDownloads}
 				<div>Downloads: {pkg.downloadsInLast7Days.toLocaleString()}</div>
 			{/if}
@@ -50,7 +54,7 @@
 		width: 600px;
 		max-width: 100%;
 		gap: 10px;
-		border-bottom: 1px solid var(--color-primary);
+		border-bottom: 1px solid var(--color-secondary);
 	}
 
 	.summary {
@@ -90,6 +94,7 @@
 	.description {
 		font-size: 15px;
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
