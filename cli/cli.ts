@@ -1,7 +1,6 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import {Command, Argument, Option} from 'commander';
-import chalk from 'chalk';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
@@ -88,12 +87,12 @@ program
 
 // install
 program
-	.command('install [pkg]')
+	.command('install')
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
-	.action(async (pkg, options) => {
+	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
@@ -105,21 +104,14 @@ program
 
 		await toolchain.ensureToolchainInited({strict: false});
 
-		if (pkg) {
-			// @deprecated
-			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
-			await add(pkg, options);
-		}
-		else {
-			let ok = await installAll(options);
-			await toolchain.installAll(options);
+		let ok = await installAll(options);
+		await toolchain.installAll(options);
 
-			// check conflicts
-			await resolvePackages({conflicts: 'warning'});
+		// check conflicts
+		await resolvePackages({conflicts: 'warning'});
 
-			if (!ok) {
-				process.exit(1);
-			}
+		if (!ok) {
+			process.exit(1);
 		}
 	});
 
