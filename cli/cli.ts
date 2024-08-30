@@ -1,15 +1,12 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import {Command, Argument, Option} from 'commander';
-import chalk from 'chalk';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
-import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
 import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
 import {getNetwork} from './api/network.js';
-import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
@@ -17,7 +14,7 @@ import {cacheSize, cleanCache, show} from './cache.js';
 import {test} from './commands/test/test.js';
 import {template} from './commands/template.js';
 import {remove} from './commands/remove.js';
-import {getUserProp, setUserProp} from './commands/user.js';
+import {importPem, getPrincipal, getUserProp, setUserProp} from './commands/user.js';
 import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
@@ -90,12 +87,12 @@ program
 
 // install
 program
-	.command('install [pkg]')
+	.command('install')
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
-	.action(async (pkg, options) => {
+	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
@@ -107,21 +104,14 @@ program
 
 		await toolchain.ensureToolchainInited({strict: false});
 
-		if (pkg) {
-			// @deprecated
-			console.log(chalk.yellow('Consider using the \'mops add\' command to install a specific package.'));
-			await add(pkg, options);
-		}
-		else {
-			let ok = await installAll(options);
-			await toolchain.installAll(options);
+		let ok = await installAll(options);
+		await toolchain.installAll(options);
 
-			// check conflicts
-			await resolvePackages({conflicts: 'warning'});
+		// check conflicts
+		await resolvePackages({conflicts: 'warning'});
 
-			if (!ok) {
-				process.exit(1);
-			}
+		if (!ok) {
+			process.exit(1);
 		}
 	});
 
@@ -162,14 +152,14 @@ program
 		console.log(getNetwork());
 	});
 
-// import-identity
+// user import
 program
-	.command('import-identity <data>')
+	.command('mops user import <data>')
 	.description('Import .pem file data to use as identity')
 	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
 	.action(async (data, options) => {
 		await importPem(data, options);
-		await whoami();
+		await getPrincipal();
 	});
 
 // sources
@@ -191,12 +181,12 @@ program
 		console.log(sourcesArr.join('\n'));
 	});
 
-// whoami
+// get-principal
 program
-	.command('whoami')
+	.command('get-principal')
 	.description('Print your principal')
 	.action(async () => {
-		await whoami();
+		await getPrincipal();
 	});
 
 // search
@@ -230,7 +220,7 @@ program
 program
 	.command('test [filter]')
 	.description('Run tests')
-	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']).default('verbose'))
+	.addOption(new Option('-r, --reporter <reporter>', 'Test reporter').choices(['verbose', 'compact', 'files', 'silent']))
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi', 'replica']).default('interpreter'))
 	.addOption(new Option('--replica <replica>', 'Which replica to use to run tests in replica mode').choices(['dfx', 'pocket-ic']))
 	.option('-w, --watch', 'Enable watch mode')

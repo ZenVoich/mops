@@ -111,9 +111,6 @@
 
 <div class="packages-by-category">
 	<div class="title">Packages by Category</div>
-	{#if loaded}
-		<div class="description">{getCategoryDescription(selectedCategory)}<Keywords keywords={getCategoryKeywords(selectedCategory)} /></div>
-	{/if}
 	<div class="body">
 		{#if loaded}
 			<div class="categories">
@@ -122,6 +119,7 @@
 				{/each}
 			</div>
 			<div class="category-content">
+				<div class="description">{getCategoryDescription(selectedCategory)}<Keywords keywords={getCategoryKeywords(selectedCategory)} /></div>
 				<div class="packages">
 					{#each packages as pkg}
 						<div class="package">

@@ -1,14 +1,14 @@
 ---
-slug: /cli/mops-import-identity
-sidebar_label: mops import-identity
+slug: /cli/mops-user-import
+sidebar_label: mops user import
 ---
 
-# `mops import-identity`
+# `mops user import`
 
 Import `.pem` file data to use as identity.
 
 ```
-mops import-identity -- <pem_data>
+mops user import -- <pem_data>
 ```
 
 To be able to publish a packages to the `mops` registry, you need to import an identity from DFX.
@@ -16,7 +16,7 @@ To be able to publish a packages to the `mops` registry, you need to import an i
 ### Import identity from DFX
 
 ```
-mops import-identity -- "$(dfx identity export <identity_name>)"
+mops user import -- "$(dfx identity export <identity_name>)"
 ```
 
 ### Example
@@ -30,5 +30,5 @@ dfx identity new mops
 2. Import identity into `mops`
 
 ```
-mops import-identity -- "$(dfx identity export mops)"
+mops user import -- "$(dfx identity export mops)"
 ```

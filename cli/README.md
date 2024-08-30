@@ -89,7 +89,7 @@ dfx identity new mops
 Import identity into `mops`
 
 ```
-mops import-identity -- "$(dfx identity export mops)"
+mops user import -- "$(dfx identity export mops)"
 ```
 
 ### 2. Initialize

@@ -122,25 +122,12 @@ export async function test(filter = '', options : Partial<TestOptions> = {}) {
 let mocPath = '';
 let wasmtimePath = '';
 
-export async function runAll(reporterName : ReporterName = 'verbose', filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
-	let reporter : Reporter;
-	if (reporterName == 'compact') {
-		reporter = new CompactReporter;
-	}
-	else if (reporterName == 'files') {
-		reporter = new FilesReporter;
-	}
-	else if (reporterName == 'silent') {
-		reporter = new SilentReporter;
-	}
-	else {
-		reporter = new VerboseReporter;
-	}
-	let done = await testWithReporter(reporter, filter, mode, replicaType, watch);
+async function runAll(reporterName : ReporterName | undefined, filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
+	let done = await testWithReporter(reporterName, filter, mode, replicaType, watch);
 	return done;
 }
 
-export async function testWithReporter(reporter : Reporter, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
+export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -162,6 +149,31 @@ export async function testWithReporter(reporter : Reporter, filter = '', default
 		console.log('No test files found');
 		console.log('Put your tests in \'test\' directory in *.test.mo files');
 		return false;
+	}
+
+
+	let reporter : Reporter;
+
+	if (!reporterName || typeof reporterName === 'string') {
+		if (!reporterName) {
+			reporterName = files.length > 1 ? 'files' : 'verbose';
+		}
+
+		if (reporterName == 'compact') {
+			reporter = new CompactReporter;
+		}
+		else if (reporterName == 'files') {
+			reporter = new FilesReporter;
+		}
+		else if (reporterName == 'silent') {
+			reporter = new SilentReporter;
+		}
+		else {
+			reporter = new VerboseReporter;
+		}
+	}
+	else {
+		reporter = reporterName;
 	}
 
 	reporter.addFiles(files);

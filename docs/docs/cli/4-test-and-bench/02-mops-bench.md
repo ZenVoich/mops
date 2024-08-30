@@ -32,8 +32,10 @@ Under the hood, Mops will:
 
 Which replica to use.
 
+Default `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section, otherwise `dfx`.
+
 Possible values:
-- `dfx` - use `dfx` local replica (default)
+- `dfx` - use `dfx` local replica
 - `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper
 
 ### `--gc`

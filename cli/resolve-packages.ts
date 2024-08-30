@@ -15,6 +15,7 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 	let rootDir = getRootDir();
 	let packages : Record<string, Dependency & {isRoot : boolean;}> = {};
 	let versions : Record<string, Array<{
+		isMopsPackage : boolean;
 		version : string;
 		dependencyOf : string;
 	}>> = {};
@@ -116,12 +117,14 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 				versions[name]?.push({
 					version: branch,
 					dependencyOf: parentPkgId,
+					isMopsPackage: false,
 				});
 			}
 			else if (version) {
 				versions[name]?.push({
 					version: version,
 					dependencyOf: parentPkgId,
+					isMopsPackage: true,
 				});
 			}
 		}
@@ -135,7 +138,7 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 
 	if (conflicts !== 'ignore') {
 		for (let [dep, vers] of Object.entries(versions)) {
-			let majors = new Set(vers.map(x => x.version.split('.')[0]));
+			let majors = new Set(vers.filter(x => x.isMopsPackage).map(x => x.version.split('.')[0]));
 			if (majors.size > 1) {
 				console.error(chalk.reset('') + chalk.redBright(conflicts === 'error' ? 'Error!' : 'Warning!'), `Conflicting versions of dependency "${dep}"`);
 
