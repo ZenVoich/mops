@@ -28,11 +28,12 @@ Test reporter.
 
 Available reporters:
 
-- `verbose` - print each test name (default)
+- `verbose` - print each test name
 - `files` - print only test files
 - `compact` - pretty progress bar
 - `silent` - print only errors
 
+Default `verbose` if there is only one file to test and `files` otherwise.
 
 ### `--watch`, `-w`
 
@@ -61,3 +62,35 @@ You can also specify `wasi` mode for a specific test file by adding the line bel
 ```
 // @testmode wasi
 ```
+
+**Replica tests**
+
+Replica tests are useful if you need to test actor code which relies on the IC API(cycles, timers, canister upgrades, etc.).
+
+To run replica tests, your test file should look like this:
+```motoko
+...
+
+actor {
+  public func runTests() : async () {
+    // your tests here
+  };
+};
+```
+
+See example [here](https://github.com/ZenVoich/mops/blob/main/test/storage-actor.test.mo).
+
+Under the hood, Mops will:
+- Start a local replica on port `4945`
+- Compile test files and deploy them
+- Call `runTests` method of the deployed canister
+
+### `--replica`
+
+Which replica to use to run actor tests.
+
+Default `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section, otherwise `dfx`.
+
+Possible values:
+- `dfx` - use `dfx` local replica
+- `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper
