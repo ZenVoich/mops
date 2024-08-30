@@ -20,6 +20,7 @@ import {sources} from './sources.js';
 import {Benchmark, Benchmarks} from '../declarations/main/main.did.js';
 import {BenchResult, _SERVICE} from '../declarations/bench/bench.did.js';
 import {BenchReplica} from './bench-replica.js';
+import {filesize} from 'filesize';
 
 let ignore = [
 	'**/node_modules/**',
@@ -219,9 +220,15 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 
 	let instructionsCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
 	let heapCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
+	let logicalStableMemoryCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
+	let reclaimedCells : bigint[][] = Array.from({length: schema.rows.length}, () => []);
 
 	let formatNumber = (n : bigint | number) : string => {
 		return n.toLocaleString('en-US').replaceAll(',', '_');
+	};
+
+	let formatSize = (n : bigint | number) : string => {
+		return filesize(n, {standard: 'iec', round: 2});
 	};
 
 	let getTable = (prop : keyof BenchResult) : string => {
@@ -251,7 +258,17 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 					}
 
 					// add to table
-					curRow.push(formatNumber(res[prop]) + diff);
+					let value = '';
+					if (prop == 'rts_logical_stable_memory_size') {
+						value = formatSize(res[prop] * 65536n);
+					}
+					else if (prop === 'rts_heap_size' || prop == 'rts_reclaimed') {
+						value = formatSize(res[prop]);
+					}
+					else {
+						value = formatNumber(res[prop]);
+					}
+					curRow.push(value + diff);
 				}
 				else {
 					curRow.push('');
@@ -272,6 +289,8 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			${schema.description ? '\n' + chalk.gray(schema.description) : ''}
 			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
 			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
+			\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}
+			\n\n${chalk.blue('Garbage Collection')}\n\n${getTable('rts_reclaimed')}
 		`);
 	};
 
@@ -289,6 +308,10 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			instructionsCells[rowIndex][colIndex] = res.instructions;
 			// @ts-ignore
 			heapCells[rowIndex][colIndex] = res.rts_heap_size;
+			// @ts-ignore
+			logicalStableMemoryCells[rowIndex][colIndex] = res.rts_logical_stable_memory_size;
+			// @ts-ignore
+			reclaimedCells[rowIndex][colIndex] = res.rts_reclaimed;
 
 			if (!process.env.CI && !options.silent) {
 				printResults();
@@ -340,6 +363,8 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		metrics: [
 			['instructions', instructionsCells],
 			['rts_heap_size', heapCells],
+			['rts_logical_stable_memory_size', logicalStableMemoryCells],
+			['rts_reclaimed', reclaimedCells],
 		],
 	};
 }

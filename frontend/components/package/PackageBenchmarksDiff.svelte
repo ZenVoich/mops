@@ -7,11 +7,13 @@
 	export let curBenchmarks : Benchmarks;
 	export let prevBenchmarks : Benchmarks;
 
+	type Metric = 'instructions' | 'rts_heap_size' | 'rts_logical_stable_memory_size' | 'rts_reclaimed';
+
 	let pairs = curBenchmarks.map((cur) => [cur, prevBenchmarks.find((prev) => {
 		return prev.file === cur.file;
 	})]).filter((pair) => pair[1]);
 
-	function computeDiff(cur : Benchmark, prev : Benchmark, metric : 'instructions' | 'rts_heap_size') : number {
+	function computeDiff(cur : Benchmark, prev : Benchmark, metric : Metric) : number {
 		let rows = cur.rows.filter((row) => prev.rows.includes(row));
 		let cols = cur.cols.filter((col) => prev.cols.includes(col));
 
@@ -25,19 +27,32 @@
 
 		return diff / (rows.length * cols.length);
 	}
+
+	function computeDiffAll(cur : Benchmark, prev : Benchmark) : number {
+		let metrics : Metric[] = ['instructions', 'rts_heap_size', 'rts_logical_stable_memory_size', 'rts_reclaimed'];
+		let diff = 0;
+
+		for (let metric of metrics) {
+			diff += computeDiff(cur, prev, metric);
+		}
+
+		return diff;
+	}
 </script>
 
 <div class="container">
 	{#each pairs as [cur, prev]}
 		<details class="bench">
 			<summary>
-				<div class="bench-name">{cur.name}</div>
+				<div class="bench-name">{cur.name} <ColorizedValue value={computeDiffAll(cur, prev)}></ColorizedValue></div>
+			</summary>
+			<div class="diff">
 				<div class="bench-overall-diff">
 					<div>Instructions: <ColorizedValue value={computeDiff(cur, prev, 'instructions')}></ColorizedValue></div>
 					<div>Heap: <ColorizedValue value={computeDiff(cur, prev, 'rts_heap_size')}></ColorizedValue></div>
+					<div>Stable Memory: <ColorizedValue value={computeDiff(cur, prev, 'rts_logical_stable_memory_size')}></ColorizedValue></div>
+					<div>Garbage Collection: <ColorizedValue value={computeDiff(cur, prev, 'rts_reclaimed')}></ColorizedValue></div>
 				</div>
-			</summary>
-			<div class="diff">
 				<PackageBenchmark benchmark={cur} otherBenchmark={prev}></PackageBenchmark>
 			</div>
 		</details>
@@ -57,8 +72,8 @@
 	}
 
 	.bench-overall-diff {
-		margin-top: 4px;
-		margin-left: 16px;
+		margin-top: 6px;
+		margin-bottom: 14px;
 	}
 
 	.diff {
@@ -68,6 +83,5 @@
 
 	.bench-name {
 		display: inline-block;
-		font-weight: 600;
 	}
 </style>

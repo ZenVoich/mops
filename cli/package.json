@@ -59,6 +59,7 @@
     "del": "7.1.0",
     "dhall-to-json-cli": "1.7.6",
     "execa": "9.3.0",
+    "filesize": "10.1.4",
     "fs-extra": "11.2.0",
     "get-folder-size": "5.0.0",
     "glob": "11.0.0",
@@ -92,9 +93,9 @@
     "@types/semver": "7.5.8",
     "@types/stream-to-promise": "2.2.4",
     "@types/tar": "6.1.13",
-    "eslint": "8.57.0",
     "bun": "1.0.35",
     "esbuild": "0.23.0",
+    "eslint": "8.57.0",
     "tsx": "4.16.5",
     "typescript": "5.5.4"
   },
