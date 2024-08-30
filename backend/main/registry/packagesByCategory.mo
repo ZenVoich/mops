@@ -1,8 +1,10 @@
 module {
+	// legacy, use keywords for new packages
 	public let packagesByCategory = [
-		(
-			"Data Structures",
-			[
+		{
+			title = "Data Structures";
+			keywords = ["data-structure", "datastructure", "array", "map", "list", "buffer"];
+			legacyNames = [
 				"bitbuffer",
 				"enumeration",
 				"buffer-deque",
@@ -20,10 +22,11 @@ module {
 				"stable-buffer",
 				"memory-hashtable",
 			]
-		),
-		(
-			"Utilities",
-			[
+		},
+		{
+			title = "Utilities";
+			keywords = ["util", "utility", "utils", "utilities", "helper"];
+			legacyNames = [
 				"datetime",
 				"itertools",
 				"xtended-text",
@@ -38,10 +41,11 @@ module {
 				"random-class",
 				"time",
 			]
-		),
-		(
-			"Encoding",
-			[
+		},
+		{
+			title = "Encoding";
+			keywords = ["encoding", "decoding", "serialization", "deserialization", "serialize", "deserialize", "encoder", "decoder", "encode", "decode"];
+			legacyNames = [
 				"deflate",
 				"serde",
 				"xml",
@@ -50,10 +54,11 @@ module {
 				"candid",
 				"rep-indy-hash",
 			]
-		),
-		(
-			"Cryptography",
-			[
+		},
+		{
+			title = "Cryptography";
+			keywords = ["crypto",  "hash", "encryption", "encrypt", "signature", "cryptography", "cryptographic", "decryption", "hashing", "signing", "verify", "verification"];
+			legacyNames = [
 				"sha2",
 				"sha3",
 				"libsecp256k1",
@@ -62,10 +67,11 @@ module {
 				"ic-certification",
 				"evm-proof-verifier",
 			]
-		),
-		(
-			"Types/Interfaces",
-			[
+		},
+		{
+			title = "Types/Interfaces";
+			keywords = ["types", "interface", "service"];
+			legacyNames = [
 				"ic",
 				"ledger-types",
 				"ckbtc-types",
@@ -83,10 +89,11 @@ module {
 				"icrc1-types",
 				"icrc2-types",
 			]
-		),
-		(
-			"HTTP",
-			[
+		},
+		{
+			title = "HTTP";
+			keywords = ["http", "server", "web", "websocket", "https", "http-server", "http-client", "web-server", "web-client"];
+			legacyNames = [
 				"certified-http",
 				"certified-cache",
 				"ic-certification",
@@ -100,36 +107,40 @@ module {
 				"certified-assets",
 				"ic-websocket-cdk",
 			]
-		),
-		(
-			"Async Data Flow",
-			[
+		},
+		{
+			title = "Async Data Flow";
+			keywords = ["async", "data-flow", "dataflow", "stream", "streams", "channel", "channels", "actor", "actors", "message", "messages"];
+			legacyNames = [
 				"star",
 				"maf",
 				"rxmo",
 			]
-		),
-		(
-			"Databases",
-			[
+		},
+		{
+			title = "Databases";
+			keywords = ["database", "db", "storage", "store", "persistence"];
+			legacyNames = [
 				"candb",
 				"rxmodb",
 				"nacdb",
 			]
-		),
-		(
-			"Stable Memory",
-			[
+		},
+		{
+			title = "Stable Memory";
+			keywords = ["stable-memory", "memory", "region", "persistent"];
+			legacyNames = [
 				"memory-region",
 				"memory-buffer",
 				"stable-enum",
 				"stable-buffer",
 				"memory-hashtable",
 			]
-		),
-		(
-			"ICRC",
-			[
+		},
+		{
+			title = "ICRC";
+			keywords = ["icrc"];
+			legacyNames = [
 				"icrc1",
 				"origyn-nft",
 				"account",
@@ -148,6 +159,20 @@ module {
 				"icrc2-types",
 				"account-identifier",
 			]
-		),
+		},
+		{
+			title = "DeFi";
+			keywords = ["defi", "exchange", "swap", "token", "tokens", "coin", "lend", "pool", "liquidity", "pair"];
+			legacyNames = [
+				"icrc1",
+				"auction",
+				"account",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
+				"account-identifier",
+			]
+		},
 	];
 };

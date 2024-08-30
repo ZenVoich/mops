@@ -5,15 +5,19 @@ import {checkConfigFile, getRootDir, parseGithubURL, readConfig} from './mops.js
 import {VesselConfig, readVesselConfig} from './vessel.js';
 import {Config, Dependency} from './types.js';
 import {getDepCacheDir, getDepCacheName} from './cache.js';
+import {getPackageId} from './helpers/get-package-id.js';
 
-export async function resolvePackages({verbose = false} = {}) : Promise<Record<string, string>> {
+export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'error' | 'ignore'} = {}) : Promise<Record<string, string>> {
 	if (!checkConfigFile()) {
 		return {};
 	}
 
 	let rootDir = getRootDir();
 	let packages : Record<string, Dependency & {isRoot : boolean;}> = {};
-	let versions : Record<string, string[]> = {};
+	let versions : Record<string, Array<{
+		version : string;
+		dependencyOf : string;
+	}>> = {};
 
 	let compareVersions = (a : string = '0.0.0', b : string = '0.0.0') => {
 		let ap = a.split('.').map((x : string) => parseInt(x)) as [number, number, number];
@@ -95,19 +99,30 @@ export async function resolvePackages({verbose = false} = {}) : Promise<Record<s
 
 			// collect nested deps
 			if (nestedConfig) {
-				await collectDeps(nestedConfig, localNestedDir);
+				await collectDeps(nestedConfig, localNestedDir, false);
 			}
 
 			if (!versions[name]) {
 				versions[name] = [];
 			}
 
+			let parentPkgId = isRoot ? '<root>' : '';
+			if ('package' in config) {
+				parentPkgId = getPackageId(config.package?.name || '', config.package?.version || '');
+			}
+
 			if (repo) {
 				const {branch} = parseGithubURL(repo);
-				versions[name]?.push(branch);
+				versions[name]?.push({
+					version: branch,
+					dependencyOf: parentPkgId,
+				});
 			}
 			else if (version) {
-				versions[name]?.push(version);
+				versions[name]?.push({
+					version: version,
+					dependencyOf: parentPkgId,
+				});
 			}
 		}
 	};
@@ -116,12 +131,25 @@ export async function resolvePackages({verbose = false} = {}) : Promise<Record<s
 	await collectDeps(config, rootDir, true);
 
 	// show conflicts
-	if (verbose) {
+	let hasConflicts = false;
+
+	if (conflicts !== 'ignore') {
 		for (let [dep, vers] of Object.entries(versions)) {
-			if (vers.length > 1) {
-				console.log(chalk.yellow('WARN:'), `Conflicting package versions "${dep}" - ${vers.join(', ')}`);
+			let majors = new Set(vers.map(x => x.version.split('.')[0]));
+			if (majors.size > 1) {
+				console.error(chalk.reset('') + chalk.redBright(conflicts === 'error' ? 'Error!' : 'Warning!'), `Conflicting versions of dependency "${dep}"`);
+
+				for (let {version, dependencyOf} of vers.reverse()) {
+					console.error(chalk.reset('  ') + `${dep} ${chalk.bold.red(version.split('.')[0])}.${version.split('.').slice(1).join('.')} is dependency of ${chalk.bold(dependencyOf)}`);
+				}
+
+				hasConflicts = true;
 			}
 		}
+	}
+
+	if (conflicts === 'error' && hasConflicts) {
+		process.exit(1);
 	}
 
 	return Object.fromEntries(

@@ -27,6 +27,7 @@ import {transferOwnership} from './commands/transfer-ownership.js';
 import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
 import * as self from './commands/self.js';
+import {resolvePackages} from './resolve-packages.js';
 // import {docs} from './commands/docs.js';
 
 declare global {
@@ -114,6 +115,10 @@ program
 		else {
 			let ok = await installAll(options);
 			await toolchain.installAll(options);
+
+			// check conflicts
+			await resolvePackages({conflicts: 'warning'});
+
 			if (!ok) {
 				process.exit(1);
 			}
@@ -172,7 +177,8 @@ program
 	.command('sources')
 	.description('for dfx packtool')
 	.option('--no-install', 'Do not install dependencies before running sources')
-	.option('--verbose')
+	.addOption(new Option('--conflicts <action>', 'What to do with dependency version conflicts').choices(['ignore', 'warning', 'error']).default('warning'))
+	.option('--verbose', 'Show more information') // for backcompat
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);

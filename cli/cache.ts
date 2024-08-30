@@ -3,15 +3,20 @@ import path from 'node:path';
 import ncp from 'ncp';
 import getFolderSize from 'get-folder-size';
 
-import {getDependencyType, getRootDir, globalCacheDir, parseGithubURL} from './mops.js';
+import {getDependencyType, getNetwork, getRootDir, globalCacheDir, parseGithubURL} from './mops.js';
 import {getPackageId} from './helpers/get-package-id.js';
 
+let getGlobalCacheDir = () => {
+	let network = getNetwork();
+	return path.join(globalCacheDir, network === 'ic' ? '' : network);
+};
+
 export let show = () => {
-	return globalCacheDir;
+	return getGlobalCacheDir();
 };
 
 export let getDepCacheDir = (cacheName : string) => {
-	return path.join(globalCacheDir, 'packages', cacheName);
+	return path.join(getGlobalCacheDir(), 'packages', cacheName);
 };
 
 export let isDepCached = (cacheName : string) => {
@@ -34,7 +39,7 @@ export function getGithubDepCacheName(name : string, repo : string) {
 }
 
 export let addCache = (cacheName : string, source : string) => {
-	let dest = path.join(globalCacheDir, 'packages', cacheName);
+	let dest = path.join(getGlobalCacheDir(), 'packages', cacheName);
 	fs.mkdirSync(dest, {recursive: true});
 
 	return new Promise<void>((resolve, reject) => {
@@ -48,7 +53,7 @@ export let addCache = (cacheName : string, source : string) => {
 };
 
 export let copyCache = (cacheName : string, dest : string) => {
-	let source = path.join(globalCacheDir, 'packages', cacheName);
+	let source = path.join(getGlobalCacheDir(), 'packages', cacheName);
 	fs.mkdirSync(dest, {recursive: true});
 
 	return new Promise<void>((resolve, reject) => {
@@ -62,7 +67,7 @@ export let copyCache = (cacheName : string, dest : string) => {
 };
 
 export let cacheSize = async () => {
-	let dir = path.join(globalCacheDir);
+	let dir = path.join(getGlobalCacheDir());
 	fs.mkdirSync(dir, {recursive: true});
 
 	let size = await getFolderSize.strict(dir);
@@ -73,13 +78,13 @@ export let cacheSize = async () => {
 };
 
 export let cleanCache = async () => {
-	if (!globalCacheDir.endsWith('mops/cache') && !globalCacheDir.endsWith('/mops')) {
-		throw new Error('Invalid cache directory: ' + globalCacheDir);
+	if (!getGlobalCacheDir().endsWith('mops/cache') && !getGlobalCacheDir().endsWith('/mops') && !getGlobalCacheDir().endsWith('/mops/' + getNetwork())) {
+		throw new Error('Invalid cache directory: ' + getGlobalCacheDir());
 	}
 
 	// local cache
 	fs.rmSync(path.join(getRootDir(), '.mops'), {recursive: true, force: true});
 
 	// global cache
-	fs.rmSync(globalCacheDir, {recursive: true, force: true});
+	fs.rmSync(getGlobalCacheDir(), {recursive: true, force: true});
 };

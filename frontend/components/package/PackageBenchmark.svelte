@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {filesize} from 'filesize';
 	import {Benchmark} from '/declarations/main/main.did.js';
 	import ColorizedValue from '../ColorizedValue.svelte';
 	import {getMetricDiff, getMetricNum} from '/logic/benchmark-utils';
@@ -10,7 +11,10 @@
 		let value = getMetricNum(bench, row, col, metric);
 
 		if (value !== undefined) {
-			return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
+			if (metric === 'instructions') {
+				return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
+			}
+			return filesize(value, {standard: 'iec', round: 2});
 		}
 		else {
 			return '-';
@@ -81,11 +85,71 @@
 				{/each}
 			</tbody>
 		</table>
+
+		<b>Stable Memory</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_logical_stable_memory_size')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_logical_stable_memory_size')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<b>Garbage Collection</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_reclaimed')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_reclaimed')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
 	</div>
 </div>
 
 <style>
 	table {
 		margin-top: 6px;
+	}
+
+	td {
+		white-space: nowrap;
 	}
 </style>

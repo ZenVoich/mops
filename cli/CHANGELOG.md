@@ -2,6 +2,8 @@
 
 ## unreleased
 - `mops cache clean` now cleans local cache too (`.mops` folder)
+- Conflicting dependencies are now reported on `mops add/install/sources`
+- Added `--conflicts <action>` option to `mops sources` command ([docs](https://docs.mops.one/cli/mops-sources#--conflicts))
 
 ## 0.45.3
 - Fixed bug with missing `tar` package

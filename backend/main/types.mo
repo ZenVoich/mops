@@ -184,7 +184,7 @@ module {
 
 	public type Benchmarks = [Benchmark];
 
-	type BenchmarkMetric = Text; // instructions, rts_heap_size
+	type BenchmarkMetric = Text; // instructions, rts_heap_size, rts_logical_stable_memory_size, rts_reclaimed
 
 	public type Benchmark = {
 		file : Text;

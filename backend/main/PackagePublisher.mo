@@ -341,8 +341,8 @@ module {
 					};
 				};
 				for ((metric, cells) in benchmark.metrics.vals()) {
-					if (metric != "instructions" and metric != "rts_heap_size") {
-						return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size'");
+					if (metric != "instructions" and metric != "rts_heap_size" and metric != "rts_logical_stable_memory_size" and metric != "rts_reclaimed") {
+						return #err("Benchmark metric must be one of 'instructions', 'rts_heap_size', 'rts_logical_stable_memory_size', 'rts_reclaimed'");
 					};
 					if (cells.size() != benchmark.rows.size()) {
 						return #err("Benchmark metrics and table schema row count mismatch");

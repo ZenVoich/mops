@@ -22,6 +22,7 @@
 	import PackageVersionSummary from './PackageVersionSummary.svelte';
 	import PackageTestStats from './PackageTestStats.svelte';
 	import PackageBenchmarks from './PackageBenchmarks.svelte';
+	import Keywords from './Keywords.svelte';
 
 	let pkgName : string;
 	$: pkgName = $routeParams.packageName;
@@ -154,6 +155,7 @@
 							<a class="new-version-available" href="/{pkgName}" use:link>Newer version available: {getHighestVersion()}</a>
 						</div>
 					{/if}
+					<div class="description">{packageDetails.config.description}</div>
 
 					<div class="install">
 						<div class="command-container" class:hover="{installHovered}" on:mouseenter="{installMouseenter}" on:mouseleave="{installMouseleave}">
@@ -163,11 +165,7 @@
 						<div class="clipboard-text">{copiedToClipboard ? 'Copied to clipboard!' : 'Click to copy to clipboard'}</div>
 					</div>
 
-					<div class="keywords">
-						{#each packageDetails.config.keywords as keyword}
-							<a class="keyword" href="/search/keyword:{keyword}" use:link>#{keyword}</a>
-						{/each}
-					</div>
+					<Keywords keywords={packageDetails.config.keywords} />
 				</div>
 			</div>
 
@@ -299,14 +297,25 @@
 		font-size: 14px;
 	}
 
+	.description {
+		display: inline-block;
+		margin-top: 10px;
+		padding: 10px;
+		border-radius: 3px;
+		background: #c9cec3;
+		color: #202020;
+		font-size: 15px;
+	}
+
 	.header-content {
 		width: 900px;
 		padding: 20px;
 		box-sizing: border-box;
+		min-width: 0;
 	}
 
 	.header .install {
-		display: inline-flex;
+		display: flex;
 		padding: 0px;
 		align-items: center;
 		margin: 10px 0;
@@ -353,14 +362,6 @@
 		user-select: none;
 	}
 
-	.keywords {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px;
-		font-family: 'Open Sans', monospace;
-		font-size: 14px;
-	}
-
 	.tabs {
 		display: flex;
 		overflow: auto;
@@ -395,12 +396,14 @@
 	.github-dep {
 		display: flex;
 		justify-content: space-between;
+		flex-wrap: wrap;
 		gap: 20px;
 		margin-right: 30px;
 	}
 
 	.github-dep-repo {
 		display: flex;
+		margin-left: auto;
 		gap: 5px;
 		white-space: nowrap;
 	}

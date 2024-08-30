@@ -59,6 +59,7 @@
     "del": "7.1.0",
     "dhall-to-json-cli": "1.7.6",
     "execa": "9.3.0",
+    "filesize": "10.1.4",
     "fs-extra": "11.2.0",
     "get-folder-size": "5.0.0",
     "glob": "11.0.0",
