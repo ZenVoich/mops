@@ -7,6 +7,6 @@ export async function whoami() {
 		console.log(identity.getPrincipal().toText());
 	}
 	else {
-		console.log(chalk.red('Error: ') + 'identity not found. Run ' + chalk.greenBright('mops import-identity') + ' command.');
+		console.log(chalk.red('Error: ') + 'identity not found. Run ' + chalk.greenBright('mops user import') + ' command.');
 	}
 }

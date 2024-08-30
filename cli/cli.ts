@@ -152,9 +152,9 @@ program
 		console.log(getNetwork());
 	});
 
-// import-identity
+// user import
 program
-	.command('import-identity <data>')
+	.command('mops user import <data>')
 	.description('Import .pem file data to use as identity')
 	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
 	.action(async (data, options) => {

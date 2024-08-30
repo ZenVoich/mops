@@ -32,7 +32,7 @@
 		<br>
 		<div>Import identity into the mops</div>
 		<br>
-		<code>mops import-identity -- "$(dfx identity export mops)"</code>
+		<code>mops user import -- "$(dfx identity export mops)"</code>
 
 		<h3>3. Initialize</h3>
 		<div>Run this command in your package root</div>
