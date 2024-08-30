@@ -295,9 +295,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 					try {
 						if (globalThis.mopsReplicaTestRunning) {
 							await new Promise<void>((resolve) => {
-								setInterval(() => {
+								let timerId = setInterval(() => {
 									if (!globalThis.mopsReplicaTestRunning) {
 										resolve();
+										clearInterval(timerId);
 									}
 								}, Math.random() * 1000 |0);
 							});
