@@ -4,11 +4,9 @@ import {Command, Argument, Option} from 'commander';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
-import {importPem} from './commands/import-identity.js';
 import {sources} from './commands/sources.js';
 import {checkApiCompatibility, setNetwork, apiVersion, checkConfigFile, getNetworkFile, version} from './mops.js';
 import {getNetwork} from './api/network.js';
-import {whoami} from './commands/whoami.js';
 import {installAll} from './commands/install/install-all.js';
 import {search} from './commands/search.js';
 import {add} from './commands/add.js';
@@ -16,7 +14,7 @@ import {cacheSize, cleanCache, show} from './cache.js';
 import {test} from './commands/test/test.js';
 import {template} from './commands/template.js';
 import {remove} from './commands/remove.js';
-import {getUserProp, setUserProp} from './commands/user.js';
+import {importPem, getPrincipal, getUserProp, setUserProp} from './commands/user.js';
 import {bump} from './commands/bump.js';
 import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
@@ -159,7 +157,7 @@ program
 	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
 	.action(async (data, options) => {
 		await importPem(data, options);
-		await whoami();
+		await getPrincipal();
 	});
 
 // sources
@@ -181,12 +179,12 @@ program
 		console.log(sourcesArr.join('\n'));
 	});
 
-// whoami
+// get-principal
 program
-	.command('whoami')
+	.command('get-principal')
 	.description('Print your principal')
 	.action(async () => {
-		await whoami();
+		await getPrincipal();
 	});
 
 // search
