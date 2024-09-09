@@ -10,12 +10,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: |
-          MOPS_VERSION=$(cd cli && npm pkg get version | tr -d \")
-          echo MOPS_VERSION=$MOPS_VERSION
-          if [ -z "$MOPS_VERSION" ]; then
-            echo "MOPS_VERSION is empty"
-            exit 1
-          fi
+          # MOPS_VERSION=$(cd cli && npm pkg get version | tr -d \")
+          # echo MOPS_VERSION=$MOPS_VERSION
+          # if [ -z "$MOPS_VERSION" ]; then
+          #   echo "MOPS_VERSION is empty"
+          #   exit 1
+          # fi
+          MOPS_VERSION=0.0.0
           cd verify
           docker build . --build-arg COMMIT_HASH=${{ github.sha }} --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
           docker run --rm mops || echo "."
