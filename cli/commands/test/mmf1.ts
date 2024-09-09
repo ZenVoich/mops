@@ -83,7 +83,9 @@ export class MMF1 {
 	}
 
 	_testEnd(name : string) {
-		if (name !== this.stack.pop()) {
+		let last = this.stack.pop();
+		if (name !== last) {
+			console.error(`Expected test name "${last}" but got "${name}"`);
 			throw 'mmf1._testEnd: start and end test mismatch';
 		}
 		this._status(name, 'pass');
