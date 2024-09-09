@@ -21,7 +21,9 @@ RUN npm install
 # build
 ARG MOPS_VERSION
 RUN npm version $MOPS_VERSION --allow-same-version
-RUN npm run release
+RUN npm run prepare
+RUN npm run bundle
+# RUN npm run release
 
 # verify
 ARG SHASUM

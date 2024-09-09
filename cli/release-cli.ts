@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {URL} from 'node:url';
-import {execSync} from 'node:child_process';
+// import {execSync} from 'node:child_process';
 import semver from 'semver';
 import {sha256} from '@noble/hashes/sha256';
 import {bytesToHex} from '@noble/hashes/utils';
@@ -11,8 +11,8 @@ import {findChangelogEntry} from './helpers/find-changelog-entry.js';
 
 let __dirname = new URL('.', import.meta.url).pathname;
 
-execSync('npm run prepare', {stdio: 'inherit', cwd: __dirname});
-execSync('npm run bundle', {stdio: 'inherit', cwd: __dirname});
+// execSync('npm run prepare', {stdio: 'inherit', cwd: __dirname});
+// execSync('npm run bundle', {stdio: 'inherit', cwd: __dirname});
 
 let version = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')).version;
 let major = semver.parse(version)?.major;

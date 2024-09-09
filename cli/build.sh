@@ -1,12 +1,15 @@
-COMMIT_HASH=4c22b5ec37c5da9c8231656cf56f8a06dba09308
+COMMIT_HASH=231e08c3410a2f1c854af5da1c96ead0af51579d
 MOPS_VERSION=0.0.0
-
-# build on host machine
-npm version $MOPS_VERSION --allow-same-version
-npm run release
 
 # build verifiable bundle using Docker
 docker build . --build-arg COMMIT_HASH=$COMMIT_HASH --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
+
+# print hash
+docker run --rm mops || echo ""
+
+# build on host machine
+# npm version $MOPS_VERSION --allow-same-version
+# npm run release
 
 # replace cli.tgz with the one from the Docker container
 cid=$(docker create mops)
