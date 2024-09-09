@@ -5,7 +5,11 @@ on:
 
 jobs:
   build:
-    runs-on: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-latest]
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Build
