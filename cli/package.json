@@ -12,6 +12,7 @@
     "!network.txt",
     "!Dockerfile",
     "!verify.sh",
+    "!build.sh",
     "!DEVELOPMENT.md",
     "!.mops",
     "/templates"
