@@ -10,6 +10,9 @@
   "files": [
     "*",
     "!network.txt",
+    "!Dockerfile",
+    "!verify.sh",
+    "!DEVELOPMENT.md",
     "!.mops",
     "/templates"
   ],
