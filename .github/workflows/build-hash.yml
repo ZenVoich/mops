@@ -1,0 +1,20 @@
+name: Build CLI and print hash
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          MOPS_VERSION=$(cd cli && npm pkg get version | tr -d \")
+          cd verify
+          docker build . --build-arg COMMIT_HASH=${{ github.sha }} --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
+          docker run --rm mops || echo "."
