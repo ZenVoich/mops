@@ -2,13 +2,9 @@ name: Build CLI and print hash
 
 on:
   push:
-    branches:
-      - main
-      - master
-  pull_request:
 
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
