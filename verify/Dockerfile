@@ -8,7 +8,7 @@ RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/s
 RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
 RUN apk add --no-cache --force-overwrite glibc-2.28-r0.apk
 
-# prepare source
+# clone repository
 ARG COMMIT_HASH
 RUN git clone https://github.com/ZenVoich/mops.git
 
@@ -20,7 +20,7 @@ RUN npm install
 
 # build
 ARG MOPS_VERSION
-RUN npm version $MOPS_VERSION
+RUN npm version $MOPS_VERSION --allow-same-version
 RUN npm run release
 
 # verify

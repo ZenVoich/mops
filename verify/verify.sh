@@ -27,5 +27,8 @@ fi
 # cid=$(docker create mops)
 # docker cp $cid:/mops/cli/bundle/cli.tgz .
 
-# verify
-# docker build . --build-arg COMMIT_HASH=b18cafb288b25d48caa922ea69216a12a511ff25 --build-arg MOPS_VERSION=0.5.1 --build-arg SHASUM=1c78eab58e41282a071218169062dc4f82ac7ab6ae45f95630150ae2f2fca0e2 -t mops-verify && docker run --rm mops-verify
+# build:
+# docker build . --build-arg COMMIT_HASH=b18cafb288b25d48caa922ea69216a12a511ff25 --build-arg MOPS_VERSION=0.5.1 -t mops
+
+# verify:
+# docker run --rm --env SHASUM=d57fc281a24fb12b0b6ef72cac4d478b357e6f22dca53bcc4a5506759fc96b06 mops
