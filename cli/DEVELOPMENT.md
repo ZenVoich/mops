@@ -52,3 +52,10 @@ npm run release
 ```
 dfx deploy --network ic --no-wallet cli
 ```
+
+## Verify build
+
+```
+docker build . --build-arg COMMIT_HASH=<commit_hash> --build-arg MOPS_VERSION=<mops_version> -t mops
+docker run --rm --env SHASUM=<build_hash> mops
+```

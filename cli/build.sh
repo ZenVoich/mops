@@ -3,6 +3,9 @@ COMMIT_HASH=${COMMIT_HASH:-$(git rev-parse HEAD)}
 # default: current mops version
 MOPS_VERSION=${MOPS_VERSION:-$(npm pkg get version | tr -d \")}
 
+echo "Commit hash: $COMMIT_HASH"
+echo "Mops version: $MOPS_VERSION"
+
 # build verifiable bundle using Docker
 docker build . --build-arg COMMIT_HASH=$COMMIT_HASH --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
 
