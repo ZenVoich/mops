@@ -14,6 +14,7 @@ docker run --rm mops || echo ""
 
 # replace cli.tgz with the one from the Docker container
 cid=$(docker create mops)
+echo "Container ID: $cid"
 mkdir -p bundle
 docker cp $cid:/mops/cli/bundle/cli.tgz ./bundle/cli.tgz
 
