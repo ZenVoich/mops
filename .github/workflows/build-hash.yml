@@ -21,6 +21,6 @@ jobs:
           #   exit 1
           # fi
           MOPS_VERSION=0.0.0
-          cd verify
+          cd cli
           docker build . --build-arg COMMIT_HASH=${{ github.sha }} --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
           docker run --rm mops || echo "."
