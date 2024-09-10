@@ -14,7 +14,7 @@ let __dirname = new URL('.', import.meta.url).pathname;
 // build using Docker
 execSync('./build.sh', {stdio: 'inherit', cwd: __dirname});
 
-let commitHash = process.env.COMMIT_HASH || execSync('git rev-parse HEAD', {stdio: 'inherit', cwd: __dirname}).toString().trim();
+let commitHash = process.env.COMMIT_HASH || execSync('git rev-parse HEAD').toString().trim();
 let version = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')).version;
 let major = semver.parse(version)?.major;
 let tag = semver.parse(version)?.prerelease[0] || 'latest';
