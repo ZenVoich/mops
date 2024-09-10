@@ -24,5 +24,3 @@ jobs:
           cd verify
           docker build . --build-arg COMMIT_HASH=${{ github.sha }} --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
           docker run --rm mops || echo "."
-      - name: Build
-        run: cd cli && npm i && npm run prepare && npm run bundle && sha256sum bundle/cli.tgz | head -n1 | awk '{print $1;}'
