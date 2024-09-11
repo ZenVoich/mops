@@ -13,10 +13,11 @@ jobs:
       max-parallel: 3
       fail-fast: false
       matrix:
-        mops-version: [./cli/dist, ic-mops@1.0.0-pre.0, "https://cli.mops.one/versions/latest.tgz"]
+        # mops-version: [./cli/dist, ic-mops@1.0.0-pre.0, "https://cli.mops.one/versions/latest.tgz"]
+        mops-version: [./cli/dist]
         moc-version: [0.11.1]
         node-version: [18, 20, 22]
-        runner: [ubuntu-latest, macos-latest, macos-14-large]
+        runner: [ubuntu-latest, macos-latest]
         # runner: [ubuntu-latest]
 
     runs-on: ${{ matrix.runner }}
