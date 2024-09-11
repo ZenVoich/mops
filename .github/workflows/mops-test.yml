@@ -11,6 +11,7 @@ jobs:
   test:
     strategy:
       max-parallel: 3
+      fail-fast: false
       matrix:
         mops-version: [./cli/dist, ic-mops@1.0.0-pre.0, "https://cli.mops.one/versions/latest.tgz"]
         moc-version: [0.11.1]
