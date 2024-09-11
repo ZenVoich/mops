@@ -168,7 +168,6 @@ program
 	.description('for dfx packtool')
 	.option('--no-install', 'Do not install dependencies before running sources')
 	.addOption(new Option('--conflicts <action>', 'What to do with dependency version conflicts').choices(['ignore', 'warning', 'error']).default('warning'))
-	.option('--verbose', 'Show more information') // for backcompat
 	.action(async (options) => {
 		if (!checkConfigFile()) {
 			process.exit(1);
