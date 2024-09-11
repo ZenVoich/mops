@@ -1,4 +1,4 @@
-type _anon_class_10_1 =
+type _anon_class_13_1 = 
  service {
    getSchema: () -> (BenchSchema) query;
    getStats: () -> (BenchResult) query;
@@ -7,24 +7,24 @@ type _anon_class_10_1 =
    runCellUpdate: (nat, nat) -> (BenchResult);
    runCellUpdateAwait: (nat, nat) -> (BenchResult);
  };
-type BenchSchema =
+type BenchSchema = 
  record {
    cols: vec text;
    description: text;
    name: text;
    rows: vec text;
  };
-type BenchResult =
+type BenchResult = 
  record {
    instructions: int;
-   rts_heap_size: int;
-   stable_memory_size: int;
-   rts_stable_memory_size: int;
    rts_collector_instructions: int;
+   rts_heap_size: int;
+   rts_logical_stable_memory_size: int;
    rts_memory_size: int;
    rts_mutator_instructions: int;
-   rts_total_allocation: int;
-   rts_logical_stable_memory_size: int;
    rts_reclaimed: int;
+   rts_stable_memory_size: int;
+   rts_total_allocation: int;
+   stable_memory_size: int;
  };
-service : () -> _anon_class_10_1
+service : () -> _anon_class_13_1
