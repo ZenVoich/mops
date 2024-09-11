@@ -39,6 +39,7 @@ jobs:
             mops-packages-
           path: |
             ~/.cache/mops
+            ~/Library/Caches/mops
 
       - name: Install npm packages
         if: ${{ matrix.mops-version == './cli/dist' }}
