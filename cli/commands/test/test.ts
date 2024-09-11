@@ -330,7 +330,6 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 
 function pipeStdoutToMMF(stdout : Readable, mmf : MMF1) {
 	stdout.on('data', (data) => {
-		console.log('stdout', data.toString());
 		for (let line of data.toString().split('\n')) {
 			line = line.trim();
 			if (line) {

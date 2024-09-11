@@ -101,7 +101,6 @@ export class Replica {
 				for (let match of matches) {
 					let [, canisterId, msg] = match;
 					let stream = this.getCanisterStream(canisterId || '');
-					console.log('chunk', chunk);
 					if (stream) {
 						stream.write(msg);
 					}
@@ -109,7 +108,6 @@ export class Replica {
 
 				if (matches.length) {
 					curData = curData.split('\n').slice(-1).join('\n');
-					console.log('curData', curData);
 				}
 			}
 		});
