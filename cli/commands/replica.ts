@@ -93,9 +93,10 @@ export class Replica {
 		let curData = '';
 		proc.stderr.on('data', (data) => {
 			curData = curData + data.toString();
-
 			if (curData.includes('\n')) {
-				let m = curData.match(/\[Canister ([a-z0-9-]+)\] (.*)/);
+				let chunk = curData.split('\n').slice(0, -1).join('\n');
+
+				let m = chunk.match(/\[Canister ([a-z0-9-]+)\] (.*)/);
 				if (!m) {
 					return;
 				}
@@ -106,7 +107,7 @@ export class Replica {
 					stream.write(msg);
 				}
 
-				curData = '';
+				curData = curData.split('\n').slice(-1).join('\n');
 			}
 		});
 	}
