@@ -33,10 +33,10 @@ jobs:
       - name: Cache mops packages
         uses: actions/cache@v4
         with:
-          key: mops-packages-${{ hashFiles('mops.toml') }}
+          key: mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
           restore-keys: |
-            mops-packages-${{ hashFiles('mops.toml') }}
-            mops-packages-
+            mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
+            mops-packages-${{ runner.os }}
           path: |
             ~/.cache/mops
             ~/Library/Caches/mops
