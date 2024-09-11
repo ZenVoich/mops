@@ -108,6 +108,8 @@ export class Replica {
 				}
 
 				curData = curData.split('\n').slice(-1).join('\n');
+				console.log('chunk', chunk);
+				console.log('curData', curData);
 			}
 		});
 	}
