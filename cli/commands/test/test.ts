@@ -247,15 +247,9 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 							wasmFile,
 						];
 					}
-					// backcompat
 					else {
-						wasmtimeArgs = [
-							'--max-wasm-stack=4000000',
-							'--enable-cranelift-nan-canonicalization',
-							'--wasm-features',
-							'multi-memory,bulk-memory',
-							wasmFile,
-						];
+						console.error(chalk.red('Minimum wasmtime version is 14.0.0. Please update wasmtime to the latest version'));
+						process.exit(1);
 					}
 
 					let proc = spawn(wasmtimePath, wasmtimeArgs);

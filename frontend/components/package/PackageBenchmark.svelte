@@ -14,6 +14,9 @@
 			if (metric === 'instructions') {
 				return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
 			}
+			else if (metric === 'rts_logical_stable_memory_size') {
+				return filesize(value * 65536, {standard: 'iec', round: 2});
+			}
 			return filesize(value, {standard: 'iec', round: 2});
 		}
 		else {

@@ -1,25 +1,61 @@
 # Mops CLI
 
-1. Update the version in `package.json` using `npm version` command.
+## Prerequisites
 
-2. Update changelog in `CHANGELOG.md` file.
+On macOS, you need to install `gnu-tar` package:
+```
+brew install gnu-tar
+```
 
-3. Publish.
+To make it available in your shell as `tar`, add the following to your `~/.zshrc` or `~/.bashrc`:
+```
+export PATH="$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH"
+```
+
+## Steps
+
+1. Update changelog in `CHANGELOG.md` file
+
+2. Push latest commits to `main` branch
+
+3. Check reproducibility of the build (see below)
+
+4. Update the version in `package.json` using `npm version` command
+
+5. Publish
 
 ## Publish to npm
 ```
 npm publish
 ```
 
-## Publish on chain
+## Check reproducibility of the build
+
+Check release hash of latest build for version `0.0.0` at https://github.com/ZenVoich/mops/actions/workflows/build-hash.yml
+
+Build locally veersion `0.0.0`
+```
+MOPS_VERSION=0.0.0 ./build.sh
+```
+
+Compare hashes.
+
+## Publish on-chain
 
 1. Prepeare release
 ```
 npm run release
 ```
 
-2. Deploy canister
+3. Deploy canister
 (from root of the project)
 ```
 dfx deploy --network ic --no-wallet cli
+```
+
+## Verify build
+
+```
+docker build . --build-arg COMMIT_HASH=<commit_hash> --build-arg MOPS_VERSION=<mops_version> -t mops
+docker run --rm --env SHASUM=<build_hash> mops
 ```

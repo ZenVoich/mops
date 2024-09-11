@@ -11,12 +11,12 @@ jobs:
   test:
     strategy:
       max-parallel: 3
+      fail-fast: false
       matrix:
         mops-version: [./cli/dist, ic-mops@1.0.0-pre.0, "https://cli.mops.one/versions/latest.tgz"]
         moc-version: [0.11.1]
-        node-version: [18, 21]
-        # runner: [ubuntu-latest, macos-latest]
-        runner: [ubuntu-latest]
+        node-version: [18, 20, 22]
+        runner: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.runner }}
     name: ${{ matrix.runner }}, node ${{ matrix.node-version }}, moc ${{ matrix.moc-version }}, ${{ matrix.mops-version }}
@@ -31,12 +31,13 @@ jobs:
       - name: Cache mops packages
         uses: actions/cache@v4
         with:
-          key: mops-packages-${{ hashFiles('mops.toml') }}
+          key: mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
           restore-keys: |
-            mops-packages-${{ hashFiles('mops.toml') }}
-            mops-packages-
+            mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
+            mops-packages-${{ runner.os }}
           path: |
             ~/.cache/mops
+            ~/Library/Caches/mops
 
       - name: Install npm packages
         if: ${{ matrix.mops-version == './cli/dist' }}

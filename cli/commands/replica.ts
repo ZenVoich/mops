@@ -95,18 +95,20 @@ export class Replica {
 			curData = curData + data.toString();
 
 			if (curData.includes('\n')) {
-				let m = curData.match(/\[Canister ([a-z0-9-]+)\] (.*)/);
-				if (!m) {
-					return;
-				}
-				let [, canisterId, msg] = m;
+				let chunk = curData.split('\n').slice(0, -1).join('\n');
+				let matches = [...chunk.matchAll(/\[Canister ([a-z0-9-]+)\] (.*)/g)];
 
-				let stream = this.getCanisterStream(canisterId || '');
-				if (stream) {
-					stream.write(msg);
+				for (let match of matches) {
+					let [, canisterId, msg] = match;
+					let stream = this.getCanisterStream(canisterId || '');
+					if (stream) {
+						stream.write(msg);
+					}
 				}
 
-				curData = '';
+				if (matches.length) {
+					curData = curData.split('\n').slice(-1).join('\n');
+				}
 			}
 		});
 	}

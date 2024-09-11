@@ -6,18 +6,18 @@ export const idlFactory = ({ IDL }) => {
     'description' : IDL.Text,
   });
   const BenchResult = IDL.Record({
-    'instructions' : IDL.Int,
-    'stable_memory_size' : IDL.Int,
     'rts_stable_memory_size' : IDL.Int,
-    'rts_logical_stable_memory_size' : IDL.Int,
+    'stable_memory_size' : IDL.Int,
+    'instructions' : IDL.Int,
     'rts_memory_size' : IDL.Int,
     'rts_total_allocation' : IDL.Int,
     'rts_collector_instructions' : IDL.Int,
     'rts_mutator_instructions' : IDL.Int,
+    'rts_logical_stable_memory_size' : IDL.Int,
     'rts_heap_size' : IDL.Int,
     'rts_reclaimed' : IDL.Int,
   });
-  const _anon_class_10_1 = IDL.Service({
+  const _anon_class_13_1 = IDL.Service({
     'getSchema' : IDL.Func([], [BenchSchema], ['query']),
     'getStats' : IDL.Func([], [BenchResult], ['query']),
     'init' : IDL.Func([], [BenchSchema], []),
@@ -25,6 +25,6 @@ export const idlFactory = ({ IDL }) => {
     'runCellUpdate' : IDL.Func([IDL.Nat, IDL.Nat], [BenchResult], []),
     'runCellUpdateAwait' : IDL.Func([IDL.Nat, IDL.Nat], [BenchResult], []),
   });
-  return _anon_class_10_1;
+  return _anon_class_13_1;
 };
 export const init = ({ IDL }) => { return []; };

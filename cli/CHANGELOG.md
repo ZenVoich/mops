@@ -9,13 +9,15 @@
 - New `--replica` option in `mops test` command
 
 **Breaking changes**:
-- Default replica in `mops bench` commands now is `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section
+- Default replica in `mops bench` and `mops test` commands now is `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section and `dfx` otherwise
 - The only supported version of `pocket-ic` is `4.0.0`
-- Removed the ability to install a specific package with `mops install <pkg>` command. Use `mops add <pkg>` instead.
-- Default reporter in `mops test` command is now `verbose` if there is only one file to test and `files` otherwise.
-- Removed legacy folders migration code. If you are using Mops CLI  `<= 0.21.0`, you need first to run `npm i -g ic-mops@0.45.3` to migrate your legacy folders. After that, you can run `mops self update` to update your Mops CLI to the latest version.
+- Dropped support for `wasmtime` version `< 14.0.0`
+- Default reporter in `mops test` command is now `files` if test file count is > 1 and `verbose` otherwise.
 - Renamed `mops import-identity` command to `mops user import`
 - Renamed `mops whoami` command to `mops user get-principal`
+- Removed the ability to install a specific package with `mops install <pkg>` command. Use `mops add <pkg>` instead.
+- Removed legacy folders migration code. If you are using Mops CLI  `<= 0.21.0`, you need first to run `npm i -g ic-mops@0.45.3` to migrate your legacy folders. After that, you can run `mops self update` to update your Mops CLI to the latest version.
+- Removed `--verbose` flag from `mops sources` command
 
 ## 0.45.3
 - Fixed bug with missing `tar` package

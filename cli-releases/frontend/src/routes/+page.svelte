@@ -25,8 +25,14 @@
 				{new Date(release.time).toISOString().split('T')[0]}
 				<span class="bullet">•</span>
 				{filesize(release.size, {standard: 'iec', round: 0})}
-				<span class="bullet">•</span>
-				<div class="hash">{release.hash}</div>
+			</div>
+			<div class="meta hashes">
+				{#if 'commitHash' in release}
+					<div class="hash">
+						Commit hash: <a href="https://github.com/ZenVoich/mops/commit/{release.commitHash}" target="_blank">{release.commitHash}</a>
+					</div>
+				{/if}
+				<div class="hash">Build hash: {release.hash}</div>
 			</div>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			<p class="release-notes">{@html markdownToHtml(release.relseaseNotes)}</p>
@@ -56,6 +62,10 @@
 		font-size: 0.8rem;
 		margin-bottom: 0.5rem;
 		white-space: nowrap;
+	}
+
+	.meta.hashes {
+		flex-direction: column;
 	}
 
 	.release-notes {

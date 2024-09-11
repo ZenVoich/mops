@@ -21,54 +21,55 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - uses: oven-sh/setup-bun@v1.1.1
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: 'npm'
+      # - uses: oven-sh/setup-bun@v1.1.1
 
-      - uses: dfinity/setup-dfx@main
+      # - uses: dfinity/setup-dfx@main
 
-      - name: Cache mops packages
-        uses: actions/cache@v4
-        with:
-          key: mops-packages-${{ hashFiles('mops.toml') }}
-          restore-keys: |
-            mops-packages-${{ hashFiles('mops.toml') }}
-            mops-packages-
-          path: |
-            ~/.cache/mops
+      # - name: Cache mops packages
+      #   uses: actions/cache@v4
+      #   with:
+      #     key: mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
+      #     restore-keys: |
+      #       mops-packages-${{ runner.os }}-${{ hashFiles('mops.toml') }}
+      #       mops-packages-${{ runner.os }}
+      #     path: |
+      #       ~/.cache/mops
+      #       ~/Library/Caches/mops
 
-      - name: Install npm packages
-        run: bun install
+      # - name: Install npm packages
+      #   run: bun install
 
-      - name: Build local cli
-        if: ${{ matrix.mops-version == './cli/dist' }}
-        run: cd cli && npm run prepare
+      # - name: Build local cli
+      #   if: ${{ matrix.mops-version == './cli/dist' }}
+      #   run: cd cli && npm run prepare
 
-      - name: Install mops
-        run: npm i -g ${{ matrix.mops-version }}
+      # - name: Install mops
+      #   run: npm i -g ${{ matrix.mops-version }}
 
-      - name: Install mops packages
-        run: mops install
+      # - name: Install mops packages
+      #   run: mops install
 
-      - name: Select moc version
-        run: mops toolchain use moc ${{ matrix.moc-version }}
+      # - name: Select moc version
+      #   run: mops toolchain use moc ${{ matrix.moc-version }}
 
-      - name: Run replica
-        run: npm run replica
+      # - name: Run replica
+      #   run: npm run replica
 
-      - name: Deploy backend
-        run: npm run deploy-local
+      # - name: Deploy backend
+      #   run: npm run deploy-local
 
-      - name: Build frontend
-        run: npm run build-frontend
+      # - name: Build frontend
+      #   run: npm run build-frontend
 
-      - name: Build docs
-        run: npm run build-docs
+      # - name: Build docs
+      #   run: npm run build-docs
 
-      - name: Build blog
-        run: npm run build-blog
+      # - name: Build blog
+      #   run: npm run build-blog
 
-      - name: Build CLI releases
-        run: npm run build-cli-releases
+      # - name: Build CLI releases
+      #   run: npm run build-cli-releases

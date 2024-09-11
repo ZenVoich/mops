@@ -11,9 +11,10 @@ import {findChangelogEntry} from './helpers/find-changelog-entry.js';
 
 let __dirname = new URL('.', import.meta.url).pathname;
 
-execSync('npm run prepare', {stdio: 'inherit', cwd: __dirname});
-execSync('npm run bundle', {stdio: 'inherit', cwd: __dirname});
+// build using Docker
+execSync('./build.sh', {stdio: 'inherit', cwd: __dirname});
 
+let commitHash = process.env.COMMIT_HASH || execSync('git rev-parse HEAD').toString().trim();
 let version = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')).version;
 let major = semver.parse(version)?.major;
 let tag = semver.parse(version)?.prerelease[0] || 'latest';
@@ -21,6 +22,8 @@ let releaseNotes = findChangelogEntry(fs.readFileSync(path.resolve(__dirname, 'C
 let data = fs.readFileSync(path.resolve(__dirname, 'bundle/cli.tgz'));
 let hash = bytesToHex(sha256(data));
 let size = data.byteLength;
+
+console.log(`Commit hash of release: ${commitHash}`);
 
 fs.cpSync(path.resolve(__dirname, 'bundle/cli.tgz'), path.resolve(__dirname, `../cli-releases/versions/${version}.tgz`), {force: false, errorOnExist: true});
 
@@ -39,6 +42,7 @@ type Releases = {
 		time : number;
 		size : number;
 		hash : string;
+		commitHash ?: string;
 		url : string;
 		relseaseNotes : string;
 	}>;
@@ -55,6 +59,7 @@ releases.versions[version] = {
 	time: new Date().getTime(),
 	size,
 	relseaseNotes: releaseNotes,
+	commitHash: commitHash,
 	url: `https://cli.mops.one/versions/${version}.tgz`,
 	hash,
 };
