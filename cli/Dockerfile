@@ -18,6 +18,6 @@ RUN npm run build
 # verify
 ARG SHASUM
 ENV SHASUM=$SHASUM
-ADD verify.sh /verify.sh
+COPY verify.sh /verify.sh
 RUN chmod +x /verify.sh
 ENTRYPOINT ["sh", "/verify.sh"]
