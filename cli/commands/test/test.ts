@@ -299,7 +299,9 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 						}
 
 						globalThis.mopsReplicaTestRunning = true;
+						console.log(`----- Start ${file} -----`);
 						await actor.runTests();
+						console.log(`----- End ${file} -----`);
 						globalThis.mopsReplicaTestRunning = false;
 
 						mmf.pass();

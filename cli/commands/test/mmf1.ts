@@ -87,6 +87,7 @@ export class MMF1 {
 		if (name !== last) {
 			console.error(`Expected test name "${last}" but got "${name}"`);
 			console.error(`Stack: ${this.stack.join(' › ')}`);
+			console.error(`File: ${this.file}`);
 			throw 'mmf1._testEnd: start and end test mismatch';
 		}
 		this._status(name, 'pass');
