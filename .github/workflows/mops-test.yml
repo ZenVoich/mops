@@ -17,7 +17,7 @@ jobs:
         mops-version: [./cli/dist]
         moc-version: [0.11.1]
         node-version: [18, 20, 22]
-        runner: [ubuntu-latest, macos-latest]
+        runner: [ubuntu-latest, macos-latest, macos-13]
         # runner: [ubuntu-latest]
 
     runs-on: ${{ matrix.runner }}
