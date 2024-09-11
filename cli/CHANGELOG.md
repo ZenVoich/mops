@@ -11,7 +11,8 @@
 **Breaking changes**:
 - Default replica in `mops bench` and `mops test` commands now is `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section and `dfx` otherwise
 - The only supported version of `pocket-ic` is `4.0.0`
-- Default reporter in `mops test` command is now `verbose` if there is only one file to test and `files` otherwise.
+- Dropped support for `wasmtime` version `< 14.0.0`
+- Default reporter in `mops test` command is now `files` if test file count is > 1 and `verbose` otherwise.
 - Renamed `mops import-identity` command to `mops user import`
 - Renamed `mops whoami` command to `mops user get-principal`
 - Removed the ability to install a specific package with `mops install <pkg>` command. Use `mops add <pkg>` instead.
