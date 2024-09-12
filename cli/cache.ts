@@ -35,7 +35,7 @@ export function getMopsDepCacheName(name : string, version : string) {
 
 export function getGithubDepCacheName(name : string, repo : string) {
 	const {branch, commitHash} = parseGithubURL(repo);
-	return `_github/${name}#${branch}` + (commitHash ? `@${commitHash}` : '');
+	return `_github/${name}#${branch.replaceAll('/', '___')}` + (commitHash ? `@${commitHash}` : '');
 }
 
 export let addCache = (cacheName : string, source : string) => {

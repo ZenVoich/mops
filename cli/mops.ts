@@ -219,7 +219,7 @@ export function formatDir(name : string, version : string) {
 
 export function formatGithubDir(name : string, repo : string) {
 	const {branch, commitHash} = parseGithubURL(repo);
-	return path.join(getRootDir(), '.mops/_github', `${name}#${branch}` + (commitHash ? `@${commitHash}` : ''));
+	return path.join(getRootDir(), '.mops/_github', `${name}#${branch.replaceAll('/', '___')}` + (commitHash ? `@${commitHash}` : ''));
 }
 
 export function readDfxJson() : any {
