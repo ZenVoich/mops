@@ -8,6 +8,7 @@
 - `mops test` command now supports `replica` mode for running actor tests ([docs](https://docs.mops.one/cli/mops-test#--mode))
 - New `--replica` option in `mops test` command
 - Updated npm dependencies
+- Fixed bug with GitHub dependency with branch name containing `/`
 
 **Breaking changes**:
 - Default replica in `mops bench` and `mops test` commands now is `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` section and `dfx` otherwise
