@@ -94,7 +94,14 @@ const config = {
 				theme: prismThemes.github,
 				darkTheme: prismThemes.dracula,
 			},
+			fathomAnalytics: {
+				siteId: 'THOISMFA',
+			},
 		}),
+
+	plugins: [
+		'docusaurus-plugin-fathom',
+	],
 };
 
 export default config;
