@@ -1,6 +1,6 @@
 # Mops CLI Changelog
 
-## unreleased
+## 1.0.0
 - `mops cache clean` now cleans local cache too (`.mops` folder)
 - Conflicting dependencies are now reported on `mops add/install/sources`
 - New `--conflicts <action>` option in `mops sources` command ([docs](https://docs.mops.one/cli/mops-sources#--conflicts))
