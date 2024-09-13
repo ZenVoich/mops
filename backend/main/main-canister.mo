@@ -457,9 +457,7 @@ actor class Main() {
 		packagesFirstPub.vals()
 			|> Iter.toArray(_)
 			|> _sortByPublicationTime(_)
-			|> Array.reverse(_)
-			|> Array.take(_, 5)
-			|> Array.reverse(_);
+			|> Array.take(_, 5);
 	};
 
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {
