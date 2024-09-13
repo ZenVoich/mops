@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ZenVoich/setup-mops@v1
         with:
-          mops-version: 1.0.0-pre.0
+          mops-version: 1.0.0
 
       - name: Run tests
         run: mops test
