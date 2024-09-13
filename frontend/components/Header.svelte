@@ -22,7 +22,7 @@
 <header>
 	<mops-navbar></mops-navbar>
 	<div class="search">
-		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="50">
+		<input class="input" bind:value={searchText} on:keydown={onKeyDown} placeholder="Search motoko packages..." spellcheck="false" maxlength="100">
 		<div class="button" on:click="{search}">Search</div>
 	</div>
 </header>
