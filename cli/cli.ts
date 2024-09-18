@@ -25,7 +25,6 @@ import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
 import * as self from './commands/self.js';
 import {resolvePackages} from './resolve-packages.js';
-// import {docs} from './commands/docs.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -152,16 +151,6 @@ program
 		console.log(getNetwork());
 	});
 
-// user import
-program
-	.command('mops user import <data>')
-	.description('Import .pem file data to use as identity')
-	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
-	.action(async (data, options) => {
-		await importPem(data, options);
-		await getPrincipal();
-	});
-
 // sources
 program
 	.command('sources')
@@ -178,14 +167,6 @@ program
 		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
 		console.log(sourcesArr.join('\n'));
-	});
-
-// get-principal
-program
-	.command('get-principal')
-	.description('Print your principal')
-	.action(async () => {
-		await getPrincipal();
 	});
 
 // search
@@ -256,36 +237,47 @@ program
 		await template();
 	});
 
-// docs
-// program
-// 	.command('docs')
-// 	.description('Generate documentation (experimental)')
-// 	.action(async () => {
-// 		if (!checkConfigFile()) {
-// 			process.exit(1);
-// 		}
-// 		await docs();
-// 	});
+// mops user *
+const userCommand = new Command('user').description('User management');
 
-// user
-program
-	.command('user')
-	.addArgument(new Argument('<sub>').choices(['set', 'get']))
-	.addArgument(new Argument('<prop>').choices(['name', 'site', 'email', 'github', 'twitter']))
-	.addArgument(new Argument('[value]'))
-	.description('User settings')
-	.action(async (sub, prop, value) => {
-		if (sub == 'get') {
-			await getUserProp(prop);
-		}
-		else if (sub == 'set') {
-			if (!value) {
-				console.log('error: missing required argument "value"');
-				return;
-			}
-			await setUserProp(prop, value);
-		}
+// user get-principal
+userCommand
+	.command('get-principal')
+	.description('Print your principal')
+	.action(async () => {
+		await getPrincipal();
 	});
+
+// user import
+userCommand
+	.command('import <data>')
+	.description('Import .pem file data to use as identity')
+	.addOption(new Option('--no-encrypt', 'Do not ask for a password to encrypt identity'))
+	.action(async (data, options) => {
+		await importPem(data, options);
+		await getPrincipal();
+	});
+
+// user set <prop> <value>
+userCommand
+	.command('set')
+	.addArgument(new Argument('<prop>').choices(['name', 'site', 'email', 'github', 'twitter']))
+	.addArgument(new Argument('<value>'))
+	.description('Set user property')
+	.action(async (prop, value) => {
+		await setUserProp(prop, value);
+	});
+
+// user get <prop>
+userCommand
+	.command('get')
+	.addArgument(new Argument('<prop>').choices(['name', 'site', 'email', 'github', 'twitter']))
+	.description('Get user property')
+	.action(async (prop) => {
+		await getUserProp(prop);
+	});
+
+program.addCommand(userCommand);
 
 // bump
 program
