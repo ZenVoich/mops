@@ -1,3 +1,5 @@
+set -e
+
 # default: current commit hash
 COMMIT_HASH=${COMMIT_HASH:-$(git rev-parse HEAD)}
 # default: current mops version

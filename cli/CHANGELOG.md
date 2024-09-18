@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.0.1
+- Fixed `mops user *` commands
+
 ## 1.0.0
 - `mops cache clean` now cleans local cache too (`.mops` folder)
 - Conflicting dependencies are now reported on `mops add/install/sources`

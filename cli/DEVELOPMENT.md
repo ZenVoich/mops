@@ -47,7 +47,7 @@ Compare hashes.
 npm run release
 ```
 
-3. Deploy canister
+2. Deploy canister
 (from root of the project)
 ```
 dfx deploy --network ic --no-wallet cli
