@@ -19,9 +19,10 @@ type InstallMopsDepOptions = {
 	silent ?: boolean;
 	dep ?: boolean;
 	threads ?: number;
+	ignoreTransitive ?: boolean;
 };
 
-export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads} : InstallMopsDepOptions = {}) : Promise<boolean> {
+export async function installMopsDep(pkg : string, version = '', {verbose, silent, dep, threads, ignoreTransitive} : InstallMopsDepOptions = {}) : Promise<boolean> {
 	threads = threads || 12;
 	let depName = getDepName(pkg);
 
@@ -113,11 +114,13 @@ export async function installMopsDep(pkg : string, version = '', {verbose, silen
 	}
 
 	// install dependencies
-	let config = readConfig(path.join(cacheDir, 'mops.toml'));
-	let res = await installDeps(Object.values(config.dependencies || {}), {silent, verbose});
+	if (!ignoreTransitive) {
+		let config = readConfig(path.join(cacheDir, 'mops.toml'));
+		let res = await installDeps(Object.values(config.dependencies || {}), {silent, verbose});
 
-	if (!res) {
-		return false;
+		if (!res) {
+			return false;
+		}
 	}
 
 	return true;

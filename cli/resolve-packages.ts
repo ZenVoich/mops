@@ -6,10 +6,19 @@ import {VesselConfig, readVesselConfig} from './vessel.js';
 import {Config, Dependency} from './types.js';
 import {getDepCacheDir, getDepCacheName} from './cache.js';
 import {getPackageId} from './helpers/get-package-id.js';
+import {checkLockFileLight, readLockFile} from './integrity.js';
 
 export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'error' | 'ignore'} = {}) : Promise<Record<string, string>> {
 	if (!checkConfigFile()) {
 		return {};
+	}
+
+	if (checkLockFileLight()) {
+		let lockFileJson = readLockFile();
+
+		if (lockFileJson && lockFileJson.version === 3) {
+			return lockFileJson.deps;
+		}
 	}
 
 	let rootDir = getRootDir();

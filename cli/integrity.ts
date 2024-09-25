@@ -24,7 +24,14 @@ type LockFileV2 = {
 	hashes : Record<string, Record<string, string>>;
 };
 
-type LockFile = LockFileV1 | LockFileV2;
+type LockFileV3 = {
+	version : 3;
+	mopsTomlDepsHash : string;
+	hashes : Record<string, Record<string, string>>;
+	deps : Record<string, string>;
+};
+
+type LockFile = LockFileV1 | LockFileV2 | LockFileV3;
 
 export async function checkIntegrity(lock ?: 'check' | 'update' | 'ignore') {
 	let force = !!lock;
@@ -109,24 +116,41 @@ export async function checkRemote() {
 	}
 }
 
-export async function updateLockFile() {
+export function readLockFile() : LockFile | null {
 	let rootDir = getRootDir();
 	let lockFile = path.join(rootDir, 'mops.lock');
-
-	// if lock file exists and mops.toml hasn't changed, don't update it
 	if (fs.existsSync(lockFile)) {
-		let lockFileJson : LockFileV2 = JSON.parse(fs.readFileSync(lockFile).toString());
+		return JSON.parse(fs.readFileSync(lockFile).toString()) as LockFile;
+	}
+	return null;
+}
+
+// check if lock file exists and integrity of mopsTomlDepsHash
+export function checkLockFileLight() : boolean {
+	let existingLockFileJson = readLockFile();
+	if (existingLockFileJson) {
 		let mopsTomlDepsHash = getMopsTomlDepsHash();
-		if (mopsTomlDepsHash === lockFileJson.mopsTomlDepsHash) {
-			return;
+		if (existingLockFileJson.version === 3 && mopsTomlDepsHash === existingLockFileJson.mopsTomlDepsHash) {
+			return true;
 		}
 	}
+	return false;
+}
+
+export async function updateLockFile() {
+	// if lock file exists and mops.toml hasn't changed, don't update it
+	if (checkLockFileLight()) {
+		return;
+	}
+
+	let resolvedDeps = await resolvePackages();
 
 	let fileHashes = await getFileHashesFromRegistry();
 
-	let lockFileJson : LockFileV2 = {
-		version: 2,
+	let lockFileJson : LockFileV3 = {
+		version: 3,
 		mopsTomlDepsHash: getMopsTomlDepsHash(),
+		deps: resolvedDeps,
 		hashes: fileHashes.reduce((acc, [packageId, fileHashes]) => {
 			acc[packageId] = fileHashes.reduce((acc, [fileId, hash]) => {
 				acc[fileId] = bytesToHex(new Uint8Array(hash));
@@ -136,6 +160,8 @@ export async function updateLockFile() {
 		}, {} as Record<string, Record<string, string>>),
 	};
 
+	let rootDir = getRootDir();
+	let lockFile = path.join(rootDir, 'mops.lock');
 	fs.writeFileSync(lockFile, JSON.stringify(lockFileJson, null, 2));
 }
 
@@ -157,7 +183,7 @@ export async function checkLockFile(force = false) {
 	let packageIds = await getResolvedMopsPackageIds();
 
 	// check lock file version
-	if (lockFileJsonGeneric.version !== 1 && lockFileJsonGeneric.version !== 2) {
+	if (lockFileJsonGeneric.version !== 1 && lockFileJsonGeneric.version !== 2 && lockFileJsonGeneric.version !== 3) {
 		console.error('Integrity check failed');
 		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: 1`);
 		process.exit(1);
@@ -176,14 +202,30 @@ export async function checkLockFile(force = false) {
 		}
 	}
 
-	// V2: check mops.toml deps hash
-	if (lockFileJson.version === 2) {
+	// V2, V3: check mops.toml deps hash
+	if (lockFileJson.version === 2 || lockFileJson.version === 3) {
 		if (lockFileJson.mopsTomlDepsHash !== getMopsTomlDepsHash()) {
 			console.error('Integrity check failed');
 			console.error('Mismatched mops.toml dependencies hash');
 			console.error(`Locked hash: ${lockFileJson.mopsTomlDepsHash}`);
 			console.error(`Actual hash: ${getMopsTomlDepsHash()}`);
 			process.exit(1);
+		}
+	}
+
+	// V3: check locked deps (including GitHub and local packages)
+	if (lockFileJson.version === 3) {
+		let lockedDeps = {...lockFileJson.deps};
+		let resolvedDeps = await resolvePackages();
+
+		for (let name of Object.keys(resolvedDeps)) {
+			if (lockedDeps[name] !== resolvedDeps[name]) {
+				console.error('Integrity check failed');
+				console.error(`Mismatched package ${name}`);
+				console.error(`Locked: ${lockedDeps[name]}`);
+				console.error(`Actual: ${resolvedDeps[name]}`);
+				process.exit(1);
+			}
 		}
 	}
 

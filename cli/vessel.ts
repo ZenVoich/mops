@@ -149,7 +149,7 @@ export const downloadFromGithub = async (repo : string, dest : string, onProgres
 	return promise;
 };
 
-export const installFromGithub = async (name : string, repo : string, {verbose = false, dep = false, silent = false} = {}) => {
+export const installFromGithub = async (name : string, repo : string, {verbose = false, dep = false, silent = false, ignoreTransitive = false} = {}) => {
 	let cacheName = getGithubDepCacheName(name, repo);
 	let cacheDir = getDepCacheDir(cacheName);
 
@@ -181,6 +181,10 @@ export const installFromGithub = async (name : string, repo : string, {verbose =
 	}
 	else {
 		logUpdate.clear();
+	}
+
+	if (ignoreTransitive) {
+		return;
 	}
 
 	const config = await readVesselConfig(cacheDir, {silent});

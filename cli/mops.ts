@@ -8,7 +8,7 @@ import prompts from 'prompts';
 import fetch from 'node-fetch';
 
 import {decodeFile} from './pem.js';
-import {Config} from './types.js';
+import {Config, Dependency} from './types.js';
 import {mainActor, storageActor} from './api/actors.js';
 import {getNetwork} from './api/network.js';
 import {getHighestVersion} from './api/getHighestVersion.js';
@@ -156,6 +156,19 @@ export function getDependencyType(version : string) {
 	}
 }
 
+export function parseDepValue(name : string, value : string) : Dependency {
+	let depType = getDependencyType(value);
+	if (depType === 'github') {
+		return {name, repo: value, version: ''};
+	}
+	else if (depType === 'local') {
+		return {name, repo: '', path: value, version: ''};
+	}
+	else {
+		return {name, repo: '', version: value};
+	}
+}
+
 export function readConfig(configFile = getClosestConfigFile()) : Config {
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
@@ -165,16 +178,7 @@ export function readConfig(configFile = getClosestConfigFile()) : Config {
 			if (!data || typeof data !== 'string') {
 				throw Error(`Invalid dependency value ${name} = "${data}"`);
 			}
-			let depType = getDependencyType(data);
-			if (depType === 'github') {
-				deps[name] = {name, repo: data, version: ''};
-			}
-			else if (depType === 'local') {
-				deps[name] = {name, repo: '', path: data, version: ''};
-			}
-			else {
-				deps[name] = {name, repo: '', version: data};
-			}
+			deps[name] = parseDepValue(name, data);
 		});
 	};
 

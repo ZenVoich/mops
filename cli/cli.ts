@@ -162,7 +162,7 @@ program
 			process.exit(1);
 		}
 		if (options.install) {
-			await installAll({silent: true, lock: 'ignore', threads: 6});
+			await installAll({silent: true, lock: 'ignore', threads: 6, installFromLockFile: true});
 		}
 		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
@@ -206,7 +206,7 @@ program
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		await installAll({silent: true, lock: 'ignore'});
+		await installAll({silent: true, lock: 'ignore', installFromLockFile: true});
 		await test(filter, options);
 	});
 
@@ -222,7 +222,7 @@ program
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		await installAll({silent: true, lock: 'ignore'});
+		await installAll({silent: true, lock: 'ignore', installFromLockFile: true});
 		await bench(filter, options);
 	});
 
