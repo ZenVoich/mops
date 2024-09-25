@@ -167,6 +167,7 @@ export async function updateLockFile() {
 
 // compare hashes of local files with hashes from the lock file
 export async function checkLockFile(force = false) {
+	let supportedVersions = [1, 2, 3];
 	let rootDir = getRootDir();
 	let lockFile = path.join(rootDir, 'mops.lock');
 
@@ -183,9 +184,9 @@ export async function checkLockFile(force = false) {
 	let packageIds = await getResolvedMopsPackageIds();
 
 	// check lock file version
-	if (lockFileJsonGeneric.version !== 1 && lockFileJsonGeneric.version !== 2 && lockFileJsonGeneric.version !== 3) {
+	if (!supportedVersions.includes(lockFileJsonGeneric.version)) {
 		console.error('Integrity check failed');
-		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: 1, 2, 3`);
+		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: ${supportedVersions.join(', ')}`);
 		process.exit(1);
 	}
 

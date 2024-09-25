@@ -34,10 +34,10 @@ export async function installAll({verbose = false, silent = false, threads, lock
 		if (lockFileJson && lockFileJson.version === 3) {
 			verbose && console.log('Installing from lock file...');
 			installedFromLockFile = true;
-			let deps = Object.entries(lockFileJson.deps).map(([name, version]) => {
+			let lockedDeps = Object.entries(lockFileJson.deps).map(([name, version]) => {
 				return parseDepValue(name, version);
 			});
-			let ok = await installDeps(deps, {silent, verbose, threads, ignoreTransitive: true});
+			let ok = await installDeps(lockedDeps, {silent, verbose, threads, ignoreTransitive: true});
 			if (!ok) {
 				return false;
 			}
