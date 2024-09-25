@@ -185,7 +185,7 @@ export async function checkLockFile(force = false) {
 	// check lock file version
 	if (lockFileJsonGeneric.version !== 1 && lockFileJsonGeneric.version !== 2 && lockFileJsonGeneric.version !== 3) {
 		console.error('Integrity check failed');
-		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: 1`);
+		console.error(`Invalid lock file version: ${lockFileJsonGeneric.version}. Supported versions: 1, 2, 3`);
 		process.exit(1);
 	}
 

@@ -89,6 +89,7 @@ program
 	.command('install')
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
+	.option('--no-toolchain', 'Do not install toolchain')
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (options) => {
@@ -101,10 +102,15 @@ program
 			return;
 		}
 
-		await toolchain.ensureToolchainInited({strict: false});
+		if (options.toolchain) {
+			await toolchain.ensureToolchainInited({strict: false});
+		}
 
 		let ok = await installAll(options);
-		await toolchain.installAll(options);
+
+		if (options.toolchain) {
+			await toolchain.installAll(options);
+		}
 
 		// check conflicts
 		await resolvePackages({conflicts: 'warning'});
