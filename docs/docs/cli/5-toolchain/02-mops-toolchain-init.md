@@ -19,7 +19,7 @@ It will update your `.bashrc`/`.zshrc` file to set `DFX_MOC_PATH` to the `moc-wr
 So when you build your project with `dfx`, it will use `moc` version specified in `mops.toml` file. If `moc` version is not specified, it will use default `moc` version that comes with `dfx`.
 
 :::info
-In CI environment, this command runs automatically when you run `mops install` or `mops toolhcain use`.
+In CI environment, this command runs automatically when you run `mops install` or `mops toolchain use`.
 
 So no need to run it manually in GitHub Actions.
 :::
