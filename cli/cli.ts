@@ -25,6 +25,7 @@ import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
 import * as self from './commands/self.js';
 import {resolvePackages} from './resolve-packages.js';
+import {watch} from './commands/watch/watch.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -391,5 +392,14 @@ selfCommand
 	});
 
 program.addCommand(selfCommand);
+
+// watch
+program
+	.command('watch')
+	.description('Watch')
+	.action(async () => {
+		checkConfigFile(true);
+		await watch();
+	});
 
 program.parse();

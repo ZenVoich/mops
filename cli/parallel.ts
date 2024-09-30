@@ -1,4 +1,4 @@
-export async function parallel(threads : number, items : any[], fn : CallableFunction) {
+export async function parallel<T>(threads : number, items : T[], fn : (item : T) => Promise<void>) {
 	return new Promise<void>((resolve) => {
 		let busyThreads = 0;
 		items = items.slice();
@@ -14,7 +14,7 @@ export async function parallel(threads : number, items : any[], fn : CallableFun
 				return;
 			}
 			busyThreads++;
-			fn(items.shift()).then(() => {
+			fn(items.shift() as T).then(() => {
 				busyThreads--;
 				loop();
 			});
