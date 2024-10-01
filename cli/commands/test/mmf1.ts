@@ -53,6 +53,10 @@ export class MMF1 {
 		this.output = [];
 	}
 
+	getErrorMessages() {
+		return this.output.filter(out => out.type === 'fail').map(out => out.message);
+	}
+
 	parseLine(line : string) {
 		if (line.startsWith('mops:1:start ')) {
 			this._testStart(line.split('mops:1:start ')[1] || '');

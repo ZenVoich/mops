@@ -397,9 +397,14 @@ program.addCommand(selfCommand);
 program
 	.command('watch')
 	.description('Watch')
-	.action(async () => {
+	.option('-e, --error', 'Check Motoko canisters for syntax errors', false)
+	.option('-w, --warning', 'Check Motoko canisters for warnings', false)
+	.option('-t, --test', 'Run tests', false)
+	.option('-g, --generate', 'Generate declarations for Motoko canisters', false)
+	.option('-d, --deploy', 'Deploy Motoko canisters', false)
+	.action(async (options) => {
 		checkConfigFile(true);
-		await watch();
+		await watch(options);
 	});
 
 program.parse();

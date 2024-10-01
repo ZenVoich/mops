@@ -19,18 +19,14 @@ export class ErrorChecker {
 		this.canisters = canisters;
 	}
 
-	async run() {
-		this.status = 'running';
+	reset() {
+		this.status = 'pending';
 		this.errors = [];
-
-		this.runningPromise = new Promise((resolve) => {
-			this._run().then(resolve);
-		});
-
-		return this.runningPromise;
 	}
 
-	async _run() {
+	async run(onProgress : () => void) {
+		this.reset();
+
 		let rootDir = getRootDir();
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
@@ -58,6 +54,8 @@ export class ErrorChecker {
 					}
 				});
 			}
+
+			onProgress();
 		});
 
 		this.status = this.errors.length ? 'error' : 'success';

@@ -21,18 +21,18 @@ export class WarningChecker {
 		this.errorChecker = errorChecker;
 	}
 
-	async run() {
-		if (this.errorChecker.status === 'running') {
-			this.status = 'pending';
-			await this.errorChecker.runningPromise;
-		}
+	reset() {
+		this.status = 'pending';
+		this.warnings = [];
+	}
+
+	async run(onProgress : () => void) {
 		if (this.errorChecker.status === 'error') {
 			this.status = 'syntax-error';
 			return;
 		}
 
 		this.status = 'running';
-		this.warnings = [];
 
 		let rootDir = getRootDir();
 		let mocPath = getMocPath();
@@ -64,6 +64,8 @@ export class WarningChecker {
 					}
 				});
 			}
+
+			onProgress();
 		});
 
 		this.status = this.warnings.length ? 'error' : 'success';

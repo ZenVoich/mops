@@ -5,14 +5,25 @@ import {Reporter} from './reporter.js';
 import {TestMode} from '../../../types.js';
 
 export class SilentReporter implements Reporter {
+	total = 0;
 	passed = 0;
 	failed = 0;
 	skipped = 0;
 	passedFiles = 0;
 	failedFiles = 0;
 	passedNamesFlat : string[] = [];
+	flushOnError = true;
+	errorOutput = '';
+	onProgress = () => {};
 
-	addFiles(_files : string[]) {}
+	constructor(flushOnError = true, onProgress = () => {}) {
+		this.flushOnError = flushOnError;
+		this.onProgress = onProgress;
+	}
+
+	addFiles(files : string[]) {
+		this.total = files.length;
+	}
 
 	addRun(file : string, mmf : MMF1, state : Promise<void>, _mode : TestMode) {
 		state.then(() => {
@@ -30,10 +41,17 @@ export class SilentReporter implements Reporter {
 			this.failedFiles += Number(mmf.failed !== 0);
 
 			if (mmf.failed) {
-				console.log(chalk.red('✖'), absToRel(file));
-				mmf.flush('fail');
-				console.log('-'.repeat(50));
+				let output = `${chalk.red('✖'), absToRel(file)}\n${mmf.getErrorMessages().join('\n')}\n${'-'.repeat(50)}`;
+
+				if (this.flushOnError) {
+					console.log(output);
+				}
+				else {
+					this.errorOutput = `${this.errorOutput}\n${output}`.trim();
+				}
 			}
+
+			this.onProgress();
 		});
 	}
 
