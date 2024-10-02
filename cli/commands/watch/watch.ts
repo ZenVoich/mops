@@ -1,12 +1,13 @@
 import chokidar from 'chokidar';
 import path from 'node:path';
+import debounce from 'debounce';
+import chalk from 'chalk';
 import {ErrorChecker} from './error-checker.js';
 import {WarningChecker} from './warning-checker.js';
 import {getMotokoCanisters} from './parseDfxJson.js';
 import {getRootDir} from '../../mops.js';
-import debounce from 'debounce';
-import chalk from 'chalk';
 import {Tester} from './tester.js';
+import {Generator} from './generator.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -23,6 +24,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 	let errorChecker = new ErrorChecker({verbose: true, canisters: canisters});
 	let warningChecker = new WarningChecker({errorChecker, verbose: true, canisters: canisters});
 	let tester = new Tester({errorChecker, verbose: true});
+	let generator = new Generator({errorChecker, verbose: true, canisters: canisters});
 
 	let watcher = chokidar.watch([
 		path.join(rootDir, '**/*.mo'),
@@ -36,11 +38,12 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		errorChecker.reset();
 		warningChecker.reset();
 		tester.reset();
+		generator.reset();
 
 		options.error && await errorChecker.run(print);
 		options.warning && await warningChecker.run(print);
 		options.test && await tester.run(print);
-		// options.generate && await generator.run(print);
+		options.generate && await generator.run(print);
 		// options.deploy && await deployer.run(print);
 		print();
 	}, 200);
@@ -52,10 +55,16 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		options.error && console.log(errorChecker.getOutput());
 		options.warning && console.log(warningChecker.getOutput());
 		options.test && console.log(tester.getOutput());
-		// options.generate && console.log(generator.getOutput());
+		options.generate && console.log(generator.getOutput());
 		// options.deploy && console.log(deployer.getOutput());
 
-		if ([errorChecker.status, warningChecker.status, tester.status].every(status => status !== 'pending' && status !== 'running')) {
+		let statuses = [];
+		options.error && statuses.push(errorChecker.status);
+		options.warning && statuses.push(warningChecker.status);
+		options.test && statuses.push(tester.status);
+		options.generate && statuses.push(generator.status);
+
+		if (statuses.every(status => status !== 'pending' && status !== 'running')) {
 			console.log(chalk.dim('Waiting for file changes...'));
 			console.log(chalk.dim(`Press ${chalk.bold('Ctrl+C')} to exit.`));
 		}

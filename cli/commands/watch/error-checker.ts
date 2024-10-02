@@ -27,6 +27,9 @@ export class ErrorChecker {
 	async run(onProgress : () => void) {
 		this.reset();
 
+		this.status = 'running';
+		onProgress();
+
 		let rootDir = getRootDir();
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
@@ -59,6 +62,7 @@ export class ErrorChecker {
 		});
 
 		this.status = this.errors.length ? 'error' : 'success';
+		onProgress();
 	}
 
 	getOutput() : string {

@@ -7,7 +7,6 @@ import {SilentReporter} from '../test/reporters/silent-reporter.js';
 export class Tester {
 	verbose = false;
 	status : 'pending' | 'running' | 'syntax-error' | 'error' | 'success' = 'pending';
-	output : string[] = [];
 	errorChecker : ErrorChecker;
 	reporter = new SilentReporter(false);
 
@@ -18,7 +17,6 @@ export class Tester {
 
 	reset() {
 		this.status = 'pending';
-		this.output = [];
 	}
 
 	async run(onProgress : () => void) {
@@ -34,9 +32,8 @@ export class Tester {
 
 		await testWithReporter(this.reporter, '', 'interpreter', config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx');
 
-		onProgress();
-
 		this.status = this.reporter.failed > 0 ? 'error' : 'success';
+		onProgress();
 	}
 
 	getOutput() : string {
@@ -47,7 +44,7 @@ export class Tester {
 			return `Tests: ${chalk.gray('(pending)')}`;
 		}
 		if (this.status === 'running') {
-			return `Tests: ${chalk.reset.reset(count)}/${this.reporter.total} ${chalk.gray('(running)')}`;
+			return `Tests: ${count}/${this.reporter.total} ${chalk.gray('(running)')}`;
 		}
 		if (this.status === 'syntax-error') {
 			return `Tests: ${chalk.gray('(errors)')}`;
@@ -58,9 +55,6 @@ export class Tester {
 		if (this.reporter.errorOutput) {
 			output += '\n' + this.reporter.errorOutput;
 		}
-		// if (this.verbose && this.output.length) {
-		// 	output += `\n  ${this.output.join('\n  ')}`;
-		// }
 		return output;
 	}
 }
