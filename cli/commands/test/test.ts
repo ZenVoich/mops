@@ -127,7 +127,7 @@ async function runAll(reporterName : ReporterName | undefined, filter = '', mode
 	return done;
 }
 
-export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
+export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false, signal ?: AbortSignal) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -274,6 +274,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 
 					await startReplicaOnce(replica, replicaType);
 
+					if (signal?.aborted) {
+						return;
+					}
+
 					let canisterName = path.parse(file).name;
 					let idlFactory = ({IDL} : any) => {
 						return IDL.Service({'runTests': IDL.Func([], [], [])});
@@ -281,6 +285,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 					interface _SERVICE {'runTests' : ActorMethod<[], undefined>;}
 
 					let {stream} = await replica.deploy(canisterName, wasmFile, idlFactory);
+
+					if (signal?.aborted) {
+						return;
+					}
 
 					pipeStdoutToMMF(stream, mmf);
 
@@ -296,6 +304,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 									}
 								}, Math.random() * 1000 |0);
 							});
+						}
+
+						if (signal?.aborted) {
+							return;
 						}
 
 						globalThis.mopsReplicaTestRunning = true;
@@ -314,6 +326,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 				}).then(resolve);
 			}
 		});
+
+		if (signal?.aborted) {
+			return;
+		}
 
 		reporter.addRun(file, mmf, promise, mode);
 

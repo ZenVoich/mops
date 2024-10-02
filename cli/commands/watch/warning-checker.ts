@@ -14,6 +14,9 @@ export class WarningChecker {
 	status : 'pending' | 'running' | 'syntax-error' | 'error' | 'success' = 'pending';
 	warnings : string[] = [];
 	errorChecker : ErrorChecker;
+	aborted = false;
+	controllers = new Map<string, AbortController>();
+	currentRun : Promise<any> | undefined;
 
 	constructor({verbose, canisters, errorChecker} : {verbose : boolean, canisters : Record<string, string>, errorChecker : ErrorChecker}) {
 		this.verbose = verbose;
@@ -26,20 +29,44 @@ export class WarningChecker {
 		this.warnings = [];
 	}
 
+	async abortCurrent() {
+		this.aborted = true;
+		for (let controller of this.controllers.values()) {
+			controller.abort();
+		}
+		this.controllers.clear();
+		await this.currentRun;
+		this.reset();
+		this.aborted = false;
+	}
+
 	async run(onProgress : () => void) {
+		await this.abortCurrent();
+
 		if (this.errorChecker.status === 'error') {
 			this.status = 'syntax-error';
+			onProgress();
 			return;
 		}
 
 		this.status = 'running';
+		onProgress();
 
 		let rootDir = getRootDir();
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
 
-		await parallel(os.cpus().length, [...Object.values(this.canisters)], async (file) => {
-			let {stderr} = await promisify(exec)(`${mocPath} --check ${file} ${deps.join(' ')}`, {cwd: rootDir});
+		this.currentRun = parallel(os.cpus().length, [...Object.values(this.canisters)], async (file) => {
+			let controller = new AbortController();
+			let {signal} = controller;
+			this.controllers.set(file, controller);
+
+			let {stderr} = await promisify(exec)(`${mocPath} --check ${file} ${deps.join(' ')}`, {cwd: rootDir, signal}).catch((error) => {
+				if (error.code === 'ABORT_ERR') {
+					return {stderr: ''};
+				}
+				throw error;
+			});
 
 			if (stderr) {
 				stderr.split('\n').forEach((line) => {
@@ -65,10 +92,17 @@ export class WarningChecker {
 				});
 			}
 
+			this.controllers.delete(file);
 			onProgress();
 		});
 
-		this.status = this.warnings.length ? 'error' : 'success';
+		await this.currentRun;
+
+		if (!this.aborted) {
+			this.status = this.warnings.length ? 'error' : 'success';
+		}
+
+		onProgress();
 	}
 
 	getOutput() : string {

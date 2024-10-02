@@ -11,7 +11,6 @@ export class ErrorChecker {
 	verbose = false;
 	canisters : Record<string, string> = {};
 	status : 'pending' | 'running' | 'error' | 'success' = 'pending';
-	runningPromise : Promise<void> = Promise.resolve();
 	errors : string[] = [];
 
 	constructor({verbose, canisters} : {verbose : boolean, canisters : Record<string, string>}) {

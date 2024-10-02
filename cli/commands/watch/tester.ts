@@ -9,6 +9,9 @@ export class Tester {
 	status : 'pending' | 'running' | 'syntax-error' | 'error' | 'success' = 'pending';
 	errorChecker : ErrorChecker;
 	reporter = new SilentReporter(false);
+	aborted = false;
+	controller = new AbortController();
+	currentRun : Promise<any> | undefined;
 
 	constructor({verbose, errorChecker} : {verbose : boolean, errorChecker : ErrorChecker}) {
 		this.verbose = verbose;
@@ -19,20 +22,38 @@ export class Tester {
 		this.status = 'pending';
 	}
 
+	async abortCurrent() {
+		this.aborted = true;
+		this.controller.abort();
+		await this.currentRun;
+		this.reset();
+		this.aborted = false;
+	}
+
 	async run(onProgress : () => void) {
+		await this.abortCurrent();
+
 		if (this.errorChecker.status === 'error') {
 			this.status = 'syntax-error';
+			onProgress();
 			return;
 		}
 
 		this.status = 'running';
+		onProgress();
 
 		this.reporter = new SilentReporter(false, onProgress);
+		this.controller = new AbortController();
+
 		let config = readConfig();
 
-		await testWithReporter(this.reporter, '', 'interpreter', config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx');
+		this.currentRun = testWithReporter(this.reporter, '', 'interpreter', config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx', true, this.controller.signal);
+		await this.currentRun;
 
-		this.status = this.reporter.failed > 0 ? 'error' : 'success';
+		if (!this.aborted) {
+			this.status = this.reporter.failed > 0 ? 'error' : 'success';
+		}
+
 		onProgress();
 	}
 
