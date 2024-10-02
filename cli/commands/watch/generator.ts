@@ -46,6 +46,7 @@ export class Generator {
 
 		if (this.errorChecker.status === 'error') {
 			this.status = 'syntax-error';
+			onProgress();
 			return;
 		}
 

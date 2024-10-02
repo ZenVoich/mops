@@ -17,7 +17,11 @@ let ignore = [
 ];
 
 export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean}) {
-	options.error = Object.values(options).includes(true) ? options.error : true;
+	let hasOptions = Object.values(options).includes(true);
+	if (!hasOptions) {
+		options.warning = true;
+	}
+	options.error = true;
 
 	let rootDir = getRootDir();
 	let canisters = getMotokoCanisters();
@@ -41,11 +45,10 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		generator.reset();
 
 		options.error && await errorChecker.run(print);
-		options.warning && await warningChecker.run(print);
-		options.test && await tester.run(print);
-		options.generate && await generator.run(print);
+		options.warning && warningChecker.run(print);
+		options.test && tester.run(print);
+		options.generate && generator.run(print);
 		// options.deploy && await deployer.run(print);
-		print();
 	}, 200);
 
 	let print = () => {
@@ -65,6 +68,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		options.generate && statuses.push(generator.status);
 
 		if (statuses.every(status => status !== 'pending' && status !== 'running')) {
+			console.log(chalk.dim('-'.repeat(50)));
 			console.log(chalk.dim('Waiting for file changes...'));
 			console.log(chalk.dim(`Press ${chalk.bold('Ctrl+C')} to exit.`));
 		}
