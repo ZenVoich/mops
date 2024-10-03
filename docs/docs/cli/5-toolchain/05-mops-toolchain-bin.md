@@ -27,3 +27,30 @@ Print path to the `pocket-ic` binary:
 ```
 mops toolchain bin pocket-ic
 ```
+
+### Run tool
+
+You can run the version of the tool defined in `mops.toml` by running:
+```
+$(mops toolchain bin <tool>) <args>
+```
+
+Run `moc`:
+```
+$(mops toolchain bin moc)
+```
+
+Run `moc` with mops packages:
+```
+$(mops toolchain bin moc) $(mops sources) --version
+```
+
+Run `pocket-ic`:
+```
+$(mops toolchain bin pocket-ic)
+```
+
+Run `wasmtime`:
+```
+$(mops toolchain bin wasmtime)
+```
