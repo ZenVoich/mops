@@ -1,10 +1,10 @@
+import os from 'node:os';
+import {promisify} from 'node:util';
+import {execFile} from 'node:child_process';
 import chalk from 'chalk';
+
 import {ErrorChecker} from './error-checker.js';
 import {parallel} from '../../parallel.js';
-import os from 'node:os';
-
-import {promisify} from 'node:util';
-import {exec} from 'node:child_process';
 import {getRootDir} from '../../mops.js';
 
 export class Generator {
@@ -60,7 +60,7 @@ export class Generator {
 			let {signal} = controller;
 			this.controllers.set(canister, controller);
 
-			await promisify(exec)(`dfx generate ${canister}`, {cwd: rootDir, signal}).catch((error) => {
+			await promisify(execFile)('dfx', ['generate', canister], {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}

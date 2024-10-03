@@ -41,7 +41,7 @@ export class SilentReporter implements Reporter {
 			this.failedFiles += Number(mmf.failed !== 0);
 
 			if (mmf.failed) {
-				let output = `${chalk.red('✖'), absToRel(file)}\n${mmf.getErrorMessages().join('\n')}\n${'-'.repeat(50)}`;
+				let output = `${chalk.red('✖')} ${absToRel(file)}\n${mmf.getErrorMessages().join('\n')}\n${'-'.repeat(50)}`;
 
 				if (this.flushOnError) {
 					console.log(output);

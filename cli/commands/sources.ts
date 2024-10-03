@@ -45,5 +45,5 @@ export async function sources({conflicts = 'ignore' as 'warning' | 'error' | 'ig
 		}
 
 		return `--package ${name} ${pkgBaseDir}`;
-	});
+	}).filter(x => x != null);
 }

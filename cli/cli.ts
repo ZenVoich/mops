@@ -1,5 +1,6 @@
 import process from 'node:process';
 import fs from 'node:fs';
+import events from 'node:events';
 import {Command, Argument, Option} from 'commander';
 
 import {init} from './commands/init.js';
@@ -33,6 +34,8 @@ declare global {
 	// eslint-disable-next-line no-var
 	var mopsReplicaTestRunning : boolean;
 }
+
+events.setMaxListeners(20);
 
 let networkFile = getNetworkFile();
 if (fs.existsSync(networkFile)) {

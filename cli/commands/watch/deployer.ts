@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import os from 'node:os';
 import {promisify} from 'node:util';
-import {exec, execSync} from 'node:child_process';
+import {execFile, execSync} from 'node:child_process';
 
 import {ErrorChecker} from './error-checker.js';
 import {Generator} from './generator.js';
@@ -81,7 +81,7 @@ export class Deployer {
 			let {signal} = controller;
 			this.controllers.set(canister, controller);
 
-			await promisify(exec)(`dfx canister create ${canister}`, {cwd: rootDir, signal}).catch((error) => {
+			await promisify(execFile)('dfx', ['canister', 'create', canister], {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}
@@ -104,7 +104,7 @@ export class Deployer {
 
 			// build
 			if (this.generator.status !== 'success') {
-				await promisify(exec)(`dfx build ${canister}`, {cwd: rootDir, signal}).catch((error) => {
+				await promisify(execFile)('dfx', ['build', canister], {cwd: rootDir, signal}).catch((error) => {
 					if (error.code === 'ABORT_ERR') {
 						return {stderr: ''};
 					}
@@ -113,7 +113,7 @@ export class Deployer {
 			}
 
 			// install
-			await promisify(exec)(`dfx canister install --mode=auto ${canister}`, {cwd: rootDir, signal}).catch((error) => {
+			await promisify(execFile)('dfx', ['canister', 'install', '--mode=auto', canister], {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}

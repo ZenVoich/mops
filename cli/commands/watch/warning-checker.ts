@@ -1,4 +1,4 @@
-import {exec} from 'node:child_process';
+import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import os from 'node:os';
 import chalk from 'chalk';
@@ -68,7 +68,7 @@ export class WarningChecker {
 			let {signal} = controller;
 			this.controllers.set(file, controller);
 
-			let {stderr} = await promisify(exec)(`${mocPath} --check ${deps.join(' ')} ${file}`, {cwd: rootDir, signal}).catch((error) => {
+			let {stderr} = await promisify(execFile)(mocPath, ['--check', ...deps.flatMap(x => x.split(' ')), file], {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}

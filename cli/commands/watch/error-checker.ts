@@ -1,4 +1,4 @@
-import {exec} from 'node:child_process';
+import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import os from 'node:os';
 import chalk from 'chalk';
@@ -42,7 +42,7 @@ export class ErrorChecker {
 
 		await parallel(os.cpus().length, paths, async (file) => {
 			try {
-				await promisify(exec)(`${mocPath} --check ${deps.join(' ')} ${file}`, {cwd: rootDir});
+				await promisify(execFile)(mocPath, ['--check', ...deps.flatMap(x => x.split(' ')), file], {cwd: rootDir});
 			}
 			catch (error : any) {
 				error.message.split('\n').forEach((line : string) => {
