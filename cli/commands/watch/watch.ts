@@ -8,6 +8,7 @@ import {getMotokoCanisters} from './parseDfxJson.js';
 import {getRootDir} from '../../mops.js';
 import {Tester} from './tester.js';
 import {Generator} from './generator.js';
+import {Deployer} from './deployer.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -29,6 +30,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 	let warningChecker = new WarningChecker({errorChecker, verbose: true, canisters: canisters});
 	let tester = new Tester({errorChecker, verbose: true});
 	let generator = new Generator({errorChecker, verbose: true, canisters: canisters});
+	let deployer = new Deployer({errorChecker, generator, verbose: true, canisters: canisters});
 
 	let watcher = chokidar.watch([
 		path.join(rootDir, '**/*.mo'),
@@ -43,12 +45,13 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		warningChecker.reset();
 		tester.reset();
 		generator.reset();
+		deployer.reset();
 
 		options.error && await errorChecker.run(print);
 		options.warning && warningChecker.run(print);
 		options.test && tester.run(print);
-		options.generate && generator.run(print);
-		// options.deploy && await deployer.run(print);
+		options.generate && await generator.run(print);
+		options.deploy && deployer.run(print);
 	}, 200);
 
 	let print = () => {
@@ -59,13 +62,14 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		options.warning && console.log(warningChecker.getOutput());
 		options.test && console.log(tester.getOutput());
 		options.generate && console.log(generator.getOutput());
-		// options.deploy && console.log(deployer.getOutput());
+		options.deploy && console.log(deployer.getOutput());
 
 		let statuses = [];
 		options.error && statuses.push(errorChecker.status);
 		options.warning && statuses.push(warningChecker.status);
 		options.test && statuses.push(tester.status);
 		options.generate && statuses.push(generator.status);
+		options.deploy && statuses.push(deployer.status);
 
 		if (statuses.every(status => status !== 'pending' && status !== 'running')) {
 			console.log(chalk.dim('-'.repeat(50)));
