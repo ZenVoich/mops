@@ -396,12 +396,12 @@ program.addCommand(selfCommand);
 // watch
 program
 	.command('watch')
-	.description('Watch')
-	.option('-e, --error', 'Check Motoko canisters for syntax errors', false)
-	.option('-w, --warning', 'Check Motoko canisters for warnings', false)
-	.option('-t, --test', 'Run tests', false)
-	.option('-g, --generate', 'Generate declarations for Motoko canisters', false)
-	.option('-d, --deploy', 'Deploy Motoko canisters', false)
+	.description('Watch *.mo files and check for syntax errors, warnings, run tests, generate declarations and deploy canisters')
+	.option('-e, --error', 'Check Motoko canisters or *.mo files for syntax errors')
+	.option('-w, --warning', 'Check Motoko canisters or *.mo files for warnings')
+	.option('-t, --test', 'Run tests')
+	.option('-g, --generate', 'Generate declarations for Motoko canisters')
+	.option('-d, --deploy', 'Deploy Motoko canisters')
 	.action(async (options) => {
 		checkConfigFile(true);
 		await watch(options);

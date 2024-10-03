@@ -1,12 +1,14 @@
 import {exec} from 'node:child_process';
 import {promisify} from 'node:util';
 import os from 'node:os';
+import chalk from 'chalk';
+
 import {getMocPath} from '../../helpers/get-moc-path.js';
 import {getRootDir} from '../../mops.js';
 import {sources} from '../sources.js';
-import chalk from 'chalk';
 import {ErrorChecker} from './error-checker.js';
 import {parallel} from '../../parallel.js';
+import {globMoFiles} from './globMoFiles.js';
 
 export class WarningChecker {
 	verbose = false;
@@ -56,12 +58,17 @@ export class WarningChecker {
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
 
-		this.currentRun = parallel(os.cpus().length, [...Object.values(this.canisters)], async (file) => {
+		let paths = [...Object.values(this.canisters)];
+		if (!paths.length) {
+			paths = globMoFiles(rootDir);
+		}
+
+		this.currentRun = parallel(os.cpus().length, paths, async (file) => {
 			let controller = new AbortController();
 			let {signal} = controller;
 			this.controllers.set(file, controller);
 
-			let {stderr} = await promisify(exec)(`${mocPath} --check ${file} ${deps.join(' ')}`, {cwd: rootDir, signal}).catch((error) => {
+			let {stderr} = await promisify(exec)(`${mocPath} --check ${deps.join(' ')} ${file}`, {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}
@@ -90,10 +97,10 @@ export class WarningChecker {
 						// console.log('UNKNOWN WARNING', line);
 					}
 				});
+				onProgress();
 			}
 
 			this.controllers.delete(file);
-			onProgress();
 		});
 
 		await this.currentRun;

@@ -20,7 +20,13 @@ let ignore = [
 export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean}) {
 	let hasOptions = Object.values(options).includes(true);
 	if (!hasOptions) {
-		options.warning = true;
+		options = {
+			error: true,
+			warning: true,
+			test: true,
+			generate: true,
+			deploy: true,
+		};
 	}
 	options.error = true;
 

@@ -1,11 +1,13 @@
 import {exec} from 'node:child_process';
 import {promisify} from 'node:util';
 import os from 'node:os';
+import chalk from 'chalk';
+
 import {getMocPath} from '../../helpers/get-moc-path.js';
 import {getRootDir} from '../../mops.js';
 import {sources} from '../sources.js';
-import chalk from 'chalk';
 import {parallel} from '../../parallel.js';
+import {globMoFiles} from './globMoFiles.js';
 
 export class ErrorChecker {
 	verbose = false;
@@ -33,9 +35,14 @@ export class ErrorChecker {
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
 
-		await parallel(os.cpus().length, [...Object.values(this.canisters)], async (file) => {
+		let paths = [...Object.values(this.canisters)];
+		if (!paths.length) {
+			paths = globMoFiles(rootDir);
+		}
+
+		await parallel(os.cpus().length, paths, async (file) => {
 			try {
-				await promisify(exec)(`${mocPath} --check ${file} ${deps.join(' ')}`, {cwd: rootDir});
+				await promisify(exec)(`${mocPath} --check ${deps.join(' ')} ${file}`, {cwd: rootDir});
 			}
 			catch (error : any) {
 				error.message.split('\n').forEach((line : string) => {
@@ -55,9 +62,8 @@ export class ErrorChecker {
 						// console.log('UNKNOWN ERROR', line);
 					}
 				});
+				onProgress();
 			}
-
-			onProgress();
 		});
 
 		this.status = this.errors.length ? 'error' : 'success';
