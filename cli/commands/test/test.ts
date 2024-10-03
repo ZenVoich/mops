@@ -322,6 +322,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 						stderrStream.write(e.message);
 					}
 				}).finally(async () => {
+					globalThis.mopsReplicaTestRunning = false;
 					fs.rmSync(wasmFile, {force: true});
 				}).then(resolve);
 			}
