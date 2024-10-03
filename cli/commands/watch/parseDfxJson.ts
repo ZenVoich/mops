@@ -41,11 +41,24 @@ type DfxConfig = {
 	};
 };
 
-export function getMotokoCanisters() : Record<string, string> {
+function readDfxJson() : DfxConfig | Record<string, never> {
 	let dfxJsonPath = path.resolve(getRootDir(), 'dfx.json');
 	if (!existsSync(dfxJsonPath)) {
 		return {};
 	}
-	let dfxJson = JSON.parse(readFileSync(dfxJsonPath, 'utf8')) as DfxConfig;
-	return Object.fromEntries(Object.entries(dfxJson.canisters).filter(([_, canister]) => canister.type === 'motoko').map(([name, canister]) => [name, canister.main ?? '']));
+	return JSON.parse(readFileSync(dfxJsonPath, 'utf8')) as DfxConfig;
+}
+
+export function getMotokoCanisters() : Record<string, string> {
+	let dfxJson = readDfxJson();
+	return Object.fromEntries(Object.entries(dfxJson.canisters)
+		.filter(([_, canister]) => canister.type === 'motoko')
+		.map(([name, canister]) => [name, canister.main ?? '']));
+}
+
+export function getMotokoCanistersWithDeclarations() : Record<string, string> {
+	let dfxJson = readDfxJson();
+	return Object.fromEntries(Object.entries(dfxJson.canisters)
+		.filter(([_, canister]) => canister.type === 'motoko' && canister.declarations)
+		.map(([name, canister]) => [name, canister.main ?? '']));
 }

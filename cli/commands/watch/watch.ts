@@ -4,7 +4,7 @@ import debounce from 'debounce';
 import chalk from 'chalk';
 import {ErrorChecker} from './error-checker.js';
 import {WarningChecker} from './warning-checker.js';
-import {getMotokoCanisters} from './parseDfxJson.js';
+import {getMotokoCanisters, getMotokoCanistersWithDeclarations} from './parseDfxJson.js';
 import {getRootDir} from '../../mops.js';
 import {Tester} from './tester.js';
 import {Generator} from './generator.js';
@@ -32,10 +32,11 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 
 	let rootDir = getRootDir();
 	let canisters = getMotokoCanisters();
+	let canistersWithDeclarations = getMotokoCanistersWithDeclarations();
 	let errorChecker = new ErrorChecker({verbose: true, canisters: canisters});
 	let warningChecker = new WarningChecker({errorChecker, verbose: true, canisters: canisters});
 	let tester = new Tester({errorChecker, verbose: true});
-	let generator = new Generator({errorChecker, verbose: true, canisters: canisters});
+	let generator = new Generator({errorChecker, verbose: true, canisters: canistersWithDeclarations});
 	let deployer = new Deployer({errorChecker, generator, verbose: true, canisters: canisters});
 
 	let watcher = chokidar.watch([

@@ -103,7 +103,7 @@ export class Deployer {
 			this.controllers.set(canister, controller);
 
 			// build
-			if (this.generator.status !== 'success') {
+			if (this.generator.status !== 'success' || !this.generator.canisters[canister]) {
 				await promisify(execFile)('dfx', ['build', canister], {cwd: rootDir, signal}).catch((error) => {
 					if (error.code === 'ABORT_ERR') {
 						return {stderr: ''};
