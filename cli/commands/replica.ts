@@ -3,6 +3,7 @@ import {ChildProcessWithoutNullStreams, execSync, spawn} from 'node:child_proces
 import path from 'node:path';
 import fs from 'node:fs';
 import {PassThrough} from 'node:stream';
+import {promisify} from 'node:util';
 
 import {IDL} from '@dfinity/candid';
 import {Actor, HttpAgent} from '@dfinity/agent';
@@ -126,7 +127,7 @@ export class Replica {
 		}
 	}
 
-	async deploy(name : string, wasm : string, idlFactory : IDL.InterfaceFactory, cwd : string = process.cwd()) {
+	async deploy(name : string, wasm : string, idlFactory : IDL.InterfaceFactory, cwd : string = process.cwd(), signal ?: AbortSignal) {
 		if (this.type === 'dfx') {
 			// prepare dfx.json for current canister
 			let dfxJson = path.join(this.dir, 'dfx.json');
@@ -144,8 +145,27 @@ export class Replica {
 			fs.mkdirSync(this.dir, {recursive: true});
 			fs.writeFileSync(dfxJson, JSON.stringify(newDfxJsonData, null, 2));
 
-			execSync(`dfx deploy ${name} --mode reinstall --yes --identity anonymous`, {cwd: this.dir, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
-			execSync(`dfx ledger fabricate-cycles --canister ${name} --t 100`, {cwd: this.dir, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']});
+			await promisify(spawn)('dfx', ['deploy', name, '--mode', 'reinstall', '--yes', '--identity', 'anonymous'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
+				if (error.code === 'ABORT_ERR') {
+					return {stderr: ''};
+				}
+				throw error;
+			});
+
+			if (signal?.aborted) {
+				return;
+			}
+
+			await promisify(spawn)('dfx', ['ledger', 'fabricate-cycles', '--canister', name, '--t', '100'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
+				if (error.code === 'ABORT_ERR') {
+					return {stderr: ''};
+				}
+				throw error;
+			});
+
+			if (signal?.aborted) {
+				return;
+			}
 
 			let canisterId = execSync(`dfx canister id ${name}`, {cwd: this.dir}).toString().trim();
 
@@ -170,7 +190,17 @@ export class Replica {
 				idlFactory,
 				wasm,
 			});
+
+			if (signal?.aborted) {
+				return;
+			}
+
 			await this.pocketIc.addCycles(canisterId, 1_000_000_000_000);
+
+			if (signal?.aborted) {
+				return;
+			}
+
 			this.canisters[name] = {
 				cwd,
 				canisterId: canisterId.toText(),
