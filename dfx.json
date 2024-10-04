@@ -1,5 +1,5 @@
 {
-	"$schema": "https://internetcomputer.org/assets/files/dfx-json-schema-c38c5824b2f4dfcb26e0528d93cb9e09.json",
+	"$schema": "./dfx.schema.json",
 	"version": 1,
 	"canisters": {
 		"main": {
