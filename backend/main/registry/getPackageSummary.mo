@@ -28,6 +28,8 @@ module {
 			let owner = registry.getPackageOwner(name)!;
 			users.ensureUser(owner);
 
+			let highestVersion = registry.getHighestVersion(name)!;
+
 			return ?{
 				depAlias = "";
 				owner = owner;
@@ -38,6 +40,7 @@ module {
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 				quality = _computePackageQuality(registry, name, version);
+				highestVersion = highestVersion;
 			};
 		};
 	};

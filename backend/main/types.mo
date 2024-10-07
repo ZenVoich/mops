@@ -98,6 +98,7 @@ module {
 		downloadsInLast7Days : Nat;
 		quality : PackageQuality;
 		depAlias : Text; // dep alias (e.g. "lib@1" or "lib")
+		highestVersion : PackageVersion;
 	};
 
 	public type PackageSummaryWithChanges = PackageSummary and {
