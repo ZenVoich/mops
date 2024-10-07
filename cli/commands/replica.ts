@@ -3,7 +3,7 @@ import {ChildProcessWithoutNullStreams, execSync, spawn} from 'node:child_proces
 import path from 'node:path';
 import fs from 'node:fs';
 import {PassThrough} from 'node:stream';
-import {promisify} from 'node:util';
+import {spawn as spawnAsync} from 'promisify-child-process';
 
 import {IDL} from '@dfinity/candid';
 import {Actor, HttpAgent} from '@dfinity/agent';
@@ -145,7 +145,7 @@ export class Replica {
 			fs.mkdirSync(this.dir, {recursive: true});
 			fs.writeFileSync(dfxJson, JSON.stringify(newDfxJsonData, null, 2));
 
-			await promisify(spawn)('dfx', ['deploy', name, '--mode', 'reinstall', '--yes', '--identity', 'anonymous'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
+			await spawnAsync('dfx', ['deploy', name, '--mode', 'reinstall', '--yes', '--identity', 'anonymous'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}
@@ -156,7 +156,7 @@ export class Replica {
 				return;
 			}
 
-			await promisify(spawn)('dfx', ['ledger', 'fabricate-cycles', '--canister', name, '--t', '100'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
+			await spawnAsync('dfx', ['ledger', 'fabricate-cycles', '--canister', name, '--t', '100'], {cwd: this.dir, signal, stdio: this.verbose ? 'pipe' : ['pipe', 'ignore', 'pipe']}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}
