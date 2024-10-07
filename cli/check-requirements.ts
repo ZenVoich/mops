@@ -11,7 +11,7 @@ export async function checkRequirements({verbose = false} = {}) {
 	let config = readConfig();
 	let mocVersion = config.toolchain?.moc;
 	if (!mocVersion) {
-		mocVersion = getMocVersion();
+		mocVersion = getMocVersion(false);
 	}
 	if (!mocVersion) {
 		return;

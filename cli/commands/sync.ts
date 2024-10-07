@@ -1,4 +1,3 @@
-import process from 'node:process';
 import path from 'node:path';
 import {execSync} from 'node:child_process';
 import {globSync} from 'glob';
@@ -7,6 +6,7 @@ import {checkConfigFile, getRootDir, readConfig} from '../mops.js';
 import {add} from './add.js';
 import {remove} from './remove.js';
 import {checkIntegrity} from '../integrity.js';
+import {getMocPath} from '../helpers/get-moc-path.js';
 
 type SyncOptions = {
 	lock ?: 'update' | 'ignore';
@@ -48,25 +48,10 @@ let ignore = [
 	'**/.mops/**',
 ];
 
-let mocPath = '';
-function getMocPath() : string {
-	if (!mocPath) {
-		mocPath = process.env.DFX_MOC_PATH || '';
-	}
-	if (!mocPath) {
-		try {
-			mocPath = execSync('dfx cache show').toString().trim() + '/moc';
-		}
-		catch {}
-	}
-	if (!mocPath) {
-		mocPath = 'moc';
-	}
-	return mocPath;
-}
-
 async function getUsedPackages() : Promise<string[]> {
 	let rootDir = getRootDir();
+	let mocPath = getMocPath();
+
 	let files = globSync('**/*.mo', {
 		cwd: rootDir,
 		nocase: true,
@@ -76,7 +61,7 @@ async function getUsedPackages() : Promise<string[]> {
 	let packages : Set<string> = new Set;
 
 	for (let file of files) {
-		let deps : string[] = execSync(`${getMocPath()} --print-deps ${path.join(rootDir, file)}`).toString().trim().split('\n');
+		let deps : string[] = execSync(`${mocPath} --print-deps ${path.join(rootDir, file)}`).toString().trim().split('\n');
 
 		for (let dep of deps) {
 			if (dep.startsWith('mo:') && !dep.startsWith('mo:prim') && !dep.startsWith('mo:⛔')) {
