@@ -63,7 +63,7 @@ export interface Main {
   'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName, PackageVersion]>
+    Array<[PackageName, PackageVersion__1]>
   >,
   'getDownloadTrendByPackageId' : ActorMethod<
     [PackageId],
@@ -73,22 +73,25 @@ export interface Main {
     [PackageName],
     Array<DownloadsSnapshot__1>
   >,
-  'getFileHashes' : ActorMethod<[PackageName, PackageVersion], Result_8>,
+  'getFileHashes' : ActorMethod<[PackageName, PackageVersion__1], Result_8>,
   'getFileHashesByPackageIds' : ActorMethod<
     [Array<PackageId>],
     Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
-  'getFileHashesQuery' : ActorMethod<[PackageName, PackageVersion], Result_8>,
-  'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
+  'getFileHashesQuery' : ActorMethod<
+    [PackageName, PackageVersion__1],
+    Result_8
+  >,
+  'getFileIds' : ActorMethod<[PackageName, PackageVersion__1], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
-    [Array<[PackageName, PackageVersion, SemverPart]>],
+    [Array<[PackageName, PackageVersion__1, SemverPart]>],
     Result_6
   >,
   'getHighestVersion' : ActorMethod<[PackageName], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion], Result_4>,
+  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion__1], Result_4>,
   'getPackagesByCategory' : ActorMethod<
     [],
     Array<[string, Array<PackageSummary>]>
@@ -102,9 +105,9 @@ export interface Main {
   'getTotalPackages' : ActorMethod<[], bigint>,
   'getUser' : ActorMethod<[Principal], [] | [User__1]>,
   'http_request' : ActorMethod<[Request], Response>,
-  'notifyInstall' : ActorMethod<[PackageName, PackageVersion], undefined>,
+  'notifyInstall' : ActorMethod<[PackageName, PackageVersion__1], undefined>,
   'notifyInstalls' : ActorMethod<
-    [Array<[PackageName, PackageVersion]>],
+    [Array<[PackageName, PackageVersion__1]>],
     undefined
   >,
   'restore' : ActorMethod<[bigint], undefined>,
@@ -182,6 +185,7 @@ export interface PackageDetails {
   'deps' : Array<PackageSummary__1>,
   'quality' : PackageQuality,
   'testStats' : TestStats__1,
+  'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
@@ -221,6 +225,7 @@ export interface PackageSummary {
   'owner' : Principal,
   'depAlias' : string,
   'quality' : PackageQuality,
+  'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -232,6 +237,7 @@ export interface PackageSummaryWithChanges {
   'owner' : Principal,
   'depAlias' : string,
   'quality' : PackageQuality,
+  'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -244,6 +250,7 @@ export interface PackageSummaryWithChanges__1 {
   'owner' : Principal,
   'depAlias' : string,
   'quality' : PackageQuality,
+  'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -256,6 +263,7 @@ export interface PackageSummary__1 {
   'owner' : Principal,
   'depAlias' : string,
   'quality' : PackageQuality,
+  'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
   'downloadsInLast7Days' : bigint,
@@ -263,6 +271,7 @@ export interface PackageSummary__1 {
   'publication' : PackagePublication,
 }
 export type PackageVersion = string;
+export type PackageVersion__1 = string;
 export type PageCount = bigint;
 export type PublishingId = string;
 export interface Request {
@@ -290,9 +299,9 @@ export type Result_3 = { 'ok' : FileId } |
   { 'err' : Err };
 export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
-export type Result_5 = { 'ok' : PackageVersion } |
+export type Result_5 = { 'ok' : PackageVersion__1 } |
   { 'err' : Err };
-export type Result_6 = { 'ok' : Array<[PackageName, PackageVersion]> } |
+export type Result_6 = { 'ok' : Array<[PackageName, PackageVersion__1]> } |
   { 'err' : Err };
 export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
