@@ -238,7 +238,7 @@
 							{:else if selectedTab == 'dependents'}
 								<div class="packages">
 									{#each packageDetails.dependents as pkg}
-										<PackageCard {pkg} showDownloads={true} />
+										<PackageCard {pkg} showDownloads={true} showDependsOn={packageDetails.config.name} />
 									{/each}
 								</div>
 							{:else if selectedTab == 'tests'}
