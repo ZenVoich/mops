@@ -1,5 +1,6 @@
 import process from 'node:process';
 import fs from 'node:fs';
+import events from 'node:events';
 import {Command, Argument, Option} from 'commander';
 
 import {init} from './commands/init.js';
@@ -25,6 +26,7 @@ import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
 import * as self from './commands/self.js';
 import {resolvePackages} from './resolve-packages.js';
+import {watch} from './commands/watch/watch.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -32,6 +34,8 @@ declare global {
 	// eslint-disable-next-line no-var
 	var mopsReplicaTestRunning : boolean;
 }
+
+events.setMaxListeners(20);
 
 let networkFile = getNetworkFile();
 if (fs.existsSync(networkFile)) {
@@ -391,5 +395,19 @@ selfCommand
 	});
 
 program.addCommand(selfCommand);
+
+// watch
+program
+	.command('watch')
+	.description('Watch *.mo files and check for syntax errors, warnings, run tests, generate declarations and deploy canisters')
+	.option('-e, --error', 'Check Motoko canisters or *.mo files for syntax errors')
+	.option('-w, --warning', 'Check Motoko canisters or *.mo files for warnings')
+	.option('-t, --test', 'Run tests')
+	.option('-g, --generate', 'Generate declarations for Motoko canisters')
+	.option('-d, --deploy', 'Deploy Motoko canisters')
+	.action(async (options) => {
+		checkConfigFile(true);
+		await watch(options);
+	});
 
 program.parse();

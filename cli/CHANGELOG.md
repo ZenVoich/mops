@@ -1,5 +1,10 @@
 # Mops CLI Changelog
 
+## Unreleased
+- New `mops watch` command to check for syntax errors, show warnings, run tests, generate declarations and deploy canisters ([docs](https://docs.mops.one/cli/mops-watch))
+- Fixed replica test hanging in watch mode bug
+- Fixed mops failing when dfx is not installed
+
 ## 1.0.1
 - Fixed `mops user *` commands
 

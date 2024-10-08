@@ -1,5 +1,5 @@
 {
-	"$schema": "https://internetcomputer.org/assets/files/dfx-json-schema-c38c5824b2f4dfcb26e0528d93cb9e09.json",
+	"$schema": "./dfx.schema.json",
 	"version": 1,
 	"canisters": {
 		"main": {
@@ -66,7 +66,7 @@
 			"packtool": "mops sources"
 		}
 	},
-	"dfx": "0.22.0",
+	"dfx": "0.23.0",
 	"networks": {
 		"staging": {
 			"type": "persistent",

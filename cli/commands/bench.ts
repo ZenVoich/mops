@@ -55,7 +55,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		replica: config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx',
 		replicaVersion: '',
 		compiler: 'moc',
-		compilerVersion: getMocVersion(),
+		compilerVersion: getMocVersion(true),
 		gc: 'copying',
 		forceGc: true,
 		save: false,

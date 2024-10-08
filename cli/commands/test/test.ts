@@ -85,14 +85,28 @@ export async function test(filter = '', options : Partial<TestOptions> = {}) {
 					process.exit(0);
 				});
 			}
+			else {
+				process.exit(0);
+			}
 		});
 
 		// todo: run only changed for *.test.mo?
 		// todo: run all for *.mo?
+
+		let curRun = Promise.resolve(true);
+		let controller = new AbortController();
+
 		let run = debounce(async () => {
+			controller.abort();
+			await curRun;
+
 			console.clear();
 			process.stdout.write('\x1Bc');
-			await runAll(options.reporter, filter, options.mode, replicaType, true);
+
+			controller = new AbortController();
+			curRun = runAll(options.reporter, filter, options.mode, replicaType, true, controller.signal);
+			await curRun;
+
 			console.log('-'.repeat(50));
 			console.log('Waiting for file changes...');
 			console.log(chalk.gray((`Press ${chalk.gray('Ctrl+C')} to exit.`)));
@@ -122,12 +136,12 @@ export async function test(filter = '', options : Partial<TestOptions> = {}) {
 let mocPath = '';
 let wasmtimePath = '';
 
-async function runAll(reporterName : ReporterName | undefined, filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
-	let done = await testWithReporter(reporterName, filter, mode, replicaType, watch);
+async function runAll(reporterName : ReporterName | undefined, filter = '', mode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false, signal ?: AbortSignal) : Promise<boolean> {
+	let done = await testWithReporter(reporterName, filter, mode, replicaType, watch, signal);
 	return done;
 }
 
-export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false) : Promise<boolean> {
+export async function testWithReporter(reporterName : ReporterName | Reporter | undefined, filter = '', defaultMode : TestMode = 'interpreter', replicaType : ReplicaName, watch = false, signal ?: AbortSignal) : Promise<boolean> {
 	let rootDir = getRootDir();
 	let files : string[] = [];
 	let libFiles = globSync('**/test?(s)/lib.mo', globConfig);
@@ -191,6 +205,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 	fs.mkdirSync(testTempDir, {recursive: true});
 
 	await parallel(os.cpus().length, files, async (file : string) => {
+		if (signal?.aborted) {
+			return;
+		}
+
 		let mmf = new MMF1('store', absToRel(file));
 
 		// mode overrides
@@ -221,7 +239,13 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 
 			// interpret
 			if (mode === 'interpreter') {
-				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs]);
+				let proc = spawn(mocPath, ['-r', '-ref-system-api', ...mocArgs], {signal});
+				proc.addListener('error', (error : any) => {
+					if (error?.code === 'ABORT_ERR') {
+						return;
+					}
+					throw error;
+				});
 				pipeMMF(proc, mmf).then(resolve);
 			}
 			// build and run wasm
@@ -229,7 +253,13 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
-				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs]);
+				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, '-wasi-system-api', ...mocArgs], {signal});
+				buildProc.addListener('error', (error : any) => {
+					if (error?.code === 'ABORT_ERR') {
+						return;
+					}
+					throw error;
+				});
 				pipeMMF(buildProc, mmf).then(async () => {
 					if (mmf.failed > 0) {
 						return;
@@ -252,7 +282,14 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 						process.exit(1);
 					}
 
-					let proc = spawn(wasmtimePath, wasmtimeArgs);
+					let proc = spawn(wasmtimePath, wasmtimeArgs, {signal});
+					proc.addListener('error', (error : any) => {
+						if (error?.code === 'ABORT_ERR') {
+							return;
+						}
+						throw error;
+					});
+
 					await pipeMMF(proc, mmf);
 				}).finally(() => {
 					fs.rmSync(wasmFile, {force: true});
@@ -265,7 +302,13 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
-				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs]);
+				let buildProc = spawn(mocPath, [`-o=${wasmFile}`, ...mocArgs], {signal});
+				buildProc.addListener('error', (error : any) => {
+					if (error?.code === 'ABORT_ERR') {
+						return;
+					}
+					throw error;
+				});
 
 				pipeMMF(buildProc, mmf).then(async () => {
 					if (mmf.failed > 0) {
@@ -274,15 +317,23 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 
 					await startReplicaOnce(replica, replicaType);
 
+					if (signal?.aborted) {
+						return;
+					}
+
 					let canisterName = path.parse(file).name;
 					let idlFactory = ({IDL} : any) => {
 						return IDL.Service({'runTests': IDL.Func([], [], [])});
 					};
 					interface _SERVICE {'runTests' : ActorMethod<[], undefined>;}
 
-					let {stream} = await replica.deploy(canisterName, wasmFile, idlFactory);
+					let canister = await replica.deploy(canisterName, wasmFile, idlFactory, undefined, signal);
 
-					pipeStdoutToMMF(stream, mmf);
+					if (signal?.aborted || !canister) {
+						return;
+					}
+
+					pipeStdoutToMMF(canister.stream, mmf);
 
 					let actor = await replica.getActor(canisterName) as _SERVICE;
 
@@ -298,6 +349,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 							});
 						}
 
+						if (signal?.aborted) {
+							return;
+						}
+
 						globalThis.mopsReplicaTestRunning = true;
 						await actor.runTests();
 						globalThis.mopsReplicaTestRunning = false;
@@ -310,10 +365,15 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 						stderrStream.write(e.message);
 					}
 				}).finally(async () => {
+					globalThis.mopsReplicaTestRunning = false;
 					fs.rmSync(wasmFile, {force: true});
 				}).then(resolve);
 			}
 		});
+
+		if (signal?.aborted) {
+			return;
+		}
 
 		reporter.addRun(file, mmf, promise, mode);
 
@@ -323,6 +383,10 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 	if (replicaStartPromise && !watch) {
 		await replica.stop();
 		fs.rmSync(testTempDir, {recursive: true, force: true});
+	}
+
+	if (signal?.aborted) {
+		return false;
 	}
 
 	return reporter.done();
