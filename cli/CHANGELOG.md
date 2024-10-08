@@ -1,9 +1,13 @@
 # Mops CLI Changelog
 
-## Unreleased
+## 1.1.0
 - New `mops watch` command to check for syntax errors, show warnings, run tests, generate declarations and deploy canisters ([docs](https://docs.mops.one/cli/mops-watch))
+- New flag `--no-toolchain` in `mops install` command to skip toolchain installation
+- New lock file format v3 ([docs](https://docs.mops.one/mops.lock))
+- Faster `mops install` from lock file when lock file is up-to-date and there are no cached packages
 - Fixed replica test hanging in watch mode bug
 - Fixed mops failing when dfx is not installed
+- Fixed `mops test` Github Action template
 
 ## 1.0.1
 - Fixed `mops user *` commands
