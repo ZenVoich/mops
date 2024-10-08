@@ -14,9 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ZenVoich/setup-mops@v1
+        with:
+          mops-version: 1
 
-      - name: make sure moc is installed
-        run: mops toolchain bin moc || mops toolchain use moc latest
+      - name: install mops packages
+        run: mops install
 
       - name: run tests
         run: mops test

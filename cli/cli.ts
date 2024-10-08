@@ -93,6 +93,7 @@ program
 	.command('install')
 	.alias('i')
 	.description('Install all dependencies specified in mops.toml')
+	.option('--no-toolchain', 'Do not install toolchain')
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (options) => {
@@ -105,10 +106,15 @@ program
 			return;
 		}
 
-		await toolchain.ensureToolchainInited({strict: false});
+		if (options.toolchain) {
+			await toolchain.ensureToolchainInited({strict: false});
+		}
 
 		let ok = await installAll(options);
-		await toolchain.installAll(options);
+
+		if (options.toolchain) {
+			await toolchain.installAll(options);
+		}
 
 		// check conflicts
 		await resolvePackages({conflicts: 'warning'});
@@ -166,7 +172,7 @@ program
 			process.exit(1);
 		}
 		if (options.install) {
-			await installAll({silent: true, lock: 'ignore', threads: 6});
+			await installAll({silent: true, lock: 'ignore', threads: 6, installFromLockFile: true});
 		}
 		await toolchain.ensureToolchainInited({strict: false});
 		let sourcesArr = await sources(options);
@@ -210,7 +216,7 @@ program
 	.option('-w, --watch', 'Enable watch mode')
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		await installAll({silent: true, lock: 'ignore'});
+		await installAll({silent: true, lock: 'ignore', installFromLockFile: true});
 		await test(filter, options);
 	});
 
@@ -226,7 +232,7 @@ program
 	.addOption(new Option('--verbose', 'Show more information'))
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		await installAll({silent: true, lock: 'ignore'});
+		await installAll({silent: true, lock: 'ignore', installFromLockFile: true});
 		await bench(filter, options);
 	});
 
