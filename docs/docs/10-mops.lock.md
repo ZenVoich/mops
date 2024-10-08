@@ -13,6 +13,10 @@ When `mops.lock` file exists, no need to specify `--lock` flag.
 
 `mops.lock` is used to ensure integrity of dependencies, so that you can be sure that all dependencies have exactly the same source code as they had when the package author published them to the Mops Registry.
 
+A valid `mops.lock` speeds up `mops install` command because it avoids downloading intermediate versions of dependencies.
+
+_It's only faster when there are no global cached packages. For example you are running `mops install` inside a fresh Docker container. Or when you call `mops install` for the first time in a project._
+
 `mops.lock` contains the following information:
 - Hash of `[dependencies]` and `[dev-dependencies]` section of `mops.toml` file
 - All transitive dependencies with the final resolved versions
