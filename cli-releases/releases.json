@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.0.1"
+    "latest": "1.1.0"
   },
   "versions": {
     "0.41.0": {
@@ -88,6 +88,14 @@
       "commitHash": "36e61c06799020d66c77c66676f2a865095000d3",
       "url": "https://cli.mops.one/versions/1.0.1.tgz",
       "hash": "72605037a11b9d9ae30b6d1afea0f654156352e13377ab4ab932c9cf30ffc30e"
+    },
+    "1.1.0": {
+      "time": 1728379362728,
+      "size": 716948,
+      "relseaseNotes": "* New `mops watch` command to check for syntax errors, show warnings, run tests, generate declarations and deploy canisters ([docs](https://docs.mops.one/cli/mops-watch))\n* New flag `--no-toolchain` in `mops install` command to skip toolchain installation\n* New lock file format v3 ([docs](https://docs.mops.one/mops.lock))\n* Faster `mops install` from lock file when lock file is up-to-date and there are no cached packages\n* Fixed replica test hanging in watch mode bug\n* Fixed mops failing when dfx is not installed\n* Fixed `mops test` Github Action template\n",
+      "commitHash": "e58a2ebc467abd68a38c66deeb56d5d0e14846df",
+      "url": "https://cli.mops.one/versions/1.1.0.tgz",
+      "hash": "fb08737d3fc335a6adecf62e1881e78867cfc2230f074d33e86686b84c366268"
     }
   }
 }
