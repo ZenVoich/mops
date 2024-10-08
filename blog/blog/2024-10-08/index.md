@@ -1,7 +1,6 @@
 ---
-unlisted: true
-slug: 0-unlisted
-title: Unlisted
+slug: 2024-10-08-updates
+title: Updates 8 October, 2024
 authors: [zen]
 tags: []
 ---
