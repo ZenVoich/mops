@@ -22,7 +22,7 @@ else
     mopsTomlHash=$(shasum $mopsToml -a 256 | awk -F' ' '{print $1}')
   fi;
 
-  cached="$rootDir/.mops/moc-$mopsTomlHash"
+  cached="$rootDir/.mops/moc-$(uname -n)-$mopsTomlHash"
 
   if [ -f $cached ]; then
     mocPath=$(cat $cached)
