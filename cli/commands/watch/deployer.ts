@@ -113,7 +113,7 @@ export class Deployer {
 			}
 
 			// install
-			await promisify(execFile)('dfx', ['canister', 'install', '--mode=auto', canister], {cwd: rootDir, signal}).catch((error) => {
+			await promisify(execFile)('dfx', ['canister', 'install', '--mode=auto', '--yes', canister], {cwd: rootDir, signal}).catch((error) => {
 				if (error.code === 'ABORT_ERR') {
 					return {stderr: ''};
 				}
