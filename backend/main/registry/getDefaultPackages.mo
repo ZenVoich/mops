@@ -38,6 +38,7 @@ module {
 			case ("0.21.0") [("base", "0.11.1")];
 			case ("0.22.0") [("base", "0.11.2")];
 			case ("0.23.0") [("base", "0.11.2")];
+			case ("0.24.0") [("base", "0.12.1")];
 			case (_) {
 				switch (registry.getHighestVersion("base")) {
 					case (?ver) [("base", ver)];
