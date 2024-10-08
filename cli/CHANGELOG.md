@@ -1,5 +1,9 @@
 # Mops CLI Changelog
 
+## 1.1.1
+- `moc-wrapper` now adds hostname to the moc path cache(`.mops/moc-*` filename) to avoid errors when running in Dev Containers
+- `mops watch` now deploys canisters with the `--yes` flag to skip data loss confirmation
+
 ## 1.1.0
 - New `mops watch` command to check for syntax errors, show warnings, run tests, generate declarations and deploy canisters ([docs](https://docs.mops.one/cli/mops-watch))
 - New flag `--no-toolchain` in `mops install` command to skip toolchain installation
