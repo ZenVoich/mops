@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.1.0"
+    "latest": "1.1.1"
   },
   "versions": {
     "0.41.0": {
@@ -96,6 +96,14 @@
       "commitHash": "e58a2ebc467abd68a38c66deeb56d5d0e14846df",
       "url": "https://cli.mops.one/versions/1.1.0.tgz",
       "hash": "fb08737d3fc335a6adecf62e1881e78867cfc2230f074d33e86686b84c366268"
+    },
+    "1.1.1": {
+      "time": 1728387530797,
+      "size": 716951,
+      "relseaseNotes": "* `moc-wrapper` now adds hostname to the moc path cache(`.mops/moc-*` filename) to avoid errors when running in Dev Containers\n* `mops watch` now deploys canisters with the `--yes` flag to skip data loss confirmation\n",
+      "commitHash": "81f69d54900d536e23ca56cfba0095d12d10a082",
+      "url": "https://cli.mops.one/versions/1.1.1.tgz",
+      "hash": "11471e7a0e6dd44f0c573e79724f1a2d447cc8e256f20960a39e01de651c753a"
     }
   }
 }
