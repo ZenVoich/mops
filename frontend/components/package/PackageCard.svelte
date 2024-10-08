@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {link} from 'svelte-spa-history-router';
-	import Date from '../Date.svelte';
+	import {formatDistanceStrict} from 'date-fns';
+	import DateEl from '../Date.svelte';
 
 	import {PackageSummary} from '/declarations/main/main.did.js';
 	import PackageQualityIcon from './PackageQualityIcon.svelte';
@@ -11,6 +12,22 @@
 	export let showUpdated = false;
 	export let showDownloads = false;
 	export let show7DayDownloads = false;
+	export let showLatestVersion = false;
+	export let showDependsOn = '';
+
+	let status : 'latest' | 'update-available' | 'outdated' = 'latest';
+	let howOld = '';
+	let dependsOnVersion = '';
+
+	$: if (pkg.config.version !== pkg.highestVersion) {
+		let pubTime = Number(pkg.publication.time / 1_000_000n);
+		status = pubTime < Date.now() - 1000 * 60 * 60 * 24 * 30 * 6 ? 'outdated' : 'update-available';
+		howOld = formatDistanceStrict(pubTime, Date.now()) + ' old';
+	}
+
+	$: if (showDependsOn) {
+		dependsOnVersion = [...pkg.config.dependencies, ...pkg.config.devDependencies].find(dep => dep.name.split('@')[0] == showDependsOn)?.version ?? '';
+	}
 </script>
 
 <div class="package">
@@ -28,11 +45,20 @@
 			{#if showVersion}
 				<div>Version {pkg.config.version}</div>
 			{/if}
+			{#if showLatestVersion}
+				{#if status !== 'latest'}
+					<div class="{status}">{howOld}</div>
+					<div>Latest: {pkg.highestVersion}</div>
+				{/if}
+			{/if}
+			{#if showDependsOn && dependsOnVersion}
+				<div>Depends on: {dependsOnVersion}</div>
+			{/if}
 			{#if showUpdated}
-				<div>Updated <Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+				<div>Updated <DateEl date="{Number(pkg.publication.time / 1000000n)}"></DateEl></div>
 			{/if}
 			{#if showFirstPublished}
-				<div><Date date="{Number(pkg.publication.time / 1000000n)}"></Date></div>
+				<div><DateEl date="{Number(pkg.publication.time / 1000000n)}"></DateEl></div>
 			{/if}
 			{#if show7DayDownloads}
 				<div>Downloads: {pkg.downloadsInLast7Days.toLocaleString()}</div>
@@ -108,5 +134,13 @@
 		color: rgb(170, 170, 170);
 		text-align: right;
 		white-space: nowrap;
+	}
+
+	.update-available {
+		color: #d4930f;
+	}
+
+	.outdated {
+		color: #9f1616;
 	}
 </style>

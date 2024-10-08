@@ -209,7 +209,7 @@
 								<h3 class="deps">Dependencies</h3>
 								<div class="packages">
 									{#each packageDetails.deps as pkg}
-										<PackageCard {pkg} showVersion={true} />
+										<PackageCard {pkg} showVersion={true} showLatestVersion={true} />
 									{/each}
 								</div>
 								{#if packageDetails.devDeps.length}
@@ -238,7 +238,7 @@
 							{:else if selectedTab == 'dependents'}
 								<div class="packages">
 									{#each packageDetails.dependents as pkg}
-										<PackageCard {pkg} showDownloads={true} />
+										<PackageCard {pkg} showDownloads={true} showDependsOn={packageDetails.config.name} />
 									{/each}
 								</div>
 							{:else if selectedTab == 'tests'}

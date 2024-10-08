@@ -76,7 +76,7 @@ module {
 				dependent or devDependent;
 			};
 
-			let dependentConfigs = Array.filter<PackageConfigV3>(registry.getAllConfigs(), isDependent);
+			let dependentConfigs = Array.filter<PackageConfigV3>(registry.getHighestConfigs(), isDependent);
 
 			let pkgHash = func(a : PackageConfigV3) : Hash.Hash {
 				Text.hash(a.name);

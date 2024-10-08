@@ -91,13 +91,13 @@ type Result_6 =
    err: Err;
    ok: vec record {
              PackageName;
-             PackageVersion;
+             PackageVersion__1;
            };
  };
 type Result_5 = 
  variant {
    err: Err;
-   ok: PackageVersion;
+   ok: PackageVersion__1;
  };
 type Result_4 = 
  variant {
@@ -147,6 +147,7 @@ type Request =
  };
 type PublishingId = text;
 type PageCount = nat;
+type PackageVersion__1 = text;
 type PackageVersion = text;
 type PackageSummary__1 = 
  record {
@@ -155,6 +156,7 @@ type PackageSummary__1 =
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
+   highestVersion: PackageVersion;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
@@ -168,6 +170,7 @@ type PackageSummaryWithChanges__1 =
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
+   highestVersion: PackageVersion;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
@@ -181,6 +184,7 @@ type PackageSummaryWithChanges =
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
+   highestVersion: PackageVersion;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
@@ -193,6 +197,7 @@ type PackageSummary =
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
+   highestVersion: PackageVersion;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
@@ -237,6 +242,7 @@ type PackageDetails =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    fileStats: PackageFileStatsPublic;
+   highestVersion: PackageVersion;
    owner: principal;
    ownerInfo: User;
    publication: PackagePublication;
@@ -303,13 +309,13 @@ type Main =
    getDefaultPackages: (text) ->
     (vec record {
            PackageName;
-           PackageVersion;
+           PackageVersion__1;
          }) query;
    getDownloadTrendByPackageId: (PackageId) ->
     (vec DownloadsSnapshot__1) query;
    getDownloadTrendByPackageName: (PackageName) ->
     (vec DownloadsSnapshot__1) query;
-   getFileHashes: (PackageName, PackageVersion) -> (Result_8);
+   getFileHashes: (PackageName, PackageVersion__1) -> (Result_8);
    getFileHashesByPackageIds: (vec PackageId) ->
     (vec record {
            PackageId;
@@ -318,19 +324,19 @@ type Main =
                  blob;
                };
          });
-   getFileHashesQuery: (PackageName, PackageVersion) -> (Result_8) query;
-   getFileIds: (PackageName, PackageVersion) -> (Result_7) query;
+   getFileHashesQuery: (PackageName, PackageVersion__1) -> (Result_8) query;
+   getFileIds: (PackageName, PackageVersion__1) -> (Result_7) query;
    getHighestSemverBatch:
     (vec record {
            PackageName;
-           PackageVersion;
+           PackageVersion__1;
            SemverPart;
          }) -> (Result_6) query;
    getHighestVersion: (PackageName) -> (Result_5) query;
    getMostDownloadedPackages: () -> (vec PackageSummary) query;
    getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
    getNewPackages: () -> (vec PackageSummary) query;
-   getPackageDetails: (PackageName, PackageVersion) -> (Result_4) query;
+   getPackageDetails: (PackageName, PackageVersion__1) -> (Result_4) query;
    getPackagesByCategory: () -> (vec record {
                                        text;
                                        vec PackageSummary;
@@ -344,10 +350,10 @@ type Main =
    getTotalPackages: () -> (nat) query;
    getUser: (principal) -> (opt User__1) query;
    http_request: (Request) -> (Response) query;
-   notifyInstall: (PackageName, PackageVersion) -> () oneway;
+   notifyInstall: (PackageName, PackageVersion__1) -> () oneway;
    notifyInstalls: (vec record {
                           PackageName;
-                          PackageVersion;
+                          PackageVersion__1;
                         }) -> () oneway;
    restore: (nat) -> ();
    search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
