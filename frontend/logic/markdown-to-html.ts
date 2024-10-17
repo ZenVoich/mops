@@ -48,8 +48,9 @@ export let markdownToHtml = async (markdown : string, repositoryUrl ?: string) =
 		let relToAbs = (url : string) => {
 			if (url && !url.startsWith('http') && !url.startsWith('#')) {
 				let sep = url.startsWith('/') ? '' : '/';
-				// todo: master branch?
-				return repositoryUrl + sep + 'raw/main/' + url;
+				let urlObj = new URL(repositoryUrl);
+				urlObj.host = 'raw.githubusercontent.com';
+				return urlObj.toString() + sep + 'master/' + url;
 			}
 			return url;
 		};

@@ -26,8 +26,6 @@ Run `mops self update` to update Mops CLI to the latest version.
 - Fixed mops failing when dfx is not installed
 - Fixed `mops test` Github Action template
 
-## More information of package dependencies and dependents
+## Fix GitHub images in package readme
 
-On the package page, in the "Dependencies" tab, you can see how old is a dependency and the latest available version of the dependency.
-
-In the "Dependents" tab, you can see which version of a package a dependent package uses.
+Now images in the package readme are displayed correctly when main branch is `master` instead of `main`.
