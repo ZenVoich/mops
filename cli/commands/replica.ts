@@ -8,19 +8,21 @@ import {spawn as spawnAsync} from 'promisify-child-process';
 import {IDL} from '@dfinity/candid';
 import {Actor, HttpAgent} from '@dfinity/agent';
 import {PocketIc, PocketIcServer} from 'pic-ic';
+import chalk from 'chalk';
 
 import {readConfig} from '../mops.js';
 import {toolchain} from './toolchain/index.js';
+import {getDfxVersion} from '../helpers/get-dfx-version.js';
 
 type StartOptions = {
-	type ?: 'dfx' | 'pocket-ic';
+	type ?: 'dfx' | 'pocket-ic' | 'dfx-pocket-ic';
 	dir ?: string;
 	verbose ?: boolean;
 	silent ?: boolean;
 };
 
 export class Replica {
-	type : 'dfx' | 'pocket-ic' = 'dfx';
+	type : 'dfx' | 'pocket-ic' | 'dfx-pocket-ic' = 'dfx';
 	verbose = false;
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any; stream : PassThrough;}> = {};
 	pocketIcServer ?: PocketIcServer;
@@ -36,20 +38,33 @@ export class Replica {
 
 		silent || console.log(`Starting ${this.type} replica...`);
 
-		if (this.type == 'dfx') {
+		if (this.type === 'dfx' || this.type === 'dfx-pocket-ic') {
 			fs.mkdirSync(this.dir, {recursive: true});
 			fs.writeFileSync(path.join(this.dir, 'dfx.json'), JSON.stringify(this.dfxJson(''), null, 2));
 			fs.writeFileSync(path.join(this.dir, 'canister.did'), 'service : { runTests: () -> (); }');
 
 			await this.stop();
 
-			this.dfxProcess = spawn('dfx', ['start', '--clean', '--artificial-delay', '0', (this.verbose ? '' : '-qqqq')].filter(x => x), {cwd: this.dir});
+			this.dfxProcess = spawn('dfx', ['start', this.type === 'dfx-pocket-ic' ? '--pocketic' : '', '--clean', (this.verbose ? '' : '-qqqq'), '--artificial-delay', '0'].filter(x => x).flat(), {cwd: this.dir});
 
 			// process canister logs
 			this._attachCanisterLogHandler(this.dfxProcess);
 
 			this.dfxProcess.stdout.on('data', (data) => {
-				console.log('DFX:', data.toString());
+				if (this.verbose) {
+					console.log('DFX:', data.toString());
+				}
+			});
+
+			this.dfxProcess.stderr.on('data', (data) => {
+				if (this.verbose) {
+					console.error('DFX:', data.toString());
+				}
+				if (data.toString().includes('Failed to bind socket to')) {
+					console.error(chalk.red(data.toString()));
+					console.log('Please run again after some time');
+					process.exit(11);
+				}
 			});
 
 			// await for dfx to start
@@ -115,9 +130,22 @@ export class Replica {
 	}
 
 	async stop(sigint = false) {
-		if (this.type == 'dfx') {
-			this.dfxProcess?.kill();
-			// execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, timeout: 10_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+		if (this.type === 'dfx' || this.type === 'dfx-pocket-ic') {
+			if (this.dfxProcess) {
+				this.dfxProcess.kill();
+				// give replica some time to stop
+				await new Promise((resolve) => {
+					setTimeout(resolve, 1000);
+				});
+			}
+
+			// if (!this.dfxProcess) {
+			// 	try {
+			// 		execSync('dfx killall', {cwd: this.dir, timeout: 3_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+			//			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, timeout: 10_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+			// 	}
+			// 	catch {}
+			// }
 		}
 		else if (this.pocketIc && this.pocketIcServer) {
 			if (!sigint) {
@@ -128,7 +156,7 @@ export class Replica {
 	}
 
 	async deploy(name : string, wasm : string, idlFactory : IDL.InterfaceFactory, cwd : string = process.cwd(), signal ?: AbortSignal) {
-		if (this.type === 'dfx') {
+		if (this.type === 'dfx' || this.type === 'dfx-pocket-ic') {
 			// prepare dfx.json for current canister
 			let dfxJson = path.join(this.dir, 'dfx.json');
 
@@ -253,6 +281,7 @@ export class Replica {
 		return {
 			version: 1,
 			canisters,
+			dfx: getDfxVersion(),
 			defaults: {
 				build: {
 					packtool: 'mops sources',
