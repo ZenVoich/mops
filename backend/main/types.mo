@@ -89,8 +89,9 @@ module {
 	};
 
 	public type PackageSummary = {
-		owner : Principal; // TODO: ownerId?
-		ownerInfo : User;
+		owner : Principal; // legacy
+		ownerInfo : User; // legacy
+		owners : [User];
 		config : PackageConfigV3;
 		publication : PackagePublication;
 		downloadsTotal : Nat;

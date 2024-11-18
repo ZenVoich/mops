@@ -67,19 +67,16 @@ module {
 			};
 
 			// check permissions
-			switch (registry.getPackageOwner(config.name)) {
-				case (null) {
-					// deny '.' and '_' in name for new packages
-					for (char in config.name.chars()) {
-						let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in name '" # config.name # "'");
-						if (char == '.' or char == '_') {
-							return err;
-						};
-					};
-				};
-				case (?owner) {
-					if (owner != caller) {
-						return #err("You don't have permissions to publish this package");
+			if (not registry.isOwner(config.name, caller) and not registry.isMaintainer(config.name, caller)) {
+				return #err("Only owners and maintainers can publish packages");
+			};
+
+			// deny '.' and '_' in name for new packages
+			if (registry.getHighestVersion(config.name) == null) {
+				for (char in config.name.chars()) {
+					let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in name '" # config.name # "'");
+					if (char == '.' or char == '_') {
+						return err;
 					};
 				};
 			};
@@ -103,7 +100,7 @@ module {
 				if (dep.repo.size() == 0 and registry.getPackageConfig(PackageUtils.getDepName(dep.name), dep.version) == null) {
 					return #err("Dependency " # packageId # " not found in registry");
 				};
-				if (dep.repo.size() != 0 and registry.getPackageOwner(PackageUtils.getDepName(dep.name)) != null) {
+				if (dep.repo.size() != 0 and registry.getHighestVersion(PackageUtils.getDepName(dep.name)) != null) {
 					return #err("GitHub dependency `" # dep.name # "` conflicts with an existing package in the Mops registry. Please change the dependency name in mops.toml file.");
 				};
 			};

@@ -1,6 +1,7 @@
 import Time "mo:base/Time";
 import Option "mo:base/Option";
 import Debug "mo:base/Debug";
+import Array "mo:base/Array";
 import {DAY} "mo:time-consts";
 
 import Types "../types";
@@ -25,15 +26,19 @@ module {
 			let config = registry.getPackageConfig(name, version)!;
 			let publication = registry.getPackagePublication(name, version)!;
 
-			let owner = registry.getPackageOwner(name)!;
-			users.ensureUser(owner);
+			let owners = registry.getPackageOwners(name);
+			for (owner in owners.vals()) {
+				users.ensureUser(owner);
+			};
+			let owner = owners[0];
 
 			let highestVersion = registry.getHighestVersion(name)!;
 
 			return ?{
 				depAlias = "";
-				owner = owner;
-				ownerInfo = users.getUser(owner);
+				owner = owner; // legacy
+				ownerInfo = users.getUser(owner); // legacy
+				owners = Array.map(owners, users.getUser);
 				config = config;
 				publication = publication;
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());

@@ -62,7 +62,9 @@ actor class Main() {
 	let API_VERSION = "1.3"; // (!) make changes in pair with cli
 
 	var packageVersions = TrieMap.TrieMap<PackageName, [PackageVersion]>(Text.equal, Text.hash);
-	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash);
+	var packageOwners = TrieMap.TrieMap<PackageName, Principal>(Text.equal, Text.hash); // legacy
+	var ownersByPackage = TrieMap.TrieMap<PackageName, [Principal]>(Text.equal, Text.hash);
+	var maintainersByPackage = TrieMap.TrieMap<PackageName, [Principal]>(Text.equal, Text.hash);
 	var highestConfigs = TrieMap.TrieMap<PackageName, PackageConfigV3>(Text.equal, Text.hash);
 
 	var packageConfigs = TrieMap.TrieMap<PackageId, PackageConfigV3>(Text.equal, Text.hash);
@@ -76,7 +78,8 @@ actor class Main() {
 
 	var registry = Registry.Registry(
 		packageVersions,
-		packageOwners,
+		ownersByPackage,
+		maintainersByPackage,
 		highestConfigs,
 		packageConfigs,
 		packagePublications,
@@ -489,8 +492,28 @@ actor class Main() {
 		users.setUserProp(caller, prop, value);
 	};
 
-	public shared ({caller}) func transferOwnership(packageName : PackageName, newOwner : Principal) : async Result.Result<(), Text> {
-		registry.transferOwnership(caller, packageName, newOwner);
+	public query func getPackageOwners(packageName : PackageName) : async [Principal] {
+		registry.getPackageOwners(packageName);
+	};
+
+	public query func getPackageMaintainers(packageName : PackageName) : async [Principal] {
+		registry.getPackageMaintainers(packageName);
+	};
+
+	public shared ({caller}) func addOwner(packageName : PackageName, newOwner : Principal) : async Result.Result<(), Text> {
+		registry.addOwner(caller, packageName, newOwner);
+	};
+
+	public shared ({caller}) func addMaintainer(packageName : PackageName, newMaintainer : Principal) : async Result.Result<(), Text> {
+		registry.addMaintainer(caller, packageName, newMaintainer);
+	};
+
+	public shared ({caller}) func removeOwner(packageName : PackageName, owner : Principal) : async Result.Result<(), Text> {
+		registry.removeOwner(caller, packageName, owner);
+	};
+
+	public shared ({caller}) func removeMaintainer(packageName : PackageName, maintainer : Principal) : async Result.Result<(), Text> {
+		registry.removeMaintainer(caller, packageName, maintainer);
 	};
 
 	// BADGES
@@ -526,10 +549,11 @@ actor class Main() {
 	let backupManager = Backup.BackupManager(backupStateV2, {maxBackups = 20});
 
 	type BackupChunk = {
-		#v7 : {
+		#v8 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
-			#packageOwners : [(PackageName, Principal)];
+			#ownersByPackage : [(PackageName, [Principal])];
+			#maintainersByPackage : [(PackageName, [Principal])];
 			#packageConfigs : [(PackageId, PackageConfigV3)];
 			#highestConfigs : [(PackageName, PackageConfigV3)];
 			#fileIdsByPackage : [(PackageId, [FileId])];
@@ -555,22 +579,23 @@ actor class Main() {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v7");
+		let backup = backupManager.NewBackup("v8");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v7(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageOwners(Iter.toArray(packageOwners.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v7(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#ownersByPackage(Iter.toArray(ownersByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#maintainersByPackage(Iter.toArray(maintainersByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v8(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -580,7 +605,7 @@ actor class Main() {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v7(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v8(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -589,8 +614,11 @@ actor class Main() {
 				case (#packageVersions(packageVersionsStable)) {
 					packageVersions := TrieMap.fromEntries<PackageName, [PackageVersion]>(packageVersionsStable.vals(), Text.equal, Text.hash);
 				};
-				case (#packageOwners(packageOwnersStable)) {
-					packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
+				case (#ownersByPackage(ownersByPackageStable)) {
+					ownersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(ownersByPackageStable.vals(), Text.equal, Text.hash);
+				};
+				case (#maintainersByPackage(maintainersByPackageStable)) {
+					maintainersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(maintainersByPackageStable.vals(), Text.equal, Text.hash);
 				};
 				case (#fileIdsByPackage(fileIdsByPackageStable)) {
 					fileIdsByPackage := TrieMap.fromEntries<PackageId, [FileId]>(fileIdsByPackageStable.vals(), Text.equal, Text.hash);
@@ -634,7 +662,8 @@ actor class Main() {
 		// re-init registry
 		registry := Registry.Registry(
 			packageVersions,
-			packageOwners,
+			ownersByPackage,
+			maintainersByPackage,
 			highestConfigs,
 			packageConfigs,
 			packagePublications,
@@ -652,6 +681,8 @@ actor class Main() {
 	stable var packagePublicationsStable : [(PackageId, PackagePublication)] = [];
 	stable var packageVersionsStable : [(PackageName, [PackageVersion])] = [];
 	stable var packageOwnersStable : [(PackageName, Principal)] = [];
+	stable var ownersByPackageStable : [(PackageName, [Principal])] = [];
+	stable var maintainersByPackageStable : [(PackageName, [Principal])] = [];
 
 	stable var packageConfigsStableV3 : [(PackageId, PackageConfigV3)] = [];
 	stable var highestConfigsStableV3 : [(PackageName, PackageConfigV3)] = [];
@@ -671,6 +702,8 @@ actor class Main() {
 		packagePublicationsStable := Iter.toArray(packagePublications.entries());
 		packageVersionsStable := Iter.toArray(packageVersions.entries());
 		packageOwnersStable := Iter.toArray(packageOwners.entries());
+		ownersByPackageStable := Iter.toArray(ownersByPackage.entries());
+		maintainersByPackageStable := Iter.toArray(maintainersByPackage.entries());
 		fileIdsByPackageStable := Iter.toArray(fileIdsByPackage.entries());
 		hashByFileIdStable := Iter.toArray(hashByFileId.entries());
 		packageFileStatsStable := Iter.toArray(packageFileStats.entries());
@@ -697,6 +730,24 @@ actor class Main() {
 
 		packageVersions := TrieMap.fromEntries<PackageName, [PackageVersion]>(packageVersionsStable.vals(), Text.equal, Text.hash);
 		packageVersionsStable := [];
+
+		// migrate packageOwners -> ownersByPackage
+		if (ownersByPackageStable.size() == 0) {
+			ownersByPackage :=
+				packageOwnersStable.vals()
+					|> Iter.map<(PackageName, Principal), (PackageName, [Principal])>(_, func((name, owner)) = (name, [owner]))
+					|> TrieMap.fromEntries<PackageName, [Principal]>(_, Text.equal, Text.hash);
+		}
+		else {
+			ownersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(ownersByPackageStable.vals(), Text.equal, Text.hash);
+			ownersByPackageStable := [];
+		};
+
+		ownersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(ownersByPackageStable.vals(), Text.equal, Text.hash);
+		ownersByPackageStable := [];
+
+		maintainersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(maintainersByPackageStable.vals(), Text.equal, Text.hash);
+		maintainersByPackageStable := [];
 
 		packageOwners := TrieMap.fromEntries<PackageName, Principal>(packageOwnersStable.vals(), Text.equal, Text.hash);
 		packageOwnersStable := [];
@@ -732,7 +783,8 @@ actor class Main() {
 
 		registry := Registry.Registry(
 			packageVersions,
-			packageOwners,
+			ownersByPackage,
+			maintainersByPackage,
 			highestConfigs,
 			packageConfigs,
 			packagePublications,
