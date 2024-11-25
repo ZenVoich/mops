@@ -90,7 +90,7 @@ type Result_6 =
  variant {
    err: Err;
    ok: vec record {
-             PackageName;
+             PackageName__1;
              PackageVersion__1;
            };
  };
@@ -106,18 +106,18 @@ type Result_4 =
  };
 type Result_3 = 
  variant {
-   err: Err;
-   ok: FileId;
+   err: text;
+   ok;
  };
 type Result_2 = 
  variant {
    err: Err;
-   ok: PublishingId;
+   ok: FileId;
  };
 type Result_1 = 
  variant {
-   err: text;
-   ok;
+   err: Err;
+   ok: PublishingId;
  };
 type Result = 
  variant {
@@ -157,8 +157,10 @@ type PackageSummary__1 =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    highestVersion: PackageVersion;
+   maintainers: vec User;
    owner: principal;
    ownerInfo: User;
+   owners: vec User;
    publication: PackagePublication;
    quality: PackageQuality;
  };
@@ -171,8 +173,10 @@ type PackageSummaryWithChanges__1 =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    highestVersion: PackageVersion;
+   maintainers: vec User;
    owner: principal;
    ownerInfo: User;
+   owners: vec User;
    publication: PackagePublication;
    quality: PackageQuality;
  };
@@ -185,8 +189,10 @@ type PackageSummaryWithChanges =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    highestVersion: PackageVersion;
+   maintainers: vec User;
    owner: principal;
    ownerInfo: User;
+   owners: vec User;
    publication: PackagePublication;
    quality: PackageQuality;
  };
@@ -198,8 +204,10 @@ type PackageSummary =
    downloadsInLast7Days: nat;
    downloadsTotal: nat;
    highestVersion: PackageVersion;
+   maintainers: vec User;
    owner: principal;
    ownerInfo: User;
+   owners: vec User;
    publication: PackagePublication;
    quality: PackageQuality;
  };
@@ -243,8 +251,10 @@ type PackageDetails =
    downloadsTotal: nat;
    fileStats: PackageFileStatsPublic;
    highestVersion: PackageVersion;
+   maintainers: vec User;
    owner: principal;
    ownerInfo: User;
+   owners: vec User;
    publication: PackagePublication;
    quality: PackageQuality;
    testStats: TestStats__1;
@@ -263,7 +273,7 @@ type PackageConfigV3_Publishing =
    keywords: vec text;
    license: text;
    moc: text;
-   name: PackageName__1;
+   name: PackageName;
    readme: text;
    repository: text;
    requirements: opt vec Requirement;
@@ -283,7 +293,7 @@ type PackageConfigV3 =
    keywords: vec text;
    license: text;
    moc: text;
-   name: PackageName__1;
+   name: PackageName;
    readme: text;
    repository: text;
    requirements: vec Requirement;
@@ -301,6 +311,8 @@ type PackageChanges =
  };
 type Main = 
  service {
+   addMaintainer: (PackageName__1, principal) -> (Result_3);
+   addOwner: (PackageName__1, principal) -> (Result_3);
    backup: () -> ();
    computeHashesForExistingFiles: () -> ();
    finishPublish: (PublishingId) -> (Result);
@@ -308,14 +320,14 @@ type Main =
    getBackupCanisterId: () -> (principal) query;
    getDefaultPackages: (text) ->
     (vec record {
-           PackageName;
+           PackageName__1;
            PackageVersion__1;
          }) query;
    getDownloadTrendByPackageId: (PackageId) ->
     (vec DownloadsSnapshot__1) query;
-   getDownloadTrendByPackageName: (PackageName) ->
+   getDownloadTrendByPackageName: (PackageName__1) ->
     (vec DownloadsSnapshot__1) query;
-   getFileHashes: (PackageName, PackageVersion__1) -> (Result_8);
+   getFileHashes: (PackageName__1, PackageVersion__1) -> (Result_8);
    getFileHashesByPackageIds: (vec PackageId) ->
     (vec record {
            PackageId;
@@ -324,19 +336,22 @@ type Main =
                  blob;
                };
          });
-   getFileHashesQuery: (PackageName, PackageVersion__1) -> (Result_8) query;
-   getFileIds: (PackageName, PackageVersion__1) -> (Result_7) query;
+   getFileHashesQuery: (PackageName__1, PackageVersion__1) ->
+    (Result_8) query;
+   getFileIds: (PackageName__1, PackageVersion__1) -> (Result_7) query;
    getHighestSemverBatch:
     (vec record {
-           PackageName;
+           PackageName__1;
            PackageVersion__1;
            SemverPart;
          }) -> (Result_6) query;
-   getHighestVersion: (PackageName) -> (Result_5) query;
+   getHighestVersion: (PackageName__1) -> (Result_5) query;
    getMostDownloadedPackages: () -> (vec PackageSummary) query;
    getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
    getNewPackages: () -> (vec PackageSummary) query;
-   getPackageDetails: (PackageName, PackageVersion__1) -> (Result_4) query;
+   getPackageDetails: (PackageName__1, PackageVersion__1) -> (Result_4) query;
+   getPackageMaintainers: (PackageName__1) -> (vec principal) query;
+   getPackageOwners: (PackageName__1) -> (vec principal) query;
    getPackagesByCategory: () -> (vec record {
                                        text;
                                        vec PackageSummary;
@@ -350,17 +365,18 @@ type Main =
    getTotalPackages: () -> (nat) query;
    getUser: (principal) -> (opt User__1) query;
    http_request: (Request) -> (Response) query;
-   notifyInstall: (PackageName, PackageVersion__1) -> () oneway;
+   notifyInstall: (PackageName__1, PackageVersion__1) -> () oneway;
    notifyInstalls: (vec record {
-                          PackageName;
+                          PackageName__1;
                           PackageVersion__1;
                         }) -> () oneway;
+   removeMaintainer: (PackageName__1, principal) -> (Result_3);
+   removeOwner: (PackageName__1, principal) -> (Result_3);
    restore: (nat) -> ();
    search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
-   setUserProp: (text, text) -> (Result_1);
-   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_3);
-   startPublish: (PackageConfigV3_Publishing) -> (Result_2);
-   transferOwnership: (PackageName, principal) -> (Result_1);
+   setUserProp: (text, text) -> (Result_3);
+   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
+   startPublish: (PackageConfigV3_Publishing) -> (Result_1);
    transformRequest: (HttpTransformArg) -> (HttpResponse) query;
    uploadBenchmarks: (PublishingId, Benchmarks) -> (Result);
    uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
@@ -410,7 +426,7 @@ type DepsStatus =
  };
 type DependencyV2 = 
  record {
-   name: PackageName__1;
+   name: PackageName;
    repo: text;
    version: text;
  };
