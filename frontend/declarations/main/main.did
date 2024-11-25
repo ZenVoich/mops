@@ -162,6 +162,7 @@ type PackageSummary__1 =
    ownerInfo: User;
    owners: vec User;
    publication: PackagePublication;
+   publisher: User;
    quality: PackageQuality;
  };
 type PackageSummaryWithChanges__1 = 
@@ -178,6 +179,7 @@ type PackageSummaryWithChanges__1 =
    ownerInfo: User;
    owners: vec User;
    publication: PackagePublication;
+   publisher: User;
    quality: PackageQuality;
  };
 type PackageSummaryWithChanges = 
@@ -194,6 +196,7 @@ type PackageSummaryWithChanges =
    ownerInfo: User;
    owners: vec User;
    publication: PackagePublication;
+   publisher: User;
    quality: PackageQuality;
  };
 type PackageSummary = 
@@ -209,6 +212,7 @@ type PackageSummary =
    ownerInfo: User;
    owners: vec User;
    publication: PackagePublication;
+   publisher: User;
    quality: PackageQuality;
  };
 type PackageQuality = 
@@ -256,6 +260,7 @@ type PackageDetails =
    ownerInfo: User;
    owners: vec User;
    publication: PackagePublication;
+   publisher: User;
    quality: PackageQuality;
    testStats: TestStats__1;
    versionHistory: vec PackageSummaryWithChanges__1;
