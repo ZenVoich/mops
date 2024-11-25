@@ -95,6 +95,7 @@ module {
 		maintainers : [User];
 		config : PackageConfigV3;
 		publication : PackagePublication;
+		publisher : User;
 		downloadsTotal : Nat;
 		downloadsInLast30Days : Nat;
 		downloadsInLast7Days : Nat;

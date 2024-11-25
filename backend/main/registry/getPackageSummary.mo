@@ -24,7 +24,9 @@ module {
 	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
 		do ? {
 			let config = registry.getPackageConfig(name, version)!;
+
 			let publication = registry.getPackagePublication(name, version)!;
+			users.ensureUser(publication.user);
 
 			let owners = registry.getPackageOwners(name);
 			for (owner in owners.vals()) {
@@ -47,6 +49,7 @@ module {
 				maintainers = Array.map(maintainers, users.getUser);
 				config = config;
 				publication = publication;
+				publisher = users.getUser(publication.user);
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
