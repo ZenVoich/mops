@@ -743,9 +743,6 @@ actor class Main() {
 			ownersByPackageStable := [];
 		};
 
-		ownersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(ownersByPackageStable.vals(), Text.equal, Text.hash);
-		ownersByPackageStable := [];
-
 		maintainersByPackage := TrieMap.fromEntries<PackageName, [Principal]>(maintainersByPackageStable.vals(), Text.equal, Text.hash);
 		maintainersByPackageStable := [];
 

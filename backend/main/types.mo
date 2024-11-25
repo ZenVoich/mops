@@ -92,6 +92,7 @@ module {
 		owner : Principal; // legacy
 		ownerInfo : User; // legacy
 		owners : [User];
+		maintainers : [User];
 		config : PackageConfigV3;
 		publication : PackagePublication;
 		downloadsTotal : Nat;

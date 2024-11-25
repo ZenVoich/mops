@@ -217,7 +217,7 @@ module {
 		};
 
 		public func addMaintainer(caller : Principal, packageName : PackageName, newMaintainer : Principal) : Result.Result<(), Text> {
-			let ?maintainers = maintainersByPackage.get(packageName) else return #err("Package not found");
+			let maintainers = Option.get(maintainersByPackage.get(packageName), []);
 
 			if (isMaintainer(packageName, newMaintainer)) {
 				return #err("User is already a maintainer");
@@ -253,16 +253,13 @@ module {
 		};
 
 		public func removeMaintainer(caller : Principal, packageName : PackageName, maintainerToRemove : Principal) : Result.Result<(), Text> {
-			let ?maintainers = maintainersByPackage.get(packageName) else return #err("Package not found");
+			let maintainers = Option.get(maintainersByPackage.get(packageName), []);
 
 			if (not isMaintainer(packageName, maintainerToRemove)) {
 				return #err("User is not a maintainer");
 			};
 			if (not isOwner(packageName, caller)) {
 				return #err("Only owners can remove maintainers");
-			};
-			if (maintainers.size() <= 1) {
-				return #err("At least one maintainer is required");
 			};
 
 			maintainersByPackage.put(packageName, Array.filter(maintainers, func(maintainer : Principal) : Bool {

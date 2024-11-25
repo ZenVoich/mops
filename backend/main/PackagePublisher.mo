@@ -66,13 +66,15 @@ module {
 				};
 			};
 
+			let isNewPackage = registry.getHighestVersion(config.name) == null;
+
 			// check permissions
-			if (not registry.isOwner(config.name, caller) and not registry.isMaintainer(config.name, caller)) {
+			if (not isNewPackage and not registry.isOwner(config.name, caller) and not registry.isMaintainer(config.name, caller)) {
 				return #err("Only owners and maintainers can publish packages");
 			};
 
 			// deny '.' and '_' in name for new packages
-			if (registry.getHighestVersion(config.name) == null) {
+			if (isNewPackage) {
 				for (char in config.name.chars()) {
 					let err = #err("invalid config: unexpected char '" # Char.toText(char) # "' in name '" # config.name # "'");
 					if (char == '.' or char == '_') {
