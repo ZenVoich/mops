@@ -92,7 +92,10 @@
 		</div>
 	{/if}
 
-	<a class="fill-user-info" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a>
+	<div class="docs-links">
+		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/package-owners-and-maintainers">Owners and maintainers</a></div>
+		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a></div>
+	</div>
 
 	<div class="quality">
 		<div class="label">
@@ -203,8 +206,18 @@
 		gap: 10px;
 	}
 
-	.fill-user-info {
-		margin-top: 5px;
+	.question-mark {
+		font-size: 14px;
+		color: gray;
+	}
+
+	.docs-links {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.docs-link {
 		font-size: 14px;
 		opacity: 0.8;
 	}

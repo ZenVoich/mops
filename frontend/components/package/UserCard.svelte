@@ -36,6 +36,12 @@
 		text-overflow: ellipsis;
 	}
 
+	.value.with-icon {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
 	.github-icon,
 	.twitter-icon {
 		width: 20px;
