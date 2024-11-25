@@ -81,7 +81,7 @@
 		</div>
 	</div>
 
-	{#if packageDetails.maintainers}
+	{#if packageDetails.maintainers.length}
 		<div class="detail">
 			<div class="label">Maintainers</div>
 			<div class="owners">

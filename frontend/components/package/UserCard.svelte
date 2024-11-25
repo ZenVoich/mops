@@ -49,6 +49,6 @@
 		gap: 6px;
 		padding: 10px 0;
 		padding-left: 7px;
-		border-left: 2px solid #e0e0e0;
+		border-left: 2px solid #d5d9d08c;
 	}
 </style>
