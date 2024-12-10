@@ -5,6 +5,7 @@
 	import {markdownToHtml} from '/logic/markdown-to-html';
 	import Date from '../Date.svelte';
 	import PackageBenchmarksDiff from './PackageBenchmarksDiff.svelte';
+	import UserCard from './UserCard.svelte';
 
 	export let summary : PackageSummaryWithChanges;
 	export let showName = false;
@@ -65,6 +66,10 @@
 			<PackageBenchmarksDiff curBenchmarks={summary.changes.curBenchmarks} prevBenchmarks={summary.changes.prevBenchmarks}></PackageBenchmarksDiff>
 		</div>
 	{/if}
+
+	<div class="publisher">
+		Published by <UserCard user={summary.publisher} compact></UserCard>
+	</div>
 </div>
 
 <style>
@@ -85,6 +90,13 @@
 		display: flex;
 		align-items: baseline;
 		gap: 10px;
+	}
+
+	.publisher {
+		display: flex;
+		gap: 4px;
+		margin-top: 25px;
+		font-size: 14px;
 	}
 
 	.version-summary:not(.show-name) .name {

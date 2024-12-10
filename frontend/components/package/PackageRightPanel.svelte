@@ -1,12 +1,11 @@
 <script lang="ts">
-	import {link} from 'svelte-spa-history-router';
 	import {filesize} from 'filesize';
 	import {DepsStatus, PackageDetails} from '/declarations/main/main.did.js';
 	import DownloadTrend from '../DownloadTrend.svelte';
 	import githubImg from '/img/github.svg';
-	import twitterImg from '/img/twitter.svg';
 	import BadgesModal from './BadgesModal.svelte';
 	import PackageQualityIcon from './PackageQualityIcon.svelte';
+	import UserCard from './UserCard.svelte';
 
 	export let packageDetails : PackageDetails;
 	let badgesModalActive = false;
@@ -72,35 +71,31 @@
 			{/each}
 		</div>
 	{/if}
-	{#if packageDetails.ownerInfo.name}
+
+	<div class="detail">
+		<div class="label">Owners</div>
+		<div class="owners">
+			{#each packageDetails.owners as owner}
+				<UserCard user={owner}></UserCard>
+			{/each}
+		</div>
+	</div>
+
+	{#if packageDetails.maintainers.length}
 		<div class="detail">
-			<div class="label">Owner</div>
-			<div class="value owner">
-				<a class="value" href="/search/owner:{packageDetails.ownerInfo.name}" use:link>
-					@{packageDetails.ownerInfo.name}
-				</a>
-				<small>{packageDetails.ownerInfo.id}</small>
+			<div class="label">Maintainers</div>
+			<div class="owners">
+				{#each packageDetails.maintainers as maintainer}
+					<UserCard user={maintainer}></UserCard>
+				{/each}
 			</div>
-			{#if packageDetails.ownerInfo.github}
-				<a class="value with-icon" href="https://github.com/{packageDetails.ownerInfo.github}" target="_blank">
-					<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
-					{packageDetails.ownerInfo.github}
-				</a>
-			{/if}
-			{#if packageDetails.ownerInfo.twitter}
-				<a class="value with-icon" href="https://twitter.com/{packageDetails.ownerInfo.twitter}" target="_blank">
-					<img class="twitter-icon" src="{twitterImg}" alt="Twitter logo" loading="lazy" />
-					{packageDetails.ownerInfo.twitter}
-				</a>
-			{/if}
 		</div>
-	{:else if packageDetails.owner}
-		<div class="detail">
-			<div class="label">Owner</div>
-				<a class="value" href="/search/owner:{packageDetails.owner}" use:link>{packageDetails.owner}</a>
-		</div>
-		<a class="fill-user-info" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a>
 	{/if}
+
+	<div class="docs-links">
+		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/package-owners-and-maintainers">Owners and maintainers</a></div>
+		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a></div>
+	</div>
 
 	<div class="quality">
 		<div class="label">
@@ -191,10 +186,6 @@
 		text-overflow: ellipsis;
 	}
 
-	.value.owner {
-		margin-bottom: 7px;
-	}
-
 	.value.with-icon {
 		display: flex;
 		align-items: center;
@@ -203,11 +194,32 @@
 		white-space: normal;
 	}
 
-	.github-icon,
-	.twitter-icon {
+	.github-icon {
 		width: 20px;
 		height: 20px;
 		filter: hue-rotate(45deg) contrast(0.6);
+	}
+
+	.owners {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.question-mark {
+		font-size: 14px;
+		color: gray;
+	}
+
+	.docs-links {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.docs-link {
+		font-size: 14px;
+		opacity: 0.8;
 	}
 
 	/* quality */

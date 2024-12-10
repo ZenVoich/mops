@@ -4,6 +4,7 @@ import Option "mo:base/Option";
 import Array "mo:base/Array";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
+import Principal "mo:base/Principal";
 
 import Types "../types";
 import Semver "../utils/semver";
@@ -34,7 +35,8 @@ module {
 
 	public class Registry(
 		packageVersions : TrieMap.TrieMap<PackageName, [PackageVersion]>,
-		packageOwners : TrieMap.TrieMap<PackageName, Principal>,
+		ownersByPackage : TrieMap.TrieMap<PackageName, [Principal]>,
+		maintainersByPackage : TrieMap.TrieMap<PackageName, [Principal]>,
 		highestConfigs : TrieMap.TrieMap<PackageName, PackageConfigV3>,
 		packageConfigs : TrieMap.TrieMap<PackageId, PackageConfigV3>,
 		packagePublications : TrieMap.TrieMap<PackageId, PackagePublication>,
@@ -59,7 +61,13 @@ module {
 			packageVersions.put(newRelease.config.name, Array.append(versions, [newRelease.config.version]));
 
 			packageConfigs.put(packageId, newRelease.config);
-			packageOwners.put(newRelease.config.name, newRelease.userId);
+
+			// add owner for new package
+			let owners = getPackageOwners(newRelease.config.name);
+			if (owners.size() == 0) {
+				ownersByPackage.put(newRelease.config.name, [newRelease.userId]);
+			};
+
 			packagePublications.put(packageId, {
 				user = newRelease.userId;
 				time = Time.now();
@@ -119,10 +127,6 @@ module {
 		// By package name
 		// -----------------------------
 
-		public func getPackageOwner(name : PackageName) : ?Principal {
-			packageOwners.get(name);
-		};
-
 		public func getPackageVersions(name : PackageName) : ?[PackageVersion] {
 			packageVersions.get(name);
 		};
@@ -169,17 +173,98 @@ module {
 		// Package ownership
 		// -----------------------------
 
-		public func transferOwnership(caller : Principal, packageName : PackageName, newOwner : Principal) : Result.Result<(), Text> {
-			let ?oldOwner = packageOwners.get(packageName) else return #err("Package not found");
+		public func getPackageOwners(name : PackageName) : [Principal] {
+			Option.get(ownersByPackage.get(name), []);
+		};
 
-			if (oldOwner != caller) {
-				return #err("Only owner can transfer ownership");
+		public func getPackageMaintainers(name : PackageName) : [Principal] {
+			Option.get(maintainersByPackage.get(name), []);
+		};
+
+		public func isOwner(name : PackageName, principal : Principal) : Bool {
+			for (owner in getPackageOwners(name).vals()) {
+				if (owner == principal) {
+					return true;
+				};
 			};
-			if (newOwner == caller) {
-				return #err("You can't transfer ownership to yourself");
+			return false;
+		};
+
+		public func isMaintainer(name : PackageName, principal : Principal) : Bool {
+			for (maintainer in getPackageMaintainers(name).vals()) {
+				if (maintainer == principal) {
+					return true;
+				};
+			};
+			return false;
+		};
+
+		public func addOwner(caller : Principal, packageName : PackageName, newOwner : Principal) : Result.Result<(), Text> {
+			let ?owners = ownersByPackage.get(packageName) else return #err("Package not found");
+
+			if (isOwner(packageName, newOwner)) {
+				return #err("User is already an owner");
+			};
+			if (not isOwner(packageName, caller)) {
+				return #err("Only owners can add owners");
+			};
+			if (owners.size() >= 5) {
+				return #err("Maximum number of owners reached");
 			};
 
-			packageOwners.put(packageName, newOwner);
+			ownersByPackage.put(packageName, Array.append(owners, [newOwner]));
+			#ok;
+		};
+
+		public func addMaintainer(caller : Principal, packageName : PackageName, newMaintainer : Principal) : Result.Result<(), Text> {
+			let maintainers = Option.get(maintainersByPackage.get(packageName), []);
+
+			if (isMaintainer(packageName, newMaintainer)) {
+				return #err("User is already a maintainer");
+			};
+			if (not isOwner(packageName, caller)) {
+				return #err("Only owners can add maintainers");
+			};
+			if (maintainers.size() >= 5) {
+				return #err("Maximum number of maintainers reached");
+			};
+
+			maintainersByPackage.put(packageName, Array.append(maintainers, [newMaintainer]));
+			#ok;
+		};
+
+		public func removeOwner(caller : Principal, packageName : PackageName, ownerToRemove : Principal) : Result.Result<(), Text> {
+			let ?owners = ownersByPackage.get(packageName) else return #err("Package not found");
+
+			if (not isOwner(packageName, ownerToRemove)) {
+				return #err("User is not an owner");
+			};
+			if (not isOwner(packageName, caller)) {
+				return #err("Only owners can remove owners");
+			};
+			if (owners.size() <= 1) {
+				return #err("At least one owner is required");
+			};
+
+			ownersByPackage.put(packageName, Array.filter(owners, func(owner : Principal) : Bool {
+				owner != ownerToRemove;
+			}));
+			#ok;
+		};
+
+		public func removeMaintainer(caller : Principal, packageName : PackageName, maintainerToRemove : Principal) : Result.Result<(), Text> {
+			let maintainers = Option.get(maintainersByPackage.get(packageName), []);
+
+			if (not isMaintainer(packageName, maintainerToRemove)) {
+				return #err("User is not a maintainer");
+			};
+			if (not isOwner(packageName, caller)) {
+				return #err("Only owners can remove maintainers");
+			};
+
+			maintainersByPackage.put(packageName, Array.filter(maintainers, func(maintainer : Principal) : Bool {
+				maintainer != maintainerToRemove;
+			}));
 			#ok;
 		};
 	};

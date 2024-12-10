@@ -1,6 +1,7 @@
 import Time "mo:base/Time";
-import Option "mo:base/Option";
 import Debug "mo:base/Debug";
+import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 import {DAY} "mo:time-consts";
 
 import Types "../types";
@@ -23,19 +24,32 @@ module {
 	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
 		do ? {
 			let config = registry.getPackageConfig(name, version)!;
+
 			let publication = registry.getPackagePublication(name, version)!;
+			users.ensureUser(publication.user);
 
-			let owner = registry.getPackageOwner(name)!;
-			users.ensureUser(owner);
+			let owners = registry.getPackageOwners(name);
+			for (owner in owners.vals()) {
+				users.ensureUser(owner);
+			};
 
+			let maintainers = registry.getPackageMaintainers(name);
+			for (maintainer in maintainers.vals()) {
+				users.ensureUser(maintainer);
+			};
+
+			let owner = if (owners.size() > 0) owners[0] else Principal.fromText("aaaaa-aa");
 			let highestVersion = registry.getHighestVersion(name)!;
 
 			return ?{
 				depAlias = "";
-				owner = owner;
-				ownerInfo = users.getUser(owner);
+				owner = owner; // legacy
+				ownerInfo = users.getUser(owner); // legacy
+				owners = Array.map(owners, users.getUser);
+				maintainers = Array.map(maintainers, users.getUser);
 				config = config;
 				publication = publication;
+				publisher = users.getUser(publication.user);
 				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
 				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);

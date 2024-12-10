@@ -41,19 +41,23 @@ module {
 			if (Text.startsWith(searchText, #text("owner:"))) {
 				ignore do ? {
 					let searchOwnerNameOrId = Text.stripStart(searchText, #text("owner:"))!;
-					let ownerId = registry.getPackageOwner(config.name)!;
+					let owners = registry.getPackageOwners(config.name);
 
 					// search by owner id
 					if (Option.isSome(PrincipalExt.fromText(searchOwnerNameOrId))) {
-						if (searchOwnerNameOrId == Principal.toText(ownerId)) {
-							sortingPoints += 3;
+						for (ownerId in owners.vals()) {
+							if (searchOwnerNameOrId == Principal.toText(ownerId)) {
+								sortingPoints += 3;
+							};
 						};
 					}
 					// search by owner name
 					else {
-						let ownerInfo = users.getUserOpt(ownerId)!;
-						if (searchOwnerNameOrId == ownerInfo.name) {
-							sortingPoints += 3;
+						for (ownerId in owners.vals()) {
+							let ownerInfo = users.getUserOpt(ownerId)!;
+							if (searchOwnerNameOrId == ownerInfo.name) {
+								sortingPoints += 3;
+							};
 						};
 					};
 				};
