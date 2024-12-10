@@ -215,6 +215,7 @@ program
 	.addOption(new Option('--mode <mode>', 'Test mode').choices(['interpreter', 'wasi', 'replica']).default('interpreter'))
 	.addOption(new Option('--replica <replica>', 'Which replica to use to run tests in replica mode').choices(['dfx', 'pocket-ic']))
 	.option('-w, --watch', 'Enable watch mode')
+	.option('--verbose', 'Verbose output')
 	.action(async (filter, options) => {
 		checkConfigFile(true);
 		await installAll({silent: true, lock: 'ignore', installFromLockFile: true});

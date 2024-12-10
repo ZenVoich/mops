@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
+import {SemVer} from 'semver';
 
 import {sources} from '../sources.js';
 import {getRootDir, readConfig} from '../../mops.js';
@@ -25,6 +26,7 @@ import {Replica} from '../replica.js';
 import {ActorMethod} from '@dfinity/agent';
 import {PassThrough, Readable} from 'node:stream';
 import {TestMode} from '../../types.js';
+import {getDfxVersion} from '../../helpers/get-dfx-version.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -39,13 +41,14 @@ let globConfig = {
 };
 
 type ReporterName = 'verbose' | 'files' | 'compact' | 'silent';
-type ReplicaName = 'dfx' | 'pocket-ic';
+type ReplicaName = 'dfx' | 'pocket-ic' | 'dfx-pocket-ic';
 
 type TestOptions = {
 	watch : boolean;
 	reporter : ReporterName;
 	mode : TestMode;
 	replica : ReplicaName;
+	verbose : boolean;
 };
 
 
@@ -66,7 +69,20 @@ export async function test(filter = '', options : Partial<TestOptions> = {}) {
 	let rootDir = getRootDir();
 
 	let replicaType = options.replica ?? (config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx' as ReplicaName);
+
+	if (replicaType === 'pocket-ic' && !config.toolchain?.['pocket-ic']) {
+		let dfxVersion = getDfxVersion();
+		if (!dfxVersion || new SemVer(dfxVersion).compare('0.24.1') < 0) {
+			console.log(chalk.red('Please update dfx to the version >=0.24.1 or specify pocket-ic version in mops.toml'));
+			process.exit(1);
+		}
+		else {
+			replicaType = 'dfx-pocket-ic';
+		}
+	}
+
 	replica.type = replicaType;
+	replica.verbose = !!options.verbose;
 
 	if (options.watch) {
 		replica.ttl = 60 * 15; // 15 minutes
@@ -202,6 +218,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 	let testTempDir = path.join(getRootDir(), '.mops/.test/');
 	replica.dir = testTempDir;
 
+	fs.rmSync(testTempDir, {recursive: true, force: true});
 	fs.mkdirSync(testTempDir, {recursive: true});
 
 	await parallel(os.cpus().length, files, async (file : string) => {
