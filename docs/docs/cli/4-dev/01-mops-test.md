@@ -28,12 +28,16 @@ Test reporter.
 
 Available reporters:
 
-- `verbose` - print each test name
+- `verbose` - print each file/suite/test name and `Debug.print` output
 - `files` - print only test files
 - `compact` - pretty progress bar
 - `silent` - print only errors
 
 Default `verbose` if there is only one file to test and `files` otherwise.
+
+:::note
+Only `verbose` reporter prints `Debug.print` output.
+:::
 
 ### `--watch`, `-w`
 
@@ -94,3 +98,11 @@ Default `pocket-ic` if `pocket-ic` is specified in `mops.toml` in `[toolchain]` 
 Possible values:
 - `dfx` - use `dfx` local replica
 - `pocket-ic` - use [PocketIC](https://pypi.org/project/pocket-ic/) light replica via [pic.js](https://www.npmjs.com/package/@hadronous/pic) wrapper
+
+:::info
+If you run `mops test --replica pocket-ic` AND `pocket-ic` is not specified in `mops.toml` in `[toolchain]` section, Mops will use pocket-ic replica that comes with dfx (`dfx start --pocketic`).
+:::
+
+### `--verbose`
+
+Show replica logs
