@@ -48,7 +48,7 @@ type TestOptions = {
 	reporter : ReporterName;
 	mode : TestMode;
 	replica : ReplicaName;
-	debug : boolean;
+	verbose : boolean;
 };
 
 
@@ -82,7 +82,7 @@ export async function test(filter = '', options : Partial<TestOptions> = {}) {
 	}
 
 	replica.type = replicaType;
-	replica.verbose = !!options.debug;
+	replica.verbose = !!options.verbose;
 
 	if (options.watch) {
 		replica.ttl = 60 * 15; // 15 minutes

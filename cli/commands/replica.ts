@@ -62,7 +62,7 @@ export class Replica {
 				}
 				if (data.toString().includes('Failed to bind socket to')) {
 					console.error(chalk.red(data.toString()));
-					console.log('Please run again after some time');
+					console.log('Please try again after some time');
 					process.exit(11);
 				}
 			});
