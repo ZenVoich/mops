@@ -21,12 +21,13 @@ import {sync} from './commands/sync.js';
 import {outdated} from './commands/outdated.js';
 import {update} from './commands/update.js';
 import {bench} from './commands/bench.js';
-import {transferOwnership} from './commands/transfer-ownership.js';
 import {toolchain} from './commands/toolchain/index.js';
 import {Tool} from './types.js';
 import * as self from './commands/self.js';
 import {resolvePackages} from './resolve-packages.js';
 import {watch} from './commands/watch/watch.js';
+import {addOwner, printOwners, removeOwner} from './commands/owner.js';
+import {addMaintainer, printMaintainers, removeMaintainer} from './commands/maintainer.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -290,6 +291,68 @@ userCommand
 
 program.addCommand(userCommand);
 
+// mops owner *
+const ownerCommand = new Command('owner').description('Package owner management');
+
+// mops owner list
+ownerCommand
+	.command('list')
+	.description('List package owners')
+	.action(async () => {
+		await printOwners();
+	});
+
+// mops owner add
+ownerCommand
+	.command('add <principal>')
+	.description('Add package owner')
+	.addOption(new Option('--yes', 'Do not ask for confirmation'))
+	.action(async (data, options) => {
+		await addOwner(data, options.yes);
+	});
+
+// mops owner remove
+ownerCommand
+	.command('remove <principal>')
+	.description('Remove package owner')
+	.addOption(new Option('--yes', 'Do not ask for confirmation'))
+	.action(async (data, options) => {
+		await removeOwner(data, options.yes);
+	});
+
+program.addCommand(ownerCommand);
+
+// mops maintainer *
+const maintainerCommand = new Command('maintainer').description('Package maintainer management');
+
+// mops maintainer list
+maintainerCommand
+	.command('list')
+	.description('List package maintainers')
+	.action(async () => {
+		await printMaintainers();
+	});
+
+// mops maintainer add
+maintainerCommand
+	.command('add <principal>')
+	.description('Add package maintainer')
+	.addOption(new Option('--yes', 'Do not ask for confirmation'))
+	.action(async (data, options) => {
+		await addMaintainer(data, options.yes);
+	});
+
+// mops maintainer remove
+maintainerCommand
+	.command('remove <principal>')
+	.description('Remove package maintainer')
+	.addOption(new Option('--yes', 'Do not ask for confirmation'))
+	.action(async (data, options) => {
+		await removeMaintainer(data, options.yes);
+	});
+
+program.addCommand(maintainerCommand);
+
 // bump
 program
 	.command('bump [major|minor|patch]')
@@ -322,14 +385,6 @@ program
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['update', 'ignore']))
 	.action(async (pkg, options) => {
 		await update(pkg, options);
-	});
-
-// transfer-ownership
-program
-	.command('transfer-ownership [to-principal]')
-	.description('Transfer ownership of the current package to another principal')
-	.action(async (toPrincipal) => {
-		await transferOwnership(toPrincipal);
 	});
 
 // toolchain

@@ -255,9 +255,10 @@
 		let id = window.location.hash.slice(1);
 		let el = document.querySelector(`[id="${id}"]`) as HTMLElement;
 		if (!el) {
+			console.log(`Definition not found: ${id}`);
 			return;
 		}
-		document.body.scroll({
+		document.scrollingElement.scroll({
 			top: el.offsetTop - docHeaderEl.offsetHeight - 10,
 			behavior: 'smooth',
 		});

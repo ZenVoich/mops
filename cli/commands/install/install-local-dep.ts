@@ -27,7 +27,7 @@ export async function installLocalDep(pkg : string, pkgPath = '', {verbose, sile
 
 	// install dependencies
 	if (!ignoreTransitive) {
-		let dir = path.resolve(getRootDir(), pkgPath);
+		let dir = path.resolve(getRootDir(), pkgPath).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 		let config = readConfig(path.join(dir, 'mops.toml'));
 		return installDeps(Object.values(config.dependencies || {}), {silent, verbose}, pkgPath);
 	}
