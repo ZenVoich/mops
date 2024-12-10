@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.1.2
+- Fixed `{MOPS_ENV}` substitution in local package path
+
 ## 1.1.1
 - `moc-wrapper` now adds hostname to the moc path cache(`.mops/moc-*` filename) to avoid errors when running in Dev Containers
 - `mops watch` now deploys canisters with the `--yes` flag to skip data loss confirmation
