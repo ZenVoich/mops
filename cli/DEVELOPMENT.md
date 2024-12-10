@@ -33,7 +33,7 @@ npm publish
 
 Check release hash of latest build for version `0.0.0` at https://github.com/ZenVoich/mops/actions/workflows/build-hash.yml
 
-Build locally veersion `0.0.0`
+Build locally version `0.0.0`
 ```
 MOPS_VERSION=0.0.0 ./build.sh
 ```

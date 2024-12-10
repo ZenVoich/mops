@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.1.1"
+    "latest": "1.1.2"
   },
   "versions": {
     "0.41.0": {
@@ -104,6 +104,14 @@
       "commitHash": "81f69d54900d536e23ca56cfba0095d12d10a082",
       "url": "https://cli.mops.one/versions/1.1.1.tgz",
       "hash": "11471e7a0e6dd44f0c573e79724f1a2d447cc8e256f20960a39e01de651c753a"
+    },
+    "1.1.2": {
+      "time": 1733808678915,
+      "size": 717007,
+      "relseaseNotes": "* Fixed `{MOPS_ENV}` substitution in local package path\n",
+      "commitHash": "a894d3d31cc4acf9137f7187383110a7007279e6",
+      "url": "https://cli.mops.one/versions/1.1.2.tgz",
+      "hash": "026fe911da71223cc4e1ccf9401ab91f3b34bad0d6a649472ec4dc304ceb2eed"
     }
   }
 }
