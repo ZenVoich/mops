@@ -8,7 +8,7 @@ tags: []
 ### Summary
 - Mops CLI updates (v1.2.0, v1.1.2)
 - Multiple package owners and maintainers support
-- Package documentation fixes
+- Package registry fixes
 
 <!-- truncate -->
 
@@ -39,6 +39,8 @@ Documentation:
 - [`mops owner *`](https://docs.mops.one/cli/mops-owner) commands
 - [`mops maintainers *`](https://docs.mops.one/cli/mops-maintainers) commands
 
-## Package documentation fixes
+## Package registry fixes
 
-Fixed scroll to definition in the package documentation.
+Fixed scrolling to definition in package documentation.
+
+Fixed automatic assignment of package category based on package keywords.
