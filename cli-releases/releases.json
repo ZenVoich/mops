@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.1.2"
+    "latest": "1.2.0"
   },
   "versions": {
     "0.41.0": {
@@ -112,6 +112,14 @@
       "commitHash": "a894d3d31cc4acf9137f7187383110a7007279e6",
       "url": "https://cli.mops.one/versions/1.1.2.tgz",
       "hash": "026fe911da71223cc4e1ccf9401ab91f3b34bad0d6a649472ec4dc304ceb2eed"
+    },
+    "1.2.0": {
+      "time": 1733905798185,
+      "size": 717848,
+      "relseaseNotes": "* Removed `mops transfer-ownership` command\n* Added `mops owner` command to manage package owners ([docs](https://docs.mops.one/cli/mops-owner))\n* Added `mops maintainers` command to manage package maintainers ([docs](https://docs.mops.one/cli/mops-maintainers))\n* Added experimental support for pocket-ic replica that comes with dfx in `mops test` command ([docs](https://docs.mops.one/cli/mops-test#--replica))\n* Added flag `--verbose` to `mops test` command to show replica logs\n* Fixed bug where `mops watch` would fail if dfx.json did not exist\n* Fixed bug with local dependencies without `mops.toml` file\n",
+      "commitHash": "b629948a7870c0b5128cc148b2563698e7a7d3c9",
+      "url": "https://cli.mops.one/versions/1.2.0.tgz",
+      "hash": "9f606cd39eaf7c3536a56548bfe728fa95840194cc7880070e0881455abbdb17"
     }
   }
 }
