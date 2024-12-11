@@ -1,5 +1,6 @@
 import process from 'node:process';
 import path from 'node:path';
+import {existsSync} from 'node:fs';
 import chalk from 'chalk';
 import {checkConfigFile, getRootDir, parseGithubURL, readConfig} from './mops.js';
 import {VesselConfig, readVesselConfig} from './vessel.js';
@@ -99,8 +100,11 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 				nestedConfig = await readVesselConfig(getDepCacheDir(cacheDir), {silent: true}) || {};
 			}
 			else if (pkgDetails.path) {
-				localNestedDir = path.resolve(configDir, pkgDetails.path);
-				nestedConfig = readConfig(localNestedDir + '/mops.toml');
+				localNestedDir = path.resolve(configDir, pkgDetails.path).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
+				let mopsToml = path.join(localNestedDir, 'mops.toml');
+				if (existsSync(mopsToml)) {
+					nestedConfig = readConfig();
+				}
 			}
 			else if (version) {
 				let cacheDir = getDepCacheName(name, version);
