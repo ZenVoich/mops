@@ -17,6 +17,7 @@ import {DAY} "mo:time-consts";
 import Backup "mo:backup";
 import Sha256 "mo:sha2/Sha256";
 import HttpTypes "mo:http-types";
+import Set "mo:map/Set";
 
 import Utils "../utils";
 import Semver "./utils/semver";
@@ -424,14 +425,34 @@ actor class Main() {
 		});
 	};
 
+	func _getPackageNamesForKeywords(keywords: [Text]) : [PackageName] {
+		registry.getHighestConfigs()
+			|> Array.filter<PackageConfigV3>(_, func(config) {
+				Array.find<Text>(config.keywords, func(id : Text) {
+					Array.find<Text>(keywords, func(keyword : Text) {
+						id == keyword;
+					}) != null;
+				}) != null;
+			})
+			|> Array.map<PackageConfigV3, PackageName>(_, func({name}) {
+				name;
+			});
+	};
+
+	func _combineUniq(arr1 : [Text], arr2 : [Text]) : [Text] {
+		Iter.concat(arr1.vals(), arr2.vals())
+			|> Set.fromIter(_, Set.thash)
+			|> Set.toArray(_);
+	};
+
 	public query func getPackagesByCategory() : async [(Text, [PackageSummary])] {
 		let limit = 10;
 
 		packagesByCategory
-			|> Array.map<{legacyNames : [Text]; title : Text}, (Text, [PackageSummary])>(_, func({title; legacyNames}) {
+			|> Array.map<{title : Text; keywords: [Text]; legacyNames : [Text]}, (Text, [PackageSummary])>(_, func({title; keywords; legacyNames}) {
 				(
 					title,
-					legacyNames
+					_combineUniq(_getPackageNamesForKeywords(keywords), legacyNames)
 						|> _summariesFromNames(_, 1000)
 						|> _sortByPublicationTime(_)
 						|> Array.take(_, limit)
