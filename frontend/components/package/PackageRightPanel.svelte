@@ -93,7 +93,7 @@
 	{/if}
 
 	<div class="docs-links">
-		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/package-owners-and-maintainers">Owners and maintainers</a></div>
+		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/package-owners-and-maintainers">Owners and maintainers</a></div>
 		<div><span class="question-mark">?</span> <a class="docs-link" href="https://docs.mops.one/cli/mops-user-set">How to fill user info</a></div>
 	</div>
 
