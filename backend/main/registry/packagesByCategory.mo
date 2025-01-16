@@ -44,7 +44,7 @@ module {
 		},
 		{
 			title = "Encoding";
-			keywords = ["encoding", "decoding", "serialization", "deserialization", "serialize", "deserialize", "encoder", "decoder", "encode", "decode"];
+			keywords = ["encoding", "decoding", "serialization", "deserialization", "serialize", "deserialize", "encoder", "decoder", "encode", "decode", "parse", "parser", "stringfy", "json", "cbor", "candid"];
 			legacyNames = [
 				"deflate",
 				"serde",
