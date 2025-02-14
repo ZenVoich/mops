@@ -2,6 +2,7 @@ import process from 'node:process';
 import fs from 'node:fs';
 import events from 'node:events';
 import {Command, Argument, Option} from 'commander';
+import chalk from 'chalk';
 
 import {init} from './commands/init.js';
 import {publish} from './commands/publish.js';
@@ -98,6 +99,11 @@ program
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (options) => {
+		if (process.argv.at(-1) !== 'install') {
+			console.log(`${chalk.red('Error:')} ${chalk.yellow('mops install')} command installs all dependencies.\nUse ${chalk.green(`mops add ${process.argv.at(-1)}`)} instead.`);
+			process.exit(1);
+		}
+
 		if (!checkConfigFile()) {
 			process.exit(1);
 		}
