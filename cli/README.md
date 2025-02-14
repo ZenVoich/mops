@@ -2,7 +2,10 @@
 
 Mops is a package manager for the Motoko programming language.
 
-See https://mops.one
+- [Motoko Package Registry](https://mops.one)
+- [Documentation](https://docs.mops.one)
+- [Blog](https://blog.mops.one)
+- [CLI](https://cli.mops.one)
 
 ## Setup
 
@@ -11,6 +14,10 @@ See https://mops.one
 - [DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart) >= 0.10.0
 
 ### 2. Install CLI tool
+```
+curl -fsSL cli.mops.one/install.sh | sh
+```
+or
 ```
 npm i -g ic-mops
 ```
@@ -32,8 +39,6 @@ Add `mops` as a packtool to your `dfx.json`
 
 ### 2. Initialize
 Run this command in the root directory of your project (where is `dfx.json` placed)
-
-If there are Vessel config files, mops will migrate packages from `vessel.dhall` to `mops.toml`
 
 ```
 mops init
@@ -111,3 +116,6 @@ Publish package to the mops registry!
 ```
 mops publish
 ```
+
+------------
+*Built for the [Supernova Hackathon](https://dfinity.org/supernova/)*

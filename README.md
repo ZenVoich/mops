@@ -2,8 +2,10 @@
 
 Mops is a package manager for the Motoko programming language.
 
+- [Motoko Package Registry](https://mops.one)
 - [Documentation](https://docs.mops.one)
-- [Package Registry](https://mops.one)
+- [Blog](https://blog.mops.one)
+- [CLI](https://cli.mops.one)
 
 ## Setup
 
@@ -12,6 +14,10 @@ Mops is a package manager for the Motoko programming language.
 - [DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart) >= 0.10.0
 
 ### 2. Install CLI tool
+```
+curl -fsSL cli.mops.one/install.sh | sh
+```
+or
 ```
 npm i -g ic-mops
 ```
@@ -33,8 +39,6 @@ Add `mops` as a packtool to your `dfx.json`
 
 ### 2. Initialize
 Run this command in the root directory of your project (where is `dfx.json` placed)
-
-If there are Vessel config files, mops will migrate packages from `vessel.dhall` to `mops.toml`
 
 ```
 mops init
@@ -112,39 +116,6 @@ Publish package to the mops registry!
 ```
 mops publish
 ```
-
-## Local Development
-`npm start` - starts local replica and dev server
-
-To be able to install/publish packages locally:
-
-1. Make the following changes to the `cli/package.json`
-```diff
-{
--	"name": "ic-mops",
-+	"name": "ic-mops-local",
-	"version": "0.1.14",
-	"type": "module",
-	"bin": {
--		"mops": "cli.js"
-+		"mops-local": "cli.js"
-	},
-...
-```
-
-2. Inside `cli` folder run
-```
-npm link
-```
-
-2. Switch network to local
-```
-mops-local set-network local
-```
-
-3. Revert changes made to `cli/package.json`
-
-Now you can install/publish packages locally like this `mops-local add <pkg>`
 
 ------------
 *Built for the [Supernova Hackathon](https://dfinity.org/supernova/)*
