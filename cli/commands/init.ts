@@ -11,6 +11,7 @@ import {installAll} from './install/install-all.js';
 import {VesselConfig, readVesselConfig} from '../vessel.js';
 import {Config, Dependencies} from '../types.js';
 import {template} from './template.js';
+import {kebabCase} from 'change-case';
 
 export async function init({yes = false} = {}) {
 	let configFile = path.join(process.cwd(), 'mops.toml');
@@ -88,7 +89,7 @@ export async function init({yes = false} = {}) {
 				type: 'text',
 				name: 'name',
 				message: 'Enter package name:',
-				initial: '',
+				initial: kebabCase(path.basename(process.cwd())),
 			},
 			{
 				type: 'text',
@@ -133,7 +134,7 @@ export async function init({yes = false} = {}) {
 		], promptsConfig);
 
 		config.package = {
-			name: (res.name || '').trim(),
+			name: kebabCase((res.name || '').trim()),
 			version: '1.0.0',
 			description: (res.description || '').trim(),
 			repository: (res.repository || '').trim(),

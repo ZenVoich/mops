@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import camelCase from 'camelcase';
+import {kebabCase, pascalCase} from 'change-case';
 import {getRootDir, readConfig} from '../mops.js';
 import {copyTemplateFileSync} from '../templates.js';
 
@@ -99,8 +99,8 @@ export async function template(templateName ?: string, options : any = {}) {
 		let data = fs.readFileSync(dest).toString();
 		data = data.replace(/<year>/g, new Date().getFullYear().toString());
 		if (config.package?.name) {
-			data = data.replace(/<name>/g, config.package.name);
-			data = data.replace(/<import-name>/g, camelCase(config.package.name, {pascalCase: true}));
+			data = data.replace(/<name>/g, kebabCase(config.package.name));
+			data = data.replace(/<import-name>/g, pascalCase(config.package.name));
 		}
 		fs.writeFileSync(dest, data);
 
