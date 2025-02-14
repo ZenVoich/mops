@@ -1,5 +1,11 @@
 # Mops CLI Changelog
 
+## 1.3.0
+- Show error on `mops install <pkg>` command. Use `mops add <pkg>` instead.
+- Added support for pocket-ic replica that comes with dfx in `mops bench` command. To activate it, remove `pocket-ic` from `mops.toml` and run `mops bench --replica pocket-ic`. Requires dfx 0.24.1 or higher.
+- `mops init` now pre-fills package name with current directory name in kebab-case
+- Updated non-major npm dependencies
+
 ## 1.2.0
 - Removed `mops transfer-ownership` command
 - Added `mops owner` command to manage package owners ([docs](https://docs.mops.one/cli/mops-owner))
