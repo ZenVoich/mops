@@ -21,6 +21,9 @@ import {Benchmark, Benchmarks} from '../declarations/main/main.did.js';
 import {BenchResult, _SERVICE} from '../declarations/bench/bench.did.js';
 import {BenchReplica} from './bench-replica.js';
 import {filesize} from 'filesize';
+import {SemVer} from 'semver';
+
+type ReplicaName = 'dfx' | 'pocket-ic' | 'dfx-pocket-ic';
 
 let ignore = [
 	'**/node_modules/**',
@@ -35,7 +38,7 @@ let globConfig = {
 };
 
 type BenchOptions = {
-	replica : 'dfx' | 'pocket-ic',
+	replica : ReplicaName,
 	replicaVersion : string,
 	compiler : 'moc',
 	compilerVersion : string,
@@ -66,16 +69,30 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 
 	let options : BenchOptions = {...defaultOptions, ...optionsArg};
 
-	if (options.replica == 'dfx') {
+	let replicaType = options.replica ?? (config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx' as ReplicaName);
+	if (replicaType === 'pocket-ic' && !config.toolchain?.['pocket-ic']) {
+		let dfxVersion = getDfxVersion();
+		if (!dfxVersion || new SemVer(dfxVersion).compare('0.24.1') < 0) {
+			console.log(chalk.red('Please update dfx to the version >=0.24.1 or specify pocket-ic version in mops.toml'));
+			process.exit(1);
+		}
+		else {
+			replicaType = 'dfx-pocket-ic';
+		}
+	}
+
+	options.replica = replicaType;
+
+	if (replicaType == 'dfx') {
 		options.replicaVersion = getDfxVersion();
 	}
-	else if (options.replica == 'pocket-ic') {
+	else if (replicaType == 'pocket-ic') {
 		options.replicaVersion = config.toolchain?.['pocket-ic'] || '';
 	}
 
 	options.verbose && console.log(options);
 
-	let replica = new BenchReplica(options.replica, options.verbose);
+	let replica = new BenchReplica(replicaType, options.verbose);
 
 	let rootDir = getRootDir();
 	let globStr = '**/bench?(mark)/**/*.bench.mo';
