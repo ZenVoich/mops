@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.2.0"
+    "latest": "1.3.0"
   },
   "versions": {
     "0.41.0": {
@@ -120,6 +120,14 @@
       "commitHash": "b629948a7870c0b5128cc148b2563698e7a7d3c9",
       "url": "https://cli.mops.one/versions/1.2.0.tgz",
       "hash": "9f606cd39eaf7c3536a56548bfe728fa95840194cc7880070e0881455abbdb17"
+    },
+    "1.3.0": {
+      "time": 1739523473614,
+      "size": 740758,
+      "relseaseNotes": "* Show error on `mops install <pkg>` command. Use `mops add <pkg>` instead.\n* Added support for pocket-ic replica that comes with dfx in `mops bench` command. To activate it, remove `pocket-ic` from `mops.toml` and run `mops bench --replica pocket-ic`. Requires dfx 0.24.1 or higher.\n* `mops init` now pre-fills package name with current directory name in kebab-case\n* Updated non-major npm dependencies\n",
+      "commitHash": "0eb0c2da55ecf3aa85cd35df48baea0a6400d5e3",
+      "url": "https://cli.mops.one/versions/1.3.0.tgz",
+      "hash": "82493feddd0102604d4d33b2f2d799bbf0ac5ffc9af90a5a6fbae43dda1a67fb"
     }
   }
 }
