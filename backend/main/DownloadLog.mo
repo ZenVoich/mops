@@ -137,7 +137,6 @@ module {
 
 		public func takeSnapshotsIfNeeded(now : Time.Time) {
 			let startOfDay = now / 86_400_000_000_000 * 86_400_000_000_000;
-			let date = DateTime.fromTime(startOfDay);
 			let dateComponents = DateComponents.fromTime(startOfDay);
 			let weekDay = DateComponents.dayOfWeek(dateComponents);
 			let day = dateComponents.day;

@@ -93,7 +93,7 @@ actor class Main() = this {
 	);
 
 	let downloadLog = DownloadLog.DownloadLog();
-	downloadLog.setTimers();
+	downloadLog.setTimers<system>();
 
 	let storageManager = StorageManager.StorageManager();
 	let users = Users.Users();
@@ -219,15 +219,15 @@ actor class Main() = this {
 	};
 
 	// QUERY
-	public shared query ({caller}) func getApiVersion() : async Text.Text {
+	public query func getApiVersion() : async Text.Text {
 		API_VERSION;
 	};
 
-	public shared query ({caller}) func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
+	public query func getDefaultPackages(dfxVersion : Text) : async [(PackageName, PackageVersion)] {
 		_getDefaultPackages(registry, dfxVersion);
 	};
 
-	public shared query ({caller}) func getHighestVersion(name : PackageName) : async Result.Result<PackageVersion, Err> {
+	public query func getHighestVersion(name : PackageName) : async Result.Result<PackageVersion, Err> {
 		Result.fromOption(registry.getHighestVersion(name), "Package '" # name # "' not found");
 	};
 
@@ -266,7 +266,7 @@ actor class Main() = this {
 		#ok(max);
 	};
 
-	public shared query ({caller}) func getHighestSemverBatch(list : [(PackageName, PackageVersion, SemverPart)]) : async Result.Result<[(PackageName, PackageVersion)], Err> {
+	public query func getHighestSemverBatch(list : [(PackageName, PackageVersion, SemverPart)]) : async Result.Result<[(PackageName, PackageVersion)], Err> {
 		assert(list.size() < 100);
 
 		let buf = Buffer.Buffer<(PackageName, PackageVersion)>(list.size());
@@ -283,7 +283,7 @@ actor class Main() = this {
 		#ok(Buffer.toArray(buf));
 	};
 
-	public shared query ({caller}) func getPackageDetails(name : PackageName, version : PackageVersion) : async Result.Result<PackageDetails, Err> {
+	public query func getPackageDetails(name : PackageName, version : PackageVersion) : async Result.Result<PackageDetails, Err> {
 		let packageDetails = do ? {
 			let ver = _resolveVersion(name, version)!;
 			_getPackageDetails(registry, users, downloadLog, name, ver)!;
@@ -291,7 +291,7 @@ actor class Main() = this {
 		Result.fromOption(packageDetails, "Package '" # name # "' not found");
 	};
 
-	public shared query ({caller}) func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
+	public query func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
 		let packageId = PackageUtils.getPackageId(name, version);
 		Result.fromOption(fileIdsByPackage.get(packageId), "Package '" # packageId # "' not found");
 	};
@@ -306,17 +306,17 @@ actor class Main() = this {
 		#ok(Buffer.toArray(buf));
 	};
 
-	public shared ({caller}) func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
+	public shared func getFileHashes(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
 		let packageId = PackageUtils.getPackageId(name, version);
 		_getFileHashes(packageId);
 	};
 
-	public query ({caller}) func getFileHashesQuery(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
+	public query func getFileHashesQuery(name : PackageName, version : PackageVersion) : async Result.Result<[(FileId, Blob)], Err> {
 		let packageId = PackageUtils.getPackageId(name, version);
 		_getFileHashes(packageId);
 	};
 
-	public shared ({caller}) func getFileHashesByPackageIds(packageIds : [PackageId]) : async [(PackageId, [(FileId, Blob)])] {
+	public shared func getFileHashesByPackageIds(packageIds : [PackageId]) : async [(PackageId, [(FileId, Blob)])] {
 		let buf = Buffer.Buffer<(PackageId, [(FileId, Blob)])>(packageIds.size());
 
 		for (packageId in packageIds.vals()) {

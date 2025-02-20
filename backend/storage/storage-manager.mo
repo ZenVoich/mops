@@ -42,7 +42,7 @@ module {
 
 		func _spawnStorage() : async () {
 			assert(Cycles.balance() > OWN_MIN_CYCLES + STORAGE_INITIAL_CYCLES);
-			Cycles.add(STORAGE_INITIAL_CYCLES);
+			Cycles.add<system>(STORAGE_INITIAL_CYCLES);
 			let storage = await Storage.Storage();
 			let stats = await storage.getStats();
 			let storageId = Principal.fromActor(storage);
@@ -77,7 +77,7 @@ module {
 				let canTopUp = Cycles.balance() > OWN_MIN_CYCLES + STORAGE_TOP_UP_CYCLES;
 
 				if (mustTopUp and canTopUp) {
-					Cycles.add(STORAGE_TOP_UP_CYCLES);
+					Cycles.add<system>(STORAGE_TOP_UP_CYCLES);
 					await storage.acceptCycles();
 				};
 			};

@@ -28,7 +28,7 @@ module {
 		let url = "https://raw.githubusercontent.com/" # repoName # slash # "master/mops.toml";
 
 		try {
-			ExperimentalCycles.add(1_000_000_000);
+			ExperimentalCycles.add<system>(1_000_000_000);
 			let response = await ic.http_request({
 				url = url;
 				method = #get;

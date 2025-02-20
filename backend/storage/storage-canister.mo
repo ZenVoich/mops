@@ -39,7 +39,7 @@ shared({caller = parent}) actor class Storage() {
 	};
 
 	public func acceptCycles() : async () {
-		ignore Cycles.accept(Cycles.available());
+		ignore Cycles.accept<system>(Cycles.available());
 	};
 
 	public shared query ({caller}) func getFileIdsRange(start : Nat, end : Nat) : async [FileId] {
