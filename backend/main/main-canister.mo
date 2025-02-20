@@ -39,7 +39,7 @@ import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages
 import {verifyPackageRepository} "./verifyPackageRepository";
 import PackageUtils "./utils/package-utils";
 
-actor class Main() {
+actor class Main() = this {
 	public type PackageName = Text.Text; // lib
 	public type PackageVersion = Types.PackageVersion; // 1.2.3
 	public type PackageId = Text.Text; // lib@1.2.3
@@ -209,6 +209,13 @@ actor class Main() {
 				hashByFileId.put(fileId, hasher.sum());
 			};
 		};
+	};
+
+	public shared ({caller}) func setStorageControllers() : async () {
+		assert(Utils.isAdmin(caller));
+		let self = Principal.fromActor(this);
+		let cycleOpsBlackhole = Principal.fromText("2daxo-giaaa-aaaap-anvca-cai");
+		await storageManager.setControllers([self, cycleOpsBlackhole]);
 	};
 
 	// QUERY

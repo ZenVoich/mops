@@ -7,6 +7,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Result "mo:base/Result";
 import Principal "mo:base/Principal";
 import Debug "mo:base/Debug";
+import {ic} "mo:ic";
 
 import Types "./types";
 import Storage "./storage-canister";
@@ -88,6 +89,22 @@ module {
 			while (uploadableStorageCount < MIN_UPLOADABLE_STORAGES) {
 				await _spawnStorage();
 				uploadableStorageCount += 1;
+			};
+		};
+
+		public func setControllers(controllers : [Principal]) : async () {
+			for (storageId in storages.keys()) {
+				await ic.update_settings({
+					canister_id = storageId;
+					sender_canister_version = null;
+					settings = {
+						controllers = ?controllers;
+						compute_allocation = null;
+						freezing_threshold = null;
+						memory_allocation = null;
+						reserved_cycles_limit = null;
+					};
+				});
 			};
 		};
 
