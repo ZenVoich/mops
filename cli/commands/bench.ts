@@ -155,7 +155,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	let benchResults : Benchmarks = [];
 
 	await parallel(1, files, async (file : string) => {
-		if (!options.silent) {
+		if (!options.silent && !process.env.CI) {
 			console.log('\n' + '-'.repeat(50));
 			console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 			console.log('');
