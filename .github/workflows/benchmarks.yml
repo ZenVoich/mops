@@ -14,7 +14,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dfx
@@ -51,7 +50,7 @@ jobs:
       - name: Benchmarks
         id: benchmarks
         run: |
-          mops bench 2>&1 | tee benchmark_results.txt
+          mops bench --compare 2>&1 | tee benchmark_results.txt
           echo "result<<EOF" >> $GITHUB_OUTPUT
           cat benchmark_results.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
