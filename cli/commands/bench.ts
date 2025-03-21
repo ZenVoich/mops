@@ -156,7 +156,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 
 	await parallel(1, files, async (file : string) => {
 		if (!options.silent) {
-			console.log('\n' + '—'.repeat(50));
+			console.log('\n' + '-'.repeat(50));
 			console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 			console.log('');
 		}
@@ -263,6 +263,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 
 	let getTable = (prop : keyof BenchResult) : string => {
 		let resArr = [['', ...schema.cols]];
+		let allZero = true;
 
 		for (let [_rowIndex, row] of schema.rows.entries()) {
 			let curRow = [row];
@@ -270,6 +271,9 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			for (let [_colIndex, col] of schema.cols.entries()) {
 				let res = results.get(`${row}:${col}`);
 				if (res) {
+					if (res[prop] != 0n) {
+						allZero = false;
+					}
 
 					// compare with previous results
 					let diff = '';
@@ -277,10 +281,18 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 						let prevRes = prevResults.get(`${row}:${col}`);
 						if (prevRes) {
 							let percent = (Number(res[prop]) - Number(prevRes[prop])) / Number(prevRes[prop]) * 100;
+							if (Object.is(percent, NaN)) {
+								percent = 0;
+							}
 							let sign = percent > 0 ? '+' : '';
 							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
 							let color : keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
-							diff = ` (${chalk[color](percentText)})`;
+							if (process.env.CI) {
+								diff = ` $({\\color{${color}}${percentText.replace('%', '\\\\%')}})$`;
+							}
+							else {
+								diff = ` (${chalk[color](percentText)})`;
+							}
 						}
 						else {
 							diff = chalk.yellow(' (no previous results)');
@@ -307,6 +319,11 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			resArr.push(curRow);
 		}
 
+		// don't show Stable Memory table if all values are 0
+		if (allZero && prop == 'rts_logical_stable_memory_size') {
+			return '';
+		}
+
 		return markdownTable(resArr, {
 			align: ['l', ...'r'.repeat(schema.cols.length)],
 			stringLength: stringWidth,
@@ -322,7 +339,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
 			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
 			\n\n${chalk.blue('Garbage Collection')}\n\n${getTable('rts_reclaimed')}
-			\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}
+			${getTable('rts_logical_stable_memory_size') ? `\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}` : ''}
 		`;
 	};
 

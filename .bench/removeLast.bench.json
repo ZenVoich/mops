@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "moc": "0.12.1",
+  "replica": "pocket-ic",
+  "replicaVersion": "4.0.0",
+  "gc": "copying",
+  "forceGc": true,
+  "results": [
+    [
+      "Vector:remove 70k",
+      {
+        "rts_stable_memory_size": 0,
+        "stable_memory_size": 0,
+        "instructions": 32210297,
+        "rts_memory_size": 0,
+        "rts_total_allocation": 2716,
+        "rts_collector_instructions": -1326219,
+        "rts_mutator_instructions": -11870,
+        "rts_logical_stable_memory_size": 0,
+        "rts_heap_size": -140080,
+        "rts_reclaimed": 142796
+      }
+    ],
+    [
+      "Buffer:remove 70k",
+      {
+        "rts_stable_memory_size": 0,
+        "stable_memory_size": 0,
+        "instructions": 31716422,
+        "rts_memory_size": 0,
+        "rts_total_allocation": 277160,
+        "rts_collector_instructions": -2551425,
+        "rts_mutator_instructions": -7922,
+        "rts_logical_stable_memory_size": 0,
+        "rts_heap_size": -276236,
+        "rts_reclaimed": 553396
+      }
+    ]
+  ]
+}
