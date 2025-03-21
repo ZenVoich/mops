@@ -156,7 +156,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 
 	await parallel(1, files, async (file : string) => {
 		if (!options.silent) {
-			console.log('\n' + '—'.repeat(50));
+			console.log('\n' + '-'.repeat(50));
 			console.log(`\nRunning ${chalk.gray(absToRel(file))}...`);
 			console.log('');
 		}
@@ -288,8 +288,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
 							let color : keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
 							if (process.env.CI) {
-								// diff = ` (<span style="color:${color}">${percentText}</span>)`;
-								diff = ` (\${\\color{${color}}${percentText.replace('%', '\\\\%')}}$)`;
+								diff = ` $({\\color{${color}}${percentText.replace('%', '\\\\%')}})$`;
 							}
 							else {
 								diff = ` (${chalk[color](percentText)})`;

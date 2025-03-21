@@ -11,7 +11,7 @@
       {
         "rts_stable_memory_size": 0,
         "stable_memory_size": 0,
-        "instructions": 10589,
+        "instructions": 13589,
         "rts_memory_size": 0,
         "rts_total_allocation": 1388,
         "rts_collector_instructions": 6220,
@@ -56,7 +56,7 @@
       {
         "rts_stable_memory_size": 0,
         "stable_memory_size": 0,
-        "instructions": 15416,
+        "instructions": 11416,
         "rts_memory_size": 0,
         "rts_total_allocation": 1388,
         "rts_collector_instructions": 6242,
