@@ -57,7 +57,7 @@
     "chalk": "5.4.1",
     "change-case": "5.4.4",
     "chokidar": "3.6.0",
-    "commander": "12.1.0",
+    "commander": "13.1.0",
     "debounce": "2.1.1",
     "decomp-tarxz": "0.1.1",
     "decompress": "4.2.1",
