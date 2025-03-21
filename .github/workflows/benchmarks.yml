@@ -1,0 +1,71 @@
+name: Comment Benchmarks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    name: Run Benchmarks and Comment
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
+
+      - name: Confirm successful installation
+        run: dfx --version
+
+      - name: Install dfx cache
+        run: dfx cache install
+
+      - name: Cache mops packages
+        uses: actions/cache@v4
+        with:
+          key: mops-packages-${{ hashFiles('mops.toml') }}
+          restore-keys: |
+            mops-packages-${{ hashFiles('mops.toml') }}
+            mops-packages-
+          path: |
+            ~/.cache/mops
+
+      - name: Install npm packages
+        run: cd cli && npm install
+
+      - name: Build local cli
+        run: cd cli && npm run prepare
+
+      - name: Install mops
+        run: npm i -g ./cli/dist
+
+      - name: Install mops packages
+        run: mops install
+
+      - name: Benchmarks
+        id: benchmarks
+        run: |
+          res=$(mops bench)
+          echo "result=${res}" >> $GITHUB_OUTPUT
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Benchmark Results
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.benchmarks.outputs.result }}
+          edit-mode: replace
