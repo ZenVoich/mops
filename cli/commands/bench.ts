@@ -317,7 +317,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 
 	let getOutput = () => {
 		return `
-			\n${process.env.CI ? `**${schema.name}**` : chalk.bold(schema.name)}
+			\n${process.env.CI ? `## ${schema.name}` : chalk.bold(schema.name)}
 			${schema.description ? '\n' + (process.env.CI ? `_${schema.description}_` : chalk.gray(schema.description)) : ''}
 			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
 			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
