@@ -89,34 +89,6 @@
 			</tbody>
 		</table>
 
-		<b>Stable Memory</b>
-		<table>
-			<thead>
-				<tr>
-					<th></th>
-					{#each benchmark.cols as col}
-						<th>{col}</th>
-					{/each}
-				</tr>
-			</thead>
-			<tbody>
-				{#each benchmark.rows as row}
-					<tr>
-						<td>{row}</td>
-						{#each benchmark.cols as col}
-							<td>
-								{#if otherBenchmark}
-									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_logical_stable_memory_size')}></ColorizedValue>
-								{:else}
-									{getMetric(benchmark, row, col, 'rts_logical_stable_memory_size')}
-								{/if}
-							</td>
-						{/each}
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-
 		<b>Garbage Collection</b>
 		<table>
 			<thead>
@@ -137,6 +109,34 @@
 									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_reclaimed')}></ColorizedValue>
 								{:else}
 									{getMetric(benchmark, row, col, 'rts_reclaimed')}
+								{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<b>Stable Memory</b>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{#each benchmark.cols as col}
+						<th>{col}</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each benchmark.rows as row}
+					<tr>
+						<td>{row}</td>
+						{#each benchmark.cols as col}
+							<td>
+								{#if otherBenchmark}
+									<ColorizedValue value={getMetricDiff(benchmark, otherBenchmark, row, col, 'rts_logical_stable_memory_size')}></ColorizedValue>
+								{:else}
+									{getMetric(benchmark, row, col, 'rts_logical_stable_memory_size')}
 								{/if}
 							</td>
 						{/each}

@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"target": "es2020",
 		"module": "es2022",
-		// "lib": ["es2020", "dom"],
+		"lib": ["es2023", "dom"],
 		"noImplicitAny": true,
 		"alwaysStrict": true,
 		// "noImplicitReturns": true,

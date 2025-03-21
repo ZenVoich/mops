@@ -50,8 +50,8 @@
 				<div class="bench-overall-diff">
 					<div>Instructions: <ColorizedValue value={computeDiff(cur, prev, 'instructions')}></ColorizedValue></div>
 					<div>Heap: <ColorizedValue value={computeDiff(cur, prev, 'rts_heap_size')}></ColorizedValue></div>
-					<div>Stable Memory: <ColorizedValue value={computeDiff(cur, prev, 'rts_logical_stable_memory_size')}></ColorizedValue></div>
 					<div>Garbage Collection: <ColorizedValue value={computeDiff(cur, prev, 'rts_reclaimed')}></ColorizedValue></div>
+					<div>Stable Memory: <ColorizedValue value={computeDiff(cur, prev, 'rts_logical_stable_memory_size')}></ColorizedValue></div>
 				</div>
 				<PackageBenchmark benchmark={cur} otherBenchmark={prev}></PackageBenchmark>
 			</div>

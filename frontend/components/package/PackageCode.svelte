@@ -130,7 +130,7 @@
 		let prev : Node | null = null;
 		let prevClasses : string[] = [];
 
-		for (let child of codeViewEl.querySelector('.content').childNodes) {
+		for (let child of Array.from(codeViewEl.querySelector('.content').childNodes)) {
 			let scroll = false;
 
 			if (prev) {
