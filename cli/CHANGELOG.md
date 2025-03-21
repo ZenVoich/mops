@@ -1,5 +1,13 @@
 # Mops CLI Changelog
 
+## 1.4.0
+- Update `mops bench` command output:
+  - Print only final results if benchmarks run in a CI environment or there is no vertical space to progressively print the results
+  - Hide "Stable Memory" table if it has no data
+  - Hide verbose output when running in a CI environment ("Starting replica...", "Running simple.bench.mo...", etc.)
+  - Add LaTeX colors to the diffs when running in a CI environment with `--compare` flag
+- CLI now fails if excess arguments are passed to it
+
 ## 1.3.0
 - Show error on `mops install <pkg>` command. Use `mops add <pkg>` instead.
 - Added support for pocket-ic replica that comes with dfx in `mops bench` command. To activate it, remove `pocket-ic` from `mops.toml` and run `mops bench --replica pocket-ic`. Requires dfx 0.24.1 or higher.
