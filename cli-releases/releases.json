@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.3.0"
+    "latest": "1.4.0"
   },
   "versions": {
     "0.41.0": {
@@ -128,6 +128,14 @@
       "commitHash": "0eb0c2da55ecf3aa85cd35df48baea0a6400d5e3",
       "url": "https://cli.mops.one/versions/1.3.0.tgz",
       "hash": "82493feddd0102604d4d33b2f2d799bbf0ac5ffc9af90a5a6fbae43dda1a67fb"
+    },
+    "1.4.0": {
+      "time": 1742556710327,
+      "size": 742710,
+      "relseaseNotes": "* Update `mops bench` command output:\n  * Print only final results if benchmarks run in a CI environment or there is no vertical space to progressively print the results\n  * Hide \"Stable Memory\" table if it has no data\n  * Hide verbose output when running in a CI environment (`Starting replica...`, `Running simple.bench.mo...`, etc.)\n  * Add LaTeX colors to the diffs when running in a CI environment with `--compare` flag\n* CLI now fails if excess arguments are passed to it\n",
+      "commitHash": "5bf0a0419d18bc2249915afc175d69400ebc8d16",
+      "url": "https://cli.mops.one/versions/1.4.0.tgz",
+      "hash": "775dddf6e251ecfa45a05576eb46dbb4f4a09ff33459c2376db3a1aae81fd2bf"
     }
   }
 }

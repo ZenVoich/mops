@@ -50,7 +50,7 @@ npm run release
 2. Deploy canister
 (from root of the project)
 ```
-dfx deploy --network ic --no-wallet cli
+dfx deploy --network ic --no-wallet cli --identity mops
 ```
 
 ## Verify build
