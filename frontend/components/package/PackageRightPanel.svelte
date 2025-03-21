@@ -32,7 +32,7 @@
 	<div class="downloads">
 		<div class="detail">
 			<div class="label">Downloads</div>
-			<div class="value">{packageDetails.downloadsTotal}</div>
+			<div class="value">{packageDetails.downloadsTotal.toLocaleString()}</div>
 		</div>
 		<DownloadTrend snapshots={packageDetails.downloadTrend}></DownloadTrend>
 	</div>
