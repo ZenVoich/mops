@@ -5,9 +5,12 @@ import os from 'node:os';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import {markdownTable} from 'markdown-table';
-import logUpdate from 'log-update';
+import {createLogUpdate} from 'log-update';
 import {execaCommand} from 'execa';
 import stringWidth from 'string-width';
+import {filesize} from 'filesize';
+import terminalSize from 'terminal-size';
+import {SemVer} from 'semver';
 
 import {getRootDir, readConfig} from '../mops.js';
 import {parallel} from '../parallel.js';
@@ -20,8 +23,6 @@ import {sources} from './sources.js';
 import {Benchmark, Benchmarks} from '../declarations/main/main.did.js';
 import {BenchResult, _SERVICE} from '../declarations/bench/bench.did.js';
 import {BenchReplica} from './bench-replica.js';
-import {filesize} from 'filesize';
-import {SemVer} from 'semver';
 
 type ReplicaName = 'dfx' | 'pocket-ic' | 'dfx-pocket-ic';
 
@@ -83,6 +84,10 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 
 	options.replica = replicaType;
 
+	if (process.env.CI) {
+		console.log('# Benchmark Results\n\n');
+	}
+
 	if (replicaType == 'dfx') {
 		options.replicaVersion = getDfxVersion();
 	}
@@ -123,14 +128,19 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		for (let file of files) {
 			console.log(chalk.gray(`• ${absToRel(file)}`));
 		}
-		console.log('');
-		console.log('='.repeat(50));
-		console.log('');
+		if (!process.env.CI) {
+			console.log('');
+			console.log('='.repeat(50));
+			console.log('');
+		}
 	}
 
 	await replica.start({silent: options.silent});
 
-	options.silent || console.log('Deploying canisters...');
+	if (!process.env.CI && !options.silent) {
+		console.log('Deploying canisters...');
+	}
+
 	await parallel(os.cpus().length, files, async (file : string) => {
 		try {
 			await deployBenchFile(file, options, replica);
@@ -161,7 +171,9 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		}
 	});
 
-	options.silent || console.log('Stopping replica...');
+	if (!process.env.CI && !options.silent) {
+		console.log('Stopping replica...');
+	}
 	await replica.stop();
 
 	fs.rmSync(benchDir, {recursive: true, force: true});
@@ -301,19 +313,36 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		});
 	};
 
-	let printResults = () => {
-		logUpdate(`
-			\n${chalk.bold(schema.name)}
-			${schema.description ? '\n' + chalk.gray(schema.description) : ''}
+	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
+
+	let getOutput = () => {
+		return `
+			\n${process.env.CI ? `**${schema.name}**` : chalk.bold(schema.name)}
+			${schema.description ? '\n' + (process.env.CI ? `_${schema.description}_` : chalk.gray(schema.description)) : ''}
 			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
 			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
-			\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}
 			\n\n${chalk.blue('Garbage Collection')}\n\n${getTable('rts_reclaimed')}
-		`);
+			\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}
+		`;
 	};
 
-	if (!process.env.CI && !options.silent) {
-		printResults();
+	let canUpdateLog = !process.env.CI && !options.silent && terminalSize().rows > getOutput().split('\n').length;
+
+	let log = () => {
+		if (options.silent) {
+			return;
+		}
+		let output = getOutput();
+		if (process.env.CI || terminalSize().rows <= output.split('\n').length) {
+			console.log(output);
+		}
+		else {
+			logUpdate(output);
+		}
+	};
+
+	if (canUpdateLog) {
+		log();
 	}
 
 	// run all cells
@@ -331,16 +360,18 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 			// @ts-ignore
 			reclaimedCells[rowIndex][colIndex] = res.rts_reclaimed;
 
-			if (!process.env.CI && !options.silent) {
-				printResults();
+			if (canUpdateLog) {
+				log();
 			}
 		}
 	}
 
-	if (process.env.CI) {
-		printResults();
+	if (canUpdateLog) {
+		logUpdate.done();
 	}
-	logUpdate.done();
+	else {
+		log();
+	}
 
 	// save results
 	if (options.save) {

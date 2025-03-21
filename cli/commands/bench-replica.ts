@@ -22,7 +22,9 @@ export class BenchReplica {
 	}
 
 	async start({silent = false} = {}) {
-		silent || console.log(`Starting ${this.type} replica...`);
+		if (!process.env.CI && !silent) {
+			console.log(`Starting ${this.type} replica...`);
+		}
 
 		if (this.type == 'dfx' || this.type === 'dfx-pocket-ic') {
 			await this.stop();
