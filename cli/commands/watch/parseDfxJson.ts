@@ -5,6 +5,7 @@ import {getRootDir} from '../../mops.js';
 type DfxConfig = {
 	$schema : string;
 	version : number;
+	profile : 'Debug' | 'Release';
 	canisters : {
 		[key : string] : {
 			type : 'motoko' | 'assets';
@@ -41,7 +42,7 @@ type DfxConfig = {
 	};
 };
 
-function readDfxJson() : DfxConfig | Record<string, never> {
+export function readDfxJson() : DfxConfig | Record<string, never> {
 	let dfxJsonPath = path.resolve(getRootDir(), 'dfx.json');
 	if (!existsSync(dfxJsonPath)) {
 		return {};

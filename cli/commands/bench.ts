@@ -12,7 +12,7 @@ import {filesize} from 'filesize';
 import terminalSize from 'terminal-size';
 import {SemVer} from 'semver';
 
-import {getRootDir, readConfig} from '../mops.js';
+import {getRootDir, readConfig, readDfxJson} from '../mops.js';
 import {parallel} from '../parallel.js';
 import {absToRel} from './test/utils.js';
 import {getMocVersion} from '../helpers/get-moc-version.js';
@@ -49,11 +49,12 @@ type BenchOptions = {
 	compare : boolean,
 	verbose : boolean,
 	silent : boolean,
-
+	profile : 'Debug' | 'Release',
 };
 
 export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<Benchmarks> {
 	let config = readConfig();
+	let dfxJson = readDfxJson();
 
 	let defaultOptions : BenchOptions = {
 		replica: config.toolchain?.['pocket-ic'] ? 'pocket-ic' : 'dfx',
@@ -66,6 +67,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		compare: false,
 		verbose: false,
 		silent: false,
+		profile: dfxJson.profile || 'Release',
 	};
 
 	let options : BenchOptions = {...defaultOptions, ...optionsArg};
@@ -183,12 +185,22 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 
 function getMocArgs(options : BenchOptions) : string {
 	let args = '';
+
 	if (options.forceGc) {
 		args += ' --force-gc';
 	}
+
 	if (options.gc) {
 		args += ` --${options.gc}-gc`;
 	}
+
+	if (options.profile === 'Debug') {
+		args += ' --debug';
+	}
+	else if (options.profile === 'Release') {
+		args += ' --release';
+	}
+
 	return args;
 }
 
