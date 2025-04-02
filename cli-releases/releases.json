@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.4.0"
+    "latest": "1.5.0"
   },
   "versions": {
     "0.41.0": {
@@ -136,6 +136,14 @@
       "commitHash": "5bf0a0419d18bc2249915afc175d69400ebc8d16",
       "url": "https://cli.mops.one/versions/1.4.0.tgz",
       "hash": "775dddf6e251ecfa45a05576eb46dbb4f4a09ff33459c2376db3a1aae81fd2bf"
+    },
+    "1.5.0": {
+      "time": 1743578089986,
+      "size": 742779,
+      "relseaseNotes": "* Compile benchmarks with `--release` flag by default\n* Respect `profile` field in `dfx.json` for benchmarks\n",
+      "commitHash": "50c8534766df9868f8a65aca7bed1d0b074c5f45",
+      "url": "https://cli.mops.one/versions/1.5.0.tgz",
+      "hash": "afce49b4d4a8b7c6e7f320d35adffaba89594c25b5616dbc2db5fd68f5cc9f38"
     }
   }
 }

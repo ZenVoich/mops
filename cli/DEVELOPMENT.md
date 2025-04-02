@@ -41,14 +41,14 @@ MOPS_VERSION=0.0.0 ./build.sh
 Compare hashes.
 
 ## Publish on-chain
+_Run from root of the project_
 
 1. Prepeare release
 ```
-npm run release
+npm run release-cli
 ```
 
 2. Deploy canister
-(from root of the project)
 ```
 dfx deploy --network ic --no-wallet cli --identity mops
 ```
