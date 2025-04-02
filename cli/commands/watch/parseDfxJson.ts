@@ -42,6 +42,15 @@ type DfxConfig = {
 	};
 };
 
+/**
+ * Reads the `dfx.json` configuration file from the project's root directory.
+ *
+ * This function uses `getRootDir()` to determine the file's location, checks if it exists,
+ * and then synchronously reads and parses its JSON content into a `DfxConfig` object.
+ * If the file does not exist, it returns an empty object.
+ *
+ * @returns A `DfxConfig` object with the parsed configuration, or an empty object if `dfx.json` is not found.
+ */
 export function readDfxJson() : DfxConfig | Record<string, never> {
 	let dfxJsonPath = path.resolve(getRootDir(), 'dfx.json');
 	if (!existsSync(dfxJsonPath)) {

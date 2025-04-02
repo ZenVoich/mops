@@ -52,6 +52,19 @@ type BenchOptions = {
 	profile : 'Debug' | 'Release',
 };
 
+/**
+ * Executes benchmarks by deploying and running canisters for each benchmark file matching the provided filter.
+ *
+ * This asynchronous function reads configuration and DFX JSON settings to establish benchmark options—including replica type,
+ * compiler settings, garbage collection strategy, verbosity, and build profile ('Debug' or 'Release'). It searches the project
+ * directory for benchmark files matching the specified filter, deploys them in parallel to a local replica, and sequentially
+ * runs the benchmarks while collecting their results. Finally, it stops the replica and cleans up temporary files.
+ *
+ * @param filter - Optional substring to filter benchmark file names. Only files containing this substring are processed.
+ * @param optionsArg - Partial benchmark options to override default settings, such as replica type, compiler parameters, garbage
+ *                     collection behavior, verbosity, and build profile.
+ * @returns A promise that resolves to an array of benchmark results.
+ */
 export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}) : Promise<Benchmarks> {
 	let config = readConfig();
 	let dfxJson = readDfxJson();
@@ -183,6 +196,17 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	return benchResults;
 }
 
+/**
+ * Constructs a string of command-line arguments for the moc compiler based on benchmark options.
+ *
+ * Appends specific flags:
+ * - Adds "--force-gc" if force garbage collection is enabled.
+ * - Appends a garbage collector flag (e.g., "--mark-gc") if an explicit garbage collector is set.
+ * - Includes "--debug" or "--release" based on the build profile.
+ *
+ * @param options - Benchmark options influencing the compiler flags.
+ * @returns A space-separated string of arguments to be passed to the moc compiler.
+ */
 function getMocArgs(options : BenchOptions) : string {
 	let args = '';
 
