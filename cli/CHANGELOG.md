@@ -1,5 +1,9 @@
 # Mops CLI Changelog
 
+## 1.5.0
+- Compile benchmarks with `--release` flag by default
+- Respect `profile` field in `dfx.json` for benchmarks
+
 ## 1.4.0
 - Update `mops bench` command output:
   - Print only final results if benchmarks run in a CI environment or there is no vertical space to progressively print the results
