@@ -67,7 +67,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 		compare: false,
 		verbose: false,
 		silent: false,
-		profile: dfxJson.profile || 'Release',
+		profile: dfxJson?.profile || 'Release',
 	};
 
 	let options : BenchOptions = {...defaultOptions, ...optionsArg};
