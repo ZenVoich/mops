@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.5.0"
+    "latest": "1.5.1"
   },
   "versions": {
     "0.41.0": {
@@ -144,6 +144,14 @@
       "commitHash": "50c8534766df9868f8a65aca7bed1d0b074c5f45",
       "url": "https://cli.mops.one/versions/1.5.0.tgz",
       "hash": "afce49b4d4a8b7c6e7f320d35adffaba89594c25b5616dbc2db5fd68f5cc9f38"
+    },
+    "1.5.1": {
+      "time": 1744179134408,
+      "size": 743146,
+      "relseaseNotes": "* Collapsible output of `mops bench` in a CI environment\n* Fix regression in `mops bench` without `dfx.json` file (by @rvanasa)\n",
+      "commitHash": "0de3c9d18d95a1c7936788db84e82a3f824b2a7b",
+      "url": "https://cli.mops.one/versions/1.5.1.tgz",
+      "hash": "ecc30b66275b8ff09fb5e0ac9850869f3121fe6a2ee1100435031e96fdae906d"
     }
   }
 }
