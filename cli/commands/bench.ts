@@ -125,7 +125,7 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	fs.rmSync(benchDir, {recursive: true, force: true});
 	fs.mkdirSync(benchDir, {recursive: true});
 
-	if (!options.silent) {
+	if (!options.silent && !process.env.CI) {
 		console.log('Benchmark files:');
 		for (let file of files) {
 			console.log(chalk.gray(`• ${absToRel(file)}`));
@@ -181,6 +181,55 @@ export async function bench(filter = '', optionsArg : Partial<BenchOptions> = {}
 	fs.rmSync(benchDir, {recursive: true, force: true});
 
 	return benchResults;
+}
+
+function computeDiff(
+	results : Map<string, BenchResult>,
+	prevResults : Map<string, BenchResult> | undefined,
+	rows : string[],
+	cols : string[],
+	metric : keyof BenchResult,
+) : number {
+	let diff = 0;
+	let count = 0;
+
+	for (let [_rowIndex, row] of rows.entries()) {
+		for (let [_colIndex, col] of cols.entries()) {
+			let res = results.get(`${row}:${col}`);
+			if (res) {
+				// compare with previous results
+				if (prevResults) {
+					let prevRes = prevResults.get(`${row}:${col}`);
+					if (prevRes) {
+						let percent = (Number(res[metric]) - Number(prevRes[metric])) / Number(prevRes[metric]) * 100;
+						if (Object.is(percent, NaN)) {
+							percent = 0;
+						}
+						diff += percent;
+						count++;
+					}
+				}
+			}
+		}
+	}
+
+	return count > 0 ? diff / count : 0;
+}
+
+function computeDiffAll(
+	currentResults : Map<string, BenchResult>,
+	prevResults : Map<string, BenchResult> | undefined,
+	rows : string[],
+	cols : string[],
+) : number {
+	let metrics : (keyof BenchResult)[] = ['instructions', 'rts_heap_size', 'rts_logical_stable_memory_size', 'rts_reclaimed'];
+	let diff = 0;
+
+	for (let metric of metrics) {
+		diff += computeDiff(currentResults, prevResults, rows, cols, metric);
+	}
+
+	return diff;
 }
 
 function getMocArgs(options : BenchOptions) : string {
@@ -273,6 +322,19 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 		return filesize(n, {standard: 'iec', round: 2});
 	};
 
+	let colorizePercent = (percent : number, wrapInParens = false) : string => {
+		let sign = percent > 0 ? '+' : '';
+		let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
+		let color : keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
+		let parens = wrapInParens ? ['(', ')'] : ['', ''];
+		if (process.env.CI) {
+			return `$${parens[0]}{\\color{${color}}${percentText.replace('%', '\\\\%')}}${parens[1]}$`;
+		}
+		else {
+			return `${parens[0]}${chalk[color](percentText)}${parens[1]}`;
+		}
+	};
+
 	let getTable = (prop : keyof BenchResult) : string => {
 		let resArr = [['', ...schema.cols]];
 		let allZero = true;
@@ -296,15 +358,7 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 							if (Object.is(percent, NaN)) {
 								percent = 0;
 							}
-							let sign = percent > 0 ? '+' : '';
-							let percentText = percent == 0 ? '0%' : sign + percent.toFixed(2) + '%';
-							let color : keyof typeof chalk = percent == 0 ? 'gray' : (percent > 0 ? 'red' : 'green');
-							if (process.env.CI) {
-								diff = ` $({\\color{${color}}${percentText.replace('%', '\\\\%')}})$`;
-							}
-							else {
-								diff = ` (${chalk[color](percentText)})`;
-							}
+							diff = ' ' + colorizePercent(percent, true);
 						}
 						else {
 							diff = chalk.yellow(' (no previous results)');
@@ -345,14 +399,33 @@ async function runBenchFile(file : string, options : BenchOptions, replica : Ben
 	let logUpdate = createLogUpdate(process.stdout, {showCursor: true});
 
 	let getOutput = () => {
-		return `
-			\n${process.env.CI ? `## ${schema.name}` : chalk.bold(schema.name)}
-			${schema.description ? '\n' + (process.env.CI ? `_${schema.description}_` : chalk.gray(schema.description)) : ''}
-			\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
-			\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
-			\n\n${chalk.blue('Garbage Collection')}\n\n${getTable('rts_reclaimed')}
-			${getTable('rts_logical_stable_memory_size') ? `\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}` : ''}
-		`;
+		if (process.env.CI) {
+			return [
+				'\n<details>',
+				`\n<summary>${absToRel(file)} ${colorizePercent(computeDiffAll(results, prevResults, schema.rows, schema.cols), true).replace('\\\\%', '\\%')}</summary>`,
+				`\n${process.env.CI ? `### ${schema.name}` : chalk.bold(schema.name)}`,
+				`${schema.description ? '\n' + (process.env.CI ? `_${schema.description}_` : chalk.gray(schema.description)) : ''}`,
+				`\n\nInstructions: ${colorizePercent(computeDiff(results, prevResults, schema.rows, schema.cols, 'instructions'), false)}`,
+				`Heap: ${colorizePercent(computeDiff(results, prevResults, schema.rows, schema.cols, 'rts_heap_size'), false)}`,
+				`Stable Memory: ${colorizePercent(computeDiff(results, prevResults, schema.rows, schema.cols, 'rts_logical_stable_memory_size'), false)}`,
+				`Garbage Collection: ${colorizePercent(computeDiff(results, prevResults, schema.rows, schema.cols, 'rts_reclaimed'), false)}`,
+				`\n\n**Instructions**\n\n${getTable('instructions')}`,
+				`\n\n**Heap**\n\n${getTable('rts_heap_size')}`,
+				`\n\n**Garbage Collection**\n\n${getTable('rts_reclaimed')}`,
+				`${getTable('rts_logical_stable_memory_size') ? `\n\n**Stable Memory**\n\n${getTable('rts_logical_stable_memory_size')}` : ''}`,
+				'\n</details>',
+			].join('\n');
+		}
+		else {
+			return `
+				\n${chalk.bold(schema.name)}
+				${schema.description ? '\n' + chalk.gray(schema.description) : ''}
+				\n\n${chalk.blue('Instructions')}\n\n${getTable('instructions')}
+				\n\n${chalk.blue('Heap')}\n\n${getTable('rts_heap_size')}
+				\n\n${chalk.blue('Garbage Collection')}\n\n${getTable('rts_reclaimed')}
+				${getTable('rts_logical_stable_memory_size') ? `\n\n${chalk.blue('Stable Memory')}\n\n${getTable('rts_logical_stable_memory_size')}` : ''}
+			`;
+		}
 	};
 
 	let canUpdateLog = !process.env.CI && !options.silent && terminalSize().rows > getOutput().split('\n').length;
