@@ -196,18 +196,20 @@ function computeDiff(
 	for (let [_rowIndex, row] of rows.entries()) {
 		for (let [_colIndex, col] of cols.entries()) {
 			let res = results.get(`${row}:${col}`);
-			if (res) {
-				// compare with previous results
-				if (prevResults) {
-					let prevRes = prevResults.get(`${row}:${col}`);
-					if (prevRes) {
-						let percent = (Number(res[metric]) - Number(prevRes[metric])) / Number(prevRes[metric]) * 100;
-						if (Object.is(percent, NaN)) {
-							percent = 0;
-						}
-						diff += percent;
-						count++;
+			if (res && prevResults) {
+				let prevRes = prevResults.get(`${row}:${col}`);
+				if (prevRes) {
+					let denom = Number(prevRes[metric]);
+					let numerator = Number(res[metric]) - denom;
+					let percent = 0;
+					if (denom !== 0) {
+						percent = (numerator / denom) * 100;
 					}
+					if (!Number.isFinite(percent)) {
+						percent = 0;
+					}
+					diff += percent;
+					count++;
 				}
 			}
 		}
