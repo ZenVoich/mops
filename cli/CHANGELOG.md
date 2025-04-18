@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.6.1
+- Fix `mops i` alias for `mops install` command (was broken in 1.3.0)
+
 ## 1.6.0
 - Add support for `.bash_profile` and `.zprofile` files to `mops toolchain init` command
 
