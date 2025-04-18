@@ -99,7 +99,7 @@ program
 	.option('--verbose')
 	.addOption(new Option('--lock <action>', 'Lockfile action').choices(['check', 'update', 'ignore']))
 	.action(async (options) => {
-		if (process.argv.at(-1) !== 'install') {
+		if (process.argv.at(-1) !== 'install' && process.argv.at(-1) !== 'i') {
 			console.log(`${chalk.red('Error:')} ${chalk.yellow('mops install')} command installs all dependencies.\nUse ${chalk.green(`mops add ${process.argv.at(-1)}`)} instead.`);
 			process.exit(1);
 		}
