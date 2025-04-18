@@ -79,13 +79,16 @@ async function init({reset = false, silent = false} = {}) {
 
 	let zshrc = path.join(os.homedir(), '.zshrc');
 	let bashrc = path.join(os.homedir(), '.bashrc');
+	let bashProfile = path.join(os.homedir(), '.bash_profile');
+	let zprofile = path.join(os.homedir(), '.zprofile');
 
-	let shellConfigFiles = [bashrc, zshrc, process.env.GITHUB_ENV || ''].map(x => x).filter((file) => {
+	let shellConfigFiles = [bashrc, zshrc, bashProfile, zprofile, process.env.GITHUB_ENV || ''].map(x => x).filter((file) => {
 		return fs.existsSync(file);
 	});
 
 	if (shellConfigFiles.length === 0) {
-		console.error('Shell config files not found: ".bashrc" or ".zshrc"');
+		console.error('Shell config files not found: .bashrc, .zshrc, .bash_profile, .zprofile');
+		console.log('TIP: You can add "export DFX_MOC_PATH=moc-wrapper" to your shell config file manually to initialize Mops toolchain');
 		process.exit(1);
 	}
 
