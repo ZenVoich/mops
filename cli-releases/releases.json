@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.5.1"
+    "latest": "1.6.0"
   },
   "versions": {
     "0.41.0": {
@@ -152,6 +152,14 @@
       "commitHash": "0de3c9d18d95a1c7936788db84e82a3f824b2a7b",
       "url": "https://cli.mops.one/versions/1.5.1.tgz",
       "hash": "ecc30b66275b8ff09fb5e0ac9850869f3121fe6a2ee1100435031e96fdae906d"
+    },
+    "1.6.0": {
+      "time": 1744960516761,
+      "size": 743223,
+      "relseaseNotes": "* Add support for `.bash_profile` and `.zprofile` files to `mops toolchain init` command\n",
+      "commitHash": "e564ad25a81e87d0a0aa98e3c80e047c597c649a",
+      "url": "https://cli.mops.one/versions/1.6.0.tgz",
+      "hash": "e3828fb6b13e0f3d81edd0b0efce3ffad2f59dd72b2930a6faf17283a3251dbd"
     }
   }
 }
