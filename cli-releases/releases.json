@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.6.0"
+    "latest": "1.6.1"
   },
   "versions": {
     "0.41.0": {
@@ -160,6 +160,14 @@
       "commitHash": "e564ad25a81e87d0a0aa98e3c80e047c597c649a",
       "url": "https://cli.mops.one/versions/1.6.0.tgz",
       "hash": "e3828fb6b13e0f3d81edd0b0efce3ffad2f59dd72b2930a6faf17283a3251dbd"
+    },
+    "1.6.1": {
+      "time": 1744961219960,
+      "size": 743220,
+      "relseaseNotes": "* Fix `mops i` alias for `mops install` command (was broken in 1.3.0)\n",
+      "commitHash": "9a577d6c31875498e38a96fbf99e45a796d61a09",
+      "url": "https://cli.mops.one/versions/1.6.1.tgz",
+      "hash": "60fbb964158c2b45185c2a9873459c919446a56f8c8d0fb953aca3185f5d8890"
     }
   }
 }
