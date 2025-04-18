@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.6.0
+- Add support for `.bash_profile` and `.zprofile` files to `mops toolchain init` command
+
 ## 1.5.1
 - Collapsible output of `mops bench` in a CI environment
 - Fix regression in `mops bench` without `dfx.json` file (by @rvanasa)
