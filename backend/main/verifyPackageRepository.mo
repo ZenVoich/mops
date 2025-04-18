@@ -23,9 +23,12 @@ module {
 			return #err("Currently only github repositories are supported.\nPlease create an issue at https://github.com/ZenVoich/mops/issues if you want to add support for other repositories.");
 		};
 
-		let repoName = Iter.toArray(Text.split(repositoryUrl, #text("https://github.com/")))[1];
-		let slash = if (Text.endsWith(repoName, #text("/"))) "" else "/";
-		let url = "https://raw.githubusercontent.com/" # repoName # slash # "master/mops.toml";
+		let urlPath = Iter.toArray(Text.split(repositoryUrl, #text("https://github.com/")))[1];
+		let pathChunks = Iter.toArray(Text.split(urlPath, #text("/")));
+		let repoName = Array.take(pathChunks, 2);
+		let path = Iter.toArray(Array.slice(pathChunks, 2, pathChunks.size()));
+		let target = Array.filter<Text>(Array.flatten([repoName, ["master"], path, ["mops.toml"]]), func(x) = x != "");
+		let url = "https://raw.githubusercontent.com/" # Text.join("/", target.vals());
 
 		try {
 			ExperimentalCycles.add<system>(1_000_000_000);
