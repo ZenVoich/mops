@@ -234,7 +234,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 		if (lines.includes('// @testmode wasi')) {
 			mode = 'wasi';
 		}
-		else if (lines.includes('actor {') || lines.includes('// @testmode replica')) {
+		else if (lines.includes('actor {') || lines.includes('// @testmode replica') || lines.find(line => line.startsWith('actor class'))) {
 			mode = 'replica';
 		}
 
