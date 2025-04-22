@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.7.0
+- Add support for `actor class` detection to run replica tests in `mops test` command
+
 ## 1.6.1
 - Fix `mops i` alias for `mops install` command (was broken in 1.3.0)
 

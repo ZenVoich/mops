@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.6.1"
+    "latest": "1.7.0"
   },
   "versions": {
     "0.41.0": {
@@ -168,6 +168,14 @@
       "commitHash": "9a577d6c31875498e38a96fbf99e45a796d61a09",
       "url": "https://cli.mops.one/versions/1.6.1.tgz",
       "hash": "60fbb964158c2b45185c2a9873459c919446a56f8c8d0fb953aca3185f5d8890"
+    },
+    "1.7.0": {
+      "time": 1745310754532,
+      "size": 743246,
+      "relseaseNotes": "* Add support for `actor class` detection to run replica tests in `mops test` command\n",
+      "commitHash": "88acbbb05d823c0c6905dd4bb5d5ee428572205e",
+      "url": "https://cli.mops.one/versions/1.7.0.tgz",
+      "hash": "cd6d6793dfd42fe320129be9dbf01817a87b5071b606c29c185735822618e846"
     }
   }
 }
