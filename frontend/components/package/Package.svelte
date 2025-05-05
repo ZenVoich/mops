@@ -363,6 +363,11 @@
 	}
 
 	.tabs {
+		/* position: sticky;
+		top: 70px;
+		background: white;
+		z-index: 10; */
+
 		display: flex;
 		overflow: auto;
 		width: 100%;

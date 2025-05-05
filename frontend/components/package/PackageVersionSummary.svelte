@@ -97,6 +97,7 @@
 		gap: 4px;
 		margin-top: 25px;
 		font-size: 14px;
+		white-space: nowrap;
 	}
 
 	.version-summary:not(.show-name) .name {

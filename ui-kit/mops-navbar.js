@@ -43,7 +43,7 @@ if (globalThis.location) {
 						gap: 10px;
 						align-items: center;
 						line-height: 1;
-						max-width: 60vw;
+						max-width: 44vw;
 						overflow-x: auto;
 					}
 					a {

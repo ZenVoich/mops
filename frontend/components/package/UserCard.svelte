@@ -52,6 +52,10 @@
 		filter: hue-rotate(45deg) contrast(0.6);
 	}
 
+	.user-card {
+		min-width: 0;
+	}
+
 	.user-card.compact .principal-text::before {
 		content: '(';
 	}
