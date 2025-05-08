@@ -39,7 +39,7 @@
 	{#if packageDetails.config.repository}
 		<div class="detail">
 			<div class="label">Repository</div>
-			<a class="value with-icon" href="{packageDetails.config.repository}" target="_blank">
+			<a class="value with-icon" href="{packageDetails.config.repository.replace(/^(https:\/\/github\.com\/[^/]+\/[^/]+)\/(.+)$/, '$1/tree/main/$2')}" target="_blank">
 				<img class="github-icon" src="{githubImg}" alt="GitHub logo" loading="lazy" />
 				{packageDetails.config.repository.replace(/https?:\/\/(www\.)?(github\.com\/)?/, '')}
 			</a>
