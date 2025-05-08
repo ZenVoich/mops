@@ -29,6 +29,7 @@ import {resolvePackages} from './resolve-packages.js';
 import {watch} from './commands/watch/watch.js';
 import {addOwner, printOwners, removeOwner} from './commands/owner.js';
 import {addMaintainer, printMaintainers, removeMaintainer} from './commands/maintainer.js';
+import {fmt} from './commands/fmt.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -476,6 +477,19 @@ program
 	.action(async (options) => {
 		checkConfigFile(true);
 		await watch(options);
+	});
+
+// fmt
+program
+	.command('fmt [filter]')
+	.description('Format Motoko code')
+	.addOption(new Option('--check', 'Check code formatting (do not change source files)'))
+	.action(async (filter, options) => {
+		checkConfigFile(true);
+		let ok = await fmt(filter, options);
+		if (!ok) {
+			process.exit(1);
+		}
 	});
 
 program.parse();
