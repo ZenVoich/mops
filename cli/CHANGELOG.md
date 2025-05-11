@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.7.1
+- Fix `mops install` for local dependencies
+
 ## 1.7.0
 - Add support for `actor class` detection to run replica tests in `mops test` command
 
