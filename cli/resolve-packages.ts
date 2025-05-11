@@ -103,7 +103,7 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 				localNestedDir = path.resolve(configDir, pkgDetails.path).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 				let mopsToml = path.join(localNestedDir, 'mops.toml');
 				if (existsSync(mopsToml)) {
-					nestedConfig = readConfig();
+					nestedConfig = readConfig(mopsToml);
 				}
 			}
 			else if (version) {
