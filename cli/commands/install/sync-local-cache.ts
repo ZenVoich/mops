@@ -5,14 +5,14 @@ import {getDependencyType, getRootDir} from '../../mops.js';
 import {resolvePackages} from '../../resolve-packages.js';
 
 export async function syncLocalCache({verbose = false} = {}) : Promise<Record<string, string>> {
-	let resolvedPackages = await resolvePackages();
+	let resolved = await resolvePackages();
 	let rootDir = getRootDir();
 
 	verbose && console.log('Syncing local cache...');
 
 	let installedDeps : Record<string, string> = {};
 
-	await Promise.all(Object.entries(resolvedPackages).map(([name, value]) => {
+	await Promise.all(Object.entries(resolved.packages).map(([name, value]) => {
 		let depType = getDependencyType(value);
 
 		if (depType === 'mops' || depType === 'github') {

@@ -9,10 +9,11 @@ export async function sources({conflicts = 'ignore' as 'warning' | 'error' | 'ig
 		return [];
 	}
 
-	let resolvedPackages = await resolvePackages({conflicts});
+	let resolved = await resolvePackages({conflicts});
 
-	// sources
-	return Object.entries(resolvedPackages).map(([name, version]) => {
+	let sources : string[] = [];
+	let packageDirectories : Record<string, string> = {};
+	Object.entries(resolved.packages).forEach(([name, version]) => {
 		let depType = getDependencyType(version);
 
 		let pkgDir;
@@ -44,6 +45,17 @@ export async function sources({conflicts = 'ignore' as 'warning' | 'error' | 'ig
 			pkgBaseDir = pkgDir;
 		}
 
-		return `--package ${name} ${pkgBaseDir}`;
-	}).filter(x => x != null);
+		packageDirectories[name] = pkgDir;
+		sources.push(`--package ${name} ${pkgBaseDir}`); // TODO: escape args
+	});
+	Object.entries(resolved.overrides).forEach(([name, overrides]) => {
+		const directory = packageDirectories[name];
+		if (!directory) {
+			throw new Error(`Unknown directory for package: ${name}`);
+		}
+		Object.entries(overrides).forEach(([fromPackage, toPackage]) => {
+			sources.push(`--override ${directory} ${fromPackage} ${toPackage}`); // TODO: escape args
+		});
+	});
+	return sources;
 }

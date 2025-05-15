@@ -21,8 +21,8 @@ export async function checkRequirements({verbose = false} = {}) {
 	let highestRequiredMocPkgId = '';
 	let rootDir = getRootDir();
 
-	let resolvedPackages = await resolvePackages();
-	for (let [name, version] of Object.entries(resolvedPackages)) {
+	let resolved = await resolvePackages();
+	for (let [name, version] of Object.entries(resolved.packages)) {
 		if (getDependencyType(version) === 'mops') {
 			let pkgId = getPackageId(name, version);
 			let depConfig = readConfig(path.join(rootDir, '.mops', pkgId, 'mops.toml'));
