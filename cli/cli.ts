@@ -471,6 +471,7 @@ program
 	.description('Watch *.mo files and check for syntax errors, warnings, run tests, generate declarations and deploy canisters')
 	.option('-e, --error', 'Check Motoko canisters or *.mo files for syntax errors')
 	.option('-w, --warning', 'Check Motoko canisters or *.mo files for warnings')
+	.option('-f, --fmt', 'Format Motoko code')
 	.option('-t, --test', 'Run tests')
 	.option('-g, --generate', 'Generate declarations for Motoko canisters')
 	.option('-d, --deploy', 'Deploy Motoko canisters')

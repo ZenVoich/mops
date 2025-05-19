@@ -6,6 +6,7 @@ import motokoPlugin from 'prettier-plugin-motoko';
 import path from 'node:path';
 import {absToRel} from './test/utils.js';
 import chalk from 'chalk';
+import {parallel} from '../parallel.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -25,7 +26,7 @@ type FmtOptions = {
 	silent : boolean,
 };
 
-export async function fmt(filter : string, options : Partial<FmtOptions> = {}) : Promise<boolean> {
+export async function fmt(filter : string, options : Partial<FmtOptions> = {}, signal ?: AbortSignal) : Promise<boolean> {
 	let startTime = Date.now();
 	let config = readConfig();
 
@@ -51,14 +52,22 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}) :
 		return false;
 	}
 
-	let invalidFiles = 0;
+	if (signal?.aborted) {
+		return false;
+	}
 
-	for (let file of files) {
-		// get prettier config from .prettierrc
-		let prettierConfigFile = await prettier.resolveConfigFile();
+	let invalidFiles = 0;
+	// get prettier config from .prettierrc
+	let prettierConfigFile = await prettier.resolveConfigFile();
+
+	await parallel(4, files, async (file) => {
+		if (signal?.aborted) {
+			return;
+		}
+
+		let conf = await prettier.resolveConfig(file, {editorconfig: true});
 		let prettierConfig : prettier.Options = {};
 		if (prettierConfigFile) {
-			let conf = await prettier.resolveConfig(file, {editorconfig: true});
 			if (conf) {
 				prettierConfig = conf;
 			}
@@ -85,28 +94,31 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}) :
 
 		if (options.check) {
 			if (ok) {
-				console.log(`${chalk.green('✓')} ${absToRel(file)} ${chalk.gray('valid')}`);
+				options.silent || console.log(`${chalk.green('✓')} ${absToRel(file)} ${chalk.gray('valid')}`);
 			}
 			else {
-				console.log(`${chalk.red('✖')} ${absToRel(file)} ${chalk.gray('invalid')}`);
+				options.silent || console.log(`${chalk.red('✖')} ${absToRel(file)} ${chalk.gray('invalid')}`);
 			}
 		}
 		else {
 			if (ok) {
-				console.log(`${chalk.green('✓')} ${absToRel(file)} ${chalk.gray('valid')}`);
+				options.silent || console.log(`${chalk.green('✓')} ${absToRel(file)} ${chalk.gray('valid')}`);
 			}
 			else {
 				await fs.writeFile(file, formatted);
-				console.log(`${chalk.yellow('*')} ${absToRel(file)} ${chalk.gray('formatted')}`);
+				options.silent || console.log(`${chalk.yellow('*')} ${absToRel(file)} ${chalk.gray('formatted')}`);
 			}
 		}
-	}
+	});
 
-	let plural = (n : number) => n === 1 ? '' : 's';
+	if (signal?.aborted) {
+		return false;
+	}
 
 	if (!options.silent) {
 		console.log('-'.repeat(50));
 
+		let plural = (n : number) => n === 1 ? '' : 's';
 		let str = `Checked ${chalk.gray(files.length)} file${plural(files.length)} in ${chalk.gray(((Date.now() - startTime) / 1000).toFixed(2) + 's')}`;
 		if (invalidFiles) {
 			str += options.check
@@ -120,7 +132,7 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}) :
 		}
 	}
 
-	if (options.check && invalidFiles) {
+	if (options.check && invalidFiles && !options.silent) {
 		console.log(`${(`Run '${chalk.yellow('mops fmt' + (filter ? ` ${filter}` : ''))}' to format your code`)}`);
 		return false;
 	}

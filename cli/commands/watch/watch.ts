@@ -9,6 +9,7 @@ import {getRootDir} from '../../mops.js';
 import {Tester} from './tester.js';
 import {Generator} from './generator.js';
 import {Deployer} from './deployer.js';
+import {Formatter} from './formatter.js';
 
 let ignore = [
 	'**/node_modules/**',
@@ -17,7 +18,7 @@ let ignore = [
 	'**/.git/**',
 ];
 
-export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean}) {
+export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean, fmt : boolean}) {
 	let hasOptions = Object.values(options).includes(true);
 	if (!hasOptions) {
 		options = {
@@ -26,6 +27,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 			test: true,
 			generate: true,
 			deploy: true,
+			fmt: false,
 		};
 	}
 	options.error = true;
@@ -38,6 +40,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 	let tester = new Tester({errorChecker, verbose: true});
 	let generator = new Generator({errorChecker, verbose: true, canisters: canistersWithDeclarations});
 	let deployer = new Deployer({errorChecker, generator, verbose: true, canisters: canisters});
+	let formatter = new Formatter({verbose: true});
 
 	let watcher = chokidar.watch([
 		path.join(rootDir, '**/*.mo'),
@@ -47,15 +50,27 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		ignoreInitial: true,
 	});
 
+	let formatting = false;
+
 	let run = debounce(async () => {
+		if (formatting) {
+			return;
+		}
+
 		errorChecker.reset();
 		warningChecker.reset();
 		tester.reset();
 		generator.reset();
 		deployer.reset();
+		formatter.reset();
+
+		if (options.fmt) {
+			formatting = true;
+		}
 
 		options.error && await errorChecker.run(print);
 		options.warning && warningChecker.run(print);
+		options.fmt && formatter.run(print).then(() => setTimeout(() => formatting = false, 500));
 		options.test && tester.run(print);
 		options.generate && await generator.run(print);
 		options.deploy && deployer.run(print);
@@ -67,6 +82,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 
 		options.error && console.log(errorChecker.getOutput());
 		options.warning && console.log(warningChecker.getOutput());
+		options.fmt && console.log(formatter.getOutput());
 		options.test && console.log(tester.getOutput());
 		options.generate && console.log(generator.getOutput());
 		options.deploy && console.log(deployer.getOutput());
@@ -74,6 +90,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		let statuses = [];
 		options.error && statuses.push(errorChecker.status);
 		options.warning && statuses.push(warningChecker.status);
+		options.fmt && statuses.push(formatter.status);
 		options.test && statuses.push(tester.status);
 		options.generate && statuses.push(generator.status);
 		options.deploy && statuses.push(deployer.status);
@@ -85,6 +102,10 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		}
 	};
 
-	watcher.on('all', run);
+	watcher.on('all', () => {
+		if (!formatting) {
+			run();
+		}
+	});
 	run();
 }
