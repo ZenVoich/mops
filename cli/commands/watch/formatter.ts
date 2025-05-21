@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import {fmt, FmtResult} from '../fmt.js';
+import {format, FormatResult} from '../format.js';
 import {ErrorChecker} from './error-checker.js';
 
 export class Formatter {
@@ -9,7 +9,7 @@ export class Formatter {
 	aborted = false;
 	controller = new AbortController();
 	currentRun : Promise<any> | undefined;
-	result : FmtResult | undefined;
+	result : FormatResult | undefined;
 
 	constructor({verbose, errorChecker} : {verbose : boolean, errorChecker : ErrorChecker}) {
 		this.verbose = verbose;
@@ -42,7 +42,7 @@ export class Formatter {
 
 		this.controller = new AbortController();
 
-		this.currentRun = fmt('', {silent: true}, this.controller.signal, (result) => {
+		this.currentRun = format('', {silent: true}, this.controller.signal, (result) => {
 			this.result = result;
 			onProgress();
 		});
@@ -69,7 +69,6 @@ export class Formatter {
 		if (this.status === 'running') {
 			return `Format: ${this.result.checked}/${this.result.total} ${chalk.gray('(running)')}`;
 		}
-		// return `Format: ${chalk.greenBright(`✓${this.result.valid}`)} ${this.result.formatted ? chalk.yellowBright(`*${this.result.formatted}`) : ''}`;
-		return `Format: ${this.result.formatted ? chalk.yellowBright(`*${this.result.formatted}`) : chalk.greenBright('0')}`;
+		return `Format: ${chalk.greenBright(`${this.result.formatted}`)}`;
 	}
 }

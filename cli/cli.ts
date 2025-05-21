@@ -29,7 +29,7 @@ import {resolvePackages} from './resolve-packages.js';
 import {watch} from './commands/watch/watch.js';
 import {addOwner, printOwners, removeOwner} from './commands/owner.js';
 import {addMaintainer, printMaintainers, removeMaintainer} from './commands/maintainer.js';
-import {fmt} from './commands/fmt.js';
+import {format} from './commands/format.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -471,7 +471,7 @@ program
 	.description('Watch *.mo files and check for syntax errors, warnings, run tests, generate declarations and deploy canisters')
 	.option('-e, --error', 'Check Motoko canisters or *.mo files for syntax errors')
 	.option('-w, --warning', 'Check Motoko canisters or *.mo files for warnings')
-	.option('-f, --fmt', 'Format Motoko code')
+	.option('-f, --format', 'Format Motoko code')
 	.option('-t, --test', 'Run tests')
 	.option('-g, --generate', 'Generate declarations for Motoko canisters')
 	.option('-d, --deploy', 'Deploy Motoko canisters')
@@ -480,14 +480,15 @@ program
 		await watch(options);
 	});
 
-// fmt
+// format
 program
-	.command('fmt [filter]')
+	.command('format [filter]')
+	.alias('fmt')
 	.description('Format Motoko code')
 	.addOption(new Option('--check', 'Check code formatting (do not change source files)'))
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		let {ok} = await fmt(filter, options);
+		let {ok} = await format(filter, options);
 		if (!ok) {
 			process.exit(1);
 		}

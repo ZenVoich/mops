@@ -1,11 +1,12 @@
 import fs from 'node:fs/promises';
-import {globSync} from 'glob';
-import * as prettier from 'prettier';
-import {getRootDir, readConfig} from '../mops.js';
-import motokoPlugin from 'prettier-plugin-motoko';
 import path from 'node:path';
-import {absToRel} from './test/utils.js';
+import {globSync} from 'glob';
 import chalk from 'chalk';
+import * as prettier from 'prettier';
+import motokoPlugin from 'prettier-plugin-motoko';
+
+import {getRootDir, readConfig} from '../mops.js';
+import {absToRel} from './test/utils.js';
 import {parallel} from '../parallel.js';
 
 let ignore = [
@@ -21,12 +22,12 @@ let globConfig = {
 	ignore: ignore,
 };
 
-type FmtOptions = {
+type FormatOptions = {
 	check : boolean,
 	silent : boolean,
 };
 
-export type FmtResult = {
+export type FormatResult = {
 	ok : boolean,
 	total : number,
 	checked : number,
@@ -35,7 +36,7 @@ export type FmtResult = {
 	formatted : number,
 };
 
-export async function fmt(filter : string, options : Partial<FmtOptions> = {}, signal ?: AbortSignal, onProgress ?: (result : FmtResult) => void) : Promise<FmtResult> {
+export async function format(filter : string, options : Partial<FormatOptions> = {}, signal ?: AbortSignal, onProgress ?: (result : FormatResult) => void) : Promise<FormatResult> {
 	let startTime = Date.now();
 	let config = readConfig();
 
@@ -53,7 +54,7 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}, s
 	let checkedFiles = 0;
 
 	let getResult = (ok : boolean) => {
-		let result : FmtResult = {
+		let result : FormatResult = {
 			ok,
 			total: files.length,
 			checked: checkedFiles,

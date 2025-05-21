@@ -18,7 +18,7 @@ let ignore = [
 	'**/.git/**',
 ];
 
-export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean, fmt : boolean}) {
+export async function watch(options : {error : boolean, warning : boolean, test : boolean, generate : boolean, deploy : boolean, format : boolean}) {
 	let hasOptions = Object.values(options).includes(true);
 	if (!hasOptions) {
 		options = {
@@ -27,7 +27,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 			test: true,
 			generate: true,
 			deploy: true,
-			fmt: false,
+			format: false,
 		};
 	}
 	options.error = true;
@@ -64,13 +64,13 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		deployer.reset();
 		formatter.reset();
 
-		if (options.fmt) {
+		if (options.format) {
 			formatting = true;
 		}
 
 		options.error && await errorChecker.run(print);
 		options.warning && warningChecker.run(print);
-		options.fmt && formatter.run(print).then(() => setTimeout(() => formatting = false, 500));
+		options.format && formatter.run(print).then(() => setTimeout(() => formatting = false, 500));
 		options.test && tester.run(print);
 		options.generate && await generator.run(print);
 		options.deploy && deployer.run(print);
@@ -82,7 +82,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 
 		options.error && console.log(errorChecker.getOutput());
 		options.warning && console.log(warningChecker.getOutput());
-		options.fmt && console.log(formatter.getOutput());
+		options.format && console.log(formatter.getOutput());
 		options.test && console.log(tester.getOutput());
 		options.generate && console.log(generator.getOutput());
 		options.deploy && console.log(deployer.getOutput());
@@ -90,7 +90,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 		let statuses = [];
 		options.error && statuses.push(errorChecker.status);
 		options.warning && statuses.push(warningChecker.status);
-		options.fmt && statuses.push(formatter.status);
+		options.format && statuses.push(formatter.status);
 		options.test && statuses.push(tester.status);
 		options.generate && statuses.push(generator.status);
 		options.deploy && statuses.push(deployer.status);
