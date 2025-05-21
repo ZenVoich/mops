@@ -9,7 +9,8 @@
 			"declarations": {
 				"output": "cli/declarations/main/",
 				"node_compatibility": true
-			}
+			},
+			"optimize": "cycles"
 		},
 		"assets": {
 			"type": "assets",
