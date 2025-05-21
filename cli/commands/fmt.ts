@@ -26,7 +26,16 @@ type FmtOptions = {
 	silent : boolean,
 };
 
-export async function fmt(filter : string, options : Partial<FmtOptions> = {}, signal ?: AbortSignal) : Promise<boolean> {
+export type FmtResult = {
+	ok : boolean,
+	total : number,
+	checked : number,
+	valid : number,
+	invalid : number,
+	formatted : number,
+};
+
+export async function fmt(filter : string, options : Partial<FmtOptions> = {}, signal ?: AbortSignal, onProgress ?: (result : FmtResult) => void) : Promise<FmtResult> {
 	let startTime = Date.now();
 	let config = readConfig();
 
@@ -40,23 +49,37 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}, s
 		...globConfig,
 		cwd: rootDir,
 	});
+	let invalidFiles = 0;
+	let checkedFiles = 0;
+
+	let getResult = (ok : boolean) => {
+		let result : FmtResult = {
+			ok,
+			total: files.length,
+			checked: checkedFiles,
+			valid: files.length - invalidFiles,
+			invalid: invalidFiles,
+			formatted: invalidFiles,
+		};
+		onProgress?.(result);
+		return result;
+	};
 
 	if (!files.length) {
 		if (filter) {
 			options.silent || console.log(`No files found for filter '${filter}'`);
-			return false;
+			return getResult(false);
 		}
 		if (!options.silent) {
 			console.log('No *.mo files found');
 		}
-		return false;
+		return getResult(false);
 	}
 
 	if (signal?.aborted) {
-		return false;
+		return getResult(false);
 	}
 
-	let invalidFiles = 0;
 	// get prettier config from .prettierrc
 	let prettierConfigFile = await prettier.resolveConfigFile();
 
@@ -109,10 +132,15 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}, s
 				options.silent || console.log(`${chalk.yellow('*')} ${absToRel(file)} ${chalk.gray('formatted')}`);
 			}
 		}
+
+		checkedFiles += 1;
+
+		// trigger onProgress
+		getResult(false);
 	});
 
 	if (signal?.aborted) {
-		return false;
+		return getResult(false);
 	}
 
 	if (!options.silent) {
@@ -134,8 +162,8 @@ export async function fmt(filter : string, options : Partial<FmtOptions> = {}, s
 
 	if (options.check && invalidFiles && !options.silent) {
 		console.log(`${(`Run '${chalk.yellow('mops fmt' + (filter ? ` ${filter}` : ''))}' to format your code`)}`);
-		return false;
+		return getResult(false);
 	}
 
-	return true;
+	return getResult(true);
 }

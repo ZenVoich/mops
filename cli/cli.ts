@@ -487,7 +487,7 @@ program
 	.addOption(new Option('--check', 'Check code formatting (do not change source files)'))
 	.action(async (filter, options) => {
 		checkConfigFile(true);
-		let ok = await fmt(filter, options);
+		let {ok} = await fmt(filter, options);
 		if (!ok) {
 			process.exit(1);
 		}

@@ -1,23 +1,24 @@
 import chalk from 'chalk';
-import {fmt} from '../fmt.js';
+import {fmt, FmtResult} from '../fmt.js';
+import {ErrorChecker} from './error-checker.js';
 
 export class Formatter {
 	verbose = false;
 	status : 'pending' | 'running' | 'syntax-error' | 'error' | 'success' = 'pending';
-	success = 0;
-	errors : string[] = [];
+	errorChecker : ErrorChecker;
 	aborted = false;
 	controller = new AbortController();
 	currentRun : Promise<any> | undefined;
+	result : FmtResult | undefined;
 
-	constructor({verbose} : {verbose : boolean}) {
+	constructor({verbose, errorChecker} : {verbose : boolean, errorChecker : ErrorChecker}) {
 		this.verbose = verbose;
+		this.errorChecker = errorChecker;
 	}
 
 	reset() {
 		this.status = 'pending';
-		this.success = 0;
-		this.errors = [];
+		this.result = undefined;
 	}
 
 	async abortCurrent() {
@@ -30,12 +31,21 @@ export class Formatter {
 	async run(onProgress : () => void) {
 		await this.abortCurrent();
 
+		if (this.errorChecker.status === 'error') {
+			this.status = 'syntax-error';
+			onProgress();
+			return;
+		}
+
 		this.status = 'running';
 		onProgress();
 
 		this.controller = new AbortController();
 
-		this.currentRun = fmt('', {silent: true}, this.controller.signal);
+		this.currentRun = fmt('', {silent: true}, this.controller.signal, (result) => {
+			this.result = result;
+			onProgress();
+		});
 		await this.currentRun;
 
 		if (!this.aborted) {
@@ -48,13 +58,18 @@ export class Formatter {
 		if (this.status === 'pending') {
 			return `Format: ${chalk.gray('(pending)')}`;
 		}
-		if (this.status === 'running') {
-			return `Format: ${chalk.gray('(running)')}`;
-		}
-		if (this.status === 'error') {
-			return `Format: ${chalk.redBright('(error)')}`;
+		if (this.status === 'syntax-error') {
+			return `Format: ${chalk.gray('(errors)')}`;
 		}
 
-		return `Format: ${chalk.green('✓')}`;
+		if (!this.result) {
+			return `Format: ${chalk.gray('(pending)')}`;
+		}
+
+		if (this.status === 'running') {
+			return `Format: ${this.result.checked}/${this.result.total} ${chalk.gray('(running)')}`;
+		}
+		// return `Format: ${chalk.greenBright(`✓${this.result.valid}`)} ${this.result.formatted ? chalk.yellowBright(`*${this.result.formatted}`) : ''}`;
+		return `Format: ${this.result.formatted ? chalk.yellowBright(`*${this.result.formatted}`) : chalk.greenBright('0')}`;
 	}
 }

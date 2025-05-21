@@ -40,7 +40,7 @@ export async function watch(options : {error : boolean, warning : boolean, test 
 	let tester = new Tester({errorChecker, verbose: true});
 	let generator = new Generator({errorChecker, verbose: true, canisters: canistersWithDeclarations});
 	let deployer = new Deployer({errorChecker, generator, verbose: true, canisters: canisters});
-	let formatter = new Formatter({verbose: true});
+	let formatter = new Formatter({errorChecker, verbose: true});
 
 	let watcher = chokidar.watch([
 		path.join(rootDir, '**/*.mo'),
