@@ -19,11 +19,3 @@ bench = "1.0.0"
 moc = "0.12.1"
 wasmtime = "23.0.1"
 pocket-ic = "4.0.0"
-
-[fmt]
-useTabs = true
-tabWidth = 2
-printWidth = 80
-semi = true
-bracketSpacing = true
-trailingComma = "all"

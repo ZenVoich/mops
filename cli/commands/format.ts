@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import * as prettier from 'prettier';
 import motokoPlugin from 'prettier-plugin-motoko';
 
-import {getRootDir, readConfig} from '../mops.js';
+import {getRootDir} from '../mops.js';
 import {absToRel} from './test/utils.js';
 import {parallel} from '../parallel.js';
 
@@ -38,7 +38,6 @@ export type FormatResult = {
 
 export async function format(filter : string, options : Partial<FormatOptions> = {}, signal ?: AbortSignal, onProgress ?: (result : FormatResult) => void) : Promise<FormatResult> {
 	let startTime = Date.now();
-	let config = readConfig();
 
 	let rootDir = getRootDir();
 	let globStr = '**/*.mo';
@@ -97,11 +96,11 @@ export async function format(filter : string, options : Partial<FormatOptions> =
 			}
 		}
 
-		// merge config from mops.toml [fmt]
-		// TODO: disable, because we lose vscode extension support
-		if (config.fmt) {
-			Object.assign(prettierConfig, config.fmt);
-		}
+		// merge config from mops.toml [format]
+		// disabled, because we lose vscode extension support
+		// if (config.format) {
+		// 	Object.assign(prettierConfig, config.format);
+		// }
 
 		// add motoko parser plugin
 		Object.assign(prettierConfig, {
@@ -162,7 +161,7 @@ export async function format(filter : string, options : Partial<FormatOptions> =
 	}
 
 	if (options.check && invalidFiles && !options.silent) {
-		console.log(`${(`Run '${chalk.yellow('mops fmt' + (filter ? ` ${filter}` : ''))}' to format your code`)}`);
+		console.log(`${(`Run '${chalk.yellow('mops format' + (filter ? ` ${filter}` : ''))}' to format your code`)}`);
 		return getResult(false);
 	}
 

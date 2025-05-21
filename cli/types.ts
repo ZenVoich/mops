@@ -19,7 +19,7 @@ export type Config = {
 	'dev-dependencies' ?: Dependencies;
 	toolchain ?: Toolchain;
 	requirements ?: Requirements;
-	fmt ?: Fmt;
+	// format ?: Format;
 };
 
 export type Dependencies = Record<string, Dependency>;
@@ -43,13 +43,13 @@ export type Requirements = {
 	moc ?: string;
 };
 
-export type Fmt = {
-	useTabs ?: boolean;
-	tabWidth ?: number;
-	printWidth ?: number;
-	semi ?: boolean;
-	bracketSpacing ?: boolean;
-	trailingComma ?: 'none' | 'all';
-};
+// export type Format = {
+// 	useTabs ?: boolean;
+// 	tabWidth ?: number;
+// 	printWidth ?: number;
+// 	semi ?: boolean;
+// 	bracketSpacing ?: boolean;
+// 	trailingComma ?: 'none' | 'all';
+// };
 
 export type TestMode = 'interpreter' | 'wasi' | 'replica';
