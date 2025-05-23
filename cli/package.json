@@ -30,7 +30,7 @@
   "scripts": {
     "build": "npm run prepare && npm run bundle",
     "dist": "tsc",
-    "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma --external fsevents --format esm --define '__dirname=import.meta.dirname' && npm run bundle:fix && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
+    "bundle": "rm -rf ./bundle && bun build ./cli.ts --outdir ./bundle --target node --minify --external @napi-rs/lzma --external fsevents --format esm && npm run bundle:fix && npm run bundle:copy && npm run bundle:package-json && npm run bundle:tar",
     "bundle:fix": "npx -y rexreplace 'new URL\\(\"\\.\\./templates' 'new URL(\"./templates' bundle/cli.js",
     "bundle:copy": "cp -r commands/bench bundle && cp -r bin declarations templates package.json bundle",
     "bundle:package-json": "tsx bundle-package-json.ts",
@@ -102,7 +102,7 @@
     "@types/semver": "7.5.8",
     "@types/stream-to-promise": "2.2.4",
     "@types/tar": "6.1.13",
-    "bun": "1.1.27",
+    "bun": "1.2.10",
     "esbuild": "0.23.1",
     "eslint": "8.57.0",
     "tsx": "4.19.2",
