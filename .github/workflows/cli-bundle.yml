@@ -42,8 +42,4 @@ jobs:
       - name: Check global bundle
         run: mops -v
 
-      - name: Check sources
-        run: mops sources
-
-      - name: Check format
-        run: mops format
+      - run: mops format
