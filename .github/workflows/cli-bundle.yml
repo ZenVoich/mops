@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm dependencies
-        run: cd cli && npm i --ignore-scripts
+        run: cd cli && npm i
 
       - name: Prepare
         run: cd cli && npm run prepare
