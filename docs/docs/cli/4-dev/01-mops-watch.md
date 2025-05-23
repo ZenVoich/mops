@@ -39,6 +39,14 @@ Check Motoko files for warnings.
 mops watch --warning
 ```
 
+### `--format`
+
+Format Motoko files.
+
+```
+mops watch --format
+```
+
 ### `--test`
 
 Run Motoko tests.
