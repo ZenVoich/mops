@@ -11,8 +11,8 @@ jobs:
   build:
     strategy:
       matrix:
-        node-version: [22]
-        os: [ubuntu-latest, macos-latest]
+        node-version: [24]
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}, node ${{ matrix.node-version }}
@@ -41,3 +41,9 @@ jobs:
 
       - name: Check global bundle
         run: mops -v
+
+      - name: Check sources
+        run: mops sources
+
+      - name: Check format
+        run: mops format
