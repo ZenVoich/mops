@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.7.2
+- Fix replica termination in `mops test` command
+
 ## 1.7.1
 - Fix `mops install` for local dependencies
 
