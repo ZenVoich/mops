@@ -468,24 +468,23 @@ actor class Main() = this {
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
-		let packagesFirstPub = TrieMap.TrieMap<PackageName, Time.Time>(Text.equal, Text.hash);
+		let packagesFirstPub = TrieMap.TrieMap<PackageName, (Time.Time, PackageVersion)>(Text.equal, Text.hash);
 		for ((packageId, publication) in packagePublications.entries()) {
-			let (packageName, _) = PackageUtils.parsePackageId(packageId);
-			let firstPubTime = Option.get(packagesFirstPub.get(packageName), Time.now());
+			let (packageName, packageVersion) = PackageUtils.parsePackageId(packageId);
+			let firstPubTime = Option.get(packagesFirstPub.get(packageName), (Time.now(), packageVersion)).0;
 			if (publication.time < firstPubTime) {
-				packagesFirstPub.put(packageName, publication.time);
+				packagesFirstPub.put(packageName, (publication.time, packageVersion));
 			};
 		};
 
-		let packagesFirstPubSorted = Array.sort(Iter.toArray(packagesFirstPub.entries()), func(a : (PackageName, Time.Time), b : (PackageName, Time.Time)) : Order.Order {
-			Int.compare(b.1, a.1);
+		let packagesFirstPubSorted = Array.sort(Iter.toArray(packagesFirstPub.entries()), func(a : (PackageName, (Time.Time, PackageVersion)), b : (PackageName, (Time.Time, PackageVersion))) : Order.Order {
+			Int.compare(b.1.0, a.1.0);
 		});
 
 		packagesFirstPubSorted
 			|> Array.take(_, 5)
-			|> Array.map<(PackageName, Time.Time), PackageSummary>(_, func((packageName, pubTime)) {
-				let ?version = registry.getHighestVersion(packageName) else Debug.trap("Package '" # packageName # "' not found");
-				let ?summary = _getPackageSummary(packageName, version) else Debug.trap("Package '" # PackageUtils.getPackageId(packageName, version) # "' not found");
+			|> Array.map<(PackageName, (Time.Time, PackageVersion)), PackageSummary>(_, func((packageName, (pubTime, packageVersion))) {
+				let ?summary = _getPackageSummary(packageName, packageVersion) else Debug.trap("Package '" # PackageUtils.getPackageId(packageName, packageVersion) # "' not found");
 				summary;
 			});
 	};
