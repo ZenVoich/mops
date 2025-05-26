@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.7.1"
+    "latest": "1.7.2"
   },
   "versions": {
     "0.41.0": {
@@ -184,6 +184,14 @@
       "commitHash": "5eb8c68d9d2fcdcb0a1955dfa515c0c298d331d1",
       "url": "https://cli.mops.one/versions/1.7.1.tgz",
       "hash": "7b8ebd46bc22db92bb4db7b6ff9e224e221f1483859584c16b96e86c32bc644e"
+    },
+    "1.7.2": {
+      "time": 1748257901676,
+      "size": 743288,
+      "relseaseNotes": "* Fix replica termination in `mops test` command\n",
+      "commitHash": "77064e25e861707e4132e75ee7898768638f4ab6",
+      "url": "https://cli.mops.one/versions/1.7.2.tgz",
+      "hash": "6731f593294bbdf649793750d3a8feda70661d451d4290a5470148b10329efa3"
     }
   }
 }
