@@ -468,27 +468,25 @@ actor class Main() = this {
 	};
 
 	public query func getNewPackages() : async [PackageSummary] {
-		let pubsSorted = Array.sort(Iter.toArray(packagePublications.entries()), func(a : (PackageId, PackagePublication), b : (PackageId, PackagePublication)) : Order.Order {
-			Int.compare(a.1.time, b.1.time);
-		});
-
-		let packagesFirstPub = TrieMap.TrieMap<PackageName, PackageSummary>(Text.equal, Text.hash);
-
-		label l for ((packageId, _) in pubsSorted.vals()) {
-			ignore do ? {
-				let config = packageConfigs.get(packageId)!;
-				let packageSummary = _getPackageSummary(config.name, config.version)!;
-
-				if (packagesFirstPub.get(config.name) == null) {
-					packagesFirstPub.put(config.name, packageSummary);
-				};
+		let packagesFirstPub = TrieMap.TrieMap<PackageName, (Time.Time, PackageVersion)>(Text.equal, Text.hash);
+		for ((packageId, publication) in packagePublications.entries()) {
+			let (packageName, packageVersion) = PackageUtils.parsePackageId(packageId);
+			let firstPubTime = Option.get(packagesFirstPub.get(packageName), (Time.now(), packageVersion)).0;
+			if (publication.time < firstPubTime) {
+				packagesFirstPub.put(packageName, (publication.time, packageVersion));
 			};
 		};
 
-		packagesFirstPub.vals()
-			|> Iter.toArray(_)
-			|> _sortByPublicationTime(_)
-			|> Array.take(_, 5);
+		let packagesFirstPubSorted = Array.sort(Iter.toArray(packagesFirstPub.entries()), func(a : (PackageName, (Time.Time, PackageVersion)), b : (PackageName, (Time.Time, PackageVersion))) : Order.Order {
+			Int.compare(b.1.0, a.1.0);
+		});
+
+		packagesFirstPubSorted
+			|> Array.take(_, 5)
+			|> Array.map<(PackageName, (Time.Time, PackageVersion)), PackageSummary>(_, func((packageName, (pubTime, packageVersion))) {
+				let ?summary = _getPackageSummary(packageName, packageVersion) else Debug.trap("Package '" # PackageUtils.getPackageId(packageName, packageVersion) # "' not found");
+				summary;
+			});
 	};
 
 	public query func getDownloadTrendByPackageName(name : PackageName) : async [DownloadsSnapshot] {

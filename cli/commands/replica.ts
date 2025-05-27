@@ -132,20 +132,31 @@ export class Replica {
 	async stop(sigint = false) {
 		if (this.type === 'dfx' || this.type === 'dfx-pocket-ic') {
 			if (this.dfxProcess) {
-				this.dfxProcess.kill();
-				// give replica some time to stop
-				await new Promise((resolve) => {
-					setTimeout(resolve, 1000);
-				});
-			}
+				let killed = this.dfxProcess.kill();
 
-			// if (!this.dfxProcess) {
-			// 	try {
-			// 		execSync('dfx killall', {cwd: this.dir, timeout: 3_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
-			//			execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, timeout: 10_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
-			// 	}
-			// 	catch {}
-			// }
+				if (!killed) {
+					this.dfxProcess.kill('SIGKILL');
+				}
+
+				// give replica some time to stop
+				let i = 0;
+				while (this.dfxProcess.exitCode === null) {
+					i++;
+					await new Promise((resolve) => {
+						setTimeout(resolve, 500);
+					});
+					if (i >= 20) {
+						break;
+					}
+				}
+
+				// // make sure replica is stopped
+				// try {
+				// 	// execSync('dfx killall', {cwd: this.dir, timeout: 3_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+				// 	execSync('dfx stop' + (this.verbose ? '' : ' -qqqq'), {cwd: this.dir, timeout: 3_000, stdio: ['pipe', this.verbose ? 'inherit' : 'ignore', 'pipe']});
+				// }
+				// catch {}
+			}
 		}
 		else if (this.pocketIc && this.pocketIcServer) {
 			if (!sigint) {
