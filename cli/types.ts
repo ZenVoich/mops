@@ -19,6 +19,7 @@ export type Config = {
 	'dev-dependencies' ?: Dependencies;
 	toolchain ?: Toolchain;
 	requirements ?: Requirements;
+	// format ?: Format;
 };
 
 export type Dependencies = Record<string, Dependency>;
@@ -41,5 +42,14 @@ export type Tool = 'moc' | 'wasmtime' | 'pocket-ic';
 export type Requirements = {
 	moc ?: string;
 };
+
+// export type Format = {
+// 	useTabs ?: boolean;
+// 	tabWidth ?: number;
+// 	printWidth ?: number;
+// 	semi ?: boolean;
+// 	bracketSpacing ?: boolean;
+// 	trailingComma ?: 'none' | 'all';
+// };
 
 export type TestMode = 'interpreter' | 'wasi' | 'replica';
