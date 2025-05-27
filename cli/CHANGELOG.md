@@ -1,5 +1,9 @@
 # Mops CLI Changelog
 
+## 1.8.0
+- Add `mops format` command for formatting Motoko source files with Prettier and a Motoko plugin ([docs](https://docs.mops.one/cli/mops-format))
+- Add `--format` flag to `mops watch` command to enable automatic formatting during watch mode ([docs](https://docs.mops.one/cli/mops-watch#--format))
+
 ## 1.7.2
 - Fix replica termination in `mops test` command
 
