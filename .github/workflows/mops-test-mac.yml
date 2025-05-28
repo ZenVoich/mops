@@ -1,4 +1,4 @@
-name: mops test
+name: mops test macos
 
 on:
   push:
