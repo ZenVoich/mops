@@ -12,7 +12,6 @@ packageJson.dependencies = {
 	'dhall-to-json-cli': packageJson.dependencies['dhall-to-json-cli'],
 	'decomp-tarxz': packageJson.dependencies['decomp-tarxz'],
 	'buffer': packageJson.dependencies['buffer'],
-	'prettier-plugin-motoko': packageJson.dependencies['prettier-plugin-motoko'],
 };
 
 writeFileSync('./bundle/package.json', JSON.stringify(packageJson, null, '  '));
