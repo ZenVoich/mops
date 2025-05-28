@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.7.2"
+    "latest": "1.8.0"
   },
   "versions": {
     "0.41.0": {
@@ -192,6 +192,14 @@
       "commitHash": "77064e25e861707e4132e75ee7898768638f4ab6",
       "url": "https://cli.mops.one/versions/1.7.2.tgz",
       "hash": "6731f593294bbdf649793750d3a8feda70661d451d4290a5470148b10329efa3"
+    },
+    "1.8.0": {
+      "time": 1748429693990,
+      "size": 1803251,
+      "relseaseNotes": "* Add `mops format` command for formatting Motoko source files with Prettier and Motoko plugin ([docs](https://docs.mops.one/cli/mops-format))\n* Add `--format` flag to `mops watch` command to enable automatic formatting during watch mode ([docs](https://docs.mops.one/cli/mops-watch#--format))\n",
+      "commitHash": "dfa7763abe293a304bb46d61b32dd9c01f7587ad",
+      "url": "https://cli.mops.one/versions/1.8.0.tgz",
+      "hash": "fe313603e0b89b4171d1e5d2843c16dfbfd6e7e327f79bbbe050176164645d74"
     }
   }
 }
