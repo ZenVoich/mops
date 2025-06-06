@@ -9,25 +9,45 @@ import {getDepCacheDir, getDepCacheName} from './cache.js';
 import {getPackageId} from './helpers/get-package-id.js';
 import {checkLockFileLight, readLockFile} from './integrity.js';
 
-export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'error' | 'ignore'} = {}) : Promise<Record<string, string>> {
+export interface ResolvedPackages {
+	packages : Record<string, string[]>,
+	overrides : Record<string, Record<string, string>>;
+}
+
+export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'error' | 'ignore'} = {}) : Promise<ResolvedPackages> {
 	if (!checkConfigFile()) {
-		return {};
+		return {
+			packages: {},
+			overrides: {},
+		};
 	}
 
 	if (checkLockFileLight()) {
 		let lockFileJson = readLockFile();
 
-		if (lockFileJson && lockFileJson.version === 3) {
-			return lockFileJson.deps;
+		if (lockFileJson) {
+			if (lockFileJson.version === 3) {
+				return {
+					packages: Object.fromEntries(
+						Object.entries(lockFileJson.deps)
+							.map(version => [version])
+					),
+					overrides: {},
+				};
+			}
+			if (lockFileJson.version === 4) {
+				return lockFileJson.resolved;
+			}
 		}
 	}
 
 	let rootDir = getRootDir();
-	let packages : Record<string, Dependency & {isRoot : boolean;}> = {};
+	let packages : Record<string, Record<string, Dependency & {isRoot : boolean;}>> = {};
 	let versions : Record<string, Array<{
-		isMopsPackage : boolean;
+		name : string;
 		version : string;
 		dependencyOf : string;
+		isMopsPackage : boolean;
 	}>> = {};
 
 	let compareVersions = (a : string = '0.0.0', b : string = '0.0.0') => {
@@ -46,6 +66,7 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 	};
 
 	const gitVerRegex = new RegExp(/v(\d{1,2}\.\d{1,2}\.\d{1,2})(-.*)?$/);
+	const rootName = '<root>';
 
 	const compareGitVersions = (repoA : string, repoB : string) => {
 		const {branch: a} = parseGithubURL(repoA);
@@ -70,20 +91,24 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 		for (const pkgDetails of allDeps) {
 			const {name, repo, version} = pkgDetails;
 
+			const versionKey = version ? version.substring(0, version.indexOf('.')) : ''; // major version
+
+			const pkg = packages[name]?.[versionKey];
+
 			// take root dep version or bigger one
 			if (
 				isRoot
-				|| !packages[name]
-				|| !packages[name]?.isRoot
+				|| !pkg
+				|| !pkg?.isRoot
 				&& (
-					repo && packages[name]?.repo && compareGitVersions(packages[name]?.repo || '', repo) === -1
-					|| compareVersions(packages[name]?.version, version) === -1)
+					repo && pkg.repo && compareGitVersions(pkg.repo || '', repo) === -1
+					|| compareVersions(pkg.version, version) === -1)
 			) {
 				let temp = {
 					...pkgDetails,
 					isRoot,
 				};
-				packages[name] = temp;
+				(packages[name] || (packages[name] = {}))[versionKey] = temp;
 
 				// normalize path relative to the root config dir
 				if (pkgDetails.path) {
@@ -103,7 +128,7 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 				localNestedDir = path.resolve(configDir, pkgDetails.path).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 				let mopsToml = path.join(localNestedDir, 'mops.toml');
 				if (existsSync(mopsToml)) {
-					nestedConfig = readConfig(mopsToml);
+					nestedConfig = readConfig();
 				}
 			}
 			else if (version) {
@@ -116,25 +141,24 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 				await collectDeps(nestedConfig, localNestedDir, false);
 			}
 
-			if (!versions[name]) {
-				versions[name] = [];
-			}
-
-			let parentPkgId = isRoot ? '<root>' : '';
+			let parentPkgId = isRoot ? rootName : '';
 			if ('package' in config) {
 				parentPkgId = getPackageId(config.package?.name || '', config.package?.version || '');
 			}
 
+			const packageVersions = versions[name] || (versions[name] = []);
 			if (repo) {
 				const {branch} = parseGithubURL(repo);
-				versions[name]?.push({
+				packageVersions.push({
+					name,
 					version: branch,
 					dependencyOf: parentPkgId,
 					isMopsPackage: false,
 				});
 			}
 			else if (version) {
-				versions[name]?.push({
+				packageVersions.push({
+					name,
 					version: version,
 					dependencyOf: parentPkgId,
 					isMopsPackage: true,
@@ -168,9 +192,13 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 		process.exit(1);
 	}
 
-	return Object.fromEntries(
-		Object.entries(packages).map(([name, pkg]) => {
-			let version : string;
+	let resolved : ResolvedPackages = {
+		packages: {},
+		overrides: {},
+	};
+	Object.entries(packages).forEach(([name, packageMap]) => {
+		Object.entries(packageMap).forEach(([_key, pkg]) => {
+			let version : string | undefined;
 			if (pkg.path) {
 				version = path.resolve(rootDir, pkg.path).replaceAll('{MOPS_ENV}', process.env.MOPS_ENV || 'local');
 			}
@@ -180,10 +208,24 @@ export async function resolvePackages({conflicts = 'ignore' as 'warning' | 'erro
 			else if (pkg.version) {
 				version = pkg.version;
 			}
-			else {
-				return [name, ''];
+
+			if (version) {
+				(resolved.packages[name] || (resolved.packages[name] = [])).push(version);
 			}
-			return [name, version];
-		}).filter(([, version]) => version !== '')
-	);
+		});
+	});
+	Object.entries(versions).forEach(([_name, versionedPackages]) => {
+		let visitedVersions = new Set<string>();
+		for (let pkg of versionedPackages) {
+			if (pkg.dependencyOf === rootName) {
+				return;
+			}
+			if (visitedVersions.has(pkg.version)) {
+				continue;
+			}
+			visitedVersions.add(pkg.version);
+		}
+		// resolved.overrides[name] =
+	});
+	return resolved;
 }
