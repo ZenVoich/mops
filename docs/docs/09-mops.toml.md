@@ -12,9 +12,20 @@ sidebar_label: mops.toml
 | name         | Package name (e.g. `lib`)                          |
 | version      | Package version in format x.y.z (e.g. `0.1.2`)     |
 | description  | Package description shown in search results      |
-| repository   | Repository url (e.g. `https://github.com/dfinity/motoko`) |
+| repository   | Repository url (e.g. `https://github.com/dfinity/motoko-base`).<br/>Can include subdirs (see note below) |
 | keywords     | Array of keywords (max 10 items, max 20 chars)   |
-| license      | Package license. Use [SPDX license identifier](https://spdx.org/licenses/) |
+| license      | Package license. Use [SPDX license identifier](https://spdx.org/licenses/) (e.g. `MIT`) |
+
+:::note
+Repository URL can include subdirectory when the package is located not in the root of the repository.
+
+Example for vetkeys package https://github.com/dfinity/vetkeys/tree/main/backend/mo/ic_vetkeys
+```toml
+repository = "https://github.com/dfinity/vetkeys/backend/mo/ic_vetkeys"
+```
+
+Make sure there is no `/tree/main/` in the URL.
+:::
 
 ## [dependencies]
 
