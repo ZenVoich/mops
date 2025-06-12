@@ -217,6 +217,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 		'!benchmark/**',
 		'!**/*.bench.mo',
 		'!**/*.Bench.mo',
+		'!**/node_modules/**',
 	];
 	let files = config.package.files || ['**/*.mo'];
 	files = [...files, ...defaultFiles];
