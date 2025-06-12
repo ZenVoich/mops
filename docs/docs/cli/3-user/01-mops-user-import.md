@@ -13,6 +13,10 @@ mops user import -- <pem_data>
 
 To be able to publish a packages to the `mops` registry, you need to import an identity from DFX.
 
+:::note
+This command accepts PEM file contents, not a path to a file.
+:::
+
 ### Import identity from DFX
 
 ```
