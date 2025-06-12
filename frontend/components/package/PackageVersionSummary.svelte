@@ -122,6 +122,10 @@
 		font-weight: 500;
 	}
 
+	.notes {
+		line-height: 1.55;
+	}
+
 	:global(.version-summary .notes > :not(ul, ol)) {
 		padding-left: 20px;
 	}
