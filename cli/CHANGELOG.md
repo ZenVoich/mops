@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.8.1
+- Exclude `node_modules` from publish command file patterns
+
 ## 1.8.0
 - Add `mops format` command for formatting Motoko source files with Prettier and Motoko plugin ([docs](https://docs.mops.one/cli/mops-format))
 - Add `--format` flag to `mops watch` command to enable automatic formatting during watch mode ([docs](https://docs.mops.one/cli/mops-watch#--format))
