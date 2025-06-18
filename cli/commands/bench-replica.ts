@@ -93,6 +93,7 @@ export class BenchReplica {
 				type: 'custom',
 				wasm: 'canister.wasm',
 				candid: 'canister.did',
+				optimize: 'cycles',
 			};
 		}
 
