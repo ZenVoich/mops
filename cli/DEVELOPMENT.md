@@ -43,12 +43,14 @@ Compare hashes.
 ## Publish on-chain
 _Run from root of the project_
 
-1. Prepeare release
+1. Make sure Docker is running
+
+2. Prepeare release
 ```
 npm run release-cli
 ```
 
-2. Deploy canister
+3. Deploy canister
 ```
 dfx deploy --network ic --no-wallet cli --identity mops
 ```
