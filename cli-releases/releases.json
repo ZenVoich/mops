@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.8.0"
+    "latest": "1.8.1"
   },
   "versions": {
     "0.41.0": {
@@ -200,6 +200,14 @@
       "commitHash": "dfa7763abe293a304bb46d61b32dd9c01f7587ad",
       "url": "https://cli.mops.one/versions/1.8.0.tgz",
       "hash": "fe313603e0b89b4171d1e5d2843c16dfbfd6e7e327f79bbbe050176164645d74"
+    },
+    "1.8.1": {
+      "time": 1750239219814,
+      "size": 1803259,
+      "relseaseNotes": "* Exclude `node_modules` from publish command file patterns\n",
+      "commitHash": "e618fba7c971df539492671cea02dbeace86e26b",
+      "url": "https://cli.mops.one/versions/1.8.1.tgz",
+      "hash": "c6d7c940e3868abf4ebe6799d61d23ceebee8bee4298b75993b33f300ca8c754"
     }
   }
 }
