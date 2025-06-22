@@ -232,7 +232,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	let docsFile = path.join(rootDir, '.mops/.docs/docs.tgz');
 	if (options.docs) {
 		console.log('Generating documentation...');
-		await docs({silent: true});
+		await docs({silent: true, archive: true});
 		if (fs.existsSync(docsFile)) {
 			files.unshift(docsFile);
 		}

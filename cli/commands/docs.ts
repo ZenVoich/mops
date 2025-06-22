@@ -13,9 +13,30 @@ import {toolchain} from './toolchain/index.js';
 
 let moDocPath : string;
 
-export async function docs({silent = false} = {}) {
+type DocsOptions = {
+	source : string,
+	output : string,
+	format : 'md' | 'adoc' | 'html' | 'plain',
+	silent : boolean,
+	archive : boolean,
+};
+
+export async function docs(options : Partial<DocsOptions> = {}) {
+	let {source, output, format, silent, archive} = {
+		source: 'src',
+		output: '.mops/.docs',
+		format: 'adoc',
+		silent: false,
+		archive: false,
+		...options,
+	};
+
+	if (format === 'md') {
+		format = 'plain';
+	}
+
 	let rootDir = getRootDir();
-	let docsDir = path.join(rootDir, '.mops/.docs');
+	let docsDir = path.join(rootDir, output);
 	let docsDirRelative = path.relative(process.cwd(), docsDir);
 
 	deleteSync([docsDir], {force: true});
@@ -32,14 +53,18 @@ export async function docs({silent = false} = {}) {
 
 	// generate docs
 	await new Promise<void>((resolve) => {
-		let proc = spawn(moDocPath, [`--source=${path.join(rootDir, 'src')}`, `--output=${docsDirRelative}`, '--format=adoc']);
+		let proc = spawn(moDocPath, [
+			`--source=${path.join(rootDir, source)}`,
+			`--output=${docsDirRelative}`,
+			`--format=${format}`,
+		]);
 
 		// stdout
 		proc.stdout.on('data', (data) => {
 			let text = data.toString().trim();
 			let failedText = 'Failed to extract documentation';
 			if (text.includes(failedText)) {
-				console.log(text.replaceAll(failedText, chalk.yellow('Warning: ') + failedText));
+				silent ||console.log(text.replaceAll(failedText, chalk.yellow('Warning: ') + failedText));
 			}
 			silent || console.log('stdout', text);
 		});
@@ -75,22 +100,24 @@ export async function docs({silent = false} = {}) {
 	});
 
 	// create archive
-	let ignore = [
-		`${docsDir}/**/*.test.adoc`,
-		`${docsDir}/test/**/*`,
-	];
-	let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
-	files.sort();
-	if (files.length) {
-		let stream = createTar(
-			{
-				cwd: docsDir,
-				gzip: true,
-				portable: true,
-			},
-			files
-		).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tgz')));
-		await streamToPromise(stream);
+	if (archive) {
+		let ignore = [
+			`${docsDir}/**/*.test.adoc`,
+			`${docsDir}/test/**/*`,
+		];
+		let files = globSync(`${docsDir}/**/*.adoc`, {ignore}).map(f => path.relative(docsDir, f));
+		files.sort();
+		if (files.length) {
+			let stream = createTar(
+				{
+					cwd: docsDir,
+					gzip: true,
+					portable: true,
+				},
+				files
+			).pipe(fs.createWriteStream(path.join(docsDir, 'docs.tgz')));
+			await streamToPromise(stream);
+		}
 	}
 
 	silent || console.log(`${chalk.green('Documentation generated')} at ${docsDirRelative}`);
