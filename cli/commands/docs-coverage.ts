@@ -1,9 +1,7 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import {JSDOM} from 'jsdom';
-import {getRootDir} from '../mops.js';
 import {docs} from './docs.js';
 
 export type DocsCoverageReporter = 'compact' | 'files' | 'missing' | 'verbose';
@@ -15,7 +13,6 @@ type DocsCoverageOptions = {
 };
 
 export async function docsCoverage(options : Partial<DocsCoverageOptions> = {}) {
-	let rootDir = getRootDir();
 	let docsDir = '.mops/.docs';
 
 	let {source, reporter, threshold} = {
@@ -34,19 +31,24 @@ export async function docsCoverage(options : Partial<DocsCoverageOptions> = {}) 
 
 	let files = globSync(`${docsDir}/**/*.html`, {ignore: [`${docsDir}/**/index.html`]});
 	let coverages = [];
-	let sourceDirAbs = path.resolve(rootDir, source);
 
 	for (let file of files) {
-		let coverage = docFileCoverage(file, rootDir, sourceDirAbs);
+		let coverage = docFileCoverage(file);
 		coverages.push(coverage);
-		if (reporter !== 'compact') {
-			console.log(`• ${coverage.file}: ${colorizeCoverage(coverage.coverage)}`);
+		if (reporter !== 'compact' && (reporter !== 'missing' || coverage.coverage < 100)) {
+			console.log(`• ${coverage.file} ${colorizeCoverage(coverage.coverage)}`);
 		}
 		if (reporter === 'missing' && coverage.coverage < 100) {
-			console.log(`${coverage.items.filter(item => !item.covered).map(item => `  ${item.covered ? chalk.green('✓') : chalk.red('✖')} ${item.id} ${chalk.gray(item.type)}`).join('\n')}`);
+			for (let item of coverage.items) {
+				if (!item.covered) {
+					console.log(`  ${item.covered ? chalk.green('✓') : chalk.red('✖')} ${item.id} ${chalk.gray(item.type)}`);
+				}
+			}
 		}
 		else if (reporter === 'verbose') {
-			console.log(`${coverage.items.map(item => `  ${item.covered ? chalk.green('✓') : chalk.red('✖')} ${item.id} ${chalk.gray(item.type)}`).join('\n')}`);
+			for (let item of coverage.items) {
+				console.log(`  ${item.covered ? chalk.green('✓') : chalk.red('✖')} ${item.id} ${chalk.gray(item.type)}`);
+			}
 		}
 	}
 
@@ -62,11 +64,11 @@ export async function docsCoverage(options : Partial<DocsCoverageOptions> = {}) 
 	}
 }
 
-function docFileCoverage(file : string, rootDir : string, sourceDirAbs : string) {
+function docFileCoverage(file : string) {
 	let dom = new JSDOM(readFileSync(file, 'utf-8'));
 
 	let module = dom.window.document.querySelector('h1')?.textContent || '';
-	let moduleFile = path.relative(rootDir, path.resolve(sourceDirAbs, `${module}.mo`));
+	let moduleFile = `${module}.mo`;
 
 	let items = [...dom.window.document.querySelectorAll('h4')].map(h4 => {
 		let id = h4.getAttribute('id')?.replace('type.', '');

@@ -16,7 +16,7 @@ let moDocPath : string;
 type DocsOptions = {
 	source : string,
 	output : string,
-	format : 'md' | 'adoc' | 'html' | 'plain',
+	format : 'md' | 'adoc' | 'html',
 	silent : boolean,
 	archive : boolean,
 };

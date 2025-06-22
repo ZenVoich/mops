@@ -504,7 +504,7 @@ docsCommand
 	.description('Generate documentation for Motoko code')
 	.addOption(new Option('--source <source>', 'Source directory').default('src'))
 	.addOption(new Option('--output <output>', 'Output directory').default('docs'))
-	.addOption(new Option('--format <format>', 'Output format').default('md').choices(['md', 'adoc', 'html', 'plain']))
+	.addOption(new Option('--format <format>', 'Output format').default('md').choices(['md', 'adoc', 'html']))
 	.action(async (options) => {
 		checkConfigFile(true);
 		await docs(options);
