@@ -4,7 +4,7 @@ import {globSync} from 'glob';
 import {JSDOM} from 'jsdom';
 import {docs} from './docs.js';
 
-export type DocsCoverageReporter = 'compact' | 'files' | 'missing' | 'verbose';
+export type DocsCoverageReporter = 'compact' | 'files' | 'missing' | 'verbose' | 'silent';
 
 type DocsCoverageOptions = {
 	source : string,
@@ -35,6 +35,10 @@ export async function docsCoverage(options : Partial<DocsCoverageOptions> = {}) 
 	for (let file of files) {
 		let coverage = docFileCoverage(file);
 		coverages.push(coverage);
+
+		if (reporter === 'silent') {
+			continue;
+		}
 		if (reporter !== 'compact' && (reporter !== 'missing' || coverage.coverage < 100)) {
 			console.log(`• ${coverage.file} ${colorizeCoverage(coverage.coverage)}`);
 		}
@@ -52,16 +56,20 @@ export async function docsCoverage(options : Partial<DocsCoverageOptions> = {}) 
 		}
 	}
 
-	if (reporter !== 'compact') {
+	if (reporter !== 'compact' && reporter !== 'silent') {
 		console.log('-'.repeat(50));
 	}
 
 	let totalCoverage = coverages.reduce((acc, coverage) => acc + coverage.coverage, 0) / (coverages.length || 1);
-	console.log(`Documentation coverage: ${colorizeCoverage(totalCoverage)}`);
+	if (reporter !== 'silent') {
+		console.log(`Documentation coverage: ${colorizeCoverage(totalCoverage)}`);
+	}
 
 	if (threshold > 0 && totalCoverage < threshold) {
 		process.exit(1);
 	}
+
+	return totalCoverage;
 }
 
 function docFileCoverage(file : string) {
@@ -93,7 +101,7 @@ function colorizeCoverage(coverage : number) {
 	if (coverage >= 90) {
 		return chalk.green(coverage.toFixed(2) + '%');
 	}
-	else if (coverage >= 70) {
+	else if (coverage >= 50) {
 		return chalk.yellow(coverage.toFixed(2) + '%');
 	}
 	else {

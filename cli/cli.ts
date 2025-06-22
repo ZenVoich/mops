@@ -513,9 +513,9 @@ docsCommand
 docsCommand
 	.command('coverage')
 	.description('Documentation coverage report')
-	.addOption(new Option('--source <source>', 'Source directory (with .mo files)').default('src'))
-	.addOption(new Option('--reporter <reporter>', 'Coverage reporter').choices(['files', 'compact', 'missing', 'verbose']).default('files'))
-	.addOption(new Option('--threshold <threshold>', 'Coverage threshold (0-100). If total coverage is below threshold, exit with error code 1').default(70))
+	.addOption(new Option('-s, --source <source>', 'Source directory (with .mo files)').default('src'))
+	.addOption(new Option('-r, --reporter <reporter>', 'Coverage reporter').choices(['files', 'compact', 'missing', 'verbose']).default('files'))
+	.addOption(new Option('-t, --threshold <threshold>', 'Coverage threshold (0-100). If total coverage is below threshold, exit with error code 1').default(70))
 	.action(async (options) => {
 		checkConfigFile(true);
 		await docsCoverage(options);

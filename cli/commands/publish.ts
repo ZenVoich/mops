@@ -17,6 +17,7 @@ import {testWithReporter} from './test/test.js';
 import {SilentReporter} from './test/reporters/silent-reporter.js';
 import {findChangelogEntry} from '../helpers/find-changelog-entry.js';
 import {bench} from './bench.js';
+import {docsCoverage} from './docs-coverage.js';
 
 export async function publish(options : {docs ?: boolean, test ?: boolean, bench ?: boolean, verbose ?: boolean} = {}) {
 	if (!checkConfigFile()) {
@@ -230,8 +231,12 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 
 	// generate docs
 	let docsFile = path.join(rootDir, '.mops/.docs/docs.tgz');
+	let docsCov = 0;
 	if (options.docs) {
 		console.log('Generating documentation...');
+		docsCov = await docsCoverage({
+			reporter: 'silent',
+		});
 		await docs({silent: true, archive: true});
 		if (fs.existsSync(docsFile)) {
 			files.unshift(docsFile);
@@ -334,6 +339,11 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	// upload changelog
 	if (changelog) {
 		await actor.uploadNotes(puiblishingId, changelog);
+	}
+
+	// upload docs coverage
+	if (options.docs) {
+		await actor.uploadDocsCoverage(puiblishingId, docsCov);
 	}
 
 	// upload files
