@@ -48,6 +48,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const PackageQuality = IDL.Record({
     'depsStatus' : DepsStatus,
+    'docsCoverage' : IDL.Float64,
     'hasDescription' : IDL.Bool,
     'hasKeywords' : IDL.Bool,
     'hasLicense' : IDL.Bool,
@@ -161,8 +162,10 @@ export const idlFactory = ({ IDL }) => {
     'tests' : TestsChanges,
     'deps' : IDL.Vec(DepChange),
     'curBenchmarks' : Benchmarks__1,
+    'prevDocsCoverage' : IDL.Float64,
     'prevBenchmarks' : Benchmarks__1,
     'notes' : IDL.Text,
+    'curDocsCoverage' : IDL.Float64,
     'devDeps' : IDL.Vec(DepChange),
   });
   const PackageSummaryWithChanges__1 = IDL.Record({
@@ -192,6 +195,7 @@ export const idlFactory = ({ IDL }) => {
     'quality' : PackageQuality,
     'publisher' : User,
     'testStats' : TestStats__1,
+    'docsCoverage' : IDL.Float64,
     'highestVersion' : PackageVersion,
     'downloadsTotal' : IDL.Nat,
     'downloadsInLast30Days' : IDL.Nat,
@@ -428,6 +432,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(PackageSummary), PageCount],
         ['query'],
       ),
+    'setStorageControllers' : IDL.Func([], [], []),
     'setUserProp' : IDL.Func([IDL.Text, IDL.Text], [Result_3], []),
     'startFileUpload' : IDL.Func(
         [PublishingId, Text, IDL.Nat, IDL.Vec(IDL.Nat8)],
@@ -441,6 +446,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'uploadBenchmarks' : IDL.Func([PublishingId, Benchmarks], [Result], []),
+    'uploadDocsCoverage' : IDL.Func([PublishingId, IDL.Float64], [Result], []),
     'uploadFileChunk' : IDL.Func(
         [PublishingId, FileId, IDL.Nat, IDL.Vec(IDL.Nat8)],
         [Result],

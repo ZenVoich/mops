@@ -124,6 +124,7 @@ export interface Main {
     [Text, [] | [bigint], [] | [bigint]],
     [Array<PackageSummary>, PageCount]
   >,
+  'setStorageControllers' : ActorMethod<[], undefined>,
   'setUserProp' : ActorMethod<[string, string], Result_3>,
   'startFileUpload' : ActorMethod<
     [PublishingId, Text, bigint, Uint8Array | number[]],
@@ -132,6 +133,7 @@ export interface Main {
   'startPublish' : ActorMethod<[PackageConfigV3_Publishing], Result_1>,
   'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
   'uploadBenchmarks' : ActorMethod<[PublishingId, Benchmarks], Result>,
+  'uploadDocsCoverage' : ActorMethod<[PublishingId, number], Result>,
   'uploadFileChunk' : ActorMethod<
     [PublishingId, FileId, bigint, Uint8Array | number[]],
     Result
@@ -143,8 +145,10 @@ export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
   'curBenchmarks' : Benchmarks__1,
+  'prevDocsCoverage' : number,
   'prevBenchmarks' : Benchmarks__1,
   'notes' : string,
+  'curDocsCoverage' : number,
   'devDeps' : Array<DepChange>,
 }
 export interface PackageConfigV3 {
@@ -196,6 +200,7 @@ export interface PackageDetails {
   'quality' : PackageQuality,
   'publisher' : User,
   'testStats' : TestStats__1,
+  'docsCoverage' : number,
   'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
@@ -223,6 +228,7 @@ export interface PackagePublication {
 }
 export interface PackageQuality {
   'depsStatus' : DepsStatus,
+  'docsCoverage' : number,
   'hasDescription' : boolean,
   'hasKeywords' : boolean,
   'hasLicense' : boolean,
