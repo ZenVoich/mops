@@ -52,6 +52,7 @@ module {
 		let publishingNotes = TrieMap.TrieMap<PublishingId, Text>(Text.equal, Text.hash);
 		let publishingFileHashers = TrieMap.TrieMap<FileId, Sha256.Digest>(Text.equal, Text.hash);
 		let publishingBenchmarks = TrieMap.TrieMap<PublishingId, Benchmarks>(Text.equal, Text.hash);
+		let publishingDocsCoverage = TrieMap.TrieMap<PublishingId, Float>(Text.equal, Text.hash);
 
 		public func startPublish(caller : Principal, config : PackageConfigV3) : async Result.Result<PublishingId, PublishingErr> {
 			if (Principal.isAnonymous(caller)) {
@@ -369,6 +370,20 @@ module {
 			#ok;
 		};
 
+		public func uploadDocsCoverage(caller : Principal, publishingId : PublishingId, docsCoverage : Float) : Result.Result<(), PublishingErr> {
+			assert(not Principal.isAnonymous(caller));
+
+			if (docsCoverage < 0 or docsCoverage > 100) {
+				return #err("Docs coverage must be between 0 and 100");
+			};
+
+			let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
+			assert(publishing.user == caller);
+
+			publishingDocsCoverage.put(publishingId, docsCoverage);
+			#ok;
+		};
+
 		public func finishPublish(caller : Principal, publishingId : PublishingId) : async Result.Result<(), PublishingErr> {
 			assert(not Principal.isAnonymous(caller));
 
@@ -433,6 +448,7 @@ module {
 				fileHashes = Iter.toArray(fileHashes.entries());
 				fileStats = publishingPackageFileStats.get(publishingId);
 				testStats = publishingTestStats.get(publishingId);
+				docsCoverage = Option.get(publishingDocsCoverage.get(publishingId), 0.0);
 			});
 
 			publishingFiles.delete(publishingId);
@@ -441,6 +457,7 @@ module {
 			publishingTestStats.delete(publishingId);
 			publishingNotes.delete(publishingId);
 			publishingBenchmarks.delete(publishingId);
+			publishingDocsCoverage.delete(publishingId);
 
 			#ok;
 		};

@@ -31,6 +31,7 @@ module {
 		fileStats : ?PackageFileStats;
 		testStats : ?TestStats;
 		benchmarks : Benchmarks;
+		docsCoverage : Float;
 	};
 
 	public class Registry(
@@ -46,6 +47,7 @@ module {
 		packageTestStats : TrieMap.TrieMap<PackageId, TestStats>,
 		packageBenchmarks : TrieMap.TrieMap<PackageId, Benchmarks>,
 		packageNotes : TrieMap.TrieMap<PackageId, Text>,
+		packageDocsCoverage : TrieMap.TrieMap<PackageId, Float>,
 	) {
 
 		// -----------------------------
@@ -96,6 +98,7 @@ module {
 
 			packageBenchmarks.put(packageId, newRelease.benchmarks);
 			packageNotes.put(packageId, newRelease.notes);
+			packageDocsCoverage.put(packageId, newRelease.docsCoverage);
 		};
 
 		func _updateHighestConfig(config : PackageConfigV3) {
@@ -167,6 +170,10 @@ module {
 
 		public func getPackageReleaseNotes(name : PackageName, version : PackageVersion) : Text {
 			Option.get(packageNotes.get(PackageUtils.getPackageId(name, version)), "")
+		};
+
+		public func getPackageDocsCoverage(name : PackageName, version : PackageVersion) : Float {
+			Option.get(packageDocsCoverage.get(PackageUtils.getPackageId(name, version)), 0.0);
 		};
 
 		// -----------------------------

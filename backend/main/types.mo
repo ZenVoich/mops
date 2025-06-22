@@ -117,6 +117,7 @@ module {
 		fileStats : PackageFileStatsPublic;
 		testStats : TestStats;
 		benchmarks : Benchmarks;
+		docsCoverage : Float;
 	};
 
 	public type DownloadsSnapshot = {
@@ -164,6 +165,8 @@ module {
 		devDeps : [DepChange];
 		curBenchmarks : Benchmarks;
 		prevBenchmarks : Benchmarks;
+		prevDocsCoverage : Float;
+		curDocsCoverage : Float;
 	};
 
 	public type PackageQuality = {
@@ -174,7 +177,8 @@ module {
 		hasKeywords : Bool;
 		hasLicense : Bool;
 		hasRepository : Bool;
-		hasDocumentation : Bool;
+		hasDocumentation : Bool; // legacy
+		docsCoverage : Float;
 		// extra
 		hasTests : Bool;
 		hasReleaseNotes : Bool;

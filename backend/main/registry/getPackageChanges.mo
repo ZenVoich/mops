@@ -27,6 +27,8 @@ module {
 			prevBenchmarks = registry.getPackageBenchmarks(name, prevVersion);
 			deps = _computeDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
 			devDeps = _computeDevDepsChangesBetween(registry.getPackageConfig(name, prevVersion), registry.getPackageConfig(name, version));
+			prevDocsCoverage = registry.getPackageDocsCoverage(name, prevVersion);
+			curDocsCoverage = registry.getPackageDocsCoverage(name, version);
 		};
 	};
 
