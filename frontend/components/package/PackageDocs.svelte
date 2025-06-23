@@ -534,6 +534,11 @@
 		background: rgb(236 238 238);
 	}
 
+	:global(:is(h2, h3, h4) + .sectionbody .listingblock:first-child code),
+	:global(:is(h2, h3, h4) + .listingblock code) {
+		border: 1px solid rgb(220 220 220);
+	}
+
 	:global(pre > code) {
 		display: block;
 		padding: 10px;
