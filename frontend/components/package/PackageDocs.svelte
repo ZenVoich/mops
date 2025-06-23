@@ -212,6 +212,7 @@
 		});
 	};
 
+	let packageDocsEl : HTMLElement;
 	let docHeaderEl : HTMLElement;
 	let filesEl : HTMLElement;
 	let defsEl : HTMLElement;
@@ -283,8 +284,10 @@
 	function scrollToDefiition() {
 		let id = window.location.hash.slice(1);
 		let el = document.querySelector(`[id="${id}"]`) as HTMLElement;
-		if (!el) {
-			console.log(`Definition not found: ${id}`);
+		if (!id || !el) {
+			if (document.scrollingElement.scrollTop > packageDocsEl.offsetTop) {
+				document.scrollingElement.scroll({top: packageDocsEl.offsetTop - 1, behavior: 'instant'});
+			}
 			return;
 		}
 		document.scrollingElement.scroll({
@@ -301,7 +304,7 @@
 	$: render(files, $routeParams.file);
 </script>
 
-<div id="package-docs" class="package-docs">
+<div id="package-docs" class="package-docs" bind:this={packageDocsEl}>
 	<div class="files" style:max-height={filesPanelHeight} bind:this={filesEl}>
 		<div class="files-scrollable">
 			{#each files as file}
