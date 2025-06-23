@@ -5,6 +5,7 @@
 	import {toHtml} from 'hast-util-to-html';
 	import {onMount} from 'svelte';
 	import asciidoctor from '@asciidoctor/core';
+	import markdownIt from 'markdown-it';
 	import '@wooorm/starry-night/style/light';
 	import {getStarryNight} from '/logic/get-starry-night';
 
@@ -74,6 +75,34 @@
 
 		// hack to remove html from doc https://github.com/dfinity/motoko-base/blob/master/src/Trie.mo#L8C8-L8C31
 		text = text.replaceAll('<a name="overview"></a>', '');
+
+		// remove internal links to modules
+		text = text.replaceAll(/\[\[module([^\]]*?)\]\]\s*=\s*[\w./-]+/g, '');
+
+		// render markdown admonition blocks
+		text = text.replaceAll(/^:::\s*(\w+)(?: +(.*))?\n([\s\S]*?)\n:::\s*$/gm, (match, type, title, content) => {
+			return `[${type.replace('info', 'tip').toUpperCase()}]\n${title ? `.${title}\n` : ''}====\n${content}\n====\n\n`;
+		});
+
+		// convert markdown links to asciidoc links
+		text = text.replaceAll(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
+			return `link:${url}[${text}]`;
+		});
+
+		// render markdown tables
+		let mdTableRegex = /((?:^\s*\|.*\|.*$\n?)+)/gm;
+		let matches = [...text.matchAll(mdTableRegex)];
+		let mdit = markdownIt({
+			html: false, // Enable HTML tags in source
+			breaks: false, // Convert '\n' in paragraphs into <br>
+			linkify: true, // Autoconvert URL-like text to links
+		});
+		for (let match of matches) {
+			let mdTable = match[0];
+			let htmlTable = mdit.render(mdTable);
+			let passthroughHtml = `+++++\n${htmlTable}\n+++++`;
+			text = text.replace(mdTable, passthroughHtml);
+		}
 
 		// @ts-ignore
 		let doc = asciidoctor().load(text);
@@ -508,6 +537,80 @@
 		tab-size: 4;
 		background: rgb(246 248 248);
 		line-height: 1.55;
+	}
+
+	:global(.admonitionblock :is(table, th, td, tr, tbody, thead, tfoot)) {
+		all: unset;
+		display: block;
+	}
+
+	/* Admonition boxes */
+	:global(.admonitionblock) {
+		margin: 1em 0;
+		padding: 1em;
+		border-left: 4px solid;
+		border-radius: 4px;
+		background: #f8f9fa;
+	}
+
+	:global(.admonitionblock .icon) {
+		display: none;
+	}
+
+	:global(.admonitionblock .title) {
+		font-weight: bold;
+		margin-bottom: 0.5em;
+		font-size: 0.9em;
+		letter-spacing: 0.5px;
+	}
+
+	:global(.admonitionblock p) {
+		margin: 0;
+	}
+
+	:global(.admonitionblock.note) {
+		border-left-color: #2196f3;
+		background: #e3f2fd;
+	}
+
+	:global(.admonitionblock.note .title) {
+		color: #1976d2;
+	}
+
+	:global(.admonitionblock.warning) {
+		border-left-color: #ff9800;
+		background: #fff3e0;
+	}
+
+	:global(.admonitionblock.warning .title) {
+		color: #f57c00;
+	}
+
+	:global(.admonitionblock.tip) {
+		border-left-color: #4caf50;
+		background: #e8f5e8;
+	}
+
+	:global(.admonitionblock.tip .title) {
+		color: #388e3c;
+	}
+
+	:global(.admonitionblock.important) {
+		border-left-color: #9c27b0;
+		background: #f3e5f5;
+	}
+
+	:global(.admonitionblock.important .title) {
+		color: #7b1fa2;
+	}
+
+	:global(.admonitionblock.caution) {
+		border-left-color: #f44336;
+		background: #ffebee;
+	}
+
+	:global(.admonitionblock.caution .title) {
+		color: #d32f2f;
 	}
 
 	@media (max-width: 1300px) {
