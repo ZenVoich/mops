@@ -100,7 +100,7 @@
 		for (let match of matches) {
 			let mdTable = match[0];
 			let htmlTable = mdit.render(mdTable);
-			let passthroughHtml = `+++++\n${htmlTable}\n+++++`;
+			let passthroughHtml = `+++++\n${htmlTable}\n+++++\n`;
 			text = text.replace(mdTable, passthroughHtml);
 		}
 
