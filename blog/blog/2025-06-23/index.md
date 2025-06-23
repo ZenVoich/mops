@@ -30,7 +30,7 @@ Analyze the documentation coverage of your package. This command scans through y
 
 <div style={{maxWidth: '500px', margin: '0 auto'}}>![cli-docs-coverage.png](./cli-docs-coverage.png)</div>
 
-These commands help ensure your packages are well-documented and provide better developer experience for users of your packages.
+These commands help ensure your packages are well-documented and provide a better developer experience for users of your packages.
 
 [Documentation](https://docs.mops.one/cli/mops-docs-coverage)
 
@@ -50,7 +50,7 @@ When viewing different versions of a package, you can now see how documentation 
 
 ## GitHub Dependencies Restriction
 
-To improve dependency resolution reliability and ensure more stable package ecosystems, Mops registry now prohibits publishing packages that have GitHub dependencies in their regular `[dependencies]` section.
+To improve dependency resolution reliability and ensure more stable package ecosystems, the Mops registry now prohibits publishing packages that have GitHub dependencies in their regular `[dependencies]` section.
 
 Existing packages with GitHub dependencies will continue to be available in the registry, but new packages with GitHub dependencies will not be allowed to be published.
 
