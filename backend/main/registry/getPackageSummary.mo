@@ -78,10 +78,11 @@ module {
 			hasKeywords = config.keywords.size() > 0;
 			hasLicense = config.license != "";
 			hasRepository = config.repository.size() > 20;
-			hasDocumentation = registry.getPackageFileStats(name, version).docsCount > 0;
+			hasDocumentation = registry.getPackageFileStats(name, version).docsCount > 0; // legacy
 			depsStatus = _computeDepsStatus(registry, name, version);
 			hasTests = registry.getPackageTestStats(name, version).passed > 0;
 			hasReleaseNotes = registry.getPackageReleaseNotes(name, version).size() > 10;
+			docsCoverage = registry.getPackageDocsCoverage(name, version);
 		};
 	};
 

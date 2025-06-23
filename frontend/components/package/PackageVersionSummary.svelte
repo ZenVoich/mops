@@ -3,6 +3,7 @@
 
 	import {DepChange, PackageSummaryWithChanges} from '/declarations/main/main.did.js';
 	import {markdownToHtml} from '/logic/markdown-to-html';
+	import {getDocsCoverageColor} from '/logic/get-docs-coverage-color.js';
 	import Date from '../Date.svelte';
 	import PackageBenchmarksDiff from './PackageBenchmarksDiff.svelte';
 	import UserCard from './UserCard.svelte';
@@ -64,6 +65,14 @@
 		<div class="title">🔬 Benchmarks</div>
 		<div class="benchmarks">
 			<PackageBenchmarksDiff curBenchmarks={summary.changes.curBenchmarks} prevBenchmarks={summary.changes.prevBenchmarks}></PackageBenchmarksDiff>
+		</div>
+	{/if}
+
+	{#if summary.changes.curDocsCoverage != summary.changes.prevDocsCoverage}
+		<div class="title">📚 Documentation
+			<span class="docs-coverage">
+				<span class="prev" style="color: {getDocsCoverageColor(summary.changes.prevDocsCoverage)}">{summary.changes.prevDocsCoverage.toFixed(0)}%</span> <span class="arrow">➜</span> <span class="cur" style="color: {getDocsCoverageColor(summary.changes.curDocsCoverage)}">{summary.changes.curDocsCoverage.toFixed(0)}%</span>
+			</span>
 		</div>
 	{/if}
 
@@ -137,6 +146,27 @@
 	.old-version {
 		color: gray;
 		text-decoration: line-through;
+	}
+
+	.docs-coverage {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 18px;
+	}
+
+	.docs-coverage .arrow {
+		font-size: 12px;
+		font-weight: 100;
+	}
+
+	.docs-coverage .prev {
+		opacity: 0.6;
+		text-decoration: line-through;
+	}
+
+	.docs-coverage .cur {
+		font-weight: 600;
 	}
 
 	.added-tests {

@@ -55,6 +55,8 @@ module {
 			devDeps = [];
 			curBenchmarks = [];
 			prevBenchmarks = [];
+			prevDocsCoverage = 0.0;
+			curDocsCoverage = 0.0;
 		};
 	};
 };

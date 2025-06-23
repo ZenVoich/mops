@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {filesize} from 'filesize';
 	import {DepsStatus, PackageDetails} from '/declarations/main/main.did.js';
+	import {getDocsCoverageColor} from '/logic/get-docs-coverage-color.js';
 	import DownloadTrend from '../DownloadTrend.svelte';
 	import githubImg from '/img/github.svg';
 	import BadgesModal from './BadgesModal.svelte';
@@ -109,6 +110,11 @@
 		</div>
 
 		<div class="sub-row">
+			<div class="quality-label">Documentation</div>
+			<div class="quality-value base-quality" style="color: {getDocsCoverageColor(packageDetails.quality.docsCoverage)}">{packageDetails.quality.docsCoverage.toFixed(0)}%</div>
+		</div>
+
+		<div class="sub-row">
 			<div class="quality-label">Description</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDescription}>{packageDetails.quality.hasDescription ? 'Yes' : 'No'}</div>
 		</div>
@@ -126,11 +132,6 @@
 		<div class="sub-row">
 			<div class="quality-label">Repository</div>
 			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasRepository}>{packageDetails.quality.hasRepository ? 'Yes' : 'No'}</div>
-		</div>
-
-		<div class="sub-row">
-			<div class="quality-label">Documentation</div>
-			<div class="quality-value base-quality" data-yes={packageDetails.quality.hasDocumentation}>{packageDetails.quality.hasDocumentation ? 'Yes' : 'No'}</div>
 		</div>
 
 		<div class="sub-row">
@@ -248,16 +249,16 @@
 
 	.quality-value[data-yes=true],
 	.quality-value[data-deps-status=allLatest] {
-		color: #1b4213;
+		color: var(--color-quality-good);
 	}
 
 	.quality-value[data-deps-status=updatesAvailable] {
-		color: #d4930f;
+		color: var(--color-quality-medium);
 	}
 
 	.quality-value.base-quality[data-yes=false],
 	.quality-value[data-deps-status=tooOld] {
-		color: #9f1616;
+		color: var(--color-quality-bad);
 	}
 
 	.badges-button {

@@ -218,6 +218,7 @@ type PackageSummary =
 type PackageQuality = 
  record {
    depsStatus: DepsStatus;
+   docsCoverage: float64;
    hasDescription: bool;
    hasDocumentation: bool;
    hasKeywords: bool;
@@ -249,6 +250,7 @@ type PackageDetails =
    dependents: vec PackageSummary__1;
    deps: vec PackageSummary__1;
    devDeps: vec PackageSummary__1;
+   docsCoverage: float64;
    downloadTrend: vec DownloadsSnapshot;
    downloadsInLast30Days: nat;
    downloadsInLast7Days: nat;
@@ -308,10 +310,12 @@ type PackageConfigV3 =
 type PackageChanges = 
  record {
    curBenchmarks: Benchmarks__1;
+   curDocsCoverage: float64;
    deps: vec DepChange;
    devDeps: vec DepChange;
    notes: text;
    prevBenchmarks: Benchmarks__1;
+   prevDocsCoverage: float64;
    tests: TestsChanges;
  };
 type Main = 
@@ -379,11 +383,13 @@ type Main =
    removeOwner: (PackageName__1, principal) -> (Result_3);
    restore: (nat) -> ();
    search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
+   setStorageControllers: () -> ();
    setUserProp: (text, text) -> (Result_3);
    startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
    startPublish: (PackageConfigV3_Publishing) -> (Result_1);
    transformRequest: (HttpTransformArg) -> (HttpResponse) query;
    uploadBenchmarks: (PublishingId, Benchmarks) -> (Result);
+   uploadDocsCoverage: (PublishingId, float64) -> (Result);
    uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
    uploadNotes: (PublishingId, text) -> (Result);
    uploadTestStats: (PublishingId, TestStats) -> (Result);

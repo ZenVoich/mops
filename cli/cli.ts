@@ -30,6 +30,8 @@ import {watch} from './commands/watch/watch.js';
 import {addOwner, printOwners, removeOwner} from './commands/owner.js';
 import {addMaintainer, printMaintainers, removeMaintainer} from './commands/maintainer.js';
 import {format} from './commands/format.js';
+import {docs} from './commands/docs.js';
+import {docsCoverage} from './commands/docs-coverage.js';
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -493,5 +495,31 @@ program
 			process.exit(1);
 		}
 	});
+
+// docs
+const docsCommand = new Command('docs').description('Documentation management');
+
+docsCommand
+	.command('generate')
+	.description('Generate documentation for Motoko code')
+	.addOption(new Option('--source <source>', 'Source directory').default('src'))
+	.addOption(new Option('--output <output>', 'Output directory').default('docs'))
+	.addOption(new Option('--format <format>', 'Output format').default('md').choices(['md', 'adoc', 'html']))
+	.action(async (options) => {
+		checkConfigFile(true);
+		await docs(options);
+	});
+
+docsCommand
+	.command('coverage')
+	.description('Documentation coverage report')
+	.addOption(new Option('-s, --source <source>', 'Source directory (with .mo files)').default('src'))
+	.addOption(new Option('-r, --reporter <reporter>', 'Coverage reporter').choices(['files', 'compact', 'missing', 'verbose']).default('files'))
+	.addOption(new Option('-t, --threshold <threshold>', 'Coverage threshold (0-100). If total coverage is below threshold, exit with error code 1').default(70))
+	.action(async (options) => {
+		checkConfigFile(true);
+		await docsCoverage(options);
+	});
+program.addCommand(docsCommand);
 
 program.parse();

@@ -76,6 +76,7 @@ actor class Main() = this {
 	var packageTestStats = TrieMap.TrieMap<PackageId, TestStats>(Text.equal, Text.hash);
 	var packageBenchmarks = TrieMap.TrieMap<PackageId, Benchmarks>(Text.equal, Text.hash);
 	var packageNotes = TrieMap.TrieMap<PackageId, Text>(Text.equal, Text.hash);
+	var packageDocsCoverage = TrieMap.TrieMap<PackageId, Float>(Text.equal, Text.hash);
 
 	var registry = Registry.Registry(
 		packageVersions,
@@ -90,6 +91,7 @@ actor class Main() = this {
 		packageTestStats,
 		packageBenchmarks,
 		packageNotes,
+		packageDocsCoverage,
 	);
 
 	let downloadLog = DownloadLog.DownloadLog();
@@ -182,6 +184,10 @@ actor class Main() = this {
 
 	public shared ({caller}) func uploadBenchmarks(publishingId : PublishingId, benchmarks : Benchmarks) : async Result.Result<(), Err> {
 		packagePublisher.uploadBenchmarks(caller, publishingId, benchmarks);
+	};
+
+	public shared ({caller}) func uploadDocsCoverage(publishingId : PublishingId, docsCoverage : Float) : async Result.Result<(), Err> {
+		packagePublisher.uploadDocsCoverage(caller, publishingId, docsCoverage);
 	};
 
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
@@ -575,7 +581,7 @@ actor class Main() = this {
 	let backupManager = Backup.BackupManager(backupStateV2, {maxBackups = 20});
 
 	type BackupChunk = {
-		#v8 : {
+		#v9 : {
 			#packagePublications : [(PackageId, PackagePublication)];
 			#packageVersions : [(PackageName, [PackageVersion])];
 			#ownersByPackage : [(PackageName, [Principal])];
@@ -588,6 +594,7 @@ actor class Main() = this {
 			#packageTestStats : [(PackageId, TestStats)];
 			#packageBenchmarks : [(PackageId, Benchmarks)];
 			#packageNotes : [(PackageId, Text)];
+			#packageDocsCoverage : [(PackageId, Float)];
 			#downloadLog : DownloadLog.Stable;
 			#storageManager : StorageManager.Stable;
 			#users : Users.Stable;
@@ -605,23 +612,24 @@ actor class Main() = this {
 	};
 
 	func _backup() : async () {
-		let backup = backupManager.NewBackup("v8");
+		let backup = backupManager.NewBackup("v9");
 		await backup.startBackup();
-		await backup.uploadChunk(to_candid(#v8(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#ownersByPackage(Iter.toArray(ownersByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#maintainersByPackage(Iter.toArray(maintainersByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#downloadLog(downloadLog.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#storageManager(storageManager.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#users(users.toStable())) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
-		await backup.uploadChunk(to_candid(#v8(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packagePublications(Iter.toArray(packagePublications.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageVersions(Iter.toArray(packageVersions.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#ownersByPackage(Iter.toArray(ownersByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#maintainersByPackage(Iter.toArray(maintainersByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#fileIdsByPackage(Iter.toArray(fileIdsByPackage.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#hashByFileId(Iter.toArray(hashByFileId.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageFileStats(Iter.toArray(packageFileStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageTestStats(Iter.toArray(packageTestStats.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageBenchmarks(Iter.toArray(packageBenchmarks.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageNotes(Iter.toArray(packageNotes.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#downloadLog(downloadLog.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#storageManager(storageManager.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#users(users.toStable())) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#highestConfigs(Iter.toArray(highestConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageConfigs(Iter.toArray(packageConfigs.entries()))) : BackupChunk));
+		await backup.uploadChunk(to_candid(#v9(#packageDocsCoverage(Iter.toArray(packageDocsCoverage.entries()))) : BackupChunk));
 		await backup.finishBackup();
 	};
 
@@ -631,7 +639,7 @@ actor class Main() = this {
 		assert(Utils.isAdmin(caller));
 
 		await backupManager.restore(backupId, func(blob : Blob) {
-			let ?#v8(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
+			let ?#v9(chunk) : ?BackupChunk = from_candid(blob) else Debug.trap("Failed to restore chunk");
 
 			switch (chunk) {
 				case (#packagePublications(packagePublicationsStable)) {
@@ -663,6 +671,9 @@ actor class Main() = this {
 				};
 				case (#packageNotes(packageNotesStable)) {
 					packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
+				};
+				case (#packageDocsCoverage(packageDocsCoverageStable)) {
+					packageDocsCoverage := TrieMap.fromEntries<PackageId, Float>(packageDocsCoverageStable.vals(), Text.equal, Text.hash);
 				};
 				case (#downloadLog(downloadLogStable)) {
 					downloadLog.cancelTimers();
@@ -699,6 +710,7 @@ actor class Main() = this {
 			packageTestStats,
 			packageBenchmarks,
 			packageNotes,
+			packageDocsCoverage,
 		);
 		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);
 	};
@@ -719,6 +731,7 @@ actor class Main() = this {
 	stable var packageTestStatsStable : [(PackageId, TestStats)] = [];
 	stable var packageBenchmarksStable : [(PackageId, Benchmarks)] = [];
 	stable var packageNotesStable : [(PackageId, Text)] = [];
+	stable var packageDocsCoverageStable : [(PackageId, Float)] = [];
 
 	stable var downloadLogStable : DownloadLog.Stable = null;
 	stable var storageManagerStable : StorageManager.Stable = null;
@@ -736,6 +749,8 @@ actor class Main() = this {
 		packageTestStatsStable := Iter.toArray(packageTestStats.entries());
 		packageBenchmarksStable := Iter.toArray(packageBenchmarks.entries());
 		packageNotesStable := Iter.toArray(packageNotes.entries());
+		packageDocsCoverageStable := Iter.toArray(packageDocsCoverage.entries());
+
 		downloadLogStable := downloadLog.toStable();
 		storageManagerStable := storageManager.toStable();
 		usersStable := users.toStable();
@@ -793,6 +808,9 @@ actor class Main() = this {
 		packageNotes := TrieMap.fromEntries<PackageId, Text>(packageNotesStable.vals(), Text.equal, Text.hash);
 		packageNotesStable := [];
 
+		packageDocsCoverage := TrieMap.fromEntries<PackageId, Float>(packageDocsCoverageStable.vals(), Text.equal, Text.hash);
+		packageDocsCoverageStable := [];
+
 		downloadLog.cancelTimers();
 		downloadLog.loadStable(downloadLogStable);
 		downloadLog.setTimers<system>();
@@ -817,6 +835,7 @@ actor class Main() = this {
 			packageTestStats,
 			packageBenchmarks,
 			packageNotes,
+			packageDocsCoverage,
 		);
 
 		packagePublisher := PackagePublisher.PackagePublisher(registry, storageManager);

@@ -69,6 +69,10 @@
 	},
 	"dfx": "0.27.0",
 	"networks": {
+		"local": {
+			"type": "ephemeral",
+			"bind": "127.0.0.1:4943"
+		},
 		"staging": {
 			"type": "persistent",
 			"providers": ["https://icp0.io"]
