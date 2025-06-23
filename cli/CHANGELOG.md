@@ -1,5 +1,9 @@
 # Mops CLI Changelog
 
+## 1.9.0
+- Add `mops docs generate` command for generating package documentation ([docs](https://docs.mops.one/cli/mops-docs-generate))
+- Add `mops docs coverage` command for analyzing documentation coverage ([docs](https://docs.mops.one/cli/mops-docs-coverage))
+
 ## 1.8.1
 - Exclude `node_modules` from publish command file patterns
 
