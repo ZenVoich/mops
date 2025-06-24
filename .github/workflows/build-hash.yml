@@ -7,11 +7,13 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-13, macos-15]
+        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-24.04-arm, macos-13]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
       - name: Build using Docker
         run: |
           # MOPS_VERSION=$(cd cli && npm pkg get version | tr -d \")
