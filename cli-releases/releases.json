@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.8.1"
+    "latest": "1.9.0"
   },
   "versions": {
     "0.41.0": {
@@ -208,6 +208,14 @@
       "commitHash": "e618fba7c971df539492671cea02dbeace86e26b",
       "url": "https://cli.mops.one/versions/1.8.1.tgz",
       "hash": "c6d7c940e3868abf4ebe6799d61d23ceebee8bee4298b75993b33f300ca8c754"
+    },
+    "1.9.0": {
+      "time": 1750771262850,
+      "size": 2511760,
+      "relseaseNotes": "* Add `mops docs generate` command for generating package documentation ([docs](https://docs.mops.one/cli/mops-docs-generate))\n* Add `mops docs coverage` command for analyzing documentation coverage ([docs](https://docs.mops.one/cli/mops-docs-coverage))\n",
+      "commitHash": "3ed65eb5ca732dfc7ff2289eda6de8ffd932fb28",
+      "url": "https://cli.mops.one/versions/1.9.0.tgz",
+      "hash": "a3543f5de67503de3d055f7a636718f68c9b495686074bbc1d689afd553c2eba"
     }
   }
 }
