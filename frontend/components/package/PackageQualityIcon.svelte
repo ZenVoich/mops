@@ -5,7 +5,7 @@
 	export let pkg : PackageSummary;
 
 	let maxBasePoints = 6;
-	let maxExtraPoints = 3;
+	let maxExtraPoints = 4;
 
 	let outerCircleDashOffset = 0;
 	let innerLineY = 0;

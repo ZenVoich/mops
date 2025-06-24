@@ -5,12 +5,13 @@ export let getQualityPoints = (quality : PackageQuality) => {
 
 	let basePoints =
 		Number(quality.hasDescription)
-		+ Number(quality.hasDocumentation)
 		+ Number(quality.hasKeywords)
 		+ Number(quality.hasLicense)
 		+ Number(quality.hasRepository)
-		+ Number(!('tooOld' in quality.depsStatus));
-	let extraPoints = Number(quality.hasTests) + Number(quality.hasReleaseNotes) + Number('allLatest' in quality.depsStatus);
+		+ Number(!('tooOld' in quality.depsStatus))
+		+ Number(quality.docsCoverage >= 50);
+
+	let extraPoints = Number(quality.hasTests) + Number(quality.hasReleaseNotes) + Number('allLatest' in quality.depsStatus) + Number(quality.docsCoverage >= 90);
 
 	if (basePoints !== maxBasePoints) {
 		extraPoints = 0;
