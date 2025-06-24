@@ -1,6 +1,20 @@
-FROM --platform=linux/amd64 oven/bun:1.2.17-alpine@sha256:0d39ff2bdbefda6db94fa0a5d1d9c81f70c3700a1a44a6388d2741de2a4176c7 AS bun
+FROM oven/bun:1.2.17-alpine AS bun
 
-FROM --platform=linux/amd64 zenvoich/mops-builder:1.0.0@sha256:ce283d3c4ad2e6fe8caff6dd9511224f234a77a90590ddfeb49e598266a44773
+
+
+
+FROM node:22.7.0-alpine3.20
+
+RUN apk add --no-cache git tar
+
+# for Bun
+RUN apk --no-cache add ca-certificates wget
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
+RUN apk add --no-cache --force-overwrite glibc-2.28-r0.apk
+
+
+
 
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 
