@@ -3,8 +3,9 @@
 	"include": ["**/*.ts", "**/*.js"],
 	"exclude": ["node_modules", "dist", "bundle", "dist.js", "declarations/**/*.js"],
 	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
 		"types": ["node"],
-		"target": "ES2021",
 		"outDir": "./dist",
 		"allowJs": true,
 		"module": "nodenext",
