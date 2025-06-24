@@ -1,5 +1,13 @@
-FROM --platform=linux/amd64 node:22.7.0-alpine3.20@sha256:1a526b97cace6b4006256570efa1a29cd1fe4b96a5301f8d48e87c5139438a45
+# bun
+FROM oven/bun:1.2.17-alpine@sha256:6cb88d90f8a96249e272ba877885d5251a77e1d7a44b4d89565ded015fe5be2d AS bun
 
+# node
+FROM node:24.2.0-alpine3.22@sha256:7aaba6b13a55a1d78411a1162c1994428ed039c6bbef7b1d9859c25ada1d7cc5
+
+# copy bun
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+
+# install dependencies
 RUN apk add --no-cache git tar
 
 # for Bun
