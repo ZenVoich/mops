@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-24.04-arm, macos-13]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-13]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}
     steps:
@@ -26,5 +26,4 @@ jobs:
           cd cli
           docker build . --build-arg COMMIT_HASH=${{ github.sha }} --build-arg MOPS_VERSION=$MOPS_VERSION -t mops
           OUTPUT=$(docker run --rm mops || echo ".")
-          echo "**${{ matrix.os }}:**" >> $GITHUB_STEP_SUMMARY
           echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
