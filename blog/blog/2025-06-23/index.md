@@ -5,11 +5,11 @@ authors: [zen]
 ---
 
 ### Summary
-- New `mops docs` commands for documentation generation and coverage analysis
+- Mops CLI updates (v1.9.0)
 - Package documentation coverage displayed on package pages
 - Documentation coverage comparison between package versions
-- GitHub dependencies prohibited in regular dependencies (dev-dependencies still allowed)
 - Package documentation markdown rendering
+- GitHub dependencies restriction
 
 <!-- truncate -->
 
@@ -49,6 +49,18 @@ When viewing different versions of a package, you can now see how documentation 
 
 <div style={{maxWidth: '600px', margin: '0 auto'}}>![docs-coverage-diff.png](./docs-coverage-diff.png)</div>
 
+## Package Documentation Markdown Rendering
+
+Package documentation containing markdown tables and admonition boxes is now displayed correctly.
+
+This didn't work before because Mops stores documentation in asciidoc format, but developers mostly use markdown comments for documentation.
+
+**Before:**
+<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-before.png](./docs-markdown-before.png)</div>
+
+**After:**
+<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-after.png](./docs-markdown-after.png)</div>
+
 ## GitHub Dependencies Restriction
 
 To improve dependency resolution reliability and ensure more stable package ecosystems, the Mops registry now prohibits publishing packages that have GitHub dependencies in their regular `[dependencies]` section.
@@ -63,15 +75,3 @@ Existing packages with GitHub dependencies will continue to be available in the 
 - Ensures more reliable dependency resolution
 - Prevents cascading failures from unavailable GitHub repositories
 - Encourages use of stable, versioned packages from the Mops registry
-
-## Package Documentation Markdown Rendering
-
-Package documentation containing markdown tables and admonition boxes is now displayed correctly.
-
-This didn't work before because Mops stores documentation in asciidoc format, but developers mostly use markdown comments for documentation.
-
-**Before:**
-<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-before.png](./docs-markdown-before.png)</div>
-
-**After:**
-<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-after.png](./docs-markdown-after.png)</div>
