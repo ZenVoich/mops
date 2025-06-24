@@ -14,15 +14,17 @@ export PATH="$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH"
 
 ## Steps
 
-1. Update changelog in `CHANGELOG.md` file
+1. Run `bun install`
 
-2. Push latest commits to `main` branch
+2. Update changelog in `CHANGELOG.md` file
 
-3. Check reproducibility of the build (see below)
+3. Push latest commits to `main` branch
 
-4. Update the version in `package.json` using `npm version` command
+4. Check reproducibility of the build (see below)
 
-5. Publish
+5. Update the version in `package.json` using `npm version` command
+
+6. Publish
 
 ## Publish to npm
 ```
