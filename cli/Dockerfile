@@ -8,7 +8,7 @@ WORKDIR /mops
 RUN git checkout $COMMIT_HASH
 
 WORKDIR /mops/cli
-RUN bun i
+RUN bun i --ignore-scripts
 
 # build
 ARG MOPS_VERSION
