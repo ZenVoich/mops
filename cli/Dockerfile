@@ -1,4 +1,4 @@
-FROM zenvoich/mops-builder:1.1.0@sha256:9bb87e843a90f1c12ece4ba91ca703e19cd0d79522beb562f45b1f8a14cb05b6
+FROM --platform=linux/amd64 zenvoich/mops-builder:1.1.0@sha256:9bb87e843a90f1c12ece4ba91ca703e19cd0d79522beb562f45b1f8a14cb05b6
 
 # clone repository
 ARG COMMIT_HASH

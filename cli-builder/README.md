@@ -7,9 +7,9 @@ Images are available on Docker Hub: https://hub.docker.com/r/zenvoich/mops-build
 ## Usage
 
 ```dockerfile
-FROM zenvoich/mops-builder:<version>@sha256:<sha256>
+FROM --platform=linux/amd64 zenvoich/mops-builder:<version>@sha256:<sha256>
 
-# FROM zenvoich/mops-builder:1.0.0@sha256:ce283d3c4ad2e6fe8caff6dd9511224f234a77a90590ddfeb49e598266a44773
+# FROM --platform=linux/amd64 zenvoich/mops-builder:1.1.0@sha256:9bb87e843a90f1c12ece4ba91ca703e19cd0d79522beb562f45b1f8a14cb05b6
 # ...
 ```
 
