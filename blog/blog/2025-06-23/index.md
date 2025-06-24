@@ -9,6 +9,7 @@ authors: [zen]
 - Package documentation coverage displayed on package pages
 - Documentation coverage comparison between package versions
 - GitHub dependencies prohibited in regular dependencies (dev-dependencies still allowed)
+- Package documentation markdown rendering
 
 <!-- truncate -->
 
@@ -62,3 +63,15 @@ Existing packages with GitHub dependencies will continue to be available in the 
 - Ensures more reliable dependency resolution
 - Prevents cascading failures from unavailable GitHub repositories
 - Encourages use of stable, versioned packages from the Mops registry
+
+## Package Documentation Markdown Rendering
+
+Package documentation containing markdown tables and admonition boxes is now displayed correctly.
+
+This didn't work before because Mops stores documentation in asciidoc format, but developers mostly use markdown comments for documentation.
+
+**Before:**
+<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-before.png](./docs-markdown-before.png)</div>
+
+**After:**
+<div style={{maxWidth: '400px', margin: '0 auto'}}>![docs-markdown-after.png](./docs-markdown-after.png)</div>
