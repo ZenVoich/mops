@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@dfinity/principal": "^2.4.1",
+		"ic-mops": "^1.9.0"
+	}
+}

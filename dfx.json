@@ -15,6 +15,7 @@
 		"assets": {
 			"type": "assets",
 			"build": ["npm run build-frontend"],
+			"specified_id": "ogp6e-diaaa-aaaam-qajta-cai",
 			"frontend": {
 				"entrypoint": "frontend/dist/index.html"
 			},
@@ -45,6 +46,26 @@
 			"source": [
 				"cli-releases/",
 				"cli-releases/frontend/dist/"
+			]
+		},
+		"dao-frontend": {
+			"type": "assets",
+			"build": [""],
+			"frontend": {
+				"entrypoint": "dao-frontend/dist/index.html"
+			},
+			"source": [
+				"dao-frontend/"
+			]
+		},
+		"play-frontend": {
+			"type": "assets",
+			"build": [""],
+			"frontend": {
+				"entrypoint": "play-frontend/dist/index.html"
+			},
+			"source": [
+				"play-frontend/"
 			]
 		},
 		"bench": {

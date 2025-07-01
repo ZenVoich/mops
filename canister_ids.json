@@ -18,5 +18,17 @@
   "cli": {
     "staging": "x344g-ziaaa-aaaap-abl7a-cai",
     "ic": "x344g-ziaaa-aaaap-abl7a-cai"
+  },
+  "dao-frontend": {
+    "ic": "rqxi4-zyaaa-aaaam-qdx5q-cai"
+  },
+  "dao-backend": {
+    "ic": "rfqzr-yqaaa-aaaam-qdx6a-cai"
+  },
+  "play-frontend": {
+    "ic": "rcr7f-viaaa-aaaam-qdx6q-cai"
+  },
+  "play-backend": {
+    "ic": "rlsuz-daaaa-aaaam-qdx7a-cai"
   }
 }
