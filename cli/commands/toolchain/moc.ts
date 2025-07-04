@@ -1,6 +1,7 @@
 import process from 'node:process';
 import path from 'node:path';
 import fs from 'fs-extra';
+import {SemVer} from 'semver';
 
 import {globalCacheDir} from '../../mops.js';
 import * as toolchainUtils from './toolchain-utils.js';
@@ -39,11 +40,16 @@ export let download = async (version : string, {silent = false, verbose = false}
 	}
 
 	let url;
-	if (parseInt(version.replaceAll('.', '')) >= parseInt('0.9.5'.replaceAll('.', ''))) {
+	if (new SemVer(version).compare(new SemVer('0.14.6')) >= 0) {
 		let platfrom = process.platform == 'darwin' ? 'Darwin' : 'Linux';
-		let arch = process.arch.startsWith('arm') ? 'arm64' : 'x86_64';
-		// currently only x64 binaries are available
-		arch = 'x86_64';
+		let arch = process.arch.startsWith('arm')
+			? (process.platform == 'darwin' ? 'arm64' : 'aarch64')
+			: 'x86_64';
+		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${arch}-${version}.tar.gz`;
+	}
+	else if (new SemVer(version).compare(new SemVer('0.9.5')) >= 0) {
+		let platfrom = process.platform == 'darwin' ? 'Darwin' : 'Linux';
+		let arch = 'x86_64';
 		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${arch}-${version}.tar.gz`;
 	}
 	else {
