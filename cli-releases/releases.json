@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.9.0"
+    "latest": "1.10.0"
   },
   "versions": {
     "0.41.0": {
@@ -216,6 +216,14 @@
       "commitHash": "3ed65eb5ca732dfc7ff2289eda6de8ffd932fb28",
       "url": "https://cli.mops.one/versions/1.9.0.tgz",
       "hash": "a3543f5de67503de3d055f7a636718f68c9b495686074bbc1d689afd553c2eba"
+    },
+    "1.10.0": {
+      "time": 1752009645272,
+      "size": 2512269,
+      "relseaseNotes": "* Enable `memory64` for `wasi` testing (by @ggreif)\n* Add support for arm64 `moc` binaries (for `moc` >= 0.14.6)\n* Deploy benchmarks with `optimize: \"cycles\"` dfx setting\n* Show warning when publishing packages with GitHub dependencies\n",
+      "commitHash": "e9da0f84284cd89548e1d47c8cdf2f823bdbf8a2",
+      "url": "https://cli.mops.one/versions/1.10.0.tgz",
+      "hash": "0e03c93e69107a30e6cb60846230ee890fdbbbc9d98f0dd348d33b3f4ff1e6c8"
     }
   }
 }
