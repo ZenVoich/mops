@@ -289,6 +289,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 							'-C', 'cache=n',
 							'-W', 'bulk-memory',
 							'-W', 'multi-memory',
+							'-W', 'memory64',
 							'-W', 'max-wasm-stack=4000000',
 							'-W', 'nan-canonicalization=y',
 							wasmFile,
