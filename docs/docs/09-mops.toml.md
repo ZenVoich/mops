@@ -54,8 +54,11 @@ See [toolchain management](/cli/toolchain) page for more details.
 | Field                | Description                                      |
 | -------------------- | ------------------------------------------------ |
 | moc                  | Motoko compiler used for building canisters and running tests   |
+| moc-flags            | Customization for Motoko compiler invocation   |
 | wasmtime             | WASM runtime used to run [tests](/cli/mops-test#--mode) in `wasi` mode   |
+| wasmtime-flags       | Customization for WASM runtime invocation   |
 | pocket-ic            | Local IC replica used to run [benchmarks](/cli/mops-bench#--replica)   |
+| pocket-ic-flags      | Customization for Local IC replica invocation   |
 
 
 ## [requirements]
