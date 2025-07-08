@@ -1,0 +1,33 @@
+{
+  "name": "mops-dao",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "DFX_NETWORK=local vite --port 3004",
+    "vite": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --threshold error --no-tsconfig"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^2.4.1",
+    "@dfinity/auth-client": "^2.4.1",
+    "@dfinity/ledger-icrc": "^2.9.0",
+    "@dfinity/principal": "^2.4.1",
+    "@dfinity/utils": "^2.13.1",
+    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "date-fns": "^4.1.0",
+    "svelte-spa-history-router": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "eslint-plugin-svelte": "^3.10.1",
+    "svelte": "^5.35.2",
+    "svelte-check": "^4.2.2",
+    "svelte-preprocess": "^6.0.3",
+    "vite": "^6.3.5",
+    "vite-plugin-static-copy": "^3.1.0"
+  }
+}

@@ -27,8 +27,8 @@ catch (e) {
 // This strange way of JSON.stringifying the value is required by vite
 const canisterDefinitions = Object.entries(canisterIds).reduce((acc, [key, val]) => ({
 	...acc,
-	[`process.env.${key.toUpperCase().replace(/-/g, '_')}_CANISTER_ID`]: JSON.stringify(val[network as Network]),
-	[`process.env.CANISTER_ID_${key.toUpperCase().replace(/-/g, '_')}`]: JSON.stringify(val[network as Network]),
+	[`process.env.${key.toUpperCase()}_CANISTER_ID`]: JSON.stringify(val[network as Network]),
+	[`process.env.CANISTER_ID_${key.toUpperCase()}`]: JSON.stringify(val[network as Network]),
 }), {});
 
 // List of all aliases for canisters
@@ -49,7 +49,7 @@ const aliases = Object.entries(dfxJson.canisters).reduce(
 );
 
 // Gets the port dfx is running on from dfx.json
-const DFX_PORT = '4943';
+const DFX_PORT = '8000';
 
 // See guide on how to configure Vite at:
 // https://vitejs.dev/config/

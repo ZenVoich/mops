@@ -7,13 +7,16 @@ if (globalThis.location) {
 			docs: 'http://localhost:3001',
 			blog: 'http://localhost:3002',
 			cli: 'http://localhost:3003',
-
+			dao: 'http://localhost:3004',
+			play: 'http://localhost:3005',
 		}
 		: {
 			packages: 'https://mops.one',
 			docs: 'https://docs.mops.one',
 			blog: 'https://blog.mops.one',
 			cli: 'https://cli.mops.one',
+			dao: 'https://dao.mops.one',
+			play: 'https://play.mops.one',
 		};
 
 	class MyCustomElement extends HTMLElement {
@@ -76,6 +79,7 @@ if (globalThis.location) {
 					<a href="${urls.docs}" class="${this._isActive(urls.docs)}">Docs</a>
 					<a href="${urls.blog}" class="${this._isActive(urls.blog)}">Blog</a>
 					<a href="${urls.cli}" class="${this._isActive(urls.cli)}">CLI releases</a>
+					<a href="${urls.dao}" class="${this._isActive(urls.dao)}">DAO</a>
 				</nav>
 			`;
 		}

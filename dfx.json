@@ -50,7 +50,7 @@
 		},
 		"dao-frontend": {
 			"type": "assets",
-			"build": [""],
+			"build": ["npm run build-dao-frontend"],
 			"frontend": {
 				"entrypoint": "dao-frontend/dist/index.html"
 			},
@@ -60,7 +60,7 @@
 		},
 		"play-frontend": {
 			"type": "assets",
-			"build": [""],
+			"build": ["npm run build-play-frontend"],
 			"frontend": {
 				"entrypoint": "play-frontend/dist/index.html"
 			},
@@ -90,7 +90,7 @@
 	},
 	"dfx": "0.27.0",
 	"networks": {
-		"local": {
+		"local_": {
 			"type": "ephemeral",
 			"bind": "127.0.0.1:4943"
 		},

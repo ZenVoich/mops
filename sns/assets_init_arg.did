@@ -1,0 +1,16 @@
+(opt variant {
+	Upgrade = record {
+		set_permissions = opt record {
+			prepare = vec {
+				principal "br5f7-7uaaa-aaaaa-qaaca-cai"; // SNS governance
+				principal "ee3pj-gvlio-4yqyu-5ohgs-6j6xw-6uuod-tf4s7-ezmqr-3asxr-b3qiz-wae"; // developer
+				principal "mocmd-f2cqc-3mgod-lcxka-l2l7q-qxzmo-yj6gj-6m6ah-h23cw-7mnjz-hae"; // developer
+			};
+			commit = vec {
+				principal "br5f7-7uaaa-aaaaa-qaaca-cai"; // SNS governance
+				principal "mocmd-f2cqc-3mgod-lcxka-l2l7q-qxzmo-yj6gj-6m6ah-h23cw-7mnjz-hae";
+			};
+			manage_permissions = vec { principal "br5f7-7uaaa-aaaaa-qaaca-cai"; }; // SNS governance
+		}
+	}
+})
