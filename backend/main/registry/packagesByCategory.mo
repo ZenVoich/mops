@@ -109,6 +109,53 @@ module {
 			]
 		},
 		{
+			title = "DeFi";
+			keywords = ["defi", "exchange", "swap", "token", "tokens", "coin", "lend", "pool", "liquidity", "pair"];
+			legacyNames = [
+				"icrc1",
+				"auction",
+				"account",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
+				"account-identifier",
+			]
+		},
+		{
+			title = "AI";
+			keywords = ["ai", "llm", "mcp"];
+			legacyNames = [];
+		},
+		{
+			title = "Chain Fusion";
+			keywords = ["chain-fusion", "threshold", "chain-key", "btc", "bitcoin", "eth", "evm", "ethereum", "sol", "solana"];
+			legacyNames = ["merkle-patricia-trie", "ckbtc-types"];
+		},
+		{
+			title = "ICRC";
+			keywords = ["icrc"];
+			legacyNames = [
+				"icrc1",
+				"origyn-nft",
+				"account",
+				"icrc3-mo",
+				"icrc7-mo",
+				"icrc30-mo",
+				"icrc-nft-mo",
+				"icrc1-mo",
+				"icrc2-mo",
+				"icrc-fungible",
+				"icrc4-mo",
+				"devefi-icrc-ledger",
+				"devefi-icrc-sender",
+				"devefi-icrc-reader",
+				"icrc1-types",
+				"icrc2-types",
+				"account-identifier",
+			]
+		},
+		{
 			title = "Async Data Flow";
 			keywords = ["async", "data-flow", "dataflow", "stream", "streams", "channel", "channels", "actor", "actors", "message", "messages"];
 			legacyNames = [
@@ -135,43 +182,6 @@ module {
 				"stable-enum",
 				"stable-buffer",
 				"memory-hashtable",
-			]
-		},
-		{
-			title = "ICRC";
-			keywords = ["icrc"];
-			legacyNames = [
-				"icrc1",
-				"origyn-nft",
-				"account",
-				"icrc3-mo",
-				"icrc7-mo",
-				"icrc30-mo",
-				"icrc-nft-mo",
-				"icrc1-mo",
-				"icrc2-mo",
-				"icrc-fungible",
-				"icrc4-mo",
-				"devefi-icrc-ledger",
-				"devefi-icrc-sender",
-				"devefi-icrc-reader",
-				"icrc1-types",
-				"icrc2-types",
-				"account-identifier",
-			]
-		},
-		{
-			title = "DeFi";
-			keywords = ["defi", "exchange", "swap", "token", "tokens", "coin", "lend", "pool", "liquidity", "pair"];
-			legacyNames = [
-				"icrc1",
-				"auction",
-				"account",
-				"devefi-icrc-sender",
-				"devefi-icrc-reader",
-				"icrc1-types",
-				"icrc2-types",
-				"account-identifier",
 			]
 		},
 	];

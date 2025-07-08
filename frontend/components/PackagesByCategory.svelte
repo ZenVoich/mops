@@ -62,6 +62,12 @@
 		if (category === 'DeFi') {
 			return 'Tools and protocols for decentralized finance';
 		}
+		if (category === 'AI') {
+			return 'On-chain AI';
+		}
+		if (category === 'Chain Fusion') {
+			return 'Interconnect with multiple blockchains in a decentralized manner (Bitcoin, Ethereum, Solana, etc.)';
+		}
 	}
 
 	function getCategoryKeywords(category : string) {
@@ -98,7 +104,12 @@
 		if (category === 'DeFi') {
 			return ['defi', 'exchange'];
 		}
-
+		if (category === 'AI') {
+			return ['ai', 'llm', 'mcp'];
+		}
+		if (category === 'Chain Fusion') {
+			return ['chain-fusion', 'threshold', 'chain-key'];
+		}
 	}
 
 	onMount(async () => {
@@ -223,6 +234,16 @@
 	@media (width < 700px) {
 		.body {
 			flex-wrap: wrap;
+		}
+
+		.categories {
+			flex-direction: row;
+			overflow: auto;
+		}
+
+		.category {
+			min-width: auto;
+			padding: 20px;
 		}
 	}
 </style>
