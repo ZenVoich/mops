@@ -43,11 +43,11 @@
 		<div class="list">
 			<a class="exchange" href="https://kongswap.io/stats/mxzaz-hqaaa-aaaar-qaada-cai" target="_blank">
 				<img src="/static/kongswap.svg" alt="KongSwap" />
-				MOPS on KongSwap
+				Trade on KongSwap
 			</a>
 			<a class="exchange" href="https://app.icpswap.com/swap?input=ryjl3-tyaaa-aaaaa-aaaba-cai&output=mxzaz-hqaaa-aaaar-qaada-cai" target="_blank">
 				<img src="/static/icpswap.svg" alt="ICP Swap" />
-				MOPS on ICPSwap
+				Trade on ICPSwap
 			</a>
 		</div>
 	</div>

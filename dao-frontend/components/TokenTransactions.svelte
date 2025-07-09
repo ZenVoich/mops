@@ -128,7 +128,7 @@
 			<tbody>
 				{#if transactions.length === 0}
 					<tr class="loading">
-						<td colspan="5" class="empty">Loading...</td>
+						<td colspan="6" class="empty">Loading...</td>
 					</tr>
 				{/if}
 				{#each transactions as transaction}
