@@ -12,6 +12,16 @@
 
 		if (value !== undefined) {
 			if (metric === 'instructions') {
+				if (value > 100_000) {
+					let decimals = 2;
+					if (value > 100_000_000) {
+						decimals = 0;
+					}
+					else if (value > 10_000_000) {
+						decimals = 1;
+					}
+					return parseFloat((value / 1_000_000).toFixed(decimals)).toLocaleString('en-US').replaceAll(',', '_') + ' M';
+				}
 				return value.toLocaleString('en-US').replaceAll(',', '_') ?? '-';
 			}
 			else if (metric === 'rts_logical_stable_memory_size') {
