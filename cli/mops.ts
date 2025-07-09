@@ -70,7 +70,13 @@ export let getIdentity = async () : Promise<Identity | undefined> => {
 			name: 'value',
 			message: 'Enter password:',
 		});
-		return await decodeFile(identityPemEncrypted, res.value);
+		try {
+			return decodeFile(identityPemEncrypted, res.value);
+		}
+		catch (e) {
+			console.log(chalk.red('Error: ') + 'Invalid password');
+			process.exit(1);
+		}
 	}
 	if (fs.existsSync(identityPem)) {
 		return decodeFile(identityPem);

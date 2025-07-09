@@ -1,5 +1,7 @@
 # Mops CLI Changelog
 
+- Show user-friendly error message for invalid identity password
+
 ## 1.10.0
 - Enable `memory64` for `wasi` testing (by @ggreif)
 - Add support for arm64 `moc` binaries (for `moc` >= 0.14.6)
