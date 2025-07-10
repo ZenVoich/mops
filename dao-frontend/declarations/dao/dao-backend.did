@@ -1,0 +1,15 @@
+type Main = 
+ service {
+   getCirculationChange30Days: () -> (CirculationChange) query;
+ };
+type CirculationChange = 
+ record {
+   burned: nat;
+   daoFees: nat;
+   gameFees: nat;
+   minted: nat;
+   transferFees: nat;
+   unknownFees: nat;
+   votingRewards: nat;
+ };
+service : () -> Main

@@ -10,6 +10,7 @@
 				"output": "cli/declarations/main/",
 				"node_compatibility": true
 			},
+			"gzip": true,
 			"optimize": "cycles"
 		},
 		"assets": {
@@ -47,6 +48,16 @@
 				"cli-releases/",
 				"cli-releases/frontend/dist/"
 			]
+		},
+		"dao-backend": {
+			"type": "motoko",
+			"main": "backend/dao/main.mo",
+			"args": "--enhanced-orthogonal-persistence",
+			"specified_id": "rfqzr-yqaaa-aaaam-qdx6a-cai",
+			"declarations": {
+				"output": "dao-frontend/declarations/dao/"
+			},
+			"optimize": "cycles"
 		},
 		"dao-frontend": {
 			"type": "assets",

@@ -1,23 +1,21 @@
 <script lang="ts">
-	// import { getCirculation, type Circulation } from '../logic/api';
+	import { onMount } from 'svelte';
 	import { formatNumber } from '../logic/utils';
+	import type { CirculationChange } from '/declarations/dao/dao-backend.did';
+	import { dao } from '../logic/actors';
 
-	interface Circulation {
-		minted: number,
-		burned: number,
-		votingRewards: number,
-		transferFees: number,
-		gameFees: number,
-		daoFees: number,
-	};
+	let circulation = $state<CirculationChange>({
+		minted: 0n,
+		burned: 0n,
+		votingRewards: 0n,
+		transferFees: 0n,
+		gameFees: 0n,
+		daoFees: 0n,
+		unknownFees: 0n,
+	});
 
-	let circulation = $state<Circulation>({
-		minted: 6857,
-		burned: 2854,
-		votingRewards: 1857392,
-		transferFees: 1752,
-		gameFees: 2947,
-		daoFees: 1094,
+	onMount(async () => {
+		circulation = await dao.getCirculationChange30Days();
 	});
 
 	// $effect(() => {
@@ -34,9 +32,9 @@
 		}
 	}
 
-	let total = $derived(circulation.minted + circulation.burned);
-	let mintedPercent = $derived(circulation.minted / total * 100);
-	let burnedPercent = $derived(circulation.burned / total * 100);
+	let total = $derived(circulation.minted + circulation.burned || 1n);
+	let mintedPercent = $derived(Number(circulation.minted) / Number(total) * 100);
+	let burnedPercent = $derived(Number(circulation.burned) / Number(total) * 100);
 </script>
 
 {#if circulation}
