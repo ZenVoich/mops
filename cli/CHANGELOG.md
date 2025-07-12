@@ -1,5 +1,13 @@
 # Mops CLI Changelog
 
+- Show user-friendly error message for invalid identity password
+
+## 1.10.0
+- Enable `memory64` for `wasi` testing (by @ggreif)
+- Add support for arm64 `moc` binaries (for `moc` >= 0.14.6)
+- Deploy benchmarks with `optimize: "cycles"` dfx setting
+- Show warning when publishing packages with GitHub dependencies
+
 ## 1.9.0
 - Add `mops docs generate` command for generating package documentation ([docs](https://docs.mops.one/cli/mops-docs-generate))
 - Add `mops docs coverage` command for analyzing documentation coverage ([docs](https://docs.mops.one/cli/mops-docs-coverage))

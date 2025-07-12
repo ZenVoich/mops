@@ -53,7 +53,7 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 	// desired fields
 	for (let key of ['description', 'repository']) {
 		// @ts-ignore
-		if (!config.package[key]) {
+		if (!config.package[key] && !process.env.CI) {
 			let res = await prompts({
 				type: 'confirm',
 				name: 'ok',
@@ -126,6 +126,19 @@ export async function publish(options : {docs ?: boolean, test ?: boolean, bench
 				process.exit(1);
 			}
 			delete dep.path;
+		}
+
+		for (let dep of Object.values(config.dependencies)) {
+			if (dep.repo && !process.env.CI) {
+				let res = await prompts({
+					type: 'confirm',
+					name: 'ok',
+					message: chalk.yellow('GitHub dependencies make the registry less reliable and limit its capabilities.\nIf you are the owner of the dependency, please consider publishing it to the Mops registry.') + '\n\nPublish anyway?',
+				});
+				if (!res.ok) {
+					return;
+				}
+			}
 		}
 	}
 

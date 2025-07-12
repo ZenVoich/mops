@@ -101,14 +101,14 @@ NnsProposal:
         - Team: 22% (dissolve 0-27 months)
         - Treasury: 13%
         - Airdrop: 5% (dissolve 5 months)
-        - Transfer fee: 0.01 MOPS
+        - Transfer fee: 0.1 MOPS
         - Voting rewards inflation: 3%/year
 
         ### SNS Swap
         - Min to raise: 1,000 ICP
         - Max to raise: 50,000 ICP
         - Min per user: 20 ICP
-        - Max per user: 1,000 ICP
+        - Max per user: 2,500 ICP
 
         ### Links
         - [Mops Website](https://mops.one)
@@ -160,7 +160,7 @@ Token:
     symbol: MOPS
 
     # SNS ledger transaction fee.
-    transaction_fee: 1_000_000 e8s
+    transaction_fee: 10_000_000 e8s
 
     # Path to the SNS token logo on your local filesystem. The path is relative
     # to the configuration file location, unless an absolute path is given.
@@ -792,7 +792,7 @@ Swap:
     # to participate. This field is specified as a token. For instance,
     # "1 token".
     # maximum_participant_icp: 50_000 tokens # local
-    maximum_participant_icp: 1_000 tokens # ic
+    maximum_participant_icp: 2_500 tokens # ic
 
     # The text that swap participants must confirm before they may participate
     # in the swap.
