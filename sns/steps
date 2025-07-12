@@ -1,3 +1,6 @@
+# validate sns init config file
+dfx sns init-config-file --init-config-file-path ./sns/sns_init.yaml validate
+
 # add nns root controller
 dfx sns prepare-canisters --network ic add-nns-root j4mwm-bqaaa-aaaam-qajbq-cai
 dfx sns prepare-canisters --network ic add-nns-root oknww-riaaa-aaaam-qaf6a-cai
