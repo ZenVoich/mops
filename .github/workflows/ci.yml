@@ -13,7 +13,7 @@ jobs:
       max-parallel: 1
       matrix:
         mops-version: [ic-mops@1.0.0, ./cli/dist]
-        moc-version: [0.11.1]
+        moc-version: [0.14.13]
         node-version: [20]
 
     runs-on: ubuntu-latest
