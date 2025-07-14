@@ -136,8 +136,10 @@ dapp_canisters:
     # IDs of the canisters comprising your to-be-decentralized dapp.
     #
     # For testing, propose_sns.sh will fill this in automatically.
-    # - 2d2zu-vaaaa-aaaak-qb6pq-cai # local main
-    # - ogp6e-diaaa-aaaam-qajta-cai # local assets
+    # staging
+    - 2d2zu-vaaaa-aaaak-qb6pq-cai # mops.one backend
+    - ogp6e-diaaa-aaaam-qajta-cai # mops.one
+    # prod
     - oknww-riaaa-aaaam-qaf6a-cai # mops.one backend
     - j4mwm-bqaaa-aaaam-qajbq-cai # mops.one
     - iwejr-6iaaa-aaaal-qcema-cai # docs.mops.one
