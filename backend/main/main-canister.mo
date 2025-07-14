@@ -124,7 +124,7 @@ actor class Main() = this {
 		};
 	};
 
-	public shared query func transformRequest(arg : IC.HttpTransformArg) : async IC.HttpResponse {
+	public shared query func transformRequest(arg : IC.TransformArg) : async IC.HttpRequestResult {
 		{
 			status = arg.response.status;
 			body = arg.response.body;
@@ -132,7 +132,7 @@ actor class Main() = this {
 		};
 	};
 
-	let transform : IC.HttpTransform = {
+	let transform : IC.Transform = {
 		function = transformRequest;
 		context = Blob.fromArray([]);
 	};
