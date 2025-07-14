@@ -13,9 +13,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: dfinity/setup-dfx@main
       - uses: ZenVoich/setup-mops@v1
         with:
           mops-version: 1.0.0
-
       - name: Run tests
         run: mops test
