@@ -23,6 +23,7 @@
         ".git/",
         ".mops/",
         "dist/",
+        "dao-frontend/",
         "cli-releases/dist/",
         "cli-releases/frontend/dist/",
         "bundle/"
