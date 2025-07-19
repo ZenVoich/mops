@@ -57,6 +57,7 @@
 			"declarations": {
 				"output": "dao-frontend/declarations/dao/"
 			},
+			"gzip": true,
 			"optimize": "cycles"
 		},
 		"dao-frontend": {
@@ -68,6 +69,17 @@
 			"source": [
 				"dao-frontend/"
 			]
+		},
+		"play-backend": {
+			"type": "motoko",
+			"main": "backend/dao/main.mo",
+			"args": "--enhanced-orthogonal-persistence",
+			"specified_id": "rlsuz-daaaa-aaaam-qdx7a-cai",
+			"declarations": {
+				"output": "dao-frontend/declarations/dao/"
+			},
+			"gzip": true,
+			"optimize": "cycles"
 		},
 		"play-frontend": {
 			"type": "assets",

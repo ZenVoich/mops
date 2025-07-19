@@ -2,23 +2,23 @@
 dfx sns init-config-file --init-config-file-path ./sns/sns_init.yaml validate
 
 # add nns root controller
-dfx sns prepare-canisters --network ic add-nns-root j4mwm-bqaaa-aaaam-qajbq-cai
-dfx sns prepare-canisters --network ic add-nns-root oknww-riaaa-aaaam-qaf6a-cai
-dfx sns prepare-canisters --network ic add-nns-root iwejr-6iaaa-aaaal-qcema-cai
-dfx sns prepare-canisters --network ic add-nns-root zktta-iaaaa-aaaap-qhobq-cai
-dfx sns prepare-canisters --network ic add-nns-root x344g-ziaaa-aaaap-abl7a-cai
-dfx sns prepare-canisters --network ic add-nns-root rqxi4-zyaaa-aaaam-qdx5q-cai
-dfx sns prepare-canisters --network ic add-nns-root rcr7f-viaaa-aaaam-qdx6q-cai
-dfx sns prepare-canisters --network ic add-nns-root rfqzr-yqaaa-aaaam-qdx6a-cai
-dfx sns prepare-canisters --network ic add-nns-root rlsuz-daaaa-aaaam-qdx7a-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root j4mwm-bqaaa-aaaam-qajbq-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root oknww-riaaa-aaaam-qaf6a-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root iwejr-6iaaa-aaaal-qcema-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root zktta-iaaaa-aaaap-qhobq-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root x344g-ziaaa-aaaap-abl7a-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root rqxi4-zyaaa-aaaam-qdx5q-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root rcr7f-viaaa-aaaam-qdx6q-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root rfqzr-yqaaa-aaaam-qdx6a-cai
+dfx sns prepare-canisters --network ic --identity mops add-nns-root rlsuz-daaaa-aaaam-qdx7a-cai
 
 # revoke asset canister permissions
-dfx canister call --network ic assets revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
-dfx canister call --network ic blog revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
-dfx canister call --network ic docs revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
-dfx canister call --network ic cli revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
-dfx canister call --network ic dao-frontend revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
-dfx canister call --network ic play-frontend revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops assets revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops blog revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops docs revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops cli revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops dao-frontend revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
+dfx canister call --network ic --identity mops play-frontend revoke_permission '(record {permission = variant {Commit}; of_principal = principal "hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"})'
 
 # propose sns init
-dfx sns propose --network ic --identity mops --neuron "<neuron_id>" sns_init.yaml
+dfx sns propose --network ic --identity mops --neuron-id 9484269610661477632 sns_init.yaml
