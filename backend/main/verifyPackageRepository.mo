@@ -16,7 +16,7 @@ import Types "./types";
 module {
 	public func verifyPackageRepository(packageName : Types.PackageName, repositoryUrl : Text, transform : IC.Transform) : async Result.Result<(), Text> {
 		if (repositoryUrl == "") {
-			return #ok;
+			return #err("Package repository URL missing. Add a \"repository\" entry to the mops.toml file in the [package] section.");
 		};
 
 		if (not Text.startsWith(repositoryUrl, #text("https://github.com/"))) {
