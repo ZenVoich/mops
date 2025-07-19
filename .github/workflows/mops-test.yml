@@ -31,6 +31,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - uses: dfinity/setup-dfx@main
+      - run: dfx cache install
       - name: Cache mops packages
         uses: actions/cache@v4
         with:
