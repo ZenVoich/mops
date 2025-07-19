@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         mops-version: [./cli/dist]
-        moc-version: [0.11.1]
+        moc-version: [0.14.13]
         node-version: [24]
         runner: [macos-latest]
 

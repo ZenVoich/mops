@@ -103,6 +103,9 @@ module {
 						freezing_threshold = null;
 						memory_allocation = null;
 						reserved_cycles_limit = null;
+						log_visibility = null;
+						wasm_memory_limit = null;
+						wasm_memory_threshold = null;
 					};
 				});
 			};
