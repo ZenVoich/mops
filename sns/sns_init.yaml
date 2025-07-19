@@ -137,8 +137,8 @@ dapp_canisters:
     #
     # For testing, propose_sns.sh will fill this in automatically.
     # staging
-    - 2d2zu-vaaaa-aaaak-qb6pq-cai # mops.one backend
-    - ogp6e-diaaa-aaaam-qajta-cai # mops.one
+    # - 2d2zu-vaaaa-aaaak-qb6pq-cai # mops.one backend
+    # - ogp6e-diaaa-aaaam-qajta-cai # mops.one
     # prod
     - oknww-riaaa-aaaam-qaf6a-cai # mops.one backend
     - j4mwm-bqaaa-aaaam-qajbq-cai # mops.one
