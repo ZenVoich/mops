@@ -27,8 +27,8 @@ catch (e) {
 // This strange way of JSON.stringifying the value is required by vite
 const canisterDefinitions = Object.entries(canisterIds).reduce((acc, [key, val]) => ({
 	...acc,
-	[`process.env.${key.toUpperCase()}_CANISTER_ID`]: JSON.stringify(val[network as Network]),
-	[`process.env.CANISTER_ID_${key.toUpperCase()}`]: JSON.stringify(val[network as Network]),
+	[`process.env.${key.toUpperCase().replace(/-/g, '_')}_CANISTER_ID`]: JSON.stringify(val[network as Network]),
+	[`process.env.CANISTER_ID_${key.toUpperCase().replace(/-/g, '_')}`]: JSON.stringify(val[network as Network]),
 }), {});
 
 // List of all aliases for canisters
