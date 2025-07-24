@@ -44,8 +44,7 @@ async function ensureToolchainInited({strict = true} = {}) {
 	}
 
 	try {
-		let res = execSync('which moc-wrapper').toString().trim();
-		if (res && process.env.DFX_MOC_PATH === 'moc-wrapper') {
+		if (process.env.DFX_MOC_PATH === 'moc-wrapper' && execSync('which moc-wrapper').toString().trim()) {
 			return true;
 		}
 	}

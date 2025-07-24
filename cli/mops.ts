@@ -84,15 +84,28 @@ export let getIdentity = async () : Promise<Identity | undefined> => {
 	return undefined;
 };
 
+const configFileCache = new Map<string, string>();
+const configCache = new Map<string, Config>();
+
 export function getClosestConfigFile(dir = process.cwd()) : string {
+	if (configFileCache.has(dir)) {
+		return configFileCache.get(dir)!;
+	}
+	
 	if (!path.basename(dir)) {
+		configFileCache.set(dir, '');
 		return '';
 	}
+	
 	let configFile = path.join(dir, 'mops.toml');
 	if (fs.existsSync(configFile)) {
+		configFileCache.set(dir, configFile);
 		return configFile;
 	}
-	return getClosestConfigFile(path.resolve(dir, '..'));
+	
+	const file = getClosestConfigFile(path.resolve(dir, '..'));
+	configFileCache.set(dir, file);
+	return file;
 }
 
 export function getRootDir() {
@@ -176,6 +189,10 @@ export function parseDepValue(name : string, value : string) : Dependency {
 }
 
 export function readConfig(configFile = getClosestConfigFile()) : Config {
+	if (configCache.has(configFile)) {
+		return configCache.get(configFile)!;
+	}
+
 	let text = fs.readFileSync(configFile).toString();
 	let toml = TOML.parse(text);
 
@@ -200,6 +217,7 @@ export function readConfig(configFile = getClosestConfigFile()) : Config {
 		}
 	});
 
+	configCache.set(configFile, config);
 	return config;
 }
 
@@ -221,6 +239,9 @@ export function writeConfig(config : Config, configFile = getClosestConfigFile()
 		text += '\n';
 	}
 	fs.writeFileSync(configFile, text);
+	// reset cache after writing any new config
+	configFileCache.clear();
+	configCache.clear();
 }
 
 export function formatDir(name : string, version : string) {
