@@ -71,7 +71,7 @@
 	{#if summary.changes.curDocsCoverage != summary.changes.prevDocsCoverage}
 		<div class="title">📚 Documentation
 			<span class="docs-coverage">
-				<span class="prev" style="color: {getDocsCoverageColor(summary.changes.prevDocsCoverage)}">{summary.changes.prevDocsCoverage.toFixed(0)}%</span> <span class="arrow">➜</span> <span class="cur" style="color: {getDocsCoverageColor(summary.changes.curDocsCoverage)}">{summary.changes.curDocsCoverage.toFixed(0)}%</span>
+				<span class="prev" style="color: {getDocsCoverageColor(summary.changes.prevDocsCoverage, true)}">{summary.changes.prevDocsCoverage.toFixed(0)}%</span> <span class="arrow">➜</span> <span class="cur" style="color: {getDocsCoverageColor(summary.changes.curDocsCoverage, true)}">{summary.changes.curDocsCoverage.toFixed(0)}%</span>
 			</span>
 		</div>
 	{/if}
