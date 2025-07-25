@@ -20,6 +20,9 @@ module {
 	};
 
 	public func parseDepName(depName : PackageName) : (PackageName, AliasVersion) {
+		if (not Text.contains(depName, #char('@'))) {
+			return (depName, "");
+		};
 		let parts = Iter.toArray(Text.split(depName, #char('@')));
 		if (parts.size() == 1) {
 			return (parts[0], "");

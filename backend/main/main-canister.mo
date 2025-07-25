@@ -224,6 +224,11 @@ actor class Main() = this {
 		await storageManager.setControllers([self, cycleOpsBlackhole]);
 	};
 
+	public shared ({caller}) func takeSnapshotsIfNeeded() : async () {
+		assert(Utils.isAdmin(caller));
+		downloadLog.takeSnapshotsIfNeeded(Time.now());
+	};
+
 	// QUERY
 	public query func getApiVersion() : async Text.Text {
 		API_VERSION;

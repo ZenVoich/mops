@@ -17,6 +17,9 @@ import {getPackageSummary; getPackageSummaryWithChanges} "./getPackageSummary";
 import {getPackageChanges} "./getPackageChanges";
 
 module {
+	let MAX_VERSION_HISTORY = 10;
+	let MAX_DEPENDENTS = 10;
+
 	public type PackageName = Types.PackageName;
 	public type PackageVersion = Types.PackageVersion;
 	public type PackageSummary = Types.PackageSummary;
@@ -31,10 +34,13 @@ module {
 		// all package versions with summaies and changes
 		func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
 			let ?versions = registry.getPackageVersions(name) else Debug.trap("Package '" # name # "' not found");
-			Array.reverse(Array.map<PackageVersion, PackageSummaryWithChanges>(versions, func(version) {
-				let ?summary = getPackageSummaryWithChanges(registry, users, downloadLog, name, version) else Debug.trap("Package '" # name # "' not found");
-				summary;
-			}));
+			versions
+				|> Array.take(_, -MAX_VERSION_HISTORY)
+				|> Array.reverse(_)
+				|> Array.map<PackageVersion, PackageSummaryWithChanges>(_, func(version) {
+					let ?summary = getPackageSummaryWithChanges(registry, users, downloadLog, name, version) else Debug.trap("Package '" # name # "' not found");
+					summary;
+				});
 		};
 
 		func _getDepsSummaries(deps : [DependencyV2]) : [PackageSummary] {
@@ -70,10 +76,13 @@ module {
 				let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
 					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
 				}));
+				if (dependent) {
+					return true;
+				};
 				let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
 					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
 				}));
-				dependent or devDependent;
+				devDependent;
 			};
 
 			let dependentConfigs = Array.filter<PackageConfigV3>(registry.getHighestConfigs(), isDependent);
@@ -84,18 +93,19 @@ module {
 			let pkgEqual = func(a : PackageConfigV3, b : PackageConfigV3) : Bool {
 				a.name == b.name;
 			};
-			let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV3>(dependentConfigs, pkgHash, pkgEqual)).vals();
+			let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV3>(dependentConfigs, pkgHash, pkgEqual));
+			let limited = Array.take(unique, MAX_DEPENDENTS);
 
-			let summaries = Iter.map<PackageConfigV3, PackageSummary>(unique, func(config) {
+			let summaries = Array.map<PackageConfigV3, PackageSummary>(limited, func(config) {
 				let ?summary = getPackageSummary(registry, users, downloadLog, config.name, config.version) else Debug.trap("Package '" # name # "' not found");
 				summary;
 			});
 
-			let sorted = Iter.sort<PackageSummary>(summaries, func(a, b) {
+			let sorted = Array.sort<PackageSummary>(summaries, func(a, b) {
 				Nat.compare(b.downloadsTotal, a.downloadsTotal);
 			});
 
-			Iter.toArray(sorted);
+			sorted;
 		};
 
 		// return package details
