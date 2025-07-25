@@ -339,7 +339,7 @@ module {
 			curSnapshotWeekDay := weekDay;
 		};
 
-		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time, now : Time.Time) : Nat {
+		public func getDownloadsByPackageNameIn(name : PackageName, duration : Time.Time, now : Time.Time, includeTempDownloads : Bool) : Nat {
 			if (duration + 100 < 1 * DAY) {
 				Debug.trap("duration cannot be less than 1 day");
 			};
@@ -349,7 +349,6 @@ module {
 			let snapshots = Option.get(dailySnapshotsByPackageName.get(name), Buffer.Buffer<DownloadsSnapshot>(0));
 			let snapshotsRev = Array.reverse(Buffer.toArray(snapshots));
 
-
 			label l for (snapshot in snapshotsRev.vals()) {
 				if (snapshot.startTime >= from) {
 					total += snapshot.downloads;
@@ -357,10 +356,11 @@ module {
 				else break l;
 			};
 
-			let dailyTempRecordsRev = Array.reverse(Buffer.toArray(dailyTempRecords));
-			for (record in dailyTempRecordsRev.vals()) {
-				if (record.name == name and record.time >= from) {
-					total += 1;
+			if (includeTempDownloads) {
+				for (record in dailyTempRecords.vals()) {
+					if (record.name == name and record.time >= from) {
+						total += 1;
+					};
 				};
 			};
 
@@ -382,19 +382,31 @@ module {
 				});
 		};
 
-		public func getMostDownloadedPackageNamesIn(duration : Time.Time, now : Time.Time) : [PackageName] {
-			var arr = Iter.toArray(downloadsByPackageName.entries());
-			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item : (PackageName, Nat)) {
-				(item.0, getDownloadsByPackageNameIn(item.0, duration, now));
-			});
+		public func getMostDownloadedPackageNamesIn(duration : Time.Time, now : Time.Time, limit : Nat) : [PackageName] {
+			let tempDownloadsByPackageName = TrieMap.TrieMap<PackageName, Nat>(Text.equal, Text.hash);
+			let from = now - duration;
+			for (record in dailyTempRecords.vals()) {
+				if (record.time >= from) {
+					tempDownloadsByPackageName.put(record.name, Option.get(tempDownloadsByPackageName.get(record.name), 0) + 1);
+				};
+			};
 
-			let sorted = Array.sort(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {
+			let iter = Iter.map<PackageName, (PackageName, Nat)>(downloadsByPackageName.keys(), func(name : PackageName) {
+				let tmp = Option.get(tempDownloadsByPackageName.get(name), 0);
+				(name, tmp + getDownloadsByPackageNameIn(name, duration, now, false));
+			});
+			let arr = Iter.toArrayMut<(PackageName, Nat)>(iter);
+
+			Array.sortInPlace(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {
 				Nat.compare(b.1, a.1);
 			});
 
-			Array.map<(PackageName, Nat), PackageName>(sorted, func(item) {
-				item.0;
-			});
+			arr
+				|> Array.freeze(_)
+				|> Array.take(_, limit)
+				|> Array.map<(PackageName, Nat), PackageName>(_, func(item) {
+					item.0;
+				});
 		};
 
 		public func setTimers<system>() {

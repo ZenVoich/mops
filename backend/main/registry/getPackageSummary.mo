@@ -50,8 +50,8 @@ module {
 				config = config;
 				publication = publication;
 				publisher = users.getUser(publication.user);
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now());
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now());
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now(), true);
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now(), true);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 				quality = _computePackageQuality(registry, name, version);
 				highestVersion = highestVersion;

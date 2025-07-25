@@ -159,14 +159,14 @@ func check(name : Text) = suite(name, func() {
 	});
 
 	test("getDownloadsByPackageNameIn", func() {
-		assert downloadLog.getDownloadsByPackageNameIn("pkg1", 1 * DAY + 100, Time.now()) == 2;
-		assert downloadLog.getDownloadsByPackageNameIn("pkg1", 2 * DAY, Time.now()) == 2;
+		assert downloadLog.getDownloadsByPackageNameIn("pkg1", 1 * DAY + 100, Time.now(), true) == 2;
+		assert downloadLog.getDownloadsByPackageNameIn("pkg1", 2 * DAY, Time.now(), true) == 2;
 
-		assert downloadLog.getDownloadsByPackageNameIn("pkg2", 1 * DAY + 100, Time.now()) == 4;
-		assert downloadLog.getDownloadsByPackageNameIn("pkg2", 2 * DAY, Time.now()) == 4;
+		assert downloadLog.getDownloadsByPackageNameIn("pkg2", 1 * DAY + 100, Time.now(), true) == 4;
+		assert downloadLog.getDownloadsByPackageNameIn("pkg2", 2 * DAY, Time.now(), true) == 4;
 
-		assert downloadLog.getDownloadsByPackageNameIn("lib", 1 * DAY, Time.now()) == 0;
-		assert downloadLog.getDownloadsByPackageNameIn("lib", 365 * DAY, Time.now()) == 0;
+		assert downloadLog.getDownloadsByPackageNameIn("lib", 1 * DAY, Time.now(), true) == 0;
+		assert downloadLog.getDownloadsByPackageNameIn("lib", 365 * DAY, Time.now(), true) == 0;
 	});
 
 	test("getMostDownloadedPackageNames", func() {
@@ -174,8 +174,11 @@ func check(name : Text) = suite(name, func() {
 	});
 
 	test("getMostDownloadedPackageNamesIn", func() {
-		assert downloadLog.getMostDownloadedPackageNamesIn(1 * DAY, Time.now()) == ["pkg1", "pkg2"];
-		assert downloadLog.getMostDownloadedPackageNamesIn(2 * DAY, Time.now()) == ["pkg2", "pkg1"];
+		assert downloadLog.getMostDownloadedPackageNamesIn(1 * DAY, Time.now(), 5) == ["pkg1", "pkg2"];
+		assert downloadLog.getMostDownloadedPackageNamesIn(2 * DAY, Time.now(), 5) == ["pkg2", "pkg1"];
+
+		assert downloadLog.getMostDownloadedPackageNamesIn(1 * DAY, Time.now(), 1) == ["pkg1"];
+		assert downloadLog.getMostDownloadedPackageNamesIn(2 * DAY, Time.now(), 1) == ["pkg2"];
 	});
 });
 

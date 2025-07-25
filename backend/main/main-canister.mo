@@ -444,7 +444,7 @@ actor class Main() = this {
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
-		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now());
+		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now(), 5);
 		_summariesFromNames(packageNames, 5);
 	};
 
