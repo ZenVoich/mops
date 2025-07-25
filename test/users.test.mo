@@ -1,11 +1,10 @@
 import Result "mo:base/Result";
-import Option "mo:base/Option";
 import Array "mo:base/Array";
 import Debug "mo:base/Debug";
 import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 
-import {test; suite; skip} "mo:test";
+import {test} "mo:test";
 import Fuzz "mo:fuzz";
 
 import Types "../backend/main/types";

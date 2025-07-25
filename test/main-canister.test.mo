@@ -1,1 +1,1 @@
-import Main "../backend/main/main-canister";
+import _Main "../backend/main/main-canister";

@@ -1,5 +1,5 @@
 import Result "mo:base/Result";
-import {test; suite; skip} "mo:test";
+import {test} "mo:test";
 
 import {validateLicense} "../backend/main/utils/validateLicense";
 

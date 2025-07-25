@@ -1,11 +1,8 @@
 import Principal "mo:base/Principal";
-import Option "mo:base/Option";
 import Array "mo:base/Array";
-import Prelude "mo:base/Prelude";
 import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
-import Int "mo:base/Int";
 
 module {
 	let admins = ["hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"];

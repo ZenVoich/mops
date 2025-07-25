@@ -17,7 +17,6 @@ import Types "./types";
 import {generateId} "../generate-id";
 import {validateConfig} "./utils/validateConfig";
 import PackageUtils "./utils/package-utils";
-import Semver "./utils/semver";
 
 module {
 	type PackageVersion = Types.PackageVersion;

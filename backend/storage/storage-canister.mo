@@ -29,8 +29,8 @@ shared({caller = parent}) actor class Storage() {
 			fileCount = filesMeta.size();
 			memorySize = rts_memory_size();
 			cyclesBalance = Cycles.balance();
-			activeUploadsMeta = activeUploadsMeta.size();
-			activeUploadsChunks = activeUploadsChunks.size();
+			// activeUploadsMeta = activeUploadsMeta.size();
+			// activeUploadsChunks = activeUploadsChunks.size();
 		};
 	};
 

@@ -1,7 +1,5 @@
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
@@ -31,8 +29,7 @@ module {
 		let url = "https://raw.githubusercontent.com/" # Text.join("/", target.vals());
 
 		try {
-			ExperimentalCycles.add<system>(1_000_000_000);
-			let response = await ic.http_request({
+			let response = await (with cycles = 1_000_000_000) ic.http_request({
 				url = url;
 				method = #get;
 				max_response_bytes = ?(1024 * 4);

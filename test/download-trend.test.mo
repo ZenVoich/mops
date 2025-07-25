@@ -1,9 +1,7 @@
-import {test; suite; skip} "mo:test";
+import {test; suite} "mo:test";
 import Fuzz "mo:fuzz";
-import {MINUTE; HOUR; DAY} "mo:time-consts";
+import {DAY} "mo:time-consts";
 import Time "mo:base/Time";
-import Debug "mo:base/Debug";
-import Prim "mo:prim";
 
 import DownloadLog "../backend/main/DownloadLog";
 

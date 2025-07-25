@@ -1,4 +1,4 @@
-import {test; suite; skip} "mo:test";
+import {test} "mo:test";
 
 import {isLetter; isLowerCaseLetter; isUpperCaseLetter} "../backend/main/utils/is-letter";
 

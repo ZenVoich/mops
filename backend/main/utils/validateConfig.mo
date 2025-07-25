@@ -1,7 +1,6 @@
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Char "mo:base/Char";
-import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 

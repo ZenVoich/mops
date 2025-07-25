@@ -25,6 +25,6 @@ Debug.print(debug_show(isNat(to_candid(123))));
 Debug.print(debug_show(isNat(to_candid("123"))));
 
 test("suaaacc", func() {
-	let x = to(1);
+	let _x = to(1);
 	assert true;
 });

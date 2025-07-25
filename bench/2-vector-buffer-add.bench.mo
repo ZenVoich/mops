@@ -1,6 +1,7 @@
 import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
+import Debug "mo:base/Debug";
 import Vector "mo:vector/Class";
 import Bench "mo:bench";
 
@@ -15,7 +16,7 @@ module {
 		bench.cols(["10", "10000", "1000000"]);
 
 		bench.runner(func(row, col) {
-			let ?n = Nat.fromText(col);
+			let ?n = Nat.fromText(col) else Debug.trap("Invalid number: " # col);
 
 			// Vector
 			if (row == "Vector") {

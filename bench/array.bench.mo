@@ -1,7 +1,5 @@
-import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Debug "mo:base/Debug";
-import Prelude "mo:base/Prelude";
 import Nat "mo:base/Nat";
 import Buffer "mo:base/Buffer";
 

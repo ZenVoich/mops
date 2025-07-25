@@ -1,12 +1,5 @@
-import Nat "mo:base/Nat";
-import Iter "mo:base/Iter";
-import Buffer "mo:base/Buffer";
 import Region "mo:base/Region";
-import Debug "mo:base/Debug";
 import ExperimentalStableMemory "mo:base/ExperimentalStableMemory";
-import Blob "mo:base/Blob";
-import Nat64 "mo:base/Nat64";
-import Vector "mo:vector/Class";
 import Bench "mo:bench";
 import Fuzz "mo:fuzz";
 

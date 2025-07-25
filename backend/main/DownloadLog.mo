@@ -9,15 +9,11 @@ import TrieMap "mo:base/TrieMap";
 import Order "mo:base/Order";
 import Timer "mo:base/Timer";
 import Int "mo:base/Int";
-import Int32 "mo:base/Int32";
-import Nat32 "mo:base/Nat32";
 import Debug "mo:base/Debug";
 
 import {MINUTE; DAY} "mo:time-consts";
-import DateTime "mo:datetime/DateTime";
 import DateComponents "mo:datetime/Components";
 
-import Utils "../utils";
 import Types "./types";
 import PackageUtils "./utils/package-utils";
 
