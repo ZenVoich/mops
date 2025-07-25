@@ -47,7 +47,7 @@ module {
 		let limited = Array.take(unique, limit);
 
 		let summaries = Array.map<PackageConfigV3, PackageSummary>(limited, func(config) {
-			let ?summary = getPackageSummary(registry, users, downloadLog, config.name, config.version) else Debug.trap("Package '" # name # "' not found");
+			let ?summary = getPackageSummary(registry, users, downloadLog, config.name, config.version, false) else Debug.trap("Package '" # name # "' not found");
 			summary;
 		});
 

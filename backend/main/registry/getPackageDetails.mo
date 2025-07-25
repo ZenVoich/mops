@@ -46,7 +46,7 @@ module {
 			dep.repo == "";
 		});
 		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-			let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version) else Debug.trap("Package '" # dep.name # "' not found");
+			let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version, false) else Debug.trap("Package '" # dep.name # "' not found");
 			{
 				summary with
 				depAlias = dep.name;
@@ -67,7 +67,7 @@ module {
 	public func getPackageDetails(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageDetails {
 		// return package details
 		do ? {
-			let summary = getPackageSummary(registry, users, downloadLog, name, version)!;
+			let summary = getPackageSummary(registry, users, downloadLog, name, version, true)!;
 			let fileStats = registry.getPackageFileStats(name, version);
 			let {deps; devDeps} = _getPackageDependencies(registry, users, downloadLog, name, version);
 			let (dependents, dependentsCount) = getPackageDependents(registry, users, downloadLog, name, MAX_DEPENDENTS, 0);

@@ -109,7 +109,7 @@ module {
 		let page = Utils.getPage(configs, pageIndex, limit);
 
 		let summaries = Array.map<ConfigWithPoints, PackageSummary>(page.0, func(config) {
-			let ?summary = getPackageSummary(registry, users, downloadLog, config.config.name, config.config.version) else Debug.trap("Package '" # config.config.name # "' not found");
+			let ?summary = getPackageSummary(registry, users, downloadLog, config.config.name, config.config.version, true) else Debug.trap("Package '" # config.config.name # "' not found");
 			summary;
 		});
 

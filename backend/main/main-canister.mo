@@ -112,8 +112,8 @@ actor class Main() = this {
 		};
 	};
 
-	func _getPackageSummary(name : PackageName, version : PackageVersion) : ?PackageSummary {
-		getPackageSummary(registry, users, downloadLog, name, version);
+	func _getPackageSummary(name : PackageName, version : PackageVersion, includeTempDownloads : Bool) : ?PackageSummary {
+		getPackageSummary(registry, users, downloadLog, name, version, includeTempDownloads);
 	};
 
 	func _getPackageSummaryWithChanges(name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
@@ -418,14 +418,14 @@ actor class Main() = this {
 		Buffer.toArray(packages)
 	};
 
-	func _summariesFromNames(packageNames : [PackageName], limit: Nat) : [PackageSummary] {
+	func _summariesFromNames(packageNames : [PackageName], limit: Nat, includeTempDownloads : Bool) : [PackageSummary] {
 		let bufferSize = if (limit < packageNames.size()) limit else packageNames.size();
 		let packages = Buffer.Buffer<PackageSummary>(bufferSize);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
 				let version = registry.getHighestVersion(packageName)!;
-				let packageSummary = _getPackageSummary(packageName, version)!;
+				let packageSummary = _getPackageSummary(packageName, version, includeTempDownloads)!;
 
 				packages.add(packageSummary);
 
@@ -440,12 +440,12 @@ actor class Main() = this {
 
 	public query func getMostDownloadedPackages() : async [PackageSummary] {
 		let packageNames = downloadLog.getMostDownloadedPackageNames(5);
-		_summariesFromNames(packageNames, 5);
+		_summariesFromNames(packageNames, 5, true);
 	};
 
 	public query func getMostDownloadedPackagesIn7Days() : async [PackageSummary] {
 		let packageNames = downloadLog.getMostDownloadedPackageNamesIn(7 * DAY, Time.now(), 5);
-		_summariesFromNames(packageNames, 5);
+		_summariesFromNames(packageNames, 5, true);
 	};
 
 	func _sortByPublicationTime(summaries : [PackageSummary]) : [PackageSummary] {
@@ -482,7 +482,7 @@ actor class Main() = this {
 				(
 					title,
 					_combineUniq(_getPackageNamesForKeywords(keywords), legacyNames)
-						|> _summariesFromNames(_, 1000)
+						|> _summariesFromNames(_, 1000, false)
 						|> _sortByPublicationTime(_)
 						|> Array.take(_, limit)
 				)
@@ -506,7 +506,7 @@ actor class Main() = this {
 		packagesFirstPubSorted
 			|> Array.take(_, 5)
 			|> Array.map<(PackageName, (Time.Time, PackageVersion)), PackageSummary>(_, func((packageName, (pubTime, packageVersion))) {
-				let ?summary = _getPackageSummary(packageName, packageVersion) else Debug.trap("Package '" # PackageUtils.getPackageId(packageName, packageVersion) # "' not found");
+				let ?summary = _getPackageSummary(packageName, packageVersion, false) else Debug.trap("Package '" # PackageUtils.getPackageId(packageName, packageVersion) # "' not found");
 				summary;
 			});
 	};

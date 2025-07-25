@@ -21,7 +21,7 @@ module {
 	public type PackageSummaryWithChanges = Types.PackageSummaryWithChanges;
 
 	// lightweight package summary
-	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummary {
+	public func getPackageSummary(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion, includeTempDownloads : Bool) : ?PackageSummary {
 		do ? {
 			let config = registry.getPackageConfig(name, version)!;
 
@@ -50,8 +50,8 @@ module {
 				config = config;
 				publication = publication;
 				publisher = users.getUser(publication.user);
-				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now(), true);
-				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now(), true);
+				downloadsInLast7Days = downloadLog.getDownloadsByPackageNameIn(config.name, 7 * DAY, Time.now(), includeTempDownloads);
+				downloadsInLast30Days = downloadLog.getDownloadsByPackageNameIn(config.name, 30 * DAY, Time.now(), includeTempDownloads);
 				downloadsTotal = downloadLog.getTotalDownloadsByPackageName(config.name);
 				quality = _computePackageQuality(registry, name, version);
 				highestVersion = highestVersion;
@@ -61,7 +61,7 @@ module {
 
 	// package summary with changes between this version and previous version
 	public func getPackageSummaryWithChanges(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
-		let ?packageSummary = getPackageSummary(registry, users, downloadLog, name, version) else return null;
+		let ?packageSummary = getPackageSummary(registry, users, downloadLog, name, version, false) else return null;
 		?{
 			packageSummary with
 			changes = getPackageChanges(registry, name, version);
