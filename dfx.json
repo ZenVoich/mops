@@ -10,7 +10,8 @@
 				"output": "cli/declarations/main/",
 				"node_compatibility": true
 			},
-			"optimize": "cycles"
+			"optimize": "cycles",
+			"gzip": true
 		},
 		"assets": {
 			"type": "assets",

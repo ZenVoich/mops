@@ -1,11 +1,5 @@
-import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Debug "mo:base/Debug";
-import Hash "mo:base/Hash";
-import TrieSet "mo:base/TrieSet";
-import Option "mo:base/Option";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
 
 import Types "../types";
 import Registry "./Registry";
@@ -15,9 +9,10 @@ import PackageUtils "../utils/package-utils";
 
 import {getPackageSummary; getPackageSummaryWithChanges} "./getPackageSummary";
 import {getPackageChanges} "./getPackageChanges";
+import {getPackageDependents} "./getPackageDependents";
 
 module {
-	let MAX_VERSION_HISTORY = 10;
+	let MAX_VERSION_HISTORY = 5;
 	let MAX_DEPENDENTS = 10;
 
 	public type PackageName = Types.PackageName;
@@ -28,97 +23,63 @@ module {
 	public type DependencyV2 = Types.DependencyV2;
 	public type PackageConfigV3 = Types.PackageConfigV3;
 
-	// package details that appear on the package page
-	public func getPackageDetails(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageDetails {
+	// all package versions
+	func _getPackageVersions(registry : Registry.Registry, name : PackageName) : [PackageVersion] {
+		let ?versions = registry.getPackageVersions(name) else Debug.trap("Package '" # name # "' not found");
+		versions;
+	};
 
-		// all package versions with summaies and changes
-		func _getPackageVersionHistory(name : PackageName) : [PackageSummaryWithChanges] {
-			let ?versions = registry.getPackageVersions(name) else Debug.trap("Package '" # name # "' not found");
-			versions
-				|> Array.take(_, -MAX_VERSION_HISTORY)
-				|> Array.reverse(_)
-				|> Array.map<PackageVersion, PackageSummaryWithChanges>(_, func(version) {
-					let ?summary = getPackageSummaryWithChanges(registry, users, downloadLog, name, version) else Debug.trap("Package '" # name # "' not found");
-					summary;
-				});
-		};
-
-		func _getDepsSummaries(deps : [DependencyV2]) : [PackageSummary] {
-			let filtered = Array.filter<DependencyV2>(deps, func(dep) {
-				dep.repo == "";
-			});
-			Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
-				let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version) else Debug.trap("Package '" # dep.name # "' not found");
-				{
-					summary with
-					depAlias = dep.name;
-				};
-			});
-		};
-
-		// dependencies
-		func _getPackageDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = PackageUtils.getPackageId(name, version);
-			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
-			_getDepsSummaries(config.dependencies);
-		};
-
-		// dev dependencies
-		func _getPackageDevDependencies(name : PackageName, version : PackageVersion) : [PackageSummary] {
-			let packageId = PackageUtils.getPackageId(name, version);
-			let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
-			_getDepsSummaries(config.devDependencies);
-		};
-
-		// dependents
-		func _getPackageDependents(name : PackageName) : [PackageSummary] {
-			func isDependent(config : PackageConfigV3) : Bool {
-				let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
-					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
-				}));
-				if (dependent) {
-					return true;
-				};
-				let devDependent = Option.isSome(Array.find<DependencyV2>(config.devDependencies, func(dep : DependencyV2) {
-					PackageUtils.getDepName(dep.name) == name and dep.repo == "";
-				}));
-				devDependent;
-			};
-
-			let dependentConfigs = Array.filter<PackageConfigV3>(registry.getHighestConfigs(), isDependent);
-
-			let pkgHash = func(a : PackageConfigV3) : Hash.Hash {
-				Text.hash(a.name);
-			};
-			let pkgEqual = func(a : PackageConfigV3, b : PackageConfigV3) : Bool {
-				a.name == b.name;
-			};
-			let unique = TrieSet.toArray(TrieSet.fromArray<PackageConfigV3>(dependentConfigs, pkgHash, pkgEqual));
-			let limited = Array.take(unique, MAX_DEPENDENTS);
-
-			let summaries = Array.map<PackageConfigV3, PackageSummary>(limited, func(config) {
-				let ?summary = getPackageSummary(registry, users, downloadLog, config.name, config.version) else Debug.trap("Package '" # name # "' not found");
+	// all package versions with summaies and changes
+	func _getPackageVersionHistory(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName) : [PackageSummaryWithChanges] {
+		let ?versions = registry.getPackageVersions(name) else Debug.trap("Package '" # name # "' not found");
+		versions
+			|> Array.take(_, -MAX_VERSION_HISTORY)
+			|> Array.reverse(_)
+			|> Array.map<PackageVersion, PackageSummaryWithChanges>(_, func(version) {
+				let ?summary = getPackageSummaryWithChanges(registry, users, downloadLog, name, version) else Debug.trap("Package '" # name # "' not found");
 				summary;
 			});
+	};
 
-			let sorted = Array.sort<PackageSummary>(summaries, func(a, b) {
-				Nat.compare(b.downloadsTotal, a.downloadsTotal);
-			});
+	func _getDepsSummaries(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, deps : [DependencyV2]) : [PackageSummary] {
+		let filtered = Array.filter<DependencyV2>(deps, func(dep) {
+			dep.repo == "";
+		});
+		Array.map<DependencyV2, PackageSummary>(filtered, func(dep) {
+			let ?summary = getPackageSummary(registry, users, downloadLog, PackageUtils.getDepName(dep.name), dep.version) else Debug.trap("Package '" # dep.name # "' not found");
+			{
+				summary with
+				depAlias = dep.name;
+			};
+		});
+	};
 
-			sorted;
-		};
+	// dependencies
+	func _getPackageDependencies(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : {deps : [PackageSummary]; devDeps : [PackageSummary]} {
+		let packageId = PackageUtils.getPackageId(name, version);
+		let ?config = registry.getPackageConfig(name, version) else Debug.trap("Package '" # packageId # "' not found");
+		let deps = _getDepsSummaries(registry, users, downloadLog, config.dependencies);
+		let devDeps = _getDepsSummaries(registry, users, downloadLog, config.devDependencies);
+		{deps; devDeps};
+	};
 
+	// package details that appear on the package page
+	public func getPackageDetails(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, version : PackageVersion) : ?PackageDetails {
 		// return package details
 		do ? {
 			let summary = getPackageSummary(registry, users, downloadLog, name, version)!;
 			let fileStats = registry.getPackageFileStats(name, version);
+			let {deps; devDeps} = _getPackageDependencies(registry, users, downloadLog, name, version);
+			let (dependents, dependentsCount) = getPackageDependents(registry, users, downloadLog, name, MAX_DEPENDENTS);
 
 			return ?{
 				summary with
-				versionHistory = _getPackageVersionHistory(name);
-				deps = _getPackageDependencies(name, version);
-				devDeps = _getPackageDevDependencies(name, version);
-				dependents = _getPackageDependents(name);
+				versions = _getPackageVersions(registry, name);
+				versionHistory = _getPackageVersionHistory(registry, users, downloadLog, name);
+				deps;
+				devDeps;
+				dependents;
+				dependentsCount;
 				downloadTrend = downloadLog.getDownloadTrendByPackageName(name);
 				fileStats = {
 					sourceFiles = fileStats.sourceFiles;

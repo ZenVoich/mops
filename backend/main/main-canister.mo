@@ -31,11 +31,11 @@ import Badges "./badges";
 import Registry "./registry/Registry";
 import PackagePublisher "./PackagePublisher";
 import {searchInRegistry} "./registry/searchInRegistry";
-import {getPackageSummary} "./registry/getPackageSummary";
+import {getPackageSummary; getPackageSummaryWithChanges} "./registry/getPackageSummary";
 import {getPackageDetails = _getPackageDetails} "./registry/getPackageDetails";
-import {getPackageChanges} "./registry/getPackageChanges";
 import {packagesByCategory} "./registry/packagesByCategory";
 import {getDefaultPackages = _getDefaultPackages} "./registry/getDefaultPackages";
+import {getPackageDependents = _getPackageDependents} "./registry/getPackageDependents";
 import {verifyPackageRepository} "./verifyPackageRepository";
 import PackageUtils "./utils/package-utils";
 
@@ -117,11 +117,7 @@ actor class Main() = this {
 	};
 
 	func _getPackageSummaryWithChanges(name : PackageName, version : PackageVersion) : ?PackageSummaryWithChanges {
-		let ?packageSummary = _getPackageSummary(name, version) else return null;
-		?{
-			packageSummary with
-			changes = getPackageChanges(registry, name, version);
-		};
+		getPackageSummaryWithChanges(registry, users, downloadLog, name, version);
 	};
 
 	public shared query func transformRequest(arg : IC.TransformArg) : async IC.HttpRequestResult {
@@ -300,6 +296,20 @@ actor class Main() = this {
 			_getPackageDetails(registry, users, downloadLog, name, ver)!;
 		};
 		Result.fromOption(packageDetails, "Package '" # name # "' not found");
+	};
+
+	public query func getPackageVersionHistory(name : PackageName) : async [PackageSummaryWithChanges] {
+		let ?versions = registry.getPackageVersions(name) else Debug.trap("Package '" # name # "' not found");
+		versions
+			|> Array.reverse(_)
+			|> Array.map<PackageVersion, PackageSummaryWithChanges>(_, func(version) {
+				let ?summary = _getPackageSummaryWithChanges(name, version) else Debug.trap("Package '" # name # "' not found");
+				summary;
+			});
+	};
+
+	public query func getPackageDependents(name : PackageName, limit : Nat) : async ([PackageSummary], Nat) {
+		_getPackageDependents(registry, users, downloadLog, name, limit);
 	};
 
 	public query func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
