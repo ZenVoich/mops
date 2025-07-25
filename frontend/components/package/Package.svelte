@@ -136,7 +136,7 @@
 
 	let versionHistory : PackageSummaryWithChanges[] = null;
 	$: {
-		if (selectedTab == 'versions') {
+		if (selectedTab == 'versions' && !versionHistory) {
 			mainActor().getPackageVersionHistory(pkgName).then(res => {
 				versionHistory = res;
 			});
@@ -145,7 +145,7 @@
 
 	let dependents : PackageSummary[] = null;
 	$: {
-		if (selectedTab == 'dependents') {
+		if (selectedTab == 'dependents' && !dependents) {
 			mainActor().getPackageDependents(pkgName, 500n, 0n).then(res => {
 				dependents = res[0];
 			});
