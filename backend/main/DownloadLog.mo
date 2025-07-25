@@ -367,19 +367,19 @@ module {
 			total;
 		};
 
-		public func getMostDownloadedPackageNames() : [PackageName] {
-			var arr = Iter.toArray(downloadsByPackageName.entries());
-			arr := Array.map<(PackageName, Nat), (PackageName, Nat)>(arr, func(item : (PackageName, Nat)) {
-				(item.0, item.1);
-			});
+		public func getMostDownloadedPackageNames(limit : Nat) : [PackageName] {
+			let arr = Iter.toArrayMut<(PackageName, Nat)>(downloadsByPackageName.entries());
 
-			let sorted = Array.sort(arr, func(a : (PackageName, Nat), b : (PackageName, Nat)) : Order.Order {
+			Array.sortInPlace<(PackageName, Nat)>(arr, func(a, b) {
 				Nat.compare(b.1, a.1);
 			});
 
-			Array.map<(PackageName, Nat), PackageName>(sorted, func(item) {
-				item.0;
-			});
+			arr
+				|> Array.freeze(_)
+				|> Array.take(_, limit)
+				|> Array.map<(PackageName, Nat), PackageName>(_, func(item) {
+					item.0;
+				});
 		};
 
 		public func getMostDownloadedPackageNamesIn(duration : Time.Time, now : Time.Time) : [PackageName] {

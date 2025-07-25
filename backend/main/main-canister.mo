@@ -419,7 +419,8 @@ actor class Main() = this {
 	};
 
 	func _summariesFromNames(packageNames : [PackageName], limit: Nat) : [PackageSummary] {
-		let packages = Buffer.Buffer<PackageSummary>(limit);
+		let bufferSize = if (limit < packageNames.size()) limit else packageNames.size();
+		let packages = Buffer.Buffer<PackageSummary>(bufferSize);
 
 		label l for (packageName in packageNames.vals()) {
 			ignore do ? {
@@ -438,7 +439,7 @@ actor class Main() = this {
 	};
 
 	public query func getMostDownloadedPackages() : async [PackageSummary] {
-		let packageNames = downloadLog.getMostDownloadedPackageNames();
+		let packageNames = downloadLog.getMostDownloadedPackageNames(5);
 		_summariesFromNames(packageNames, 5);
 	};
 

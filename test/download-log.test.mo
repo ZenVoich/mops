@@ -170,7 +170,7 @@ func check(name : Text) = suite(name, func() {
 	});
 
 	test("getMostDownloadedPackageNames", func() {
-		assert downloadLog.getMostDownloadedPackageNames() == ["pkg1", "pkg2"];
+		assert downloadLog.getMostDownloadedPackageNames(5) == ["pkg1", "pkg2"];
 	});
 
 	test("getMostDownloadedPackageNamesIn", func() {
