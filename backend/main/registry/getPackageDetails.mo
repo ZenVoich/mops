@@ -70,7 +70,7 @@ module {
 			let summary = getPackageSummary(registry, users, downloadLog, name, version)!;
 			let fileStats = registry.getPackageFileStats(name, version);
 			let {deps; devDeps} = _getPackageDependencies(registry, users, downloadLog, name, version);
-			let (dependents, dependentsCount) = getPackageDependents(registry, users, downloadLog, name, MAX_DEPENDENTS);
+			let (dependents, dependentsCount) = getPackageDependents(registry, users, downloadLog, name, MAX_DEPENDENTS, 0);
 
 			return ?{
 				summary with

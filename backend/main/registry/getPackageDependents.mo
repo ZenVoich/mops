@@ -21,7 +21,7 @@ module {
 	type PackageConfigV3 = Types.PackageConfigV3;
 	type DependencyV2 = Types.DependencyV2;
 
-	public func getPackageDependents(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, limit : Nat) : ([PackageSummary], Nat) {
+	public func getPackageDependents(registry : Registry.Registry, users : Users.Users, downloadLog : DownloadLog.DownloadLog, name : PackageName, limit : Nat, _offset : Nat) : ([PackageSummary], Nat) {
 		func isDependent(config : PackageConfigV3) : Bool {
 			let dependent = Option.isSome(Array.find<DependencyV2>(config.dependencies, func(dep : DependencyV2) {
 				PackageUtils.getDepName(dep.name) == name and dep.repo == "";

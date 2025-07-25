@@ -308,8 +308,8 @@ actor class Main() = this {
 			});
 	};
 
-	public query func getPackageDependents(name : PackageName, limit : Nat) : async ([PackageSummary], Nat) {
-		_getPackageDependents(registry, users, downloadLog, name, limit);
+	public query func getPackageDependents(name : PackageName, limit : Nat, offset : Nat) : async ([PackageSummary], Nat) {
+		_getPackageDependents(registry, users, downloadLog, name, limit, offset);
 	};
 
 	public query func getFileIds(name : PackageName, version : PackageVersion) : async Result.Result<[FileId], Err> {
