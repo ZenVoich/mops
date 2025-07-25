@@ -1,16 +1,3 @@
-type User__1 = 
- record {
-   displayName: text;
-   email: text;
-   emailVerified: bool;
-   github: text;
-   githubVerified: bool;
-   id: principal;
-   name: text;
-   site: text;
-   twitter: text;
-   twitterVerified: bool;
- };
 type User = 
  record {
    displayName: text;
@@ -24,17 +11,17 @@ type User =
    twitter: text;
    twitterVerified: bool;
  };
+type TransformArg = 
+ record {
+   context: blob;
+   response: HttpRequestResult;
+ };
 type Time = int;
 type Text = text;
 type TestsChanges = 
  record {
    addedNames: vec text;
    removedNames: vec text;
- };
-type TestStats__1 = 
- record {
-   passed: nat;
-   passedNames: vec text;
  };
 type TestStats = 
  record {
@@ -90,14 +77,14 @@ type Result_6 =
  variant {
    err: Err;
    ok: vec record {
-             PackageName__1;
-             PackageVersion__1;
+             PackageName;
+             PackageVersion;
            };
  };
 type Result_5 = 
  variant {
    err: Err;
-   ok: PackageVersion__1;
+   ok: PackageVersion;
  };
 type Result_4 = 
  variant {
@@ -147,41 +134,7 @@ type Request =
  };
 type PublishingId = text;
 type PageCount = nat;
-type PackageVersion__1 = text;
 type PackageVersion = text;
-type PackageSummary__1 = 
- record {
-   config: PackageConfigV3;
-   depAlias: text;
-   downloadsInLast30Days: nat;
-   downloadsInLast7Days: nat;
-   downloadsTotal: nat;
-   highestVersion: PackageVersion;
-   maintainers: vec User;
-   owner: principal;
-   ownerInfo: User;
-   owners: vec User;
-   publication: PackagePublication;
-   publisher: User;
-   quality: PackageQuality;
- };
-type PackageSummaryWithChanges__1 = 
- record {
-   changes: PackageChanges;
-   config: PackageConfigV3;
-   depAlias: text;
-   downloadsInLast30Days: nat;
-   downloadsInLast7Days: nat;
-   downloadsTotal: nat;
-   highestVersion: PackageVersion;
-   maintainers: vec User;
-   owner: principal;
-   ownerInfo: User;
-   owners: vec User;
-   publication: PackagePublication;
-   publisher: User;
-   quality: PackageQuality;
- };
 type PackageSummaryWithChanges = 
  record {
    changes: PackageChanges;
@@ -233,7 +186,6 @@ type PackagePublication =
    time: Time;
    user: principal;
  };
-type PackageName__1 = text;
 type PackageName = text;
 type PackageId = text;
 type PackageFileStatsPublic = 
@@ -243,13 +195,14 @@ type PackageFileStatsPublic =
  };
 type PackageDetails = 
  record {
-   benchmarks: Benchmarks__1;
+   benchmarks: Benchmarks;
    changes: PackageChanges;
    config: PackageConfigV3;
    depAlias: text;
-   dependents: vec PackageSummary__1;
-   deps: vec PackageSummary__1;
-   devDeps: vec PackageSummary__1;
+   dependents: vec PackageSummary;
+   dependentsCount: nat;
+   deps: vec PackageSummary;
+   devDeps: vec PackageSummary;
    docsCoverage: float64;
    downloadTrend: vec DownloadsSnapshot;
    downloadsInLast30Days: nat;
@@ -264,8 +217,9 @@ type PackageDetails =
    publication: PackagePublication;
    publisher: User;
    quality: PackageQuality;
-   testStats: TestStats__1;
-   versionHistory: vec PackageSummaryWithChanges__1;
+   testStats: TestStats;
+   versionHistory: vec PackageSummaryWithChanges;
+   versions: vec PackageVersion;
  };
 type PackageConfigV3_Publishing = 
  record {
@@ -309,35 +263,36 @@ type PackageConfigV3 =
  };
 type PackageChanges = 
  record {
-   curBenchmarks: Benchmarks__1;
+   curBenchmarks: Benchmarks;
    curDocsCoverage: float64;
    deps: vec DepChange;
    devDeps: vec DepChange;
    notes: text;
-   prevBenchmarks: Benchmarks__1;
+   prevBenchmarks: Benchmarks;
    prevDocsCoverage: float64;
    tests: TestsChanges;
  };
 type Main = 
  service {
-   addMaintainer: (PackageName__1, principal) -> (Result_3);
-   addOwner: (PackageName__1, principal) -> (Result_3);
+   addMaintainer: (packageName: PackageName, newMaintainer: principal) ->
+    (Result_3);
+   addOwner: (packageName: PackageName, newOwner: principal) -> (Result_3);
    backup: () -> ();
    computeHashesForExistingFiles: () -> ();
-   finishPublish: (PublishingId) -> (Result);
+   finishPublish: (publishingId: PublishingId) -> (Result);
    getApiVersion: () -> (Text) query;
    getBackupCanisterId: () -> (principal) query;
-   getDefaultPackages: (text) ->
+   getDefaultPackages: (dfxVersion: text) ->
     (vec record {
-           PackageName__1;
-           PackageVersion__1;
+           PackageName;
+           PackageVersion;
          }) query;
-   getDownloadTrendByPackageId: (PackageId) ->
-    (vec DownloadsSnapshot__1) query;
-   getDownloadTrendByPackageName: (PackageName__1) ->
-    (vec DownloadsSnapshot__1) query;
-   getFileHashes: (PackageName__1, PackageVersion__1) -> (Result_8);
-   getFileHashesByPackageIds: (vec PackageId) ->
+   getDownloadTrendByPackageId: (packageId: PackageId) ->
+    (vec DownloadsSnapshot) query;
+   getDownloadTrendByPackageName: (name: PackageName) ->
+    (vec DownloadsSnapshot) query;
+   getFileHashes: (name: PackageName, version: PackageVersion) -> (Result_8);
+   getFileHashesByPackageIds: (packageIds: vec PackageId) ->
     (vec record {
            PackageId;
            vec record {
@@ -345,22 +300,28 @@ type Main =
                  blob;
                };
          });
-   getFileHashesQuery: (PackageName__1, PackageVersion__1) ->
+   getFileHashesQuery: (name: PackageName, version: PackageVersion) ->
     (Result_8) query;
-   getFileIds: (PackageName__1, PackageVersion__1) -> (Result_7) query;
-   getHighestSemverBatch:
-    (vec record {
-           PackageName__1;
-           PackageVersion__1;
-           SemverPart;
-         }) -> (Result_6) query;
-   getHighestVersion: (PackageName__1) -> (Result_5) query;
+   getFileIds: (name: PackageName, version: PackageVersion) ->
+    (Result_7) query;
+   getHighestSemverBatch: (list:
+    vec record {
+          PackageName;
+          PackageVersion;
+          SemverPart;
+        }) -> (Result_6) query;
+   getHighestVersion: (name: PackageName) -> (Result_5) query;
    getMostDownloadedPackages: () -> (vec PackageSummary) query;
    getMostDownloadedPackagesIn7Days: () -> (vec PackageSummary) query;
    getNewPackages: () -> (vec PackageSummary) query;
-   getPackageDetails: (PackageName__1, PackageVersion__1) -> (Result_4) query;
-   getPackageMaintainers: (PackageName__1) -> (vec principal) query;
-   getPackageOwners: (PackageName__1) -> (vec principal) query;
+   getPackageDependents: (name: PackageName, limit: nat, offset: nat) ->
+    (vec PackageSummary, nat) query;
+   getPackageDetails: (name: PackageName, version: PackageVersion) ->
+    (Result_4) query;
+   getPackageMaintainers: (packageName: PackageName) -> (vec principal) query;
+   getPackageOwners: (packageName: PackageName) -> (vec principal) query;
+   getPackageVersionHistory: (name: PackageName) ->
+    (vec PackageSummaryWithChanges) query;
    getPackagesByCategory: () -> (vec record {
                                        text;
                                        vec PackageSummary;
@@ -372,34 +333,37 @@ type Main =
                                 }) query;
    getTotalDownloads: () -> (nat) query;
    getTotalPackages: () -> (nat) query;
-   getUser: (principal) -> (opt User__1) query;
-   http_request: (Request) -> (Response) query;
-   notifyInstall: (PackageName__1, PackageVersion__1) -> () oneway;
-   notifyInstalls: (vec record {
-                          PackageName__1;
-                          PackageVersion__1;
-                        }) -> () oneway;
-   removeMaintainer: (PackageName__1, principal) -> (Result_3);
-   removeOwner: (PackageName__1, principal) -> (Result_3);
-   restore: (nat) -> ();
-   search: (Text, opt nat, opt nat) -> (vec PackageSummary, PageCount) query;
+   getUser: (userId: principal) -> (opt User) query;
+   http_request: (request: Request) -> (Response) query;
+   notifyInstall: (name: PackageName, version: PackageVersion) -> () oneway;
+   notifyInstalls: (installs: vec record {
+                                    PackageName;
+                                    PackageVersion;
+                                  }) -> () oneway;
+   removeMaintainer: (packageName: PackageName, maintainer: principal) ->
+    (Result_3);
+   removeOwner: (packageName: PackageName, owner: principal) -> (Result_3);
+   restore: (backupId: nat) -> ();
+   search: (searchText: Text, limitOpt: opt nat, pageIndexOpt: opt nat) ->
+    (vec PackageSummary, PageCount) query;
    setStorageControllers: () -> ();
-   setUserProp: (text, text) -> (Result_3);
-   startFileUpload: (PublishingId, Text, nat, blob) -> (Result_2);
-   startPublish: (PackageConfigV3_Publishing) -> (Result_1);
-   transformRequest: (HttpTransformArg) -> (HttpResponse) query;
-   uploadBenchmarks: (PublishingId, Benchmarks) -> (Result);
-   uploadDocsCoverage: (PublishingId, float64) -> (Result);
-   uploadFileChunk: (PublishingId, FileId, nat, blob) -> (Result);
-   uploadNotes: (PublishingId, text) -> (Result);
-   uploadTestStats: (PublishingId, TestStats) -> (Result);
+   setUserProp: (prop: text, value: text) -> (Result_3);
+   startFileUpload: (publishingId: PublishingId, path: Text, chunkCount: 
+    nat, firstChunk: blob) -> (Result_2);
+   startPublish: (configPub: PackageConfigV3_Publishing) -> (Result_1);
+   takeSnapshotsIfNeeded: () -> ();
+   transformRequest: (arg: TransformArg) -> (HttpRequestResult) query;
+   uploadBenchmarks: (publishingId: PublishingId, benchmarks: Benchmarks) ->
+    (Result);
+   uploadDocsCoverage: (publishingId: PublishingId, docsCoverage: float64) ->
+    (Result);
+   uploadFileChunk: (publishingId: PublishingId, fileId: FileId, chunkIndex:
+    nat, chunk: blob) -> (Result);
+   uploadNotes: (publishingId: PublishingId, notes: text) -> (Result);
+   uploadTestStats: (publishingId: PublishingId, testStats: TestStats) ->
+    (Result);
  };
-type HttpTransformArg = 
- record {
-   context: blob;
-   response: HttpResponse;
- };
-type HttpResponse = 
+type HttpRequestResult = 
  record {
    body: blob;
    headers: vec HttpHeader;
@@ -417,12 +381,6 @@ type Header =
  };
 type FileId = text;
 type Err = text;
-type DownloadsSnapshot__1 = 
- record {
-   downloads: nat;
-   endTime: Time;
-   startTime: Time;
- };
 type DownloadsSnapshot = 
  record {
    downloads: nat;
@@ -447,7 +405,6 @@ type DepChange =
    newVersion: text;
    oldVersion: text;
  };
-type Benchmarks__1 = vec Benchmark;
 type Benchmarks = vec Benchmark;
 type BenchmarkMetric = text;
 type Benchmark = 

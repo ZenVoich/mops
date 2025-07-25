@@ -4,7 +4,7 @@
 	import {currentURL, routeParams, push, link} from 'svelte-spa-history-router';
 	import {getFileIds} from 'ic-mops/api/downloadPackageFiles';
 
-	import {PackageDetails} from '/declarations/main/main.did.js';
+	import {PackageDetails, PackageSummary, PackageSummaryWithChanges} from '/declarations/main/main.did.js';
 	import {mainActor, storageActor} from '/logic/actors';
 
 	import Header from '../Header.svelte';
@@ -134,6 +134,24 @@
 		return selectedTab == tab;
 	}
 
+	let versionHistory : PackageSummaryWithChanges[] = null;
+	$: {
+		if (selectedTab == 'versions') {
+			mainActor().getPackageVersionHistory(pkgName).then(res => {
+				versionHistory = res;
+			});
+		}
+	}
+
+	let dependents : PackageSummary[] = null;
+	$: {
+		if (selectedTab == 'dependents') {
+			mainActor().getPackageDependents(pkgName, 500n, 0n).then(res => {
+				dependents = res[0];
+			});
+		}
+	}
+
 	onMount(load);
 </script>
 
@@ -174,9 +192,9 @@
 				<div class="tab" class:selected={isTabSelected('code', selectedTab)} on:click={() => selectTab('code')} on:keydown={(e) => e.key === 'Enter' && selectTab('code')} tabindex="0" role="tab">Code</div>
 				<div class="tab" class:selected={isTabSelected('docs', selectedTab)} on:click={() => selectTab('docs')} on:keydown={(e) => e.key === 'Enter' && selectTab('docs')} tabindex="0" role="tab">Docs</div>
 				<div class="tab" class:selected={isTabSelected('', selectedTab)} on:click={() => selectTab('')} on:keydown={(e) => e.key === 'Enter' && selectTab('')} tabindex="0" role="tab">Readme</div>
-				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')} on:keydown={(e) => e.key === 'Enter' && selectTab('versions')} tabindex="0" role="tab">Versions ({packageDetails.versionHistory.length})</div>
+				<div class="tab" class:selected={isTabSelected('versions', selectedTab)} on:click={() => selectTab('versions')} on:keydown={(e) => e.key === 'Enter' && selectTab('versions')} tabindex="0" role="tab">Versions ({packageDetails.versions.length})</div>
 				<div class="tab" class:selected={isTabSelected('dependencies', selectedTab)} on:click={() => selectTab('dependencies')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependencies')} tabindex="0" role="tab">Dependencies ({packageDetails.deps.length + githubDeps.length})</div>
-				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependents')} tabindex="0" role="tab">Dependents ({packageDetails.dependents.length})</div>
+				<div class="tab" class:selected={isTabSelected('dependents', selectedTab)} on:click={() => selectTab('dependents')} on:keydown={(e) => e.key === 'Enter' && selectTab('dependents')} tabindex="0" role="tab">Dependents ({packageDetails.dependentsCount})</div>
 				<div class="tab" class:selected={isTabSelected('tests', selectedTab)} on:click={() => selectTab('tests')} on:keydown={(e) => e.key === 'Enter' && selectTab('tests')} tabindex="0" role="tab">Tests ({packageDetails.testStats.passed})</div>
 				<div class="tab" class:selected={isTabSelected('benchmarks', selectedTab)} on:click={() => selectTab('benchmarks')} on:keydown={(e) => e.key === 'Enter' && selectTab('benchmarks')} tabindex="0" role="tab">Benchmarks ({packageDetails.benchmarks.length})</div>
 			</div>
@@ -201,7 +219,7 @@
 								<PackageReadme readme={readme} repository={packageDetails.config.repository}></PackageReadme>
 							{:else if selectedTab == 'versions'}
 								<div class="packages">
-									{#each packageDetails.versionHistory as versionSummary}
+									{#each (versionHistory || packageDetails.versionHistory) as versionSummary}
 										<PackageVersionSummary summary={versionSummary}></PackageVersionSummary>
 									{/each}
 								</div>
@@ -237,7 +255,7 @@
 								{/if}
 							{:else if selectedTab == 'dependents'}
 								<div class="packages">
-									{#each packageDetails.dependents as pkg}
+									{#each (dependents || packageDetails.dependents) as pkg}
 										<PackageCard {pkg} showDownloads={true} showDependsOn={packageDetails.config.name} />
 									{/each}
 								</div>

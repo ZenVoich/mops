@@ -18,7 +18,6 @@ export interface Benchmark {
 }
 export type BenchmarkMetric = string;
 export type Benchmarks = Array<Benchmark>;
-export type Benchmarks__1 = Array<Benchmark>;
 export interface DepChange {
   'oldVersion' : string,
   'name' : string,
@@ -37,27 +36,18 @@ export interface DownloadsSnapshot {
   'endTime' : Time,
   'downloads' : bigint,
 }
-export interface DownloadsSnapshot__1 {
-  'startTime' : Time,
-  'endTime' : Time,
-  'downloads' : bigint,
-}
 export type Err = string;
 export type FileId = string;
 export type Header = [string, string];
 export interface HttpHeader { 'value' : string, 'name' : string }
-export interface HttpResponse {
+export interface HttpRequestResult {
   'status' : bigint,
   'body' : Uint8Array | number[],
   'headers' : Array<HttpHeader>,
 }
-export interface HttpTransformArg {
-  'context' : Uint8Array | number[],
-  'response' : HttpResponse,
-}
 export interface Main {
-  'addMaintainer' : ActorMethod<[PackageName__1, Principal], Result_3>,
-  'addOwner' : ActorMethod<[PackageName__1, Principal], Result_3>,
+  'addMaintainer' : ActorMethod<[PackageName, Principal], Result_3>,
+  'addOwner' : ActorMethod<[PackageName, Principal], Result_3>,
   'backup' : ActorMethod<[], undefined>,
   'computeHashesForExistingFiles' : ActorMethod<[], undefined>,
   'finishPublish' : ActorMethod<[PublishingId], Result>,
@@ -65,40 +55,42 @@ export interface Main {
   'getBackupCanisterId' : ActorMethod<[], Principal>,
   'getDefaultPackages' : ActorMethod<
     [string],
-    Array<[PackageName__1, PackageVersion__1]>
+    Array<[PackageName, PackageVersion]>
   >,
   'getDownloadTrendByPackageId' : ActorMethod<
     [PackageId],
-    Array<DownloadsSnapshot__1>
+    Array<DownloadsSnapshot>
   >,
   'getDownloadTrendByPackageName' : ActorMethod<
-    [PackageName__1],
-    Array<DownloadsSnapshot__1>
+    [PackageName],
+    Array<DownloadsSnapshot>
   >,
-  'getFileHashes' : ActorMethod<[PackageName__1, PackageVersion__1], Result_8>,
+  'getFileHashes' : ActorMethod<[PackageName, PackageVersion], Result_8>,
   'getFileHashesByPackageIds' : ActorMethod<
     [Array<PackageId>],
     Array<[PackageId, Array<[FileId, Uint8Array | number[]]>]>
   >,
-  'getFileHashesQuery' : ActorMethod<
-    [PackageName__1, PackageVersion__1],
-    Result_8
-  >,
-  'getFileIds' : ActorMethod<[PackageName__1, PackageVersion__1], Result_7>,
+  'getFileHashesQuery' : ActorMethod<[PackageName, PackageVersion], Result_8>,
+  'getFileIds' : ActorMethod<[PackageName, PackageVersion], Result_7>,
   'getHighestSemverBatch' : ActorMethod<
-    [Array<[PackageName__1, PackageVersion__1, SemverPart]>],
+    [Array<[PackageName, PackageVersion, SemverPart]>],
     Result_6
   >,
-  'getHighestVersion' : ActorMethod<[PackageName__1], Result_5>,
+  'getHighestVersion' : ActorMethod<[PackageName], Result_5>,
   'getMostDownloadedPackages' : ActorMethod<[], Array<PackageSummary>>,
   'getMostDownloadedPackagesIn7Days' : ActorMethod<[], Array<PackageSummary>>,
   'getNewPackages' : ActorMethod<[], Array<PackageSummary>>,
-  'getPackageDetails' : ActorMethod<
-    [PackageName__1, PackageVersion__1],
-    Result_4
+  'getPackageDependents' : ActorMethod<
+    [PackageName, bigint, bigint],
+    [Array<PackageSummary>, bigint]
   >,
-  'getPackageMaintainers' : ActorMethod<[PackageName__1], Array<Principal>>,
-  'getPackageOwners' : ActorMethod<[PackageName__1], Array<Principal>>,
+  'getPackageDetails' : ActorMethod<[PackageName, PackageVersion], Result_4>,
+  'getPackageMaintainers' : ActorMethod<[PackageName], Array<Principal>>,
+  'getPackageOwners' : ActorMethod<[PackageName], Array<Principal>>,
+  'getPackageVersionHistory' : ActorMethod<
+    [PackageName],
+    Array<PackageSummaryWithChanges>
+  >,
   'getPackagesByCategory' : ActorMethod<
     [],
     Array<[string, Array<PackageSummary>]>
@@ -110,15 +102,15 @@ export interface Main {
   'getStoragesStats' : ActorMethod<[], Array<[StorageId, StorageStats]>>,
   'getTotalDownloads' : ActorMethod<[], bigint>,
   'getTotalPackages' : ActorMethod<[], bigint>,
-  'getUser' : ActorMethod<[Principal], [] | [User__1]>,
+  'getUser' : ActorMethod<[Principal], [] | [User]>,
   'http_request' : ActorMethod<[Request], Response>,
-  'notifyInstall' : ActorMethod<[PackageName__1, PackageVersion__1], undefined>,
+  'notifyInstall' : ActorMethod<[PackageName, PackageVersion], undefined>,
   'notifyInstalls' : ActorMethod<
-    [Array<[PackageName__1, PackageVersion__1]>],
+    [Array<[PackageName, PackageVersion]>],
     undefined
   >,
-  'removeMaintainer' : ActorMethod<[PackageName__1, Principal], Result_3>,
-  'removeOwner' : ActorMethod<[PackageName__1, Principal], Result_3>,
+  'removeMaintainer' : ActorMethod<[PackageName, Principal], Result_3>,
+  'removeOwner' : ActorMethod<[PackageName, Principal], Result_3>,
   'restore' : ActorMethod<[bigint], undefined>,
   'search' : ActorMethod<
     [Text, [] | [bigint], [] | [bigint]],
@@ -131,7 +123,8 @@ export interface Main {
     Result_2
   >,
   'startPublish' : ActorMethod<[PackageConfigV3_Publishing], Result_1>,
-  'transformRequest' : ActorMethod<[HttpTransformArg], HttpResponse>,
+  'takeSnapshotsIfNeeded' : ActorMethod<[], undefined>,
+  'transformRequest' : ActorMethod<[TransformArg], HttpRequestResult>,
   'uploadBenchmarks' : ActorMethod<[PublishingId, Benchmarks], Result>,
   'uploadDocsCoverage' : ActorMethod<[PublishingId, number], Result>,
   'uploadFileChunk' : ActorMethod<
@@ -144,9 +137,9 @@ export interface Main {
 export interface PackageChanges {
   'tests' : TestsChanges,
   'deps' : Array<DepChange>,
-  'curBenchmarks' : Benchmarks__1,
+  'curBenchmarks' : Benchmarks,
   'prevDocsCoverage' : number,
-  'prevBenchmarks' : Benchmarks__1,
+  'prevBenchmarks' : Benchmarks,
   'notes' : string,
   'curDocsCoverage' : number,
   'devDeps' : Array<DepChange>,
@@ -190,28 +183,30 @@ export interface PackageConfigV3_Publishing {
   'readme' : string,
 }
 export interface PackageDetails {
-  'benchmarks' : Benchmarks__1,
+  'benchmarks' : Benchmarks,
   'ownerInfo' : User,
   'owners' : Array<User>,
   'maintainers' : Array<User>,
   'owner' : Principal,
   'depAlias' : string,
-  'deps' : Array<PackageSummary__1>,
+  'deps' : Array<PackageSummary>,
   'quality' : PackageQuality,
   'publisher' : User,
-  'testStats' : TestStats__1,
+  'testStats' : TestStats,
   'docsCoverage' : number,
   'highestVersion' : PackageVersion,
   'downloadsTotal' : bigint,
   'downloadsInLast30Days' : bigint,
+  'dependentsCount' : bigint,
   'downloadTrend' : Array<DownloadsSnapshot>,
   'fileStats' : PackageFileStatsPublic,
-  'versionHistory' : Array<PackageSummaryWithChanges__1>,
-  'dependents' : Array<PackageSummary__1>,
-  'devDeps' : Array<PackageSummary__1>,
+  'versionHistory' : Array<PackageSummaryWithChanges>,
+  'dependents' : Array<PackageSummary>,
+  'devDeps' : Array<PackageSummary>,
   'downloadsInLast7Days' : bigint,
   'config' : PackageConfigV3,
   'changes' : PackageChanges,
+  'versions' : Array<PackageVersion>,
   'publication' : PackagePublication,
 }
 export interface PackageFileStatsPublic {
@@ -220,7 +215,6 @@ export interface PackageFileStatsPublic {
 }
 export type PackageId = string;
 export type PackageName = string;
-export type PackageName__1 = string;
 export interface PackagePublication {
   'storage' : Principal,
   'time' : Time,
@@ -268,39 +262,7 @@ export interface PackageSummaryWithChanges {
   'changes' : PackageChanges,
   'publication' : PackagePublication,
 }
-export interface PackageSummaryWithChanges__1 {
-  'ownerInfo' : User,
-  'owners' : Array<User>,
-  'maintainers' : Array<User>,
-  'owner' : Principal,
-  'depAlias' : string,
-  'quality' : PackageQuality,
-  'publisher' : User,
-  'highestVersion' : PackageVersion,
-  'downloadsTotal' : bigint,
-  'downloadsInLast30Days' : bigint,
-  'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV3,
-  'changes' : PackageChanges,
-  'publication' : PackagePublication,
-}
-export interface PackageSummary__1 {
-  'ownerInfo' : User,
-  'owners' : Array<User>,
-  'maintainers' : Array<User>,
-  'owner' : Principal,
-  'depAlias' : string,
-  'quality' : PackageQuality,
-  'publisher' : User,
-  'highestVersion' : PackageVersion,
-  'downloadsTotal' : bigint,
-  'downloadsInLast30Days' : bigint,
-  'downloadsInLast7Days' : bigint,
-  'config' : PackageConfigV3,
-  'publication' : PackagePublication,
-}
 export type PackageVersion = string;
-export type PackageVersion__1 = string;
 export type PageCount = bigint;
 export type PublishingId = string;
 export interface Request {
@@ -328,9 +290,9 @@ export type Result_3 = { 'ok' : null } |
   { 'err' : string };
 export type Result_4 = { 'ok' : PackageDetails } |
   { 'err' : Err };
-export type Result_5 = { 'ok' : PackageVersion__1 } |
+export type Result_5 = { 'ok' : PackageVersion } |
   { 'err' : Err };
-export type Result_6 = { 'ok' : Array<[PackageName__1, PackageVersion__1]> } |
+export type Result_6 = { 'ok' : Array<[PackageName, PackageVersion]> } |
   { 'err' : Err };
 export type Result_7 = { 'ok' : Array<FileId> } |
   { 'err' : Err };
@@ -359,29 +321,17 @@ export type StreamingStrategy = {
   };
 export type StreamingToken = Uint8Array | number[];
 export interface TestStats { 'passedNames' : Array<string>, 'passed' : bigint }
-export interface TestStats__1 {
-  'passedNames' : Array<string>,
-  'passed' : bigint,
-}
 export interface TestsChanges {
   'addedNames' : Array<string>,
   'removedNames' : Array<string>,
 }
 export type Text = string;
 export type Time = bigint;
-export interface User {
-  'id' : Principal,
-  'emailVerified' : boolean,
-  'twitter' : string,
-  'displayName' : string,
-  'name' : string,
-  'site' : string,
-  'email' : string,
-  'twitterVerified' : boolean,
-  'githubVerified' : boolean,
-  'github' : string,
+export interface TransformArg {
+  'context' : Uint8Array | number[],
+  'response' : HttpRequestResult,
 }
-export interface User__1 {
+export interface User {
   'id' : Principal,
   'emailVerified' : boolean,
   'twitter' : string,

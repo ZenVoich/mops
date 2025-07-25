@@ -3,9 +3,9 @@ type _anon_class_13_1 =
    getSchema: () -> (BenchSchema) query;
    getStats: () -> (BenchResult) query;
    init: () -> (BenchSchema);
-   runCellQuery: (nat, nat) -> (BenchResult) query;
-   runCellUpdate: (nat, nat) -> (BenchResult);
-   runCellUpdateAwait: (nat, nat) -> (BenchResult);
+   runCellQuery: (rowIndex: nat, colIndex: nat) -> (BenchResult) query;
+   runCellUpdate: (rowIndex: nat, colIndex: nat) -> (BenchResult);
+   runCellUpdateAwait: (rowIndex: nat, colIndex: nat) -> (BenchResult);
  };
 type BenchSchema = 
  record {
