@@ -20,7 +20,7 @@ export let getReleases = async () => {
 
 export let isCached = (version : string) => {
 	let dir = path.join(cacheDir, version);
-	return fs.existsSync(dir) && fs.existsSync(path.join(dir, 'moc'));
+	return fs.existsSync(path.join(dir, 'moc'));
 };
 
 export let download = async (version : string, {silent = false, verbose = false} = {}) => {
@@ -39,22 +39,23 @@ export let download = async (version : string, {silent = false, verbose = false}
 		return;
 	}
 
+	let semver = new SemVer(version);
 	let url;
-	if (new SemVer(version).compare(new SemVer('0.14.6')) >= 0) {
+	if (semver.compare(new SemVer('0.14.6')) >= 0) {
 		let platfrom = process.platform == 'darwin' ? 'Darwin' : 'Linux';
 		let arch = process.arch.startsWith('arm')
 			? (process.platform == 'darwin' ? 'arm64' : 'aarch64')
 			: 'x86_64';
 		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${arch}-${version}.tar.gz`;
 	}
-	else if (new SemVer(version).compare(new SemVer('0.9.5')) >= 0) {
+	else if (semver.compare(new SemVer('0.9.5')) >= 0) {
 		let platfrom = process.platform == 'darwin' ? 'Darwin' : 'Linux';
 		let arch = 'x86_64';
 		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${arch}-${version}.tar.gz`;
 	}
 	else {
-		let platfrom = process.platform == 'darwin' ? 'macos' : 'linux64';
-		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platfrom}-${version}.tar.gz`;
+		let platform = process.platform == 'darwin' ? 'macos' : 'linux64';
+		url = `https://github.com/dfinity/motoko/releases/download/${version}/motoko-${platform}-${version}.tar.gz`;
 	}
 
 	if (verbose && !silent) {
