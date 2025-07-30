@@ -44,11 +44,11 @@
     "esbuild": "esbuild"
   },
   "dependencies": {
-    "@dfinity/agent": "2.4.1",
-    "@dfinity/candid": "2.4.1",
-    "@dfinity/identity": "2.4.1",
-    "@dfinity/identity-secp256k1": "2.4.1",
-    "@dfinity/principal": "2.4.1",
+    "@dfinity/agent": "3.1.0",
+    "@dfinity/candid": "3.1.0",
+    "@dfinity/identity": "3.1.0",
+    "@dfinity/identity-secp256k1": "3.1.0",
+    "@dfinity/principal": "3.1.0",
     "@iarna/toml": "2.2.5",
     "@noble/hashes": "1.8.0",
     "as-table": "1.0.55",
@@ -109,5 +109,12 @@
     "rexreplace": "7.1.13",
     "tsx": "4.19.2",
     "typescript": "5.7.3"
+  },
+  "overrides": {
+    "@dfinity/agent": "3.1.0",
+    "@dfinity/candid": "3.1.0",
+    "@dfinity/identity": "3.1.0",
+    "@dfinity/identity-secp256k1": "3.1.0",
+    "@dfinity/principal": "3.1.0"
   }
 }
