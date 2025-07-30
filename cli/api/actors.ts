@@ -23,6 +23,7 @@ let getAgent = async (identity ?: Identity) : Promise<HttpAgent> => {
 			identity,
 			shouldFetchRootKey: network === 'local',
 			verifyQuerySignatures: process.env.MOPS_VERIFY_QUERY_SIGNATURES !== 'false',
+			shouldSyncTime: true,
 		});
 
 		agentPromiseByPrincipal.set(principal, agentPromise);
