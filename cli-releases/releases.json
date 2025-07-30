@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.10.0"
+    "latest": "1.11.0"
   },
   "versions": {
     "0.41.0": {
@@ -224,6 +224,14 @@
       "commitHash": "e9da0f84284cd89548e1d47c8cdf2f823bdbf8a2",
       "url": "https://cli.mops.one/versions/1.10.0.tgz",
       "hash": "0e03c93e69107a30e6cb60846230ee890fdbbbc9d98f0dd348d33b3f4ff1e6c8"
+    },
+    "1.11.0": {
+      "time": 1753898470897,
+      "size": 2520460,
+      "relseaseNotes": "* Fix `mops bench` to work with moc >= 0.15.0\n* `mops test` now detects persistent actor to run in replica mode\n* `mops watch` now includes all \\*.mo files\n* Update `@dfinity` packages to v3\n* Create agent with `shouldSyncTime` flag\n* Show user-friendly error message for invalid identity password\n",
+      "commitHash": "f03fb8eb2d753ff364777628eed7529bb96d3716",
+      "url": "https://cli.mops.one/versions/1.11.0.tgz",
+      "hash": "8ff2f8c561064cf7566a7fced9f643cbf74d1b5132b0d7a3ad1827fcdf6d99f1"
     }
   }
 }
