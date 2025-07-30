@@ -1,5 +1,11 @@
 # Mops CLI Changelog
 
+## 1.11.0
+- Fix `mops bench` to work with moc >= 0.15.0
+- `mops test` now detects persistent actor to run in replica mode
+- `mops watch` now includes all *.mo files
+- Update `@dfinity` packages to v3
+- Create agent with `shouldSyncTime` flag
 - Show user-friendly error message for invalid identity password
 
 ## 1.10.0
