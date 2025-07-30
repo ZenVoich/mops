@@ -14,6 +14,8 @@ export class ErrorChecker {
 	canisters : Record<string, string> = {};
 	status : 'pending' | 'running' | 'error' | 'success' = 'pending';
 	errors : string[] = [];
+	totalFiles = 0;
+	processedFiles = 0;
 
 	constructor({verbose, canisters} : {verbose : boolean, canisters : Record<string, string>}) {
 		this.verbose = verbose;
@@ -23,6 +25,8 @@ export class ErrorChecker {
 	reset() {
 		this.status = 'pending';
 		this.errors = [];
+		this.totalFiles = 0;
+		this.processedFiles = 0;
 	}
 
 	async run(onProgress : () => void) {
@@ -35,10 +39,10 @@ export class ErrorChecker {
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
 
-		let paths = [...Object.values(this.canisters)];
-		if (!paths.length) {
-			paths = globMoFiles(rootDir);
-		}
+		let paths = globMoFiles(rootDir);
+
+		this.totalFiles = paths.length;
+		this.processedFiles = 0;
 
 		await parallel(os.cpus().length, paths, async (file) => {
 			try {
@@ -62,8 +66,9 @@ export class ErrorChecker {
 						// console.log('UNKNOWN ERROR', line);
 					}
 				});
-				onProgress();
 			}
+			this.processedFiles++;
+			onProgress();
 		});
 
 		this.status = this.errors.length ? 'error' : 'success';
@@ -75,12 +80,13 @@ export class ErrorChecker {
 			return `Errors: ${chalk.gray('(pending)')}`;
 		}
 		if (this.status === 'running') {
-			return `Errors: ${chalk.gray('(running)')}`;
+			return `Errors: ${this.processedFiles}/${this.totalFiles} ${chalk.gray('(running)')}`;
 		}
 		let output = '';
-		output += `Errors: ${chalk.bold[this.errors.length ? 'redBright' : 'green'](this.errors.length)}`;
+		let uniqueErrors = [...new Set(this.errors)];
+		output += `Errors: ${chalk.bold[uniqueErrors.length ? 'redBright' : 'green'](uniqueErrors.length)}`;
 		if (this.verbose && this.errors.length) {
-			output += `\n  ${this.errors.join('\n  ')}`;
+			output += `\n  ${uniqueErrors.join('\n  ')}`;
 		}
 		return output;
 	}

@@ -7,10 +7,11 @@ let globConfig = {
 		'**/.mops/**',
 		'**/.vessel/**',
 		'**/.git/**',
+		'**/.dfx/**',
+		'**/{build,bundle,dist}/**',
 	],
 };
 
 export function globMoFiles(rootDir : string) {
-	// return globSync('{src,test?(s)}/**/*.mo', {cwd: rootDir, ...globConfig});
-	return globSync('src/**/*.mo', {cwd: rootDir, ...globConfig});
+	return globSync('**/*.mo', {cwd: rootDir, ...globConfig});
 }

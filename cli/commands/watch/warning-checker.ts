@@ -19,6 +19,8 @@ export class WarningChecker {
 	aborted = false;
 	controllers = new Map<string, AbortController>();
 	currentRun : Promise<any> | undefined;
+	totalFiles = 0;
+	processedFiles = 0;
 
 	constructor({verbose, canisters, errorChecker} : {verbose : boolean, canisters : Record<string, string>, errorChecker : ErrorChecker}) {
 		this.verbose = verbose;
@@ -29,6 +31,8 @@ export class WarningChecker {
 	reset() {
 		this.status = 'pending';
 		this.warnings = [];
+		this.totalFiles = 0;
+		this.processedFiles = 0;
 	}
 
 	async abortCurrent() {
@@ -57,11 +61,10 @@ export class WarningChecker {
 		let rootDir = getRootDir();
 		let mocPath = getMocPath();
 		let deps = await sources({cwd: rootDir});
+		let paths = globMoFiles(rootDir);
 
-		let paths = [...Object.values(this.canisters)];
-		if (!paths.length) {
-			paths = globMoFiles(rootDir);
-		}
+		this.totalFiles = paths.length;
+		this.processedFiles = 0;
 
 		this.currentRun = parallel(os.cpus().length, paths, async (file) => {
 			let controller = new AbortController();
@@ -97,10 +100,11 @@ export class WarningChecker {
 						// console.log('UNKNOWN WARNING', line);
 					}
 				});
-				onProgress();
 			}
 
 			this.controllers.delete(file);
+			this.processedFiles++;
+			onProgress();
 		});
 
 		await this.currentRun;
@@ -117,16 +121,17 @@ export class WarningChecker {
 			return `Warnings: ${chalk.gray('(pending)')}`;
 		}
 		if (this.status === 'running') {
-			return `Warnings: ${chalk.gray('(running)')}`;
+			return `Warnings: ${this.processedFiles}/${this.totalFiles} ${chalk.gray('(running)')}`;
 		}
 		if (this.status === 'syntax-error') {
 			return `Warnings: ${chalk.gray('(errors)')}`;
 		}
 
 		let output = '';
-		output += `Warnings: ${chalk.bold[this.warnings.length ? 'yellowBright' : 'green'](this.warnings.length)}`;
-		if (this.verbose && this.warnings.length) {
-			output += `\n  ${this.warnings.join('\n  ')}`;
+		let uniqueWarnings = [...new Set(this.warnings)];
+		output += `Warnings: ${chalk.bold[uniqueWarnings.length ? 'yellowBright' : 'green'](uniqueWarnings.length)}`;
+		if (this.verbose && uniqueWarnings.length) {
+			output += `\n  ${uniqueWarnings.join('\n  ')}`;
 		}
 		return output;
 	}
