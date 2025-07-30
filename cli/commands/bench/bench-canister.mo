@@ -10,7 +10,7 @@ import Bench "mo:bench";
 
 import UserBench "./user-bench"; // file path will be replaced with the *.bench.mo file path
 
-actor class() {
+persistent actor class() {
 	type BenchResult = {
 		instructions : Int;
 		rts_mutator_instructions : Int;
@@ -24,7 +24,7 @@ actor class() {
 		rts_reclaimed : Int;
 	};
 
-	var benchOpt : ?Bench.Bench = null;
+	transient var benchOpt : ?Bench.Bench = null;
 
 	public func init() : async Bench.BenchSchema {
 		let bench = UserBench.init();

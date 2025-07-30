@@ -237,6 +237,10 @@ function computeDiffAll(
 function getMocArgs(options : BenchOptions) : string {
 	let args = '';
 
+	if (options.compilerVersion && new SemVer(options.compilerVersion).compare('0.15.0') >= 0) {
+		args += ' --legacy-persistence';
+	}
+
 	if (options.forceGc) {
 		args += ' --force-gc';
 	}
