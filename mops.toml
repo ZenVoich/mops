@@ -2,13 +2,14 @@
 base = "0.14.14"
 time-consts = "1.0.1"
 map = "9.0.1"
-ic = "3.0.0"
+ic = "3.2.0"
 backup = "3.0.0"
 sha2 = "0.1.0"
 vector = "0.4.0"
 http-types = "1.0.1"
 datetime = "0.3.0"
 principal-ext = "0.1.0"
+telegram-bot = "0.1.1"
 
 [dev-dependencies]
 test = "2.1.1"
@@ -18,4 +19,3 @@ bench = "1.0.0"
 [toolchain]
 moc = "0.14.14"
 wasmtime = "34.0.1"
-# pocket-ic = "4.0.0"

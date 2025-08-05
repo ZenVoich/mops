@@ -1,12 +1,14 @@
 # Motoko compiler changelog
 
-## 0.9.8 (2023-08-11)
+## 1.0.10
 
 * motoko (`moc`)
 
-  * Added numerical type conversions between adjacent fixed-width types (#4139).
+  * Performance improvement: lower the default allocation for bignums (#4102).
 
-  * Administrative: legacy-named release artefacts are no longer created (#4111).
+  * Performance improvement: generate better code for pattern matches on some small variants (#4093).
+
+  * bugfix: don't crash on import of Candid composite queries (#4128).
 
 ## 0.9.7 (2023-07-18)
 

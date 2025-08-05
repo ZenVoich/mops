@@ -11,6 +11,7 @@ import Principal "mo:base/Principal";
 import Order "mo:base/Order";
 import Option "mo:base/Option";
 import Blob "mo:base/Blob";
+import TelegramBot "mo:telegram-bot";
 
 import IC "mo:ic";
 import {DAY} "mo:time-consts";
@@ -186,8 +187,70 @@ actor class Main() = this {
 		packagePublisher.uploadDocsCoverage(caller, publishingId, docsCoverage);
 	};
 
+	stable var telegramBotToken = "";
+
+	public shared ({caller}) func setTelegramBotToken(token : Text) : async () {
+		assert(Utils.isAdmin(caller));
+		telegramBotToken := token;
+	};
+
 	public shared ({caller}) func finishPublish(publishingId : PublishingId) : async Result.Result<(), Err> {
-		await packagePublisher.finishPublish(caller, publishingId);
+		let res = await packagePublisher.finishPublish(caller, publishingId);
+
+		switch (res) {
+			case (#err(err)) {
+				#err(err);
+			};
+			case (#ok(publishResult)) {
+				// Send Telegram notification
+				let telegramBot = TelegramBot.TelegramBot(telegramBotToken, transformTelegramRequest);
+				let message = _formatTelegramMessage(publishResult.config, publishResult.publication, publishResult.isNewPackage);
+				let tgRes = await telegramBot.sendMessage("@mops_feed", message, null);
+
+				switch (tgRes) {
+					case (#err(err)) {
+						Debug.print("Failed to send message to telegram: " # err);
+					};
+					case (#ok) {};
+				};
+
+				#ok;
+			};
+		};
+	};
+
+	public query func transformTelegramRequest(arg : IC.TransformArg) : async IC.HttpRequestResult {
+		TelegramBot.transformRequest(arg);
+	};
+
+	func _principalToCompactText(principal : Principal) : Text {
+		let parts = Iter.toArray(Text.split(Principal.toText(principal), #char('-')));
+		if (parts.size() < 2) {
+			return "";
+		};
+		parts[0] # "..." # parts[parts.size() - 1];
+	};
+
+	func _formatTelegramMessage(config : PackageConfigV3, publication : PackagePublication, isNewPackage : Bool) : Text {
+		let userOpt = users.getUserOpt(publication.user);
+		var userName = Option.getMapped<User, Text>(userOpt, func user = user.name, "");
+		if (userName == "") {
+			userName := _principalToCompactText(publication.user);
+		};
+
+		let packageUrl = "https://mops.one/" # config.name;
+
+		if (isNewPackage) {
+			"New Motoko package!\n\n📦" # config.name # " - " # config.description # "\n\nAuthor - " # userName # "\nLearn more - " # packageUrl;
+		}
+		else {
+			let ?summary = _getPackageSummaryWithChanges(config.name, config.version) else Debug.trap("Package '" # config.name # "' not found");
+			var releaseNotes = "";
+			if (summary.changes.notes != "") {
+				releaseNotes := "\n\n📄 Release notes:\n" # summary.changes.notes;
+			};
+			"Package updated!\n\n📦" # config.name # " v" # config.version # " - " # config.description # "\n\nAuthor - " # userName # "\nLearn more - " # packageUrl # releaseNotes;
+		};
 	};
 
 	public shared ({caller}) func computeHashesForExistingFiles() : async () {

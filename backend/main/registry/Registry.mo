@@ -54,7 +54,7 @@ module {
 		// Manage registry
 		// -----------------------------
 
-		public func newPackageRelease(newRelease : NewPackageReleaseArgs) {
+		public func newPackageRelease(newRelease : NewPackageReleaseArgs) : PackagePublication {
 			let packageId = PackageUtils.getPackageId(newRelease.config.name, newRelease.config.version);
 
 			_updateHighestConfig(newRelease.config);
@@ -70,11 +70,12 @@ module {
 				ownersByPackage.put(newRelease.config.name, [newRelease.userId]);
 			};
 
-			packagePublications.put(packageId, {
+			let publication = {
 				user = newRelease.userId;
 				time = Time.now();
 				storage = newRelease.storageId;
-			});
+			};
+			packagePublications.put(packageId, publication);
 
 			fileIdsByPackage.put(packageId, newRelease.fileIds);
 
@@ -99,6 +100,8 @@ module {
 			packageBenchmarks.put(packageId, newRelease.benchmarks);
 			packageNotes.put(packageId, newRelease.notes);
 			packageDocsCoverage.put(packageId, newRelease.docsCoverage);
+
+			publication;
 		};
 
 		func _updateHighestConfig(config : PackageConfigV3) {

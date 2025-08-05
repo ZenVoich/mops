@@ -36,6 +36,7 @@ module {
 				body = null;
 				headers = [];
 				transform = ?transform;
+				is_replicated = null;
 			});
 
 			if (response.status != 200) {

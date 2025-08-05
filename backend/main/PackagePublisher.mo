@@ -26,6 +26,7 @@ module {
 	type TestStats = Types.TestStats;
 	type FileId = Types.FileId;
 	type Benchmarks = Types.Benchmarks;
+	type PackagePublication = Types.PackagePublication;
 
 	type PublishingId = Text;
 	type PublishingErr = Text;
@@ -383,7 +384,7 @@ module {
 			#ok;
 		};
 
-		public func finishPublish(caller : Principal, publishingId : PublishingId) : async Result.Result<(), PublishingErr> {
+		public func finishPublish(caller : Principal, publishingId : PublishingId) : async Result.Result<{config: PackageConfigV3; publication: PackagePublication; isNewPackage: Bool}, PublishingErr> {
 			assert(not Principal.isAnonymous(caller));
 
 			let ?publishing = publishingPackages.get(publishingId) else return #err("Publishing package not found");
@@ -411,8 +412,11 @@ module {
 			};
 
 			let pkgSizeRes = _checkPublishingPackageSize(publishingId);
-			if (Result.isErr(pkgSizeRes)) {
-				return pkgSizeRes;
+			switch (pkgSizeRes) {
+				case (#err(err)) {
+					return #err(err);
+				};
+				case (#ok) {};
 			};
 
 			let fileIds = Array.map(Buffer.toArray(pubFiles), func(file : PublishingFile) : Text {
@@ -433,11 +437,16 @@ module {
 
 			// finish uploads
 			let res = await storageManager.finishUploads(publishing.storage, fileIds);
-			if (Result.isErr(res)) {
-				return res;
+			switch (res) {
+				case (#err(err)) {
+					return #err(err);
+				};
+				case (_) {};
 			};
 
-			registry.newPackageRelease({
+			let isNewPackage = registry.getHighestVersion(publishing.config.name) == null;
+
+			let publication = registry.newPackageRelease({
 				userId = caller;
 				config = publishing.config;
 				notes = Option.get(publishingNotes.get(publishingId), "");
@@ -458,7 +467,11 @@ module {
 			publishingBenchmarks.delete(publishingId);
 			publishingDocsCoverage.delete(publishingId);
 
-			#ok;
+			#ok({
+				config = publishing.config;
+				publication;
+				isNewPackage;
+			});
 		};
 
 		func _checkPublishingPackageSize(publishingId : PublishingId) : Result.Result<(), PublishingErr> {
