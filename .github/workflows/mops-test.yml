@@ -10,12 +10,12 @@ on:
 jobs:
   test:
     strategy:
-      max-parallel: 1
+      max-parallel: 4
       fail-fast: false
       matrix:
-        mops-version: [./cli/dist, ic-mops@1.0.0, "https://cli.mops.one/versions/latest.tgz"]
+        mops-version: [./cli/dist, ic-mops, ic-mops@1.0.0, "https://cli.mops.one/versions/latest.tgz"]
         moc-version: [0.14.13]
-        node-version: [20, 22, 24]
+        node-version: [20, 24]
         runner: [ubuntu-latest]
 
     runs-on: ${{ matrix.runner }}
