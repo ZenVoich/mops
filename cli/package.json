@@ -80,7 +80,7 @@
     "node-fetch": "3.3.2",
     "octokit": "3.1.2",
     "pem-file": "1.0.1",
-    "pic-ic": "0.5.3",
+    "pic-ic": "0.5.4",
     "prettier": "3.5.3",
     "prettier-plugin-motoko": "0.11.0",
     "promisify-child-process": "4.1.2",
@@ -109,12 +109,5 @@
     "rexreplace": "7.1.13",
     "tsx": "4.19.2",
     "typescript": "5.7.3"
-  },
-  "overrides": {
-    "@dfinity/agent": "3.1.0",
-    "@dfinity/candid": "3.1.0",
-    "@dfinity/identity": "3.1.0",
-    "@dfinity/identity-secp256k1": "3.1.0",
-    "@dfinity/principal": "3.1.0"
   }
 }
