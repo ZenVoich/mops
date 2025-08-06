@@ -40,7 +40,7 @@
         "node-fetch": "3.3.2",
         "octokit": "3.1.2",
         "pem-file": "1.0.1",
-        "pic-ic": "0.5.3",
+        "pic-ic": "0.5.4",
         "prettier": "3.5.3",
         "prettier-plugin-motoko": "0.11.0",
         "promisify-child-process": "4.1.2",
@@ -71,13 +71,6 @@
         "typescript": "5.7.3",
       },
     },
-  },
-  "overrides": {
-    "@dfinity/agent": "3.1.0",
-    "@dfinity/candid": "3.1.0",
-    "@dfinity/identity": "3.1.0",
-    "@dfinity/identity-secp256k1": "3.1.0",
-    "@dfinity/principal": "3.1.0",
   },
   "packages": {
     "@asamuzakjp/css-color": ["@asamuzakjp/css-color@3.2.0", "", { "dependencies": { "@csstools/css-calc": "^2.1.3", "@csstools/css-color-parser": "^3.0.9", "@csstools/css-parser-algorithms": "^3.0.4", "@csstools/css-tokenizer": "^3.0.3", "lru-cache": "^10.4.3" } }, "sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw=="],
@@ -828,7 +821,7 @@
 
     "pend": ["pend@1.2.0", "", {}, "sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg=="],
 
-    "pic-ic": ["pic-ic@0.5.3", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@dfinity/agent": "^2.0.0", "@dfinity/candid": "^2.0.0", "@dfinity/identity": "^2.0.0", "@dfinity/principal": "^2.0.0" } }, "sha512-li6u+2LakcTdCRzttQrFwVr/skhXJNSlNsGEoXeTBLqqrILL3Iouq1puc+DXRoqJVuFsyzowOv6Z62oDQ3k6tQ=="],
+    "pic-ic": ["pic-ic@0.5.4", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@dfinity/agent": "^3.0.0", "@dfinity/candid": "^3.0.0", "@dfinity/identity": "^3.0.0", "@dfinity/principal": "^3.0.0" } }, "sha512-mPuEysSpqAt7zGb4YP0P3123O0SsdUu8EHfyefnqL8gt9vcAERKM6YhQOiSMKXFPz2EjMdmydD+OF2b2UpXRlQ=="],
 
     "picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 

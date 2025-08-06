@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## 1.11.1
+- Fix `Cannot find module 'simple-cbor'` error
+
 ## 1.11.0
 - Fix `mops bench` to work with moc >= 0.15.0
 - `mops test` now detects persistent actor to run in replica mode
