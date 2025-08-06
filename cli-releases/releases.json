@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.11.0"
+    "latest": "1.11.1"
   },
   "versions": {
     "0.41.0": {
@@ -232,6 +232,14 @@
       "commitHash": "f03fb8eb2d753ff364777628eed7529bb96d3716",
       "url": "https://cli.mops.one/versions/1.11.0.tgz",
       "hash": "8ff2f8c561064cf7566a7fced9f643cbf74d1b5132b0d7a3ad1827fcdf6d99f1"
+    },
+    "1.11.1": {
+      "time": 1754493743152,
+      "size": 2520458,
+      "relseaseNotes": "* Fix `Cannot find module 'simple-cbor'` error\n",
+      "commitHash": "24ea8f9301e7f2b6ff9a7e156a3bbf0c1683de2b",
+      "url": "https://cli.mops.one/versions/1.11.1.tgz",
+      "hash": "e2c58d176cf5862d41e4120d1e601727c795fcd70d7d42da057fa69f76fd1534"
     }
   }
 }
