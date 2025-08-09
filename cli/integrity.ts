@@ -5,7 +5,7 @@ import {sha256} from '@noble/hashes/sha256';
 import {bytesToHex} from '@noble/hashes/utils';
 import {getDependencyType, getRootDir, readConfig} from './mops.js';
 import {mainActor} from './api/actors.js';
-import {resolvePackages} from './resolve-packages.js';
+import {ResolvedPackages, resolvePackages} from './resolve-packages.js';
 import {getPackageId} from './helpers/get-package-id.js';
 
 type LockFileGeneric = {
@@ -31,7 +31,14 @@ type LockFileV3 = {
 	deps : Record<string, string>;
 };
 
-type LockFile = LockFileV1 | LockFileV2 | LockFileV3;
+type LockFileV4 = {
+	version : 4;
+	mopsTomlDepsHash : string;
+	hashes : Record<string, Record<string, string>>;
+	resolved : ResolvedPackages,
+};
+
+type LockFile = LockFileV1 | LockFileV2 | LockFileV3 | LockFileV4;
 
 export async function checkIntegrity(lock ?: 'check' | 'update' | 'ignore') {
 	let force = !!lock;
@@ -61,8 +68,8 @@ async function getFileHashesFromRegistry() : Promise<[string, [string, Uint8Arra
 }
 
 async function getResolvedMopsPackageIds() : Promise<string[]> {
-	let resolvedPackages = await resolvePackages();
-	let packageIds = Object.entries(resolvedPackages)
+	let resolved = await resolvePackages();
+	let packageIds = Object.entries(resolved.packages)
 		.filter(([_, version]) => getDependencyType(version) === 'mops')
 		.map(([name, version]) => getPackageId(name, version));
 	return packageIds;
@@ -143,14 +150,14 @@ export async function updateLockFile() {
 		return;
 	}
 
-	let resolvedDeps = await resolvePackages();
+	let resolved = await resolvePackages();
 
 	let fileHashes = await getFileHashesFromRegistry();
 
-	let lockFileJson : LockFileV3 = {
-		version: 3,
+	let lockFileJson : LockFileV4 = {
+		version: 4,
 		mopsTomlDepsHash: getMopsTomlDepsHash(),
-		deps: resolvedDeps,
+		resolved,
 		hashes: fileHashes.reduce((acc, [packageId, fileHashes]) => {
 			acc[packageId] = fileHashes.reduce((acc, [fileId, hash]) => {
 				acc[fileId] = bytesToHex(new Uint8Array(hash));
@@ -217,7 +224,7 @@ export async function checkLockFile(force = false) {
 	// V3: check locked deps (including GitHub and local packages)
 	if (lockFileJson.version === 3) {
 		let lockedDeps = {...lockFileJson.deps};
-		let resolvedDeps = await resolvePackages();
+		let resolvedDeps = (await resolvePackages()).packages;
 
 		for (let name of Object.keys(resolvedDeps)) {
 			if (lockedDeps[name] !== resolvedDeps[name]) {
@@ -225,6 +232,34 @@ export async function checkLockFile(force = false) {
 				console.error(`Mismatched package ${name}`);
 				console.error(`Locked: ${lockedDeps[name]}`);
 				console.error(`Actual: ${resolvedDeps[name]}`);
+				process.exit(1);
+			}
+		}
+	}
+
+	// V4: check locked packages (including GitHub and local packages) and overrides
+	if (lockFileJson.version === 4) {
+		let locked = {...lockFileJson.resolved};
+		let resolved = await resolvePackages();
+
+		for (let name of Object.keys(resolved.packages)) {
+			if (locked.packages[name] !== resolved.packages[name]) {
+				console.error('Integrity check failed');
+				console.error(`Mismatched package ${name}`);
+				console.error(`Locked: ${locked.packages[name]}`);
+				console.error(`Actual: ${resolved.packages[name]}`);
+				process.exit(1);
+			}
+		}
+		for (let path of Object.keys(resolved.overrides)) {
+			// TODO: possibly improve error message
+			const lockedOverride = JSON.stringify(locked.overrides);
+			const resolvedOverride = JSON.stringify(resolved.overrides);
+			if (lockedOverride !== resolvedOverride) {
+				console.error('Integrity check failed');
+				console.error(`Mismatched override for directory ${path}`);
+				console.error(`Locked: ${lockedOverride}`);
+				console.error(`Actual: ${resolvedOverride}`);
 				process.exit(1);
 			}
 		}
