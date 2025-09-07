@@ -1,21 +1,23 @@
 import process from 'node:process';
-import {spawn, ChildProcessWithoutNullStreams} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+import {PassThrough} from 'node:stream';
 
 import chalk from 'chalk';
 import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
 import {SemVer} from 'semver';
+import {ActorMethod} from '@dfinity/agent';
 
 import {sources} from '../sources.js';
 import {getRootDir, readConfig} from '../../mops.js';
 import {parallel} from '../../parallel.js';
 
 import {MMF1} from './mmf1.js';
-import {absToRel} from './utils.js';
+import {absToRel, pipeMMF, pipeStderrToMMF, pipeStdoutToMMF} from './utils.js';
 import {Reporter} from './reporters/reporter.js';
 import {VerboseReporter} from './reporters/verbose-reporter.js';
 import {FilesReporter} from './reporters/files-reporter.js';
@@ -23,8 +25,6 @@ import {CompactReporter} from './reporters/compact-reporter.js';
 import {SilentReporter} from './reporters/silent-reporter.js';
 import {toolchain} from '../toolchain/index.js';
 import {Replica} from '../replica.js';
-import {ActorMethod} from '@dfinity/agent';
-import {PassThrough, Readable} from 'node:stream';
 import {TestMode} from '../../types.js';
 import {getDfxVersion} from '../../helpers/get-dfx-version.js';
 
@@ -57,6 +57,7 @@ let replicaStartPromise : Promise<void> | undefined;
 
 async function startReplicaOnce(replica : Replica, type : ReplicaName) {
 	if (!replicaStartPromise) {
+		console.log('startReplicaOnce');
 		replicaStartPromise = new Promise((resolve) => {
 			replica.start({type, silent: true}).then(resolve);
 		});
@@ -221,14 +222,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 	fs.rmSync(testTempDir, {recursive: true, force: true});
 	fs.mkdirSync(testTempDir, {recursive: true});
 
-	await parallel(os.cpus().length, files, async (file : string) => {
-		if (signal?.aborted) {
-			return;
-		}
-
-		let mmf = new MMF1('store', absToRel(file));
-
-		// mode overrides
+	let filesWithMode = files.map((file) => {
 		let lines = fs.readFileSync(file, 'utf8').split('\n');
 		let mode = defaultMode;
 		if (lines.includes('// @testmode wasi')) {
@@ -237,19 +231,33 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 		else if (lines.includes('// @testmode replica') || lines.find(line => line.match(/^(persistent )?actor( class)?/))) {
 			mode = 'replica';
 		}
+		return {file, mode};
+	});
 
-		if (mode === 'wasi' && !wasmtimePath) {
-			// ensure wasmtime is installed or specified in config
-			if (config.toolchain?.wasmtime) {
-				wasmtimePath = await toolchain.bin('wasmtime');
-			}
-			// fallback wasmtime to global binary if not specified in config (legacy)
-			else {
-				wasmtimePath = 'wasmtime';
-				console.log(chalk.yellow('Warning:'), 'Wasmtime is not specified in config. Using global binary "wasmtime". This will be removed in the future.');
-				console.log(`Run ${chalk.green('mops toolchain use wasmtime')} or add ${chalk.green('wasmtime = "<version>"')} in mops.toml to avoid breaking changes with future versions of mops.`);
-			}
+	let hasWasiTests = filesWithMode.some(({mode}) => mode === 'wasi');
+	let hasReplicaTests = filesWithMode.some(({mode}) => mode === 'replica');
+
+	// prepare wasmtime path
+	if (hasWasiTests && !wasmtimePath) {
+		// ensure wasmtime is installed or specified in config
+		if (config.toolchain?.wasmtime) {
+			wasmtimePath = await toolchain.bin('wasmtime');
 		}
+		// fallback wasmtime to global binary if not specified in config (legacy)
+		else {
+			wasmtimePath = 'wasmtime';
+			console.log(chalk.yellow('Warning:'), 'Wasmtime is not specified in config. Using global binary "wasmtime". This will be removed in the future.');
+			console.log(`Run ${chalk.green('mops toolchain use wasmtime')} or add ${chalk.green('wasmtime = "<version>"')} in mops.toml to avoid breaking changes with future versions of mops.`);
+		}
+	}
+
+	let runTestFile = async ({file, mode} : {file : string, mode : TestMode}) => {
+		if (signal?.aborted) {
+			return;
+		}
+
+		// print logs immediately for replica tests because we run them one-by-one
+		let mmf = new MMF1(mode === 'replica' ? 'print' : 'store', absToRel(file));
 
 		let promise = new Promise<void>((resolve) => {
 			let mocArgs = ['--hide-warnings', '--error-detail=2', ...sourcesArr.join(' ').split(' '), file].filter(x => x);
@@ -315,8 +323,6 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 			}
 			// build and execute in replica
 			else if (mode === 'replica') {
-				// mmf.strategy = 'print'; // because we run replica tests one-by-one
-
 				let wasmFile = `${path.join(testTempDir, path.parse(file).name)}.wasm`;
 
 				// build
@@ -363,7 +369,7 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 										resolve();
 										clearInterval(timerId);
 									}
-								}, Math.random() * 1000 |0);
+								}, Math.random() * 1000 | 0);
 							});
 						}
 
@@ -396,9 +402,12 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 		reporter.addRun(file, mmf, promise, mode);
 
 		await promise;
-	});
+	};
 
-	if (replicaStartPromise && !watch) {
+	await parallel(os.cpus().length, filesWithMode.filter(({mode}) => mode !== 'replica'), runTestFile);
+	await parallel(1, filesWithMode.filter(({mode}) => mode === 'replica'), runTestFile);
+
+	if (hasReplicaTests && !watch) {
 		await replica.stop();
 		fs.rmSync(testTempDir, {recursive: true, force: true});
 	}
@@ -408,72 +417,4 @@ export async function testWithReporter(reporterName : ReporterName | Reporter | 
 	}
 
 	return reporter.done();
-}
-
-function pipeStdoutToMMF(stdout : Readable, mmf : MMF1) {
-	stdout.on('data', (data) => {
-		for (let line of data.toString().split('\n')) {
-			line = line.trim();
-			if (line) {
-				mmf.parseLine(line);
-			}
-		}
-	});
-}
-
-function pipeStderrToMMF(stderr : Readable, mmf : MMF1, dir = '') {
-	stderr.on('data', (data) => {
-		let text : string = data.toString().trim();
-		let failedLine = '';
-
-		text = text.replace(/([\w+._/-]+):(\d+).(\d+)(-\d+.\d+)/g, (_m0, m1 : string, m2 : string, m3 : string) => {
-			// change absolute file path to relative
-			// change :line:col-line:col to :line:col to work in vscode
-			let res = `${absToRel(m1)}:${m2}:${m3}`;
-			let file = path.join(dir, m1);
-
-			if (!fs.existsSync(file)) {
-				return res;
-			}
-
-			// show failed line
-			let content = fs.readFileSync(file);
-			let lines = content.toString().split('\n') || [];
-
-			failedLine += chalk.dim('\n   ...');
-
-			let lineBefore = lines[+m2 - 2];
-			if (lineBefore) {
-				failedLine += chalk.dim(`\n   ${+m2 - 1}\t| ${lineBefore.replaceAll('\t', '  ')}`);
-			}
-			failedLine += `\n${chalk.redBright`->`} ${m2}\t| ${lines[+m2 - 1]?.replaceAll('\t', '  ')}`;
-			if (lines.length > +m2) {
-				failedLine += chalk.dim(`\n   ${+m2 + 1}\t| ${lines[+m2]?.replaceAll('\t', '  ')}`);
-			}
-			failedLine += chalk.dim('\n   ...');
-			return res;
-		});
-		if (failedLine) {
-			text += failedLine;
-		}
-		mmf.fail(text);
-	});
-}
-
-function pipeMMF(proc : ChildProcessWithoutNullStreams, mmf : MMF1) {
-	return new Promise<void>((resolve) => {
-		pipeStdoutToMMF(proc.stdout, mmf);
-		pipeStderrToMMF(proc.stderr, mmf);
-
-		// exit
-		proc.on('close', (code) => {
-			if (code === 0) {
-				mmf.strategy !== 'print' && mmf.pass();
-			}
-			else if (code !== 1) {
-				mmf.fail(`unknown exit code: ${code}`);
-			}
-			resolve();
-		});
-	});
 }
