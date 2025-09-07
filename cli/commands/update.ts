@@ -3,6 +3,7 @@ import {checkConfigFile, getGithubCommit, parseGithubURL, readConfig} from '../m
 import {add} from './add.js';
 import {getAvailableUpdates} from './available-updates.js';
 import {checkIntegrity} from '../integrity.js';
+import {getDepName, getDepPinnedVersion} from '../helpers/get-dep-name.js';
 
 type UpdateOptions = {
 	verbose ?: boolean;
@@ -51,8 +52,24 @@ export async function update(pkg ?: string, {lock} : UpdateOptions = {}) {
 	}
 	else {
 		for (let dep of available) {
-			let dev = !!config['dev-dependencies']?.[dep[0]];
-			await add(`${dep[0]}@${dep[2]}`, {dev});
+			let devDeps = Object.keys(config['dev-dependencies'] || {});
+			let allDeps = [...Object.keys(config.dependencies || {}), ...devDeps];
+
+			let dev = false;
+			for (let d of devDeps) {
+				let pinnedVersion = getDepPinnedVersion(d);
+				if (getDepName(d) === dep[0] && (!pinnedVersion || dep[1].startsWith(pinnedVersion))) {
+					dev = true;
+					break;
+				}
+			}
+
+			let asName = allDeps.find((d) => {
+				let pinnedVersion = getDepPinnedVersion(d);
+				return getDepName(d) === dep[0] && (!pinnedVersion || dep[1].startsWith(pinnedVersion));
+			}) || dep[0];
+
+			await add(`${dep[0]}@${dep[2]}`, {dev}, asName);
 		}
 	}
 
