@@ -248,7 +248,7 @@ export class Replica {
 				return;
 			}
 
-			await this.pocketIc.addCycles(canisterId, 1_000_000_000_000);
+			await this.pocketIc.addCycles(canisterId as any, 1_000_000_000_000);
 
 			if (signal?.aborted) {
 				return;

@@ -37,7 +37,7 @@
         "octokit": "3.1.2",
         "pem-file": "1.0.1",
         "pic-ic": "0.5.4",
-        "pic-js-mops": "0.14.4",
+        "pic-js-mops": "0.14.5",
         "prettier": "3.5.3",
         "prettier-plugin-motoko": "0.11.0",
         "promisify-child-process": "4.1.2",
@@ -868,7 +868,7 @@
 
     "pic-ic": ["pic-ic@0.5.4", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@dfinity/agent": "^3.0.0", "@dfinity/candid": "^3.0.0", "@dfinity/identity": "^3.0.0", "@dfinity/principal": "^3.0.0" } }, "sha512-mPuEysSpqAt7zGb4YP0P3123O0SsdUu8EHfyefnqL8gt9vcAERKM6YhQOiSMKXFPz2EjMdmydD+OF2b2UpXRlQ=="],
 
-    "pic-js-mops": ["pic-js-mops@0.14.4", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@icp-sdk/core": "^4.0.0" } }, "sha512-2haXmgJYcND0mOOFwIUtLIKCbX8SleQAUHJOUJB0xHft9catY0NiC68TTA2AABVB6k606PDQ9NknQjYnMzxBEQ=="],
+    "pic-js-mops": ["pic-js-mops@0.14.5", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@icp-sdk/core": "^4.0.0" } }, "sha512-4xY/BDmMdTM16jUdmXs9r9L7dz2ux4hfE48e78p2hkUK5tSpYC4EMT8srZEBZ+BRN1qeFrtn3wNdXFbQezRVfg=="],
 
     "picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 
