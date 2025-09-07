@@ -1,5 +1,5 @@
-import {Actor, HttpAgent, Identity} from '@dfinity/agent';
-import {Principal} from '@dfinity/principal';
+import {Actor, HttpAgent, Identity} from '@icp-sdk/core/agent';
+import {Principal} from '@icp-sdk/core/principal';
 
 import {_SERVICE, idlFactory} from '../declarations/main/main.did.js';
 import {idlFactory as storageIdlFactory} from '../declarations/storage/storage.did.js';

@@ -1,4 +1,4 @@
-import {Principal} from '@dfinity/principal';
+import {Principal} from '@icp-sdk/core/principal';
 import {mainActor, storageActor} from './actors.js';
 import {resolveVersion} from './resolveVersion.js';
 import {parallel} from '../parallel.js';

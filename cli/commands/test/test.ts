@@ -10,7 +10,7 @@ import {globSync} from 'glob';
 import chokidar from 'chokidar';
 import debounce from 'debounce';
 import {SemVer} from 'semver';
-import {ActorMethod} from '@dfinity/agent';
+import {ActorMethod} from '@icp-sdk/core/agent';
 
 import {sources} from '../sources.js';
 import {getRootDir, readConfig} from '../../mops.js';

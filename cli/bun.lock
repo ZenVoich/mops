@@ -4,12 +4,8 @@
     "": {
       "name": "ic-mops",
       "dependencies": {
-        "@dfinity/agent": "3.1.0",
-        "@dfinity/candid": "3.1.0",
-        "@dfinity/identity": "3.1.0",
-        "@dfinity/identity-secp256k1": "3.1.0",
-        "@dfinity/principal": "3.1.0",
         "@iarna/toml": "2.2.5",
+        "@icp-sdk/core": "4.0.2",
         "@noble/hashes": "1.8.0",
         "as-table": "1.0.55",
         "buffer": "6.0.3",
@@ -41,6 +37,7 @@
         "octokit": "3.1.2",
         "pem-file": "1.0.1",
         "pic-ic": "0.5.4",
+        "pic-js-mops": "0.14.0",
         "prettier": "3.5.3",
         "prettier-plugin-motoko": "0.11.0",
         "promisify-child-process": "4.1.2",
@@ -166,6 +163,8 @@
     "@humanwhocodes/object-schema": ["@humanwhocodes/object-schema@2.0.3", "", {}, "sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA=="],
 
     "@iarna/toml": ["@iarna/toml@2.2.5", "", {}, "sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg=="],
+
+    "@icp-sdk/core": ["@icp-sdk/core@4.0.2", "", { "peerDependencies": { "@dfinity/agent": "^3.2.4", "@dfinity/candid": "^3.2.4", "@dfinity/identity": "^3.2.4", "@dfinity/identity-secp256k1": "^3.2.4", "@dfinity/principal": "^3.2.4" } }, "sha512-tiNXiLbzc4+CJV2R/sk8Iw9WREZ32SmwPPvt5qYUaQDs6A8iftr03alCkVa+Frx4CKqbeVrJehsp07Ms7ZaHWA=="],
 
     "@isaacs/cliui": ["@isaacs/cliui@8.0.2", "", { "dependencies": { "string-width": "^5.1.2", "string-width-cjs": "npm:string-width@^4.2.0", "strip-ansi": "^7.0.1", "strip-ansi-cjs": "npm:strip-ansi@^6.0.1", "wrap-ansi": "^8.1.0", "wrap-ansi-cjs": "npm:wrap-ansi@^7.0.0" } }, "sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA=="],
 
@@ -822,6 +821,8 @@
     "pend": ["pend@1.2.0", "", {}, "sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg=="],
 
     "pic-ic": ["pic-ic@0.5.4", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@dfinity/agent": "^3.0.0", "@dfinity/candid": "^3.0.0", "@dfinity/identity": "^3.0.0", "@dfinity/principal": "^3.0.0" } }, "sha512-mPuEysSpqAt7zGb4YP0P3123O0SsdUu8EHfyefnqL8gt9vcAERKM6YhQOiSMKXFPz2EjMdmydD+OF2b2UpXRlQ=="],
+
+    "pic-js-mops": ["pic-js-mops@0.14.0", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@icp-sdk/core": "^4.0.0" } }, "sha512-NgpyzsiDpn5HyWzhR4wi1FsqX9BIyblt8bCWaQXw0UCXJG5RdL65H6ha+sPDvvxAFUS9mDLig6sgQ6yXBTPY9Q=="],
 
     "picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 

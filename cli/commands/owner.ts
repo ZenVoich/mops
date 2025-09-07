@@ -2,7 +2,7 @@ import process from 'node:process';
 import chalk from 'chalk';
 import {checkConfigFile, getIdentity, readConfig} from '../mops.js';
 import {mainActor} from '../api/actors.js';
-import {Principal} from '@dfinity/principal';
+import {Principal} from '@icp-sdk/core/principal';
 import prompts from 'prompts';
 
 export async function printOwners() {
