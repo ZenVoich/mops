@@ -57,7 +57,6 @@ let replicaStartPromise : Promise<void> | undefined;
 
 async function startReplicaOnce(replica : Replica, type : ReplicaName) {
 	if (!replicaStartPromise) {
-		console.log('startReplicaOnce');
 		replicaStartPromise = new Promise((resolve) => {
 			replica.start({type, silent: true}).then(resolve);
 		});
