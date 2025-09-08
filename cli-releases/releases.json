@@ -1,6 +1,6 @@
 {
   "tags": {
-    "latest": "1.11.1"
+    "latest": "1.12.0"
   },
   "versions": {
     "0.41.0": {
@@ -240,6 +240,14 @@
       "commitHash": "24ea8f9301e7f2b6ff9a7e156a3bbf0c1683de2b",
       "url": "https://cli.mops.one/versions/1.11.1.tgz",
       "hash": "e2c58d176cf5862d41e4120d1e601727c795fcd70d7d42da057fa69f76fd1534"
+    },
+    "1.12.0": {
+      "time": 1757319944273,
+      "size": 2537035,
+      "relseaseNotes": "* Add pinned dependencies support to `mops update` and `mops outdated` commands\n* Add support for pocket-ic v9\n* Migrate from `@dfinity/*` packages to `@icp-sdk/core` package\n* `mops test` now runs replica tests sequentially\n",
+      "commitHash": "41b5957183a740a9f7e39bff646793a20be7dd17",
+      "url": "https://cli.mops.one/versions/1.12.0.tgz",
+      "hash": "ca7585c96cb90d8107c28197788c79b32de18f50a58715638fc2f020c4d00930"
     }
   }
 }
