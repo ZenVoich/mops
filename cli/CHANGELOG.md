@@ -1,5 +1,10 @@
 # Mops CLI Changelog
 
+## 1.12.0
+- Add support for pocket-ic v9
+- Migrate from `@dfinity/*` packages to `@icp-sdk/core` package
+- `mops test` now runs replica tests sequentially
+
 ## 1.11.1
 - Fix `Cannot find module 'simple-cbor'` error
 
