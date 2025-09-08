@@ -1,6 +1,7 @@
 # Mops CLI Changelog
 
 ## 1.12.0
+- Add pinned dependencies support to `mops update` and `mops outdated` commands
 - Add support for pocket-ic v9
 - Migrate from `@dfinity/*` packages to `@icp-sdk/core` package
 - `mops test` now runs replica tests sequentially
