@@ -5,9 +5,10 @@ import fs from 'node:fs';
 import {PassThrough} from 'node:stream';
 import {spawn as spawnAsync} from 'promisify-child-process';
 
-import {IDL} from '@dfinity/candid';
-import {Actor, HttpAgent} from '@dfinity/agent';
+import {IDL} from '@icp-sdk/core/candid';
+import {Actor, HttpAgent} from '@icp-sdk/core/agent';
 import {PocketIc, PocketIcServer} from 'pic-ic';
+import {PocketIc as PocketIcMops, PocketIcServer as PocketIcServerMops} from 'pic-js-mops';
 import chalk from 'chalk';
 
 import {readConfig} from '../mops.js';
@@ -25,8 +26,8 @@ export class Replica {
 	type : 'dfx' | 'pocket-ic' | 'dfx-pocket-ic' = 'dfx';
 	verbose = false;
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any; stream : PassThrough;}> = {};
-	pocketIcServer ?: PocketIcServer;
-	pocketIc ?: PocketIc;
+	pocketIcServer ?: PocketIcServer | PocketIcServerMops;
+	pocketIc ?: PocketIc | PocketIcMops;
 	dfxProcess ?: ChildProcessWithoutNullStreams;
 	dir : string = ''; // absolute path (/.../.mops/.test/)
 	ttl = 60;
@@ -85,20 +86,32 @@ export class Replica {
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
 
-			// eslint-disable-next-line
 			let config = readConfig();
-			if (config.toolchain?.['pocket-ic'] !== '4.0.0') {
-				console.error('Current Mops CLI only supports pocket-ic 4.0.0');
+			if (config.toolchain?.['pocket-ic'] !== '4.0.0' && !config.toolchain?.['pocket-ic']?.startsWith('9.')) {
+				console.error('Current Mops CLI only supports pocket-ic 9.x.x and 4.0.0');
 				process.exit(1);
 			}
 
-			this.pocketIcServer = await PocketIcServer.start({
-				showRuntimeLogs: false,
-				showCanisterLogs: false,
-				binPath: pocketIcBin,
-				ttl: this.ttl,
-			});
-			this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
+			// pocket-ic 9.x.x
+			if (config.toolchain?.['pocket-ic']?.startsWith('9.')) {
+				this.pocketIcServer = await PocketIcServerMops.start({
+					showRuntimeLogs: false,
+					showCanisterLogs: false,
+					binPath: pocketIcBin,
+					ttl: this.ttl,
+				});
+				this.pocketIc = await PocketIcMops.create(this.pocketIcServer.getUrl());
+			}
+			// pocket-ic 4.0.0
+			else {
+				this.pocketIcServer = await PocketIcServer.start({
+					showRuntimeLogs: false,
+					showCanisterLogs: false,
+					binPath: pocketIcBin,
+					ttl: this.ttl,
+				});
+				this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
+			}
 
 			// process canister logs
 			this._attachCanisterLogHandler(this.pocketIcServer.serverProcess as ChildProcessWithoutNullStreams);
@@ -224,17 +237,17 @@ export class Replica {
 			};
 		}
 		else if (this.pocketIc) {
-			// let {canisterId, actor} = await this.pocketIc.setupCanister(idlFactory, wasm);
-			let {canisterId, actor} = await this.pocketIc.setupCanister({
-				idlFactory,
+			type PocketIcSetupCanister = PocketIcMops['setupCanister'] & PocketIc['setupCanister'];
+			let {canisterId, actor} = await (this.pocketIc.setupCanister as PocketIcSetupCanister)({
 				wasm,
+				idlFactory,
 			});
 
 			if (signal?.aborted) {
 				return;
 			}
 
-			await this.pocketIc.addCycles(canisterId, 1_000_000_000_000);
+			await this.pocketIc.addCycles(canisterId as any, 1_000_000_000_000);
 
 			if (signal?.aborted) {
 				return;
