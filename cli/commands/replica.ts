@@ -86,7 +86,6 @@ export class Replica {
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
 
-			// eslint-disable-next-line
 			let config = readConfig();
 			if (config.toolchain?.['pocket-ic'] !== '4.0.0' && !config.toolchain?.['pocket-ic']?.startsWith('9.')) {
 				console.error('Current Mops CLI only supports pocket-ic 9.x.x and 4.0.0');

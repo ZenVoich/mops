@@ -4,6 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import {execaCommand} from 'execa';
 import {PocketIc, PocketIcServer} from 'pic-ic';
+import {PocketIc as PocketIcMops, PocketIcServer as PocketIcServerMops} from 'pic-js-mops';
 import {getRootDir, readConfig} from '../mops.js';
 import {createActor, idlFactory} from '../declarations/bench/index.js';
 import {toolchain} from './toolchain/index.js';
@@ -13,8 +14,8 @@ export class BenchReplica {
 	type : 'dfx' | 'pocket-ic' | 'dfx-pocket-ic';
 	verbose = false;
 	canisters : Record<string, {cwd : string; canisterId : string; actor : any;}> = {};
-	pocketIcServer ?: PocketIcServer;
-	pocketIc ?: PocketIc;
+	pocketIcServer ?: PocketIcServer | PocketIcServerMops;
+	pocketIc ?: PocketIc | PocketIcMops;
 
 	constructor(type : 'dfx' | 'pocket-ic' | 'dfx-pocket-ic', verbose = false) {
 		this.type = type;
@@ -35,14 +36,24 @@ export class BenchReplica {
 		else {
 			let pocketIcBin = await toolchain.bin('pocket-ic');
 			let config = readConfig();
-			if (config.toolchain?.['pocket-ic'] !== '4.0.0') {
-				console.error('Current Mops CLI only supports pocket-ic 4.0.0');
+			if (config.toolchain?.['pocket-ic'] !== '4.0.0' && !config.toolchain?.['pocket-ic']?.startsWith('9.')) {
+				console.error('Current Mops CLI only supports pocket-ic 9.x.x and 4.0.0');
 				process.exit(1);
 			}
-			this.pocketIcServer = await PocketIcServer.start({
-				binPath: pocketIcBin,
-			});
-			this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
+			// pocket-ic 9.x.x
+			if (config.toolchain?.['pocket-ic']?.startsWith('9.')) {
+				this.pocketIcServer = await PocketIcServerMops.start({
+					binPath: pocketIcBin,
+				});
+				this.pocketIc = await PocketIcMops.create(this.pocketIcServer.getUrl());
+			}
+			// pocket-ic 4.0.0
+			else {
+				this.pocketIcServer = await PocketIcServer.start({
+					binPath: pocketIcBin,
+				});
+				this.pocketIc = await PocketIc.create(this.pocketIcServer.getUrl());
+			}
 		}
 	}
 
@@ -69,7 +80,8 @@ export class BenchReplica {
 			this.canisters[name] = {cwd, canisterId, actor};
 		}
 		else if (this.pocketIc) {
-			let {canisterId, actor} = await this.pocketIc.setupCanister({idlFactory, wasm});
+			type PocketIcSetupCanister = PocketIcMops['setupCanister'] & PocketIc['setupCanister'];
+			let {canisterId, actor} = await (this.pocketIc.setupCanister as PocketIcSetupCanister)({idlFactory, wasm});
 			this.canisters[name] = {
 				cwd,
 				canisterId: canisterId.toText(),
