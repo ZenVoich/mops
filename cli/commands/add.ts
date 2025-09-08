@@ -83,7 +83,7 @@ export async function add(name : string, {verbose = false, dev = false, lock} : 
 		}
 
 		pkgDetails = {
-			name: name,
+			name: asName || name,
 			repo: '',
 			version: ver,
 		};
