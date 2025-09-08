@@ -37,7 +37,7 @@
         "octokit": "3.1.2",
         "pem-file": "1.0.1",
         "pic-ic": "0.5.4",
-        "pic-js-mops": "0.14.5",
+        "pic-js-mops": "0.14.8",
         "prettier": "3.5.3",
         "prettier-plugin-motoko": "0.11.0",
         "promisify-child-process": "4.1.2",
@@ -65,7 +65,7 @@
         "eslint": "8.57.0",
         "rexreplace": "7.1.13",
         "tsx": "4.19.2",
-        "typescript": "5.7.3",
+        "typescript": "5.9.2",
       },
     },
   },
@@ -868,7 +868,7 @@
 
     "pic-ic": ["pic-ic@0.5.4", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@dfinity/agent": "^3.0.0", "@dfinity/candid": "^3.0.0", "@dfinity/identity": "^3.0.0", "@dfinity/principal": "^3.0.0" } }, "sha512-mPuEysSpqAt7zGb4YP0P3123O0SsdUu8EHfyefnqL8gt9vcAERKM6YhQOiSMKXFPz2EjMdmydD+OF2b2UpXRlQ=="],
 
-    "pic-js-mops": ["pic-js-mops@0.14.5", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@icp-sdk/core": "^4.0.0" } }, "sha512-4xY/BDmMdTM16jUdmXs9r9L7dz2ux4hfE48e78p2hkUK5tSpYC4EMT8srZEBZ+BRN1qeFrtn3wNdXFbQezRVfg=="],
+    "pic-js-mops": ["pic-js-mops@0.14.8", "", { "dependencies": { "bip39": "^3.1.0" }, "peerDependencies": { "@icp-sdk/core": "^4.0.0" } }, "sha512-rcYIJtkbe3fimMVQE+HW0Z3q0WnmglfOBpDECp+Ks8GGKkozaKppbSfD0vucbpNQJVdbZv6G3O27z/ls9tyO5w=="],
 
     "picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 
@@ -1016,7 +1016,7 @@
 
     "typed-array-buffer": ["typed-array-buffer@1.0.3", "", { "dependencies": { "call-bound": "^1.0.3", "es-errors": "^1.3.0", "is-typed-array": "^1.1.14" } }, "sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw=="],
 
-    "typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
+    "typescript": ["typescript@5.9.2", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A=="],
 
     "unbzip2-stream": ["unbzip2-stream@1.4.3", "", { "dependencies": { "buffer": "^5.2.1", "through": "^2.3.8" } }, "sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg=="],
 
