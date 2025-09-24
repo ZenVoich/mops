@@ -5,7 +5,7 @@ import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
 
 module {
-	let admins = ["hc7ih-ylbcm-cxqrk-kembs-xbsdz-7fhd7-amg45-yi62z-xvihp-6zilv-kae"];
+	let admins = ["uajwy-bzusi-36jtj-ajvmc-nep3q-b7zmb-wbdua-smdjo-j77n2-p7ciw-tae"];
 
 	public func isAdmin(principal : Principal) : Bool {
 		let principalText = Principal.toText(principal);
