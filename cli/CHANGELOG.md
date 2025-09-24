@@ -1,5 +1,8 @@
 # Mops CLI Changelog
 
+## Next
+- `mops publish` add support for subheadings in changelog (by @f0i)
+
 ## 1.12.0
 - Add pinned dependencies support to `mops update` and `mops outdated` commands
 - Add support for pocket-ic v9
