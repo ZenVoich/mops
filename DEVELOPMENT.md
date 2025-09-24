@@ -22,7 +22,7 @@
 
 To be able to install/publish packages locally:
 
-1. Install `tsx` globally
+1. Install `tsx` or `bun` globally
 ```
 npm install -g tsx
 ```
@@ -31,6 +31,11 @@ npm install -g tsx
 ```bash
 alias mops-local="tsx /<path-to-local-mops>/cli/cli.ts"
 ```
+or
+```bash
+alias mops-local="bun /<path-to-local-mops>/cli/cli.ts"
+```
+
 
 3. Switch network to local
 ```
@@ -38,3 +43,5 @@ mops-local set-network local
 ```
 
 Now you can install/publish packages locally like this `mops-local add <pkg>`
+
+Also you can switch network to staging to work with staging registry like this `mops-local set-network staging`
