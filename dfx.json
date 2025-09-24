@@ -49,16 +49,6 @@
 				"cli-releases/frontend/dist/"
 			]
 		},
-		"dao-frontend": {
-			"type": "assets",
-			"build": [""],
-			"frontend": {
-				"entrypoint": "dao-frontend/dist/index.html"
-			},
-			"source": [
-				"dao-frontend/"
-			]
-		},
 		"play-frontend": {
 			"type": "assets",
 			"build": [""],
